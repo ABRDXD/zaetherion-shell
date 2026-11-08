@@ -1,0 +1,44 @@
+ZÆTHERION (zaetherion-shell)
+Copyright (C) 2026 FART contributors
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License, version 3 (see LICENSE). It is an
+unofficial work and is not endorsed by any of the projects named below.
+
+Status
+------
+As of 8 November 2026 this repository contains design documents only. No code
+from any other project has been copied yet. The entries below record what the
+plan says will be brought in, so the obligations are known in advance.
+
+Lineage (to be seeded at milestone S0)
+--------------------------------------
+- FART-next, the predecessor control centre (GPL-3.0). It descends from
+  pctrade/end4-pC and end-4/dots-hyprland ("illogical-impulse"), both GPL-3.0,
+  and includes a Caelestia shell asset (GPL-3.0). FART-next's own NOTICE lists
+  the derived files. That NOTICE will be carried over in full, and the seed
+  commit will be recorded here.
+
+Planned third-party use
+-----------------------
+- DMS, Dux Modular Shell (formerly DankMaterialShell),
+  https://github.com/duxlabs-dev/dux-shell
+  MIT licence, "Copyright (c) 2025 Avenge Media LLC".
+  The `dms` backend is installed separately and used over its socket; it is not
+  vendored. If any of its QML services are adapted (notifications, lock/PAM,
+  idle, polkit), the MIT notice will be reproduced here, with each derived file
+  listed.
+- Yale Bright Star Catalogue (public domain) for the sky. Confirmed at
+  milestone S8.
+
+Read at runtime, not distributed
+--------------------------------
+- Serpantinum: colour presets, UI sounds, emoji data and the `serpantinum` PAM
+  service file are read from the owner's local installation when present. No
+  licence file was found in that installation, so none of these files are
+  copied into this repository.
+
+Design references
+-----------------
+Persona and NieR:Automata are named only as design inspiration. No names,
+logos, fonts, artwork, sounds or layouts from them are used.
