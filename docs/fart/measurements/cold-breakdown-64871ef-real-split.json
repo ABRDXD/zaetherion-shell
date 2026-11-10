@@ -1,0 +1,153 @@
+{
+ "platform": "wayland/real",
+ "settle_s": 1.0,
+ "runs": 5,
+ "conditions_before": {
+  "platform_profile": "low-power",
+  "epp": "power",
+  "governor": "powersave",
+  "ac_online": true,
+  "loadavg": "1.33 1.33 1.12 1/1703 64122"
+ },
+ "conditions_after": {
+  "platform_profile": "low-power",
+  "epp": "power",
+  "governor": "powersave",
+  "ac_online": true,
+  "loadavg": "1.50 1.37 1.13 1/1711 64455"
+ },
+ "sources": {
+  "~/.local/share/fart/next-coldstart": {
+   "complete": 5,
+   "phases": {
+    "core": {
+     "median": 1.1,
+     "min": 0.8,
+     "max": 2.1
+    },
+    "exec": {
+     "median": 33.0,
+     "min": 27.0,
+     "max": 55.0
+    },
+    "load": {
+     "median": 262.0,
+     "min": 244.0,
+     "max": 325.0
+    },
+    "hello": {
+     "median": 7.0,
+     "min": 6.0,
+     "max": 9.0
+    },
+    "open": {
+     "median": 32.0,
+     "min": 28.0,
+     "max": 46.0
+    },
+    "frame": {
+     "median": 107.0,
+     "min": 101.0,
+     "max": 131.0
+    },
+    "open.shell": {
+     "median": 31.0,
+     "min": 27.0,
+     "max": 44.0
+    },
+    "frame.swap": {
+     "median": 46.0,
+     "min": 39.0,
+     "max": 50.0
+    },
+    "frame.active": {
+     "median": 107.0,
+     "min": 101.0,
+     "max": 125.0
+    },
+    "frame.focus": {
+     "median": 0.0,
+     "min": 0.0,
+     "max": 0.0
+    },
+    "total": {
+     "median": 431.8,
+     "min": 414.1,
+     "max": 562.1
+    }
+   },
+   "samples": [
+    {
+     "core": 2.1,
+     "exec": 55.0,
+     "load": 319.0,
+     "hello": 9.0,
+     "open": 46.0,
+     "frame": 131.0,
+     "open.shell": 44.0,
+     "frame.swap": 50.0,
+     "frame.active": 125.0,
+     "frame.focus": 0.0,
+     "total": 562.1,
+     "interrupted": false
+    },
+    {
+     "core": 0.8,
+     "exec": 28.0,
+     "load": 254.0,
+     "hello": 7.0,
+     "open": 28.0,
+     "frame": 107.0,
+     "open.shell": 27.0,
+     "frame.swap": 46.0,
+     "frame.active": 107.0,
+     "frame.focus": 0.0,
+     "total": 424.8,
+     "interrupted": false
+    },
+    {
+     "core": 0.8,
+     "exec": 27.0,
+     "load": 262.0,
+     "hello": 7.0,
+     "open": 32.0,
+     "frame": 103.0,
+     "open.shell": 31.0,
+     "frame.swap": 39.0,
+     "frame.active": 103.0,
+     "frame.focus": 0.0,
+     "total": 431.8,
+     "interrupted": false
+    },
+    {
+     "core": 1.1,
+     "exec": 33.0,
+     "load": 244.0,
+     "hello": 6.0,
+     "open": 29.0,
+     "frame": 101.0,
+     "open.shell": 28.0,
+     "frame.swap": 41.0,
+     "frame.active": 101.0,
+     "frame.focus": 0.0,
+     "total": 414.1,
+     "interrupted": false
+    },
+    {
+     "core": 1.3,
+     "exec": 39.0,
+     "load": 325.0,
+     "hello": 9.0,
+     "open": 41.0,
+     "frame": 128.0,
+     "open.shell": 39.0,
+     "frame.swap": 48.0,
+     "frame.active": 122.0,
+     "frame.focus": 0.0,
+     "total": 543.3,
+     "interrupted": false
+    }
+   ]
+  }
+ }
+}

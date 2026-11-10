@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "timestamp": "2026-11-06T13:32:33.197913+00:00",
+  "source_commit": "ca88a7a16021efcaf1544a161f1d593291cfa873",
+  "platform": "wayland/opengl",
+  "keep_shell": true,
+  "motion": "serpantinum",
+  "window_seconds": 60,
+  "scenarios": {
+    "open_idle": {
+      "interaction": "quiet",
+      "frames": 120,
+      "view": {
+        "rss_mib": 484.95703125,
+        "pss_mib": 236.994140625,
+        "private_dirty_mib": 157.48828125,
+        "coverage": "window",
+        "cpu_ticks": 42,
+        "cpu_percent": 0.6998262391866812,
+        "voluntary_switches": 3999,
+        "nonvoluntary_switches": 64,
+        "switches_per_minute": 4061.991442593551,
+        "thread_set_changed": true
+      },
+      "core": {
+        "rss_mib": 21.5859375,
+        "pss_mib": 12.732421875,
+        "private_dirty_mib": 11.84375,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      },
+      "motion": {
+        "active": 0,
+        "names": []
+      }
+    },
+    "closed_idle": {
+      "interaction": "quiet",
+      "frames": 0,
+      "view": {
+        "rss_mib": 484.859375,
+        "pss_mib": 236.896484375,
+        "private_dirty_mib": 157.390625,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 1,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.999752432388277,
+        "thread_set_changed": false
+      },
+      "core": {
+        "rss_mib": 21.58984375,
+        "pss_mib": 12.7314453125,
+        "private_dirty_mib": 11.84765625,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      },
+      "motion": {
+        "active": 0,
+        "names": []
+      }
+    }
+  }
+}

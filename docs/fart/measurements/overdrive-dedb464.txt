@@ -1,0 +1,601 @@
+home_silent {"interaction": "quiet", "frames_per_second": 2.05, "lease": {"mode": "off", "effective": "off", "reasons": []}, "gpu": {"cards": {"card0": {"vendor": "nvidia", "samples": 0, "awake": 0, "checks": 20, "busy_mean": null, "busy_peak": null}, "card1": {"vendor": "amd", "samples": 20, "awake": 20, "checks": 20, "busy_mean": 12.1, "busy_peak": 15.0}}, "process_percent": {"0000:06:00.0": 0.2}}} view RSS 521.2 PSS 233.8 MiB, CPU 0.40 %
+home_overdrive {"interaction": "quiet", "frames_per_second": 144.55, "lease": {"mode": "sticky", "effective": "active", "reasons": []}, "gpu": {"cards": {"card0": {"vendor": "nvidia", "samples": 0, "awake": 0, "checks": 20, "busy_mean": null, "busy_peak": null}, "card1": {"vendor": "amd", "samples": 20, "awake": 20, "checks": 20, "busy_mean": 57.9, "busy_peak": 58.0}}, "process_percent": {"0000:06:00.0": 31.1}}} view RSS 554.2 PSS 258.5 MiB, CPU 21.99 %
+home_released {"interaction": "quiet", "frames_per_second": 2.0, "lease": {"mode": "off", "effective": "off", "reasons": []}, "gpu": {"cards": {"card0": {"vendor": "nvidia", "samples": 0, "awake": 0, "checks": 19, "busy_mean": null, "busy_peak": null}, "card1": {"vendor": "amd", "samples": 19, "awake": 19, "checks": 19, "busy_mean": 11.8, "busy_peak": 13.0}}, "process_percent": {"0000:06:00.0": 0.2}}} view RSS 541.2 PSS 245.1 MiB, CPU 0.35 %
+home_overdrive2 {"interaction": "quiet", "frames_per_second": 144.55, "lease": {"mode": "sticky", "effective": "active", "reasons": []}, "gpu": {"cards": {"card0": {"vendor": "nvidia", "samples": 0, "awake": 0, "checks": 20, "busy_mean": null, "busy_peak": null}, "card1": {"vendor": "amd", "samples": 20, "awake": 20, "checks": 20, "busy_mean": 57.8, "busy_peak": 58.0}}, "process_percent": {"0000:06:00.0": 31.0}}} view RSS 557.2 PSS 259.0 MiB, CPU 22.09 %
+home_released2 {"interaction": "quiet", "frames_per_second": 2.15, "lease": {"mode": "off", "effective": "off", "reasons": []}, "gpu": {"cards": {"card0": {"vendor": "nvidia", "samples": 0, "awake": 0, "checks": 19, "busy_mean": null, "busy_peak": null}, "card1": {"vendor": "amd", "samples": 19, "awake": 19, "checks": 19, "busy_mean": 11.5, "busy_peak": 13.0}}, "process_percent": {"0000:06:00.0": 0.2}}} view RSS 545.8 PSS 247.8 MiB, CPU 0.40 %
+orbit_silent {"interaction": "quiet", "frames_per_second": 2.0, "lease": {"mode": "off", "effective": "off", "reasons": []}, "gpu": {"cards": {"card0": {"vendor": "nvidia", "samples": 0, "awake": 0, "checks": 20, "busy_mean": null, "busy_peak": null}, "card1": {"vendor": "amd", "samples": 20, "awake": 20, "checks": 20, "busy_mean": 7.6, "busy_peak": 13.0}}, "process_percent": {"0000:06:00.0": 0.4}}} view RSS 559.0 PSS 264.3 MiB, CPU 0.65 %
+orbit_overdrive {"interaction": "quiet", "frames_per_second": 144.1, "lease": {"mode": "sticky", "effective": "active", "reasons": []}, "gpu": {"cards": {"card0": {"vendor": "nvidia", "samples": 0, "awake": 0, "checks": 20, "busy_mean": null, "busy_peak": null}, "card1": {"vendor": "amd", "samples": 20, "awake": 20, "checks": 20, "busy_mean": 62.9, "busy_peak": 63.0}}, "process_percent": {"0000:06:00.0": 37.9}}} view RSS 575.5 PSS 274.6 MiB, CPU 121.54 %
+orbit_released {"interaction": "quiet", "frames_per_second": 2.0, "lease": {"mode": "off", "effective": "off", "reasons": []}, "gpu": {"cards": {"card0": {"vendor": "nvidia", "samples": 0, "awake": 0, "checks": 20, "busy_mean": null, "busy_peak": null}, "card1": {"vendor": "amd", "samples": 20, "awake": 20, "checks": 20, "busy_mean": 7.1, "busy_peak": 8.0}}, "process_percent": {"0000:06:00.0": 0.4}}} view RSS 563.6 PSS 262.7 MiB, CPU 0.65 %
+orbit_overdrive2 {"interaction": "quiet", "frames_per_second": 144.15, "lease": {"mode": "sticky", "effective": "active", "reasons": []}, "gpu": {"cards": {"card0": {"vendor": "nvidia", "samples": 0, "awake": 0, "checks": 20, "busy_mean": null, "busy_peak": null}, "card1": {"vendor": "amd", "samples": 20, "awake": 20, "checks": 20, "busy_mean": 62.9, "busy_peak": 63.0}}, "process_percent": {"0000:06:00.0": 37.9}}} view RSS 575.3 PSS 274.4 MiB, CPU 120.80 %
+orbit_released2 {"interaction": "interrupted", "frames_per_second": 2.0, "lease": {"mode": "off", "effective": "off", "reasons": []}, "gpu": {"cards": {"card0": {"vendor": "nvidia", "samples": 0, "awake": 0, "checks": 20, "busy_mean": null, "busy_peak": null}, "card1": {"vendor": "amd", "samples": 20, "awake": 20, "checks": 20, "busy_mean": 7.3, "busy_peak": 9.0}}, "process_percent": {"0000:06:00.0": 0.4}}} view RSS 563.9 PSS 262.8 MiB, CPU 0.70 %
+{
+  "schema": 1,
+  "timestamp": "2026-11-10T14:53:41.304583+00:00",
+  "source": "~/.local/share/fart/next-m6",
+  "source_commit": "dedb4640028a9510042c9aee9bd8166f2f919c13",
+  "source_view_dirty": false,
+  "platform": "wayland/opengl",
+  "playing": false,
+  "window_seconds": 20,
+  "settle_seconds": 5,
+  "scenarios": {
+    "home_silent": {
+      "interaction": "quiet",
+      "gpu": {
+        "cards": {
+          "card0": {
+            "vendor": "nvidia",
+            "samples": 0,
+            "awake": 0,
+            "checks": 20,
+            "busy_mean": null,
+            "busy_peak": null
+          },
+          "card1": {
+            "vendor": "amd",
+            "samples": 20,
+            "awake": 20,
+            "checks": 20,
+            "busy_mean": 12.1,
+            "busy_peak": 15.0
+          }
+        },
+        "process_percent": {
+          "0000:06:00.0": 0.2
+        }
+      },
+      "frames": 41,
+      "frames_per_second": 2.05,
+      "lease": {
+        "mode": "off",
+        "effective": "off",
+        "reasons": []
+      },
+      "view": {
+        "rss_mib": 521.2109375,
+        "pss_mib": 233.841796875,
+        "private_dirty_mib": 192.4921875,
+        "coverage": "window",
+        "cpu_ticks": 8,
+        "cpu_percent": 0.39984182753106884,
+        "voluntary_switches": 1439,
+        "nonvoluntary_switches": 14,
+        "switches_per_minute": 4357.276315519823,
+        "thread_set_changed": false
+      },
+      "core": {
+        "rss_mib": 23.515625,
+        "pss_mib": 14.21875,
+        "private_dirty_mib": 13.20703125,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 2,
+        "nonvoluntary_switches": 1,
+        "switches_per_minute": 8.996006352523791,
+        "thread_set_changed": false
+      }
+    },
+    "home_overdrive": {
+      "interaction": "quiet",
+      "gpu": {
+        "cards": {
+          "card0": {
+            "vendor": "nvidia",
+            "samples": 0,
+            "awake": 0,
+            "checks": 20,
+            "busy_mean": null,
+            "busy_peak": null
+          },
+          "card1": {
+            "vendor": "amd",
+            "samples": 20,
+            "awake": 20,
+            "checks": 20,
+            "busy_mean": 57.9,
+            "busy_peak": 58.0
+          }
+        },
+        "process_percent": {
+          "0000:06:00.0": 31.1
+        }
+      },
+      "frames": 2891,
+      "frames_per_second": 144.55,
+      "lease": {
+        "mode": "sticky",
+        "effective": "active",
+        "reasons": []
+      },
+      "view": {
+        "rss_mib": 554.24609375,
+        "pss_mib": 258.498046875,
+        "private_dirty_mib": 215.16015625,
+        "coverage": "window",
+        "cpu_ticks": 440,
+        "cpu_percent": 21.990530740015892,
+        "voluntary_switches": 80881,
+        "nonvoluntary_switches": 913,
+        "switches_per_minute": 245276.38245666272,
+        "thread_set_changed": false
+      },
+      "core": {
+        "rss_mib": 23.5234375,
+        "pss_mib": 14.22265625,
+        "private_dirty_mib": 13.21484375,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 34,
+        "nonvoluntary_switches": 5,
+        "switches_per_minute": 116.94987427223225,
+        "thread_set_changed": false
+      }
+    },
+    "home_released": {
+      "interaction": "quiet",
+      "gpu": {
+        "cards": {
+          "card0": {
+            "vendor": "nvidia",
+            "samples": 0,
+            "awake": 0,
+            "checks": 19,
+            "busy_mean": null,
+            "busy_peak": null
+          },
+          "card1": {
+            "vendor": "amd",
+            "samples": 19,
+            "awake": 19,
+            "checks": 19,
+            "busy_mean": 11.8,
+            "busy_peak": 13.0
+          }
+        },
+        "process_percent": {
+          "0000:06:00.0": 0.2
+        }
+      },
+      "frames": 40,
+      "frames_per_second": 2.0,
+      "lease": {
+        "mode": "off",
+        "effective": "off",
+        "reasons": []
+      },
+      "view": {
+        "rss_mib": 541.15625,
+        "pss_mib": 245.107421875,
+        "private_dirty_mib": 201.73828125,
+        "coverage": "window",
+        "cpu_ticks": 7,
+        "cpu_percent": 0.3498707045114864,
+        "voluntary_switches": 1369,
+        "nonvoluntary_switches": 6,
+        "switches_per_minute": 4123.476160313947,
+        "thread_set_changed": true
+      },
+      "core": {
+        "rss_mib": 23.5234375,
+        "pss_mib": 14.22265625,
+        "private_dirty_mib": 13.21484375,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      }
+    },
+    "home_overdrive2": {
+      "interaction": "quiet",
+      "gpu": {
+        "cards": {
+          "card0": {
+            "vendor": "nvidia",
+            "samples": 0,
+            "awake": 0,
+            "checks": 20,
+            "busy_mean": null,
+            "busy_peak": null
+          },
+          "card1": {
+            "vendor": "amd",
+            "samples": 20,
+            "awake": 20,
+            "checks": 20,
+            "busy_mean": 57.8,
+            "busy_peak": 58.0
+          }
+        },
+        "process_percent": {
+          "0000:06:00.0": 31.0
+        }
+      },
+      "frames": 2891,
+      "frames_per_second": 144.55,
+      "lease": {
+        "mode": "sticky",
+        "effective": "active",
+        "reasons": []
+      },
+      "view": {
+        "rss_mib": 557.2421875,
+        "pss_mib": 258.9658203125,
+        "private_dirty_mib": 215.41015625,
+        "coverage": "window",
+        "cpu_ticks": 442,
+        "cpu_percent": 22.09032960476311,
+        "voluntary_switches": 80371,
+        "nonvoluntary_switches": 836,
+        "switches_per_minute": 243514.3976761083,
+        "thread_set_changed": false
+      },
+      "core": {
+        "rss_mib": 23.55078125,
+        "pss_mib": 14.25,
+        "private_dirty_mib": 13.2421875,
+        "coverage": "window",
+        "cpu_ticks": 2,
+        "cpu_percent": 0.09996296479112285,
+        "voluntary_switches": 37,
+        "nonvoluntary_switches": 1,
+        "switches_per_minute": 113.95777986188004,
+        "thread_set_changed": false
+      }
+    },
+    "home_released2": {
+      "interaction": "quiet",
+      "gpu": {
+        "cards": {
+          "card0": {
+            "vendor": "nvidia",
+            "samples": 0,
+            "awake": 0,
+            "checks": 19,
+            "busy_mean": null,
+            "busy_peak": null
+          },
+          "card1": {
+            "vendor": "amd",
+            "samples": 19,
+            "awake": 19,
+            "checks": 19,
+            "busy_mean": 11.5,
+            "busy_peak": 13.0
+          }
+        },
+        "process_percent": {
+          "0000:06:00.0": 0.2
+        }
+      },
+      "frames": 43,
+      "frames_per_second": 2.15,
+      "lease": {
+        "mode": "off",
+        "effective": "off",
+        "reasons": []
+      },
+      "view": {
+        "rss_mib": 545.8359375,
+        "pss_mib": 247.767578125,
+        "private_dirty_mib": 204.21484375,
+        "coverage": "window",
+        "cpu_ticks": 8,
+        "cpu_percent": 0.39986783096615947,
+        "voluntary_switches": 1499,
+        "nonvoluntary_switches": 11,
+        "switches_per_minute": 4528.503185691756,
+        "thread_set_changed": true
+      },
+      "core": {
+        "rss_mib": 23.55078125,
+        "pss_mib": 14.25,
+        "private_dirty_mib": 13.2421875,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      }
+    },
+    "orbit_silent": {
+      "interaction": "quiet",
+      "gpu": {
+        "cards": {
+          "card0": {
+            "vendor": "nvidia",
+            "samples": 0,
+            "awake": 0,
+            "checks": 20,
+            "busy_mean": null,
+            "busy_peak": null
+          },
+          "card1": {
+            "vendor": "amd",
+            "samples": 20,
+            "awake": 20,
+            "checks": 20,
+            "busy_mean": 7.6,
+            "busy_peak": 13.0
+          }
+        },
+        "process_percent": {
+          "0000:06:00.0": 0.4
+        }
+      },
+      "frames": 40,
+      "frames_per_second": 2.0,
+      "lease": {
+        "mode": "off",
+        "effective": "off",
+        "reasons": []
+      },
+      "view": {
+        "rss_mib": 559.01171875,
+        "pss_mib": 264.2548828125,
+        "private_dirty_mib": 221.1796875,
+        "coverage": "window",
+        "cpu_ticks": 13,
+        "cpu_percent": 0.6496858748981458,
+        "voluntary_switches": 1969,
+        "nonvoluntary_switches": 15,
+        "switches_per_minute": 5949.12358060579,
+        "thread_set_changed": true
+      },
+      "core": {
+        "rss_mib": 23.55859375,
+        "pss_mib": 14.2578125,
+        "private_dirty_mib": 13.25,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 2,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 5.997840688282904,
+        "thread_set_changed": false
+      }
+    },
+    "orbit_overdrive": {
+      "interaction": "quiet",
+      "gpu": {
+        "cards": {
+          "card0": {
+            "vendor": "nvidia",
+            "samples": 0,
+            "awake": 0,
+            "checks": 20,
+            "busy_mean": null,
+            "busy_peak": null
+          },
+          "card1": {
+            "vendor": "amd",
+            "samples": 20,
+            "awake": 20,
+            "checks": 20,
+            "busy_mean": 62.9,
+            "busy_peak": 63.0
+          }
+        },
+        "process_percent": {
+          "0000:06:00.0": 37.9
+        }
+      },
+      "frames": 2882,
+      "frames_per_second": 144.1,
+      "lease": {
+        "mode": "sticky",
+        "effective": "active",
+        "reasons": []
+      },
+      "view": {
+        "rss_mib": 575.5390625,
+        "pss_mib": 274.6240234375,
+        "private_dirty_mib": 230.9765625,
+        "coverage": "window",
+        "cpu_ticks": 2432,
+        "cpu_percent": 121.54218480746209,
+        "voluntary_switches": 172265,
+        "nonvoluntary_switches": 2813,
+        "switches_per_minute": 524984.2754536393,
+        "thread_set_changed": false
+      },
+      "core": {
+        "rss_mib": 23.55859375,
+        "pss_mib": 14.2578125,
+        "private_dirty_mib": 13.25,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 10,
+        "nonvoluntary_switches": 1,
+        "switches_per_minute": 32.98657660085816,
+        "thread_set_changed": false
+      }
+    },
+    "orbit_released": {
+      "interaction": "quiet",
+      "gpu": {
+        "cards": {
+          "card0": {
+            "vendor": "nvidia",
+            "samples": 0,
+            "awake": 0,
+            "checks": 20,
+            "busy_mean": null,
+            "busy_peak": null
+          },
+          "card1": {
+            "vendor": "amd",
+            "samples": 20,
+            "awake": 20,
+            "checks": 20,
+            "busy_mean": 7.1,
+            "busy_peak": 8.0
+          }
+        },
+        "process_percent": {
+          "0000:06:00.0": 0.4
+        }
+      },
+      "frames": 40,
+      "frames_per_second": 2.0,
+      "lease": {
+        "mode": "off",
+        "effective": "off",
+        "reasons": []
+      },
+      "view": {
+        "rss_mib": 563.640625,
+        "pss_mib": 262.7255859375,
+        "private_dirty_mib": 219.078125,
+        "coverage": "window",
+        "cpu_ticks": 13,
+        "cpu_percent": 0.649690929226122,
+        "voluntary_switches": 1982,
+        "nonvoluntary_switches": 15,
+        "switches_per_minute": 5988.151318451842,
+        "thread_set_changed": true
+      },
+      "core": {
+        "rss_mib": 23.55859375,
+        "pss_mib": 14.2578125,
+        "private_dirty_mib": 13.25,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      }
+    },
+    "orbit_overdrive2": {
+      "interaction": "quiet",
+      "gpu": {
+        "cards": {
+          "card0": {
+            "vendor": "nvidia",
+            "samples": 0,
+            "awake": 0,
+            "checks": 20,
+            "busy_mean": null,
+            "busy_peak": null
+          },
+          "card1": {
+            "vendor": "amd",
+            "samples": 20,
+            "awake": 20,
+            "checks": 20,
+            "busy_mean": 62.9,
+            "busy_peak": 63.0
+          }
+        },
+        "process_percent": {
+          "0000:06:00.0": 37.9
+        }
+      },
+      "frames": 2883,
+      "frames_per_second": 144.15,
+      "lease": {
+        "mode": "sticky",
+        "effective": "active",
+        "reasons": []
+      },
+      "view": {
+        "rss_mib": 575.265625,
+        "pss_mib": 274.3505859375,
+        "private_dirty_mib": 230.703125,
+        "coverage": "window",
+        "cpu_ticks": 2417,
+        "cpu_percent": 120.80183892217798,
+        "voluntary_switches": 172494,
+        "nonvoluntary_switches": 2839,
+        "switches_per_minute": 525789.3791578544,
+        "thread_set_changed": false
+      },
+      "core": {
+        "rss_mib": 23.55859375,
+        "pss_mib": 14.2578125,
+        "private_dirty_mib": 13.25,
+        "coverage": "window",
+        "cpu_ticks": 2,
+        "cpu_percent": 0.09995652583824095,
+        "voluntary_switches": 10,
+        "nonvoluntary_switches": 2,
+        "switches_per_minute": 35.98434930176674,
+        "thread_set_changed": false
+      }
+    },
+    "orbit_released2": {
+      "interaction": "interrupted",
+      "gpu": {
+        "cards": {
+          "card0": {
+            "vendor": "nvidia",
+            "samples": 0,
+            "awake": 0,
+            "checks": 20,
+            "busy_mean": null,
+            "busy_peak": null
+          },
+          "card1": {
+            "vendor": "amd",
+            "samples": 20,
+            "awake": 20,
+            "checks": 20,
+            "busy_mean": 7.3,
+            "busy_peak": 9.0
+          }
+        },
+        "process_percent": {
+          "0000:06:00.0": 0.4
+        }
+      },
+      "frames": 40,
+      "frames_per_second": 2.0,
+      "lease": {
+        "mode": "off",
+        "effective": "off",
+        "reasons": []
+      },
+      "view": {
+        "rss_mib": 563.94921875,
+        "pss_mib": 262.8095703125,
+        "private_dirty_mib": 219.15234375,
+        "coverage": "window",
+        "cpu_ticks": 14,
+        "cpu_percent": 0.6996960813743699,
+        "voluntary_switches": 1989,
+        "nonvoluntary_switches": 27,
+        "switches_per_minute": 6045.374143074556,
+        "thread_set_changed": true
+      },
+      "core": {
+        "rss_mib": 23.55859375,
+        "pss_mib": 14.2578125,
+        "private_dirty_mib": 13.25,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      }
+    },
+    "home_release_delta": {
+      "rss_mib": 19.95,
+      "pss_mib": 11.27
+    },
+    "orbit_release_delta": {
+      "rss_mib": 4.63,
+      "pss_mib": -1.53
+    }
+  }
+}

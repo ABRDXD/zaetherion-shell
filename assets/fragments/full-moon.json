@@ -1,0 +1,7 @@
+{
+  "when": {
+    "counter": "sky.moon.full"
+  },
+  "whisper": "the moon is full",
+  "text": "Full moon. The surveyor measured its own shadow at midnight and again at one.\nThe shadow was the same length both times. The moon had moved. The surveyor had not.\nIt is very proud of the shadow. We wrote the shadow down and left the rest alone."
+}

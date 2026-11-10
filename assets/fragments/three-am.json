@@ -1,0 +1,11 @@
+{
+  "when": {
+    "counter": "view.opens",
+    "hours": [
+      3,
+      4
+    ]
+  },
+  "whisper": "it is three in the morning",
+  "text": "Night watch, 03:00. The camp is asleep and the doorway is lit from the far side.\nIt is the same lamp we carry. It is in the tent behind us.\nThe surveyor has its back to the doorway, watching the tent."
+}

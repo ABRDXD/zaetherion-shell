@@ -1,0 +1,128 @@
+{
+ "platform": "wayland/real",
+ "settle_s": 1.0,
+ "runs": 3,
+ "conditions_before": {
+  "platform_profile": "low-power",
+  "epp": "power",
+  "governor": "powersave",
+  "ac_online": true,
+  "loadavg": "1.07 1.26 1.24 6/1721 89694"
+ },
+ "conditions_after": {
+  "platform_profile": "low-power",
+  "epp": "power",
+  "governor": "powersave",
+  "ac_online": true,
+  "loadavg": "1.06 1.26 1.24 1/1700 89914"
+ },
+ "sources": {
+  "~/.local/share/fart/next-coldstart": {
+   "complete": 3,
+   "phases": {
+    "core": {
+     "median": 1.4,
+     "min": 0.5,
+     "max": 1.7
+    },
+    "exec": {
+     "median": 44.0,
+     "min": 34.0,
+     "max": 46.0
+    },
+    "load": {
+     "median": 296.0,
+     "min": 289.0,
+     "max": 317.0
+    },
+    "hello": {
+     "median": 9.0,
+     "min": 8.0,
+     "max": 9.0
+    },
+    "open": {
+     "median": 38.0,
+     "min": 37.0,
+     "max": 38.0
+    },
+    "frame": {
+     "median": 111.0,
+     "min": 105.0,
+     "max": 117.0
+    },
+    "open.shell": {
+     "median": 36.0,
+     "min": 36.0,
+     "max": 37.0
+    },
+    "frame.swap": {
+     "median": 50.0,
+     "min": 48.0,
+     "max": 50.0
+    },
+    "frame.active": {
+     "median": 105.0,
+     "min": 103.0,
+     "max": 111.0
+    },
+    "frame.focus": {
+     "median": 0.0,
+     "min": 0.0,
+     "max": 0.0
+    },
+    "total": {
+     "median": 492.7,
+     "min": 482.4,
+     "max": 526.5
+    }
+   },
+   "samples": [
+    {
+     "core": 0.5,
+     "exec": 46.0,
+     "load": 317.0,
+     "hello": 8.0,
+     "open": 38.0,
+     "frame": 117.0,
+     "open.shell": 36.0,
+     "frame.swap": 50.0,
+     "frame.active": 103.0,
+     "frame.focus": 0.0,
+     "total": 526.5,
+     "stayed_open": true,
+     "interrupted": false
+    },
+    {
+     "core": 1.4,
+     "exec": 34.0,
+     "load": 289.0,
+     "hello": 9.0,
+     "open": 38.0,
+     "frame": 111.0,
+     "open.shell": 37.0,
+     "frame.swap": 48.0,
+     "frame.active": 111.0,
+     "frame.focus": 0.0,
+     "total": 482.4,
+     "stayed_open": true,
+     "interrupted": false
+    },
+    {
+     "core": 1.7,
+     "exec": 44.0,
+     "load": 296.0,
+     "hello": 9.0,
+     "open": 37.0,
+     "frame": 105.0,
+     "open.shell": 36.0,
+     "frame.swap": 50.0,
+     "frame.active": 105.0,
+     "frame.focus": 0.0,
+     "total": 492.7,
+     "stayed_open": true,
+     "interrupted": false
+    }
+   ]
+  }
+ }
+}

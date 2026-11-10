@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "timestamp": "2026-11-06T13:38:44.975337+00:00",
+  "source": "~/.local/share/fart/next-m5-view",
+  "source_commit": "7dd3a8600cfa8afff5ac7a6a1aa866760f220e30",
+  "platform": "wayland/opengl",
+  "motion": "serpantinum",
+  "warm_cache": false,
+  "interaction": "quiet",
+  "runs": [
+    "quiet",
+    "quiet",
+    "quiet",
+    "quiet",
+    "quiet",
+    "quiet",
+    "quiet",
+    "quiet",
+    "quiet",
+    "quiet"
+  ],
+  "refresh_hz": 144.00301,
+  "vrr": false,
+  "dgpu_before": {
+    "0000:01:00.0": "suspended",
+    "0000:01:00.1": "suspended"
+  },
+  "dgpu_after": {
+    "0000:01:00.0": "suspended",
+    "0000:01:00.1": "suspended"
+  },
+  "checks": {
+    "cold_ms": {
+      "measured": 846.2,
+      "limit": 450,
+      "status": "fail"
+    },
+    "warm_frames": {
+      "measured": 8.91,
+      "limit": 1,
+      "status": "fail"
+    }
+  },
+  "cold": {
+    "count": 5,
+    "samples_ms": [
+      846.2,
+      837.7,
+      793.5,
+      821.0,
+      786.9
+    ],
+    "median_ms": 821.0,
+    "max_ms": 846.2,
+    "median_frames": 118.23,
+    "max_frames": 121.85
+  },
+  "warm": {
+    "count": 5,
+    "samples_ms": [
+      42.0,
+      50.5,
+      33.2,
+      61.8,
+      38.0
+    ],
+    "median_ms": 42.0,
+    "max_ms": 61.8,
+    "median_frames": 6.05,
+    "max_frames": 8.91
+  }
+}

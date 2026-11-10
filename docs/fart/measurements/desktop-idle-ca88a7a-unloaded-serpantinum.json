@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "timestamp": "2026-11-06T13:40:54.233724+00:00",
+  "source_commit": "7dd3a8600cfa8afff5ac7a6a1aa866760f220e30",
+  "platform": "wayland/opengl",
+  "keep_shell": false,
+  "motion": "serpantinum",
+  "window_seconds": 60,
+  "scenarios": {
+    "open_idle": {
+      "interaction": "quiet",
+      "frames": 120,
+      "view": {
+        "rss_mib": 478.96875,
+        "pss_mib": 231.07421875,
+        "private_dirty_mib": 151.5703125,
+        "coverage": "window",
+        "cpu_ticks": 42,
+        "cpu_percent": 0.6998268164470502,
+        "voluntary_switches": 3997,
+        "nonvoluntary_switches": 56,
+        "switches_per_minute": 4051.9972672284207,
+        "thread_set_changed": true
+      },
+      "core": {
+        "rss_mib": 21.58203125,
+        "pss_mib": 12.7509765625,
+        "private_dirty_mib": 11.84765625,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 1,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.9997340319077985,
+        "thread_set_changed": false
+      },
+      "motion": {
+        "active": 0,
+        "names": []
+      }
+    },
+    "closed_idle": {
+      "interaction": "quiet",
+      "frames": 0,
+      "view": {
+        "rss_mib": 478.92578125,
+        "pss_mib": 231.03125,
+        "private_dirty_mib": 151.52734375,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 1,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.9997501561541947,
+        "thread_set_changed": false
+      },
+      "core": {
+        "rss_mib": 21.58203125,
+        "pss_mib": 12.7451171875,
+        "private_dirty_mib": 11.84765625,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      },
+      "motion": {
+        "active": 0,
+        "names": []
+      }
+    }
+  }
+}

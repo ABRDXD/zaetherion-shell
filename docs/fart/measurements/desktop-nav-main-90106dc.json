@@ -1,0 +1,582 @@
+{
+  "schema": 1,
+  "timestamp": "2026-11-06T11:24:28.256026+00:00",
+  "source": "~/.local/share/fart/next",
+  "source_commit": "90106dcd663e9d23535a8f7782950e88e6c618f0",
+  "platform": "wayland/opengl",
+  "passes": 4,
+  "dwell_s": 0.25,
+  "interaction": "quiet",
+  "dgpu_before": {
+    "0000:01:00.0": "suspended",
+    "0000:01:00.1": "suspended"
+  },
+  "dgpu_after": {
+    "0000:01:00.0": "suspended",
+    "0000:01:00.1": "suspended"
+  },
+  "vrr": false,
+  "frames": {
+    "navigations": 36,
+    "refresh_hz": 144.00301,
+    "period_ms": 6.944299289299578,
+    "missed_threshold_ms": 10.416448933949367,
+    "budget_ms": 6.9,
+    "intervals": {
+      "count": 1409,
+      "median": 6.944,
+      "p95": 7.747,
+      "p99": 16.529,
+      "max": 40.17,
+      "over": 36
+    },
+    "rooms": {
+      "home": {
+        "load_frame_ms": {
+          "count": 4,
+          "median": 18.9625,
+          "p95": 20.718,
+          "p99": 20.718,
+          "max": 20.718,
+          "over": 3
+        },
+        "load_frames_in_order_ms": [
+          5.815,
+          18.012,
+          20.718,
+          19.913
+        ],
+        "create_ms_in_order": [
+          31,
+          6,
+          9,
+          10
+        ],
+        "polish_max_ms_in_order": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "interval_ms": {
+          "count": 149,
+          "median": 6.946,
+          "p95": 7.57,
+          "p99": 7.884,
+          "max": 7.909,
+          "over": 0
+        },
+        "gpu_ms": {
+          "count": 154,
+          "median": 0.1519,
+          "p95": 0.1781,
+          "p99": 0.187,
+          "max": 0.2696,
+          "over": 0
+        },
+        "render_thread_work_ms": {
+          "count": 154,
+          "median": 0.0,
+          "p95": 0,
+          "p99": 0,
+          "max": 0,
+          "over": 0
+        },
+        "vsync_wait_ms": {
+          "count": 154,
+          "median": 6.0,
+          "p95": 7,
+          "p99": 7,
+          "max": 7,
+          "over": null
+        }
+      },
+      "media": {
+        "load_frame_ms": {
+          "count": 4,
+          "median": 18.886499999999998,
+          "p95": 40.17,
+          "p99": 40.17,
+          "max": 40.17,
+          "over": 4
+        },
+        "load_frames_in_order_ms": [
+          40.17,
+          14.074,
+          16.529,
+          21.244
+        ],
+        "create_ms_in_order": [
+          11,
+          5,
+          4,
+          6
+        ],
+        "polish_max_ms_in_order": [
+          4,
+          3,
+          3,
+          0
+        ],
+        "interval_ms": {
+          "count": 149,
+          "median": 6.973,
+          "p95": 7.704,
+          "p99": 14.816,
+          "max": 15.605,
+          "over": 3
+        },
+        "gpu_ms": {
+          "count": 153,
+          "median": 0.1573,
+          "p95": 0.5784,
+          "p99": 3.09,
+          "max": 5.0839,
+          "over": 0
+        },
+        "render_thread_work_ms": {
+          "count": 153,
+          "median": 0,
+          "p95": 1,
+          "p99": 2,
+          "max": 14,
+          "over": 1
+        },
+        "vsync_wait_ms": {
+          "count": 153,
+          "median": 6,
+          "p95": 7,
+          "p99": 7,
+          "max": 7,
+          "over": null
+        }
+      },
+      "performance": {
+        "load_frame_ms": {
+          "count": 4,
+          "median": 12.586500000000001,
+          "p95": 14.151,
+          "p99": 14.151,
+          "max": 14.151,
+          "over": 4
+        },
+        "load_frames_in_order_ms": [
+          14.151,
+          11.708,
+          12.152,
+          13.021
+        ],
+        "create_ms_in_order": [
+          12,
+          9,
+          7,
+          10
+        ],
+        "polish_max_ms_in_order": [
+          0,
+          0,
+          1,
+          0
+        ],
+        "interval_ms": {
+          "count": 154,
+          "median": 6.9055,
+          "p95": 7.625,
+          "p99": 7.966,
+          "max": 8.945,
+          "over": 0
+        },
+        "gpu_ms": {
+          "count": 158,
+          "median": 0.14105,
+          "p95": 0.1734,
+          "p99": 0.8612,
+          "max": 1.2942,
+          "over": 0
+        },
+        "render_thread_work_ms": {
+          "count": 158,
+          "median": 0.0,
+          "p95": 0,
+          "p99": 1,
+          "max": 3,
+          "over": 0
+        },
+        "vsync_wait_ms": {
+          "count": 158,
+          "median": 6.0,
+          "p95": 7,
+          "p99": 7,
+          "max": 8,
+          "over": null
+        }
+      },
+      "workspaces": {
+        "load_frame_ms": {
+          "count": 4,
+          "median": 16.8075,
+          "p95": 21.396,
+          "p99": 21.396,
+          "max": 21.396,
+          "over": 4
+        },
+        "load_frames_in_order_ms": [
+          21.396,
+          15.094,
+          14.931,
+          18.521
+        ],
+        "create_ms_in_order": [
+          17,
+          13,
+          12,
+          15
+        ],
+        "polish_max_ms_in_order": [
+          4,
+          9,
+          9,
+          0
+        ],
+        "interval_ms": {
+          "count": 155,
+          "median": 6.928,
+          "p95": 7.646,
+          "p99": 9.407,
+          "max": 11.393,
+          "over": 1
+        },
+        "gpu_ms": {
+          "count": 159,
+          "median": 0.1634,
+          "p95": 0.2036,
+          "p99": 1.1644,
+          "max": 1.5471,
+          "over": 0
+        },
+        "render_thread_work_ms": {
+          "count": 159,
+          "median": 0,
+          "p95": 0,
+          "p99": 1,
+          "max": 4,
+          "over": 0
+        },
+        "vsync_wait_ms": {
+          "count": 159,
+          "median": 6,
+          "p95": 7,
+          "p99": 7,
+          "max": 8,
+          "over": null
+        }
+      },
+      "devices": {
+        "load_frame_ms": {
+          "count": 4,
+          "median": 16.409,
+          "p95": 23.73,
+          "p99": 23.73,
+          "max": 23.73,
+          "over": 4
+        },
+        "load_frames_in_order_ms": [
+          23.73,
+          14.806,
+          14.427,
+          18.012
+        ],
+        "create_ms_in_order": [
+          13,
+          9,
+          7,
+          6
+        ],
+        "polish_max_ms_in_order": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "interval_ms": {
+          "count": 152,
+          "median": 6.9345,
+          "p95": 7.641,
+          "p99": 8.003,
+          "max": 9.843,
+          "over": 0
+        },
+        "gpu_ms": {
+          "count": 156,
+          "median": 0.1615,
+          "p95": 0.1908,
+          "p99": 0.3164,
+          "max": 0.8613,
+          "over": 0
+        },
+        "render_thread_work_ms": {
+          "count": 156,
+          "median": 0.0,
+          "p95": 1,
+          "p99": 2,
+          "max": 5,
+          "over": 0
+        },
+        "vsync_wait_ms": {
+          "count": 156,
+          "median": 6.0,
+          "p95": 7,
+          "p99": 7,
+          "max": 7,
+          "over": null
+        }
+      },
+      "tasks": {
+        "load_frame_ms": {
+          "count": 4,
+          "median": 14.347000000000001,
+          "p95": 22.429,
+          "p99": 22.429,
+          "max": 22.429,
+          "over": 4
+        },
+        "load_frames_in_order_ms": [
+          22.429,
+          16.544,
+          12.15,
+          11.694
+        ],
+        "create_ms_in_order": [
+          19,
+          6,
+          5,
+          5
+        ],
+        "polish_max_ms_in_order": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "interval_ms": {
+          "count": 151,
+          "median": 6.929,
+          "p95": 7.729,
+          "p99": 7.769,
+          "max": 7.814,
+          "over": 0
+        },
+        "gpu_ms": {
+          "count": 155,
+          "median": 0.0933,
+          "p95": 0.1523,
+          "p99": 0.2028,
+          "max": 0.9896,
+          "over": 0
+        },
+        "render_thread_work_ms": {
+          "count": 155,
+          "median": 0,
+          "p95": 0,
+          "p99": 0,
+          "max": 4,
+          "over": 0
+        },
+        "vsync_wait_ms": {
+          "count": 155,
+          "median": 6,
+          "p95": 7,
+          "p99": 7,
+          "max": 7,
+          "over": null
+        }
+      },
+      "timers": {
+        "load_frame_ms": {
+          "count": 4,
+          "median": 11.524000000000001,
+          "p95": 26.981,
+          "p99": 26.981,
+          "max": 26.981,
+          "over": 3
+        },
+        "load_frames_in_order_ms": [
+          26.981,
+          12.48,
+          10.568,
+          10.198
+        ],
+        "create_ms_in_order": [
+          9,
+          5,
+          7,
+          6
+        ],
+        "polish_max_ms_in_order": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "interval_ms": {
+          "count": 151,
+          "median": 6.904,
+          "p95": 7.56,
+          "p99": 7.785,
+          "max": 9.512,
+          "over": 0
+        },
+        "gpu_ms": {
+          "count": 155,
+          "median": 0.0848,
+          "p95": 0.0947,
+          "p99": 0.1388,
+          "max": 1.729,
+          "over": 0
+        },
+        "render_thread_work_ms": {
+          "count": 155,
+          "median": 0,
+          "p95": 0,
+          "p99": 1,
+          "max": 3,
+          "over": 0
+        },
+        "vsync_wait_ms": {
+          "count": 155,
+          "median": 6,
+          "p95": 7,
+          "p99": 7,
+          "max": 9,
+          "over": null
+        }
+      },
+      "clipboard": {
+        "load_frame_ms": {
+          "count": 4,
+          "median": 16.537,
+          "p95": 18.332,
+          "p99": 18.332,
+          "max": 18.332,
+          "over": 4
+        },
+        "load_frames_in_order_ms": [
+          14.298,
+          18.332,
+          16.241,
+          16.833
+        ],
+        "create_ms_in_order": [
+          9,
+          6,
+          4,
+          4
+        ],
+        "polish_max_ms_in_order": [
+          4,
+          1,
+          3,
+          0
+        ],
+        "interval_ms": {
+          "count": 153,
+          "median": 6.966,
+          "p95": 7.551,
+          "p99": 7.676,
+          "max": 8.386,
+          "over": 0
+        },
+        "gpu_ms": {
+          "count": 156,
+          "median": 0.092,
+          "p95": 0.0961,
+          "p99": 0.1643,
+          "max": 1.0493,
+          "over": 0
+        },
+        "render_thread_work_ms": {
+          "count": 156,
+          "median": 0.0,
+          "p95": 0,
+          "p99": 0,
+          "max": 5,
+          "over": 0
+        },
+        "vsync_wait_ms": {
+          "count": 156,
+          "median": 6.0,
+          "p95": 7,
+          "p99": 7,
+          "max": 7,
+          "over": null
+        }
+      },
+      "notifications": {
+        "load_frame_ms": {
+          "count": 4,
+          "median": 11.093,
+          "p95": 15.514,
+          "p99": 15.514,
+          "max": 15.514,
+          "over": 2
+        },
+        "load_frames_in_order_ms": [
+          15.514,
+          9.173,
+          7.012,
+          13.013
+        ],
+        "create_ms_in_order": [
+          13,
+          16,
+          16
+        ],
+        "polish_max_ms_in_order": [
+          0,
+          0,
+          0
+        ],
+        "interval_ms": {
+          "count": 159,
+          "median": 6.923,
+          "p95": 7.593,
+          "p99": 7.839,
+          "max": 7.895,
+          "over": 0
+        },
+        "gpu_ms": {
+          "count": 164,
+          "median": 0.0882,
+          "p95": 0.0959,
+          "p99": 0.1138,
+          "max": 0.1581,
+          "over": 0
+        },
+        "render_thread_work_ms": {
+          "count": 164,
+          "median": 0.0,
+          "p95": 0,
+          "p99": 1,
+          "max": 4,
+          "over": 0
+        },
+        "vsync_wait_ms": {
+          "count": 164,
+          "median": 6.0,
+          "p95": 7,
+          "p99": 7,
+          "max": 7,
+          "over": null
+        }
+      }
+    },
+    "units": {
+      "create": "synchronous command handling, whole ms (Date.now)",
+      "polish": "largest GUI polish phase in the segment, whole ms",
+      "interval": "GUI frame interval, sub-ms (FrameAnimation)",
+      "gpu": "RHI timestamps, sub-ms",
+      "render_thread_work": "sync + render, whole ms truncated",
+      "vsync_wait": "swap phase, whole ms"
+    }
+  }
+}

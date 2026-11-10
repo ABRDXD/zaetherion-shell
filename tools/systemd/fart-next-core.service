@@ -1,0 +1,16 @@
+# NOT INSTALLED. Started by fart-next-core.socket on first use; the core then stays up (Inbox capture).
+# The view it spawns needs the graphical session environment (WAYLAND_DISPLAY, HYPRLAND_INSTANCE_SIGNATURE),
+# which the session must import into the user manager (systemctl --user import-environment).
+[Unit]
+Description=FART-next core daemon
+Requires=fart-next-core.socket
+After=fart-next-core.socket
+
+[Service]
+Type=simple
+Environment=FART_HOST=serpantinum
+Environment=FART_STATE_DIR=%h/.local/state/fart-next
+Environment=FART_CACHE_DIR=%h/.cache/fart-next
+Environment=FART_RUNTIME_DIR=%t/fart-next
+Environment=FART_LOG=-
+ExecStart=/usr/bin/python3 -I %h/.local/share/fart/next/core/fartd.py

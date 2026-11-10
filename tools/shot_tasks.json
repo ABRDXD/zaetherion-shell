@@ -1,0 +1,14 @@
+{
+  "lists": [{"id": "default", "name": "Tasks"}, {"id": "l-study", "name": "Study"}, {"id": "l-house", "name": "House"}],
+  "tasks": [
+    {"id": "t1", "list": "default", "text": "Renew the library card before the fines start compounding", "done": false, "due": "-2", "created": null, "doneAt": null},
+    {"id": "t2", "list": "default", "text": "Reply to the landlord about the radiator", "done": false, "due": "+0", "created": null, "doneAt": null},
+    {"id": "t3", "list": "default", "text": "Back up the photos", "done": false, "due": "+3", "created": null, "doneAt": null},
+    {"id": "t4", "list": "default", "text": "Return the borrowed drill", "done": false, "due": "+12", "created": null, "doneAt": null},
+    {"id": "t5", "list": "default", "text": "Call home", "done": false, "due": null, "created": null, "doneAt": null},
+    {"id": "t6", "list": "default", "text": "Water the plants", "done": true, "due": null, "created": null, "doneAt": null},
+    {"id": "t7", "list": "default", "text": "Pay the electricity bill", "done": true, "due": "-1", "created": null, "doneAt": null},
+    {"id": "t8", "list": "l-study", "text": "Revise chapter 4", "done": false, "due": "+1", "created": null, "doneAt": null},
+    {"id": "t9", "list": "l-house", "text": "Descale the kettle", "done": false, "due": null, "created": null, "doneAt": null}
+  ]
+}

@@ -1,0 +1,187 @@
+{
+  "schema": 1,
+  "timestamp": "2026-11-08T12:56:47.787948+00:00",
+  "source": "<scratch>/suite",
+  "source_commit": "5d4c293ca3e3ea306faea1de37653cd6b46e3adb",
+  "source_view_dirty": false,
+  "platform": "wayland/opengl",
+  "playing": false,
+  "window_seconds": 12.0,
+  "settle_seconds": 5,
+  "scenarios": {
+    "orbit_silent": {
+      "interaction": "quiet",
+      "frames": 24,
+      "frames_per_second": 2.0,
+      "lease": {
+        "mode": "off",
+        "effective": "off",
+        "reasons": []
+      },
+      "view": {
+        "rss_mib": 524.35546875,
+        "pss_mib": 238.87109375,
+        "private_dirty_mib": 199.72265625,
+        "coverage": "window",
+        "cpu_ticks": 14,
+        "cpu_percent": 1.1651595668476684,
+        "voluntary_switches": 1075,
+        "nonvoluntary_switches": 6,
+        "switches_per_minute": 5398.017821838555,
+        "thread_set_changed": false
+      },
+      "core": {
+        "rss_mib": 21.7109375,
+        "pss_mib": 12.6171875,
+        "private_dirty_mib": 11.9296875,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      }
+    },
+    "orbit_overdrive": {
+      "interaction": "interrupted",
+      "frames": 778,
+      "frames_per_second": 64.83,
+      "lease": {
+        "mode": "sticky",
+        "effective": "active",
+        "reasons": []
+      },
+      "view": {
+        "rss_mib": 546.64453125,
+        "pss_mib": 259.0576171875,
+        "private_dirty_mib": 219.83203125,
+        "coverage": "window",
+        "cpu_ticks": 1599,
+        "cpu_percent": 133.1288770511284,
+        "voluntary_switches": 43382,
+        "nonvoluntary_switches": 949,
+        "switches_per_minute": 221453.51776936481,
+        "thread_set_changed": true
+      },
+      "core": {
+        "rss_mib": 21.7265625,
+        "pss_mib": 12.630859375,
+        "private_dirty_mib": 11.9453125,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 6,
+        "nonvoluntary_switches": 1,
+        "switches_per_minute": 34.94511777523321,
+        "thread_set_changed": false
+      }
+    },
+    "orbit_released": {
+      "interaction": "interrupted",
+      "frames": 25,
+      "frames_per_second": 2.08,
+      "lease": {
+        "mode": "off",
+        "effective": "off",
+        "reasons": []
+      },
+      "view": {
+        "rss_mib": 550.8125,
+        "pss_mib": 263.0029296875,
+        "private_dirty_mib": 223.640625,
+        "coverage": "window",
+        "cpu_ticks": 43,
+        "cpu_percent": 3.5778808712732664,
+        "voluntary_switches": 7756,
+        "nonvoluntary_switches": 69,
+        "switches_per_minute": 39065.466722390665,
+        "thread_set_changed": false
+      },
+      "core": {
+        "rss_mib": 21.734375,
+        "pss_mib": 12.638671875,
+        "private_dirty_mib": 11.953125,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      }
+    },
+    "orbit_overdrive2": {
+      "interaction": "interrupted",
+      "frames": 811,
+      "frames_per_second": 67.58,
+      "lease": {
+        "mode": "sticky",
+        "effective": "active",
+        "reasons": []
+      },
+      "view": {
+        "rss_mib": 550.3828125,
+        "pss_mib": 262.5126953125,
+        "private_dirty_mib": 223.2109375,
+        "coverage": "window",
+        "cpu_ticks": 1611,
+        "cpu_percent": 134.12668646171508,
+        "voluntary_switches": 45842,
+        "nonvoluntary_switches": 949,
+        "switches_per_minute": 233740.10377020895,
+        "thread_set_changed": false
+      },
+      "core": {
+        "rss_mib": 21.73828125,
+        "pss_mib": 12.642578125,
+        "private_dirty_mib": 11.95703125,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 3,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 14.97627324256309,
+        "thread_set_changed": false
+      }
+    },
+    "orbit_released2": {
+      "interaction": "quiet",
+      "frames": 24,
+      "frames_per_second": 2.0,
+      "lease": {
+        "mode": "off",
+        "effective": "off",
+        "reasons": []
+      },
+      "view": {
+        "rss_mib": 549.890625,
+        "pss_mib": 262.416015625,
+        "private_dirty_mib": 222.9609375,
+        "coverage": "window",
+        "cpu_ticks": 12,
+        "cpu_percent": 0.9985054381418891,
+        "voluntary_switches": 1067,
+        "nonvoluntary_switches": 7,
+        "switches_per_minute": 5361.974202821944,
+        "thread_set_changed": false
+      },
+      "core": {
+        "rss_mib": 21.73828125,
+        "pss_mib": 12.642578125,
+        "private_dirty_mib": 11.95703125,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      }
+    },
+    "orbit_release_delta": {
+      "rss_mib": 26.46,
+      "pss_mib": 24.13
+    }
+  }
+}

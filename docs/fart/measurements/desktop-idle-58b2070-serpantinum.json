@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "timestamp": "2026-11-06T11:59:31.449382+00:00",
+  "source_commit": "58b20704b4f59e4db65ef4be9d8a9ecddbd577d4",
+  "platform": "wayland/opengl",
+  "motion": "serpantinum",
+  "window_seconds": 60,
+  "scenarios": {
+    "open_idle": {
+      "interaction": "quiet",
+      "frames": 1,
+      "view": {
+        "rss_mib": 462.46484375,
+        "pss_mib": 187.3681640625,
+        "private_dirty_mib": 145.98828125,
+        "coverage": "window",
+        "cpu_ticks": 2,
+        "cpu_percent": 0.03332949681106244,
+        "voluntary_switches": 237,
+        "nonvoluntary_switches": 5,
+        "switches_per_minute": 241.97214684831332,
+        "thread_set_changed": true
+      },
+      "core": {
+        "rss_mib": 21.26171875,
+        "pss_mib": 12.1279296875,
+        "private_dirty_mib": 11.53125,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      },
+      "motion": {
+        "active": 0,
+        "names": []
+      }
+    },
+    "closed_idle": {
+      "interaction": "quiet",
+      "frames": 0,
+      "view": {
+        "rss_mib": 462.3125,
+        "pss_mib": 187.2080078125,
+        "private_dirty_mib": 145.82421875,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 1,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.9998832490490617,
+        "thread_set_changed": false
+      },
+      "core": {
+        "rss_mib": 21.26171875,
+        "pss_mib": 12.126953125,
+        "private_dirty_mib": 11.53125,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      },
+      "motion": {
+        "active": 0,
+        "names": []
+      }
+    }
+  }
+}

@@ -1,0 +1,184 @@
+{
+ "platform": "wayland/real",
+ "settle_s": 1.0,
+ "runs": 6,
+ "mode": "cold",
+ "conditions_before": {
+  "platform_profile": "low-power",
+  "epp": "power",
+  "governor": "powersave",
+  "ac_online": false,
+  "loadavg": "1.57 1.29 1.86 1/1682 191160"
+ },
+ "conditions_after": {
+  "platform_profile": "low-power",
+  "epp": "power",
+  "governor": "powersave",
+  "ac_online": false,
+  "loadavg": "1.63 1.32 1.85 2/1679 191628"
+ },
+ "sources": {
+  "~/.local/share/fart/next-coldstart": {
+   "complete": 3,
+   "phases": {
+    "core": {
+     "median": 1.8,
+     "min": 1.7,
+     "max": 1.9
+    },
+    "exec": {
+     "median": 67.0,
+     "min": 65.0,
+     "max": 75.0
+    },
+    "load": {
+     "median": 543.0,
+     "min": 540.0,
+     "max": 549.0
+    },
+    "hello": {
+     "median": 10.0,
+     "min": 9.0,
+     "max": 10.0
+    },
+    "open": {
+     "median": 67.0,
+     "min": 65.0,
+     "max": 68.0
+    },
+    "frame": {
+     "median": 186.0,
+     "min": 176.0,
+     "max": 187.0
+    },
+    "open.shell": {
+     "median": 64.0,
+     "min": 62.0,
+     "max": 64.0
+    },
+    "frame.swap": {
+     "median": 80.0,
+     "min": 71.0,
+     "max": 81.0
+    },
+    "frame.active": {
+     "median": 186.0,
+     "min": 175.0,
+     "max": 187.0
+    },
+    "frame.focus": {
+     "median": 0.0,
+     "min": 0.0,
+     "max": 0.0
+    },
+    "frame.room": {
+     "median": 400.0,
+     "min": 367.0,
+     "max": 495.0
+    },
+    "total": {
+     "median": 872.8,
+     "min": 862.9,
+     "max": 886.7
+    }
+   },
+   "samples": [
+    {
+     "core": 2.3,
+     "exec": 65.0,
+     "load": 556.0,
+     "hello": 12.0,
+     "open": 78.0,
+     "frame": 188.0,
+     "open.shell": 74.0,
+     "frame.swap": 82.0,
+     "frame.active": 188.0,
+     "frame.focus": 0.0,
+     "frame.room": 473.0,
+     "total": 901.3,
+     "stayed_open": true,
+     "interrupted": true
+    },
+    {
+     "core": 1.8,
+     "exec": 67.0,
+     "load": 540.0,
+     "hello": 10.0,
+     "open": 68.0,
+     "frame": 186.0,
+     "open.shell": 64.0,
+     "frame.swap": 81.0,
+     "frame.active": 186.0,
+     "frame.focus": 0.0,
+     "frame.room": 495.0,
+     "total": 872.8,
+     "stayed_open": true,
+     "interrupted": false
+    },
+    {
+     "core": 1.9,
+     "exec": 65.0,
+     "load": 543.0,
+     "hello": 10.0,
+     "open": 67.0,
+     "frame": 176.0,
+     "open.shell": 64.0,
+     "frame.swap": 71.0,
+     "frame.active": 175.0,
+     "frame.focus": 0.0,
+     "frame.room": 367.0,
+     "total": 862.9,
+     "stayed_open": true,
+     "interrupted": false
+    },
+    {
+     "core": 1.6,
+     "exec": 66.0,
+     "load": 565.0,
+     "hello": 15.0,
+     "open": 72.0,
+     "frame": 191.0,
+     "open.shell": 69.0,
+     "frame.swap": 87.0,
+     "frame.active": 191.0,
+     "frame.focus": 0.0,
+     "total": 910.6,
+     "stayed_open": false,
+     "interrupted": true
+    },
+    {
+     "core": 2.8,
+     "exec": 73.0,
+     "load": 592.0,
+     "hello": 20.0,
+     "open": 101.0,
+     "frame": 178.0,
+     "open.shell": 98.0,
+     "frame.swap": 76.0,
+     "frame.active": 178.0,
+     "frame.focus": 1.0,
+     "frame.room": 426.0,
+     "total": 966.8,
+     "stayed_open": true,
+     "interrupted": true
+    },
+    {
+     "core": 1.7,
+     "exec": 75.0,
+     "load": 549.0,
+     "hello": 9.0,
+     "open": 65.0,
+     "frame": 187.0,
+     "open.shell": 62.0,
+     "frame.swap": 80.0,
+     "frame.active": 187.0,
+     "frame.focus": 0.0,
+     "frame.room": 400.0,
+     "total": 886.7,
+     "stayed_open": true,
+     "interrupted": false
+    }
+   ]
+  }
+ }
+}
