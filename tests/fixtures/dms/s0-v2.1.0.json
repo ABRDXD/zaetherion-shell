@@ -89,12 +89,12 @@
     "wifiEnabled": true,
     "wifiSSID": "<wifiSSID-8>",
     "wifiBSSID": "<wifiBSSID-9>",
-    "wifiSignal": 74,
+    "wifiSignal": 75,
     "wifiNetworks": [
      {
       "ssid": "<ssid-10>",
       "bssid": "<bssid-11>",
-      "signal": 74,
+      "signal": 75,
       "secured": true,
       "enterprise": false,
       "connected": true,
@@ -112,7 +112,7 @@
      {
       "ssid": "<ssid-12>",
       "bssid": "<bssid-13>",
-      "signal": 74,
+      "signal": 75,
       "secured": true,
       "enterprise": false,
       "connected": true,
@@ -216,13 +216,13 @@
       "apCapable": true,
       "ssid": "<ssid-26>",
       "bssid": "<bssid-27>",
-      "signal": 74,
+      "signal": 75,
       "ip": "<ip-28>",
       "networks": [
        {
         "ssid": "<ssid-29>",
         "bssid": "<bssid-30>",
-        "signal": 74,
+        "signal": 75,
         "secured": true,
         "enterprise": false,
         "connected": true,
@@ -437,7 +437,7 @@
       "id": 4278190080
      }
     ],
-    "serial": 163941
+    "serial": 173924
    }
   },
   "loginctl.getState": {
@@ -613,6 +613,27 @@
   {
    "id": 1,
    "result": {
+    "service": "theme.auto",
+    "data": {
+     "config": {
+      "enabled": false,
+      "mode": "time",
+      "startHour": 18,
+      "startMinute": 0,
+      "endHour": 6,
+      "endMinute": 0,
+      "useIPLocation": false,
+      "elevationTwilight": -6,
+      "elevationDaylight": 3
+     },
+     "isLight": false,
+     "nextTransition": "2026-11-11T21:18:00.711463193+00:00"
+    }
+   }
+  },
+  {
+   "id": 1,
+   "result": {
     "service": "network",
     "data": {
      "backend": "networkmanager",
@@ -645,12 +666,12 @@
      "wifiEnabled": true,
      "wifiSSID": "<wifiSSID-51>",
      "wifiBSSID": "<wifiBSSID-52>",
-     "wifiSignal": 74,
+     "wifiSignal": 75,
      "wifiNetworks": [
       {
        "ssid": "<ssid-53>",
        "bssid": "<bssid-54>",
-       "signal": 74,
+       "signal": 75,
        "secured": true,
        "enterprise": false,
        "connected": true,
@@ -668,7 +689,7 @@
       {
        "ssid": "<ssid-55>",
        "bssid": "<bssid-56>",
-       "signal": 74,
+       "signal": 75,
        "secured": true,
        "enterprise": false,
        "connected": true,
@@ -772,13 +793,13 @@
        "apCapable": true,
        "ssid": "<ssid-69>",
        "bssid": "<bssid-70>",
-       "signal": 74,
+       "signal": 75,
        "ip": "<ip-71>",
        "networks": [
         {
          "ssid": "<ssid-72>",
          "bssid": "<bssid-73>",
-         "signal": 74,
+         "signal": 75,
          "secured": true,
          "enterprise": false,
          "connected": true,
@@ -888,6 +909,40 @@
   {
    "id": 1,
    "result": {
+    "service": "freedesktop.screensaver",
+    "data": {
+     "available": true,
+     "active": false,
+     "inhibited": false,
+     "inhibitors": []
+    }
+   }
+  },
+  {
+   "id": 1,
+   "result": {
+    "service": "bluetooth",
+    "data": {
+     "powered": false,
+     "discovering": false,
+     "adapters": [
+      {
+       "path": "<path-85>",
+       "name": "<name-86>",
+       "address": "<address-87>",
+       "powered": false,
+       "discovering": false
+      }
+     ],
+     "devices": null,
+     "pairedDevices": null,
+     "connectedDevices": null
+    }
+   }
+  },
+  {
+   "id": 1,
+   "result": {
     "service": "gamma",
     "data": {
      "config": {
@@ -925,18 +980,6 @@
   {
    "id": 1,
    "result": {
-    "service": "freedesktop.screensaver",
-    "data": {
-     "available": true,
-     "active": false,
-     "inhibited": false,
-     "inhibitors": []
-    }
-   }
-  },
-  {
-   "id": 1,
-   "result": {
     "service": "wallpaper",
     "data": {
      "config": {
@@ -952,49 +995,6 @@
      "nextRotation": "0001-01-01T00:00:00Z",
      "cycleSeq": 0,
      "target": ""
-    }
-   }
-  },
-  {
-   "id": 1,
-   "result": {
-    "service": "theme.auto",
-    "data": {
-     "config": {
-      "enabled": false,
-      "mode": "time",
-      "startHour": 18,
-      "startMinute": 0,
-      "endHour": 6,
-      "endMinute": 0,
-      "useIPLocation": false,
-      "elevationTwilight": -6,
-      "elevationDaylight": 3
-     },
-     "isLight": false,
-     "nextTransition": "2026-11-11T21:03:56.384006235+00:00"
-    }
-   }
-  },
-  {
-   "id": 1,
-   "result": {
-    "service": "bluetooth",
-    "data": {
-     "powered": false,
-     "discovering": false,
-     "adapters": [
-      {
-       "path": "<path-85>",
-       "name": "<name-86>",
-       "address": "<address-87>",
-       "powered": false,
-       "discovering": false
-      }
-     ],
-     "devices": null,
-     "pairedDevices": null,
-     "connectedDevices": null
     }
    }
   },
@@ -1120,7 +1120,7 @@
        "id": 4278190080
       }
      ],
-     "serial": 163941
+     "serial": 173924
     }
    }
   },

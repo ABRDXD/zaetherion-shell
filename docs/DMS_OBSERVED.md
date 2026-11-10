@@ -30,5 +30,13 @@
 ## Scrubbing (Z113)
 88 fields replaced in the fixture by key (SSIDs, BSSIDs, MACs, addresses, serials, UUIDs, hostnames, IPs, connection and device names, user names, real name, paths), plus patterns (MACs, IPv4 and IPv6, `/home/<user>`, the user name) and the time-zone offset. Kept: hardware models, driver names, PCI ids, the output name eDP-1. The scrub test S0 asks for isn't written yet.
 
+
+## Second, clean run (21:18): Serpantinum really off
+- **Serpantinum has more than one way back, so a shell isn't just its UI.** `bin/serpantinum` restarts the daemon whenever it's called (`ensure_daemon`). Callers: Hyprland's keybinds (44 `exec_cmd("serpantinum …")`: volume, brightness, screenshots, lock, reload), **FART itself** (`adapters/serpantinum/SerpantinumPower.qml` polls `serpantinum brightness get`; Notifications and HostActions call it too), and Hyprland's autostart. Both `~/.local/bin/serpantinum*` and the root-owned `/usr/local/bin/serpantinum*` are symlinks to `~/.local/share/serpantinum/bin/`.
+- **How it was kept off:** stopped, then `bin/serpantinum` and `bin/serpantinumd` renamed to `*.off` (both sets of symlinks break). It stayed off through the whole run. **To bring it back:** rename them back and run `serpantinumd start` (or log in again). State backup: `~/backups/serpantinum-state-2026-11-10-b.tar.zst`.
+- **The clipboard switch, found:** `clsettings.json` *is* the file, but writing `{"disabled": true}` by hand wasn't enough. Sending `clipboard.setConfig {"disabled": true}` (first call after start) worked: `getConfig` says `disabled: true`, and DMS rewrote the file in full (maxHistory 100, maxEntrySize 5 MiB, autoClearDays 0, clearAtStartup false, maxPinned 25). The state event's `enabled: true` seems to mean the manager is running, not that history is on. **But the manager still creates `~/.cache/dms/clipboard/db` at every start, before any call can arrive.** It was deleted unread both times. Check on the next run whether the saved setting stops it from recording from the start.
+- Same results otherwise: `apiVersion` 38, the same 21 capabilities and 15 event services, the keyboards opened, the NVIDIA card still asleep, no user-bus names held. **The fixture now comes from this run**; the first run's events are discarded.
+- Scrubber: `tools/dms_scrub.py raw.json out.json` (keys + patterns + time-zone offset; fails if the user name survives).
+
 ## Not done yet in S0
 The scrub test, replaying the fixtures offscreen, the right weather, lyrics and location methods, and the quiet RSS/PSS baseline.
