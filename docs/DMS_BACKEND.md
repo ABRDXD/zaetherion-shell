@@ -12,9 +12,8 @@ These facts were read from the source on 8 Nov 2026 (v2.1.1, `apiVersion` 40), b
 - A systemd unit `dms.service` ships with the package (`Type=notify`, `BusName=org.freedesktop.Notifications`). It is **not** used, because startup is through Hyprland autostart only (Z13).
 
 ## Packaging
-- **`dux-shell-git` (AUR)**, chosen by the owner (Z9). At planning time: version 2.1.0.r0. Depends on `quickshell` and `accountsservice`; build-depends on `git go make`; optional `dux-gop cava i2c-tools matugen`. Conflicts with `dms-shell`, `dux-shell` and `dms-shell-git`.
-- The installed Quickshell package provides `quickshell`, and Go 1.27.3 is installed; DMS needs Go ≥ 1.27.1 to build.
-- The official `extra/dux-shell` package exists but was not chosen.
+- **`extra/dux-shell` 2.1.0-1, installed by the owner on 10 November 2026** (Z9). Depends on `quickshell` and `accountsservice`; `cava` (optional) is installed. It provides `/usr/bin/dms`. Not run yet: `dms.service` is disabled and inactive, and there's no DMS config directory.
+- At planning time the AUR's `dux-shell-git` (2.1.0.r0) was the choice; it conflicts with `dux-shell`, so only one of the two can be installed. The release package needs no Go toolchain to build.
 - Installing the package auto-starts nothing. Nothing is enabled until `dms setup` or `dms systemd enable` is run, and ZÆTHERION runs neither.
 
 ## Protocol

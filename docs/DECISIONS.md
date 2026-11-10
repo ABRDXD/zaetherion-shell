@@ -7,7 +7,7 @@ ZÆTHERION inherits FART-next's D-series decisions (D1–D23) except where [Inhe
 ### Project
 | # | Decision |
 |---|---|
-| Z1 | Starts once FART-next's Overdrive is far enough along, **around M12**. This replaces "after all of FART-next". |
+| Z1 | Starts once FART-next's Overdrive is far enough along, **around M12**. This replaces "after all of FART-next". *Reached:* by 10 November 2026 FART-next had built all of its M0–M16, plus the heavy layer on the NVIDIA card. |
 | Z2 | Repo at `~/src/zaetherion-shell`. A **fresh git repo**, seeded by copying from fart-next at a tagged commit, with the seed commit recorded in NOTICE. |
 | Z3 | Licence **GPL-3.0**, inherited. DMS-derived files keep their MIT notice ("Copyright (c) 2025 Avenge Media LLC") in NOTICE. |
 | Z4 | **Hyprland first.** Previously niri was first; niri comes later. |
@@ -19,7 +19,7 @@ ZÆTHERION inherits FART-next's D-series decisions (D1–D23) except where [Inhe
 | # | Decision |
 |---|---|
 | Z8 | **DMS owns everything it offers**: network (NM/iwd), Bluetooth with a pairing agent, brightness/DDC, clipboard, `wayland.gamma` night light, outputs/DPMS, logind, dgop stats, weather, location and lyrics. Quickshell built-ins cover only what DMS does in QML: audio (Pipewire), notifications server, lock/PAM, idle, polkit, MPRIS, UPower and the tray. |
-| Z9 | Package **`dux-shell-git` (AUR)**. Pin the accepted `apiVersion` range (40 at research time). |
+| Z9 | Package **`dux-shell` from Arch's `extra` repository** (changed 10 November 2026: the owner installed `dux-shell` 2.1.0-1, not `dux-shell-git`). Pin the accepted `apiVersion` range (40 at research time; recheck against 2.1.0 when the fixtures are recorded in S0). |
 | Z10 | DMS is launched as **`dms run -c <zaetherion resident UI dir>`**. DMS runs its backend, then starts ZÆTHERION's resident Quickshell as its child and passes it `DMS_SOCKET`. |
 | Z11 | When DMS is down: **degrade and restart.** `fartd` restarts it with backoff, and affected controls show OFFLINE in the system voice. |
 | Z12 | **Two Quickshell processes.** The resident one is always alive and holds the island, wallpaper, widgets, notifications, OSD, lock, idle and polkit. The panel is disposable and reaped (rooms, settings window, overview). |
@@ -104,7 +104,7 @@ ZÆTHERION inherits FART-next's D-series decisions (D1–D23) except where [Inhe
 ### Round 2 (8 Nov 2026)
 | # | Decision |
 |---|---|
-| Z62 | FART-next **M13–M16 move into ZÆTHERION**: lensing, the workspace overview and the T3 sky go into S11; discovery and lore come after S12. They are not built twice. |
+| Z62 | **ZÆTHERION brings FART over; it doesn't rebuild it** (changed 10 November 2026). FART-next built M13–M16 itself after all (lensing, the contact sheet with live previews, discovery and the archive, the T2/T3 tiers), along with M11 sessions and the heavy layer, so they all arrive with the S0 seed. S11 then extends them to ZÆTHERION's own surfaces (the island, the launcher, the overview, the lock card); shell-wide discovery whispers still come after S12. Nothing is built twice. |
 | Z63 | **Discovery whispers are shell-wide**: one faint line for about 1 s, which may appear on the island, the lock card or the boot sequence. Horror stays in the archive only (D10). |
 | Z64 | **Island shape:** a trapezoid notch with **84°** sides (6° off vertical) and a flat edge against the screen. |
 | Z65 | **Island fill:** a theme-derived navy, recalling the HP Victus 15 "Performance Blue" chassis. Rule: use the darkest palette role whose hue is blue. If the theme has no blue role, use the **darkest role as is**. |
