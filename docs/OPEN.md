@@ -16,3 +16,4 @@ Only these remain open. Each is settled by the named test, and the result goes b
 | 10 | Pin video decoding to the iGPU through the environment? (proposed in RISKS.md) | Owner decides; then measure dGPU `runtime_status` | S8 |
 | 11 | Keyboard layout indicator and switching (Serpantinum's bar had one) | Owner decides | S3 |
 | 12 | Per-monitor wallpaper images | Owner decides | S8 |
+| 13 | FART's heavy layer draws Overdrive's black hole and the Medium on the NVIDIA card (the owner's choice for FART-next, 9 November 2026), but BUDGETS.md says "dGPU: never woken" and S11 accepts on it | Owner decides: keep the heavy layer and change the budget, or keep the budget and move the heavy layer to the iGPU. Measure either way (NVIDIA load and power, AMD load) | S0 (the seed brings it) |

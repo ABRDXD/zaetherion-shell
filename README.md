@@ -1,6 +1,6 @@
 # ZÆTHERION
 
-**Status: design complete, no code yet.** This repository holds the full plan for ZÆTHERION, a complete Wayland desktop shell for Hyprland built with Quickshell. The shell code is seeded later (milestone S0) from its predecessor, FART-next, once FART-next's Overdrive work reaches about M12.
+**Status: design complete, no code yet.** This repository holds the full plan for ZÆTHERION, a complete Wayland desktop shell for Hyprland built with Quickshell. The shell code is seeded later (milestone S0) from its predecessor, FART-next, once FART-next's Overdrive work reaches about M12. FART-next has now built M0–M16, so ZÆTHERION brings FART over whole and adapts it, rather than rebuilding it.
 
 | | |
 |---|---|
