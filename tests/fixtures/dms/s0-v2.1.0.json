@@ -1,0 +1,1202 @@
+{
+ "greeting": {
+  "apiVersion": 38,
+  "capabilities": [
+   "plugins",
+   "dgop",
+   "drives",
+   "lyrics",
+   "lyrics.plugins",
+   "network",
+   "loginctl",
+   "freedesktop",
+   "gamma",
+   "bluetooth",
+   "browser",
+   "brightness",
+   "wlroutput",
+   "evdev",
+   "clipboard",
+   "theme.auto",
+   "wallpaper",
+   "wellbeing",
+   "dbus",
+   "sysupdate",
+   "files"
+  ]
+ },
+ "replies": {
+  "getServerInfo": {
+   "id": 1,
+   "result": {
+    "apiVersion": 38,
+    "cliVersion": "v2.1.0",
+    "capabilities": [
+     "plugins",
+     "dgop",
+     "drives",
+     "lyrics",
+     "lyrics.plugins",
+     "network",
+     "loginctl",
+     "freedesktop",
+     "gamma",
+     "bluetooth",
+     "browser",
+     "brightness",
+     "wlroutput",
+     "evdev",
+     "clipboard",
+     "theme.auto",
+     "wallpaper",
+     "wellbeing",
+     "dbus",
+     "sysupdate",
+     "files"
+    ]
+   }
+  },
+  "network.getState": {
+   "id": 2,
+   "result": {
+    "backend": "networkmanager",
+    "networkStatus": "wifi",
+    "preference": "auto",
+    "ethernetIP": "<ethernetIP-1>",
+    "ethernetDevice": "eno1",
+    "ethernetConnected": false,
+    "ethernetConnectionUuid": "<ethernetConnectionUuid-2>",
+    "ethernetDevices": [
+     {
+      "name": "<name-3>",
+      "hwAddress": "<hwAddress-4>",
+      "state": "unavailable",
+      "connected": false,
+      "driver": "r8169"
+     }
+    ],
+    "cellularIP": "<cellularIP-5>",
+    "cellularDevice": "",
+    "cellularConnected": false,
+    "cellularEnabled": true,
+    "cellularHardwareEnabled": true,
+    "cellularConnectionUuid": "<cellularConnectionUuid-6>",
+    "cellularDevices": null,
+    "cellularConnections": null,
+    "wifiIP": "<wifiIP-7>",
+    "wifiDevice": "wlan0",
+    "wifiConnected": true,
+    "wifiEnabled": true,
+    "wifiSSID": "<wifiSSID-8>",
+    "wifiBSSID": "<wifiBSSID-9>",
+    "wifiSignal": 74,
+    "wifiNetworks": [
+     {
+      "ssid": "<ssid-10>",
+      "bssid": "<bssid-11>",
+      "signal": 74,
+      "secured": true,
+      "enterprise": false,
+      "connected": true,
+      "saved": true,
+      "autoconnect": true,
+      "hidden": false,
+      "outOfRange": false,
+      "frequency": 2462,
+      "mode": "infrastructure",
+      "rate": 144,
+      "channel": 11
+     }
+    ],
+    "savedWifiNetworks": [
+     {
+      "ssid": "<ssid-12>",
+      "bssid": "<bssid-13>",
+      "signal": 74,
+      "secured": true,
+      "enterprise": false,
+      "connected": true,
+      "saved": true,
+      "autoconnect": true,
+      "hidden": false,
+      "outOfRange": false,
+      "frequency": 2462,
+      "mode": "infrastructure",
+      "rate": 144,
+      "channel": 11,
+      "device": "wlan0"
+     },
+     {
+      "ssid": "<ssid-14>",
+      "bssid": "<bssid-15>",
+      "signal": 0,
+      "secured": true,
+      "enterprise": false,
+      "connected": false,
+      "saved": true,
+      "autoconnect": true,
+      "hidden": false,
+      "outOfRange": true,
+      "frequency": 0,
+      "mode": "infrastructure",
+      "rate": 0,
+      "channel": 0
+     },
+     {
+      "ssid": "<ssid-16>",
+      "bssid": "<bssid-17>",
+      "signal": 0,
+      "secured": true,
+      "enterprise": false,
+      "connected": false,
+      "saved": true,
+      "autoconnect": true,
+      "hidden": false,
+      "outOfRange": true,
+      "frequency": 0,
+      "mode": "infrastructure",
+      "rate": 0,
+      "channel": 0
+     },
+     {
+      "ssid": "<ssid-18>",
+      "bssid": "<bssid-19>",
+      "signal": 0,
+      "secured": true,
+      "enterprise": false,
+      "connected": false,
+      "saved": true,
+      "autoconnect": true,
+      "hidden": false,
+      "outOfRange": true,
+      "frequency": 0,
+      "mode": "infrastructure",
+      "rate": 0,
+      "channel": 0
+     },
+     {
+      "ssid": "<ssid-20>",
+      "bssid": "<bssid-21>",
+      "signal": 0,
+      "secured": true,
+      "enterprise": false,
+      "connected": false,
+      "saved": true,
+      "autoconnect": true,
+      "hidden": false,
+      "outOfRange": true,
+      "frequency": 0,
+      "mode": "infrastructure",
+      "rate": 0,
+      "channel": 0
+     },
+     {
+      "ssid": "<ssid-22>",
+      "bssid": "<bssid-23>",
+      "signal": 0,
+      "secured": true,
+      "enterprise": false,
+      "connected": false,
+      "saved": true,
+      "autoconnect": true,
+      "hidden": false,
+      "outOfRange": true,
+      "frequency": 0,
+      "mode": "infrastructure",
+      "rate": 0,
+      "channel": 0
+     }
+    ],
+    "wifiDevices": [
+     {
+      "name": "<name-24>",
+      "hwAddress": "<hwAddress-25>",
+      "state": "connected",
+      "connected": true,
+      "apCapable": true,
+      "ssid": "<ssid-26>",
+      "bssid": "<bssid-27>",
+      "signal": 74,
+      "ip": "<ip-28>",
+      "networks": [
+       {
+        "ssid": "<ssid-29>",
+        "bssid": "<bssid-30>",
+        "signal": 74,
+        "secured": true,
+        "enterprise": false,
+        "connected": true,
+        "saved": true,
+        "autoconnect": true,
+        "hidden": false,
+        "outOfRange": false,
+        "frequency": 2462,
+        "mode": "infrastructure",
+        "rate": 144,
+        "channel": 11,
+        "device": "wlan0"
+       }
+      ]
+     }
+    ],
+    "hotspotSupported": true,
+    "hotspotAvailable": true,
+    "hotspotConfigured": false,
+    "hotspotEnabled": false,
+    "hotspotActivating": false,
+    "hotspotSecured": false,
+    "hotspotSSID": "<hotspotSSID-31>",
+    "hotspotDevice": "",
+    "hotspotBand": "",
+    "hotspotLastError": "",
+    "wiredConnections": [
+     {
+      "path": "<path-32>",
+      "id": "Wired connection 1",
+      "uuid": "<uuid-33>",
+      "type": "802-3-ethernet",
+      "isActive": false
+     }
+    ],
+    "vpnProfiles": null,
+    "vpnActive": null,
+    "isConnecting": false,
+    "connectingSSID": "<connectingSSID-34>",
+    "lastError": "",
+    "vpnError": "",
+    "vpnErrorUuid": "<vpnErrorUuid-35>"
+   }
+  },
+  "bluetooth.getState": {
+   "id": 3,
+   "result": {
+    "powered": false,
+    "discovering": false,
+    "adapters": [
+     {
+      "path": "<path-36>",
+      "name": "<name-37>",
+      "address": "<address-38>",
+      "powered": false,
+      "discovering": false
+     }
+    ],
+    "devices": null,
+    "pairedDevices": null,
+    "connectedDevices": null
+   }
+  },
+  "brightness.getState": {
+   "id": 4,
+   "result": {
+    "devices": [
+     {
+      "class": "backlight",
+      "id": "backlight:amdgpu_bl1",
+      "name": "<name-39>",
+      "current": 0,
+      "max": 65535,
+      "currentPercent": 1,
+      "backend": "sysfs"
+     }
+    ]
+   }
+  },
+  "wayland.gamma.getState": {
+   "id": 5,
+   "result": {
+    "config": {
+     "Outputs": [],
+     "LowTemp": 4000,
+     "HighTemp": 6500,
+     "Latitude": null,
+     "Longitude": null,
+     "UseIPLocation": false,
+     "ManualSunrise": null,
+     "ManualSunset": null,
+     "ManualDuration": null,
+     "Gamma": 1,
+     "Contrast": 1,
+     "Enabled": false,
+     "ElevationTwilight": -6,
+     "ElevationDaylight": 3
+    },
+    "currentTemp": 6500,
+    "nextTransition": "2026-11-11T00:00:00+00:00",
+    "sunriseTime": "0001-01-01T00:00:00Z",
+    "sunsetTime": "0001-01-01T00:00:00Z",
+    "dawnTime": "0001-01-01T00:00:00Z",
+    "nightTime": "0001-01-01T00:00:00Z",
+    "isDay": true,
+    "sunPosition": 1,
+    "iccProfiles": {},
+    "outputTemps": {},
+    "outputs": [
+     "eDP-1"
+    ]
+   }
+  },
+  "wlroutput.getState": {
+   "id": 6,
+   "result": {
+    "outputs": [
+     {
+      "name": "eDP-1",
+      "description": "Chimei Innolux Corporation 0x1560  (eDP-1)",
+      "make": "Chimei Innolux Corporation",
+      "model": "0x1560",
+      "serialNumber": "",
+      "physicalWidth": 340,
+      "physicalHeight": 190,
+      "enabled": true,
+      "x": 0,
+      "y": 0,
+      "transform": 0,
+      "scale": 1,
+      "currentMode": {
+       "width": 1920,
+       "height": 1080,
+       "refresh": 144003,
+       "preferred": true,
+       "id": 4278190081
+      },
+      "modes": [
+       {
+        "width": 1920,
+        "height": 1080,
+        "refresh": 144003,
+        "preferred": true,
+        "id": 4278190081
+       },
+       {
+        "width": 1920,
+        "height": 1080,
+        "refresh": 60004,
+        "preferred": false,
+        "id": 4278190082
+       },
+       {
+        "width": 1680,
+        "height": 1050,
+        "refresh": 144003,
+        "preferred": false,
+        "id": 4278190083
+       },
+       {
+        "width": 1280,
+        "height": 1024,
+        "refresh": 144003,
+        "preferred": false,
+        "id": 4278190084
+       },
+       {
+        "width": 1440,
+        "height": 900,
+        "refresh": 144003,
+        "preferred": false,
+        "id": 4278190085
+       },
+       {
+        "width": 1280,
+        "height": 800,
+        "refresh": 144003,
+        "preferred": false,
+        "id": 4278190086
+       },
+       {
+        "width": 1280,
+        "height": 720,
+        "refresh": 144003,
+        "preferred": false,
+        "id": 4278190087
+       },
+       {
+        "width": 1024,
+        "height": 768,
+        "refresh": 144003,
+        "preferred": false,
+        "id": 4278190088
+       },
+       {
+        "width": 800,
+        "height": 600,
+        "refresh": 144003,
+        "preferred": false,
+        "id": 4278190089
+       },
+       {
+        "width": 640,
+        "height": 480,
+        "refresh": 144003,
+        "preferred": false,
+        "id": 4278190090
+       }
+      ],
+      "adaptiveSync": 0,
+      "adaptiveSyncSupported": true,
+      "id": 4278190080
+     }
+    ],
+    "serial": 163941
+   }
+  },
+  "loginctl.getState": {
+   "id": 7,
+   "result": {
+    "sessionId": "<sessionId-40>",
+    "sessionPath": "<sessionPath-41>",
+    "locked": false,
+    "active": true,
+    "idleHint": false,
+    "idleSinceHint": 0,
+    "lockedHint": false,
+    "sessionType": "wayland",
+    "sessionClass": "user",
+    "user": 1000,
+    "userName": "<userName-42>",
+    "remoteHost": "",
+    "service": "sddm",
+    "tty": "tty1",
+    "display": "",
+    "remote": false,
+    "seat": "seat0",
+    "vtnr": 1,
+    "preparingForSleep": false
+   }
+  },
+  "dgop.meta": {
+   "id": 8,
+   "error": "modules is required"
+  },
+  "dgop.gpu": {
+   "id": 9,
+   "result": {
+    "gpus": [
+     {
+      "driver": "nvidia",
+      "vendor": "NVIDIA",
+      "displayName": "GeForce RTX 3050 6GB Laptop GPU",
+      "fullName": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+      "pciId": "10de:25ac",
+      "rawLine": "0000:01:00.0 Display controller: GA107BM / GN20-P0-R-K2 [GeForce RTX 3050 6GB Laptop GPU] [10de:25ac]",
+      "temperature": 0,
+      "hwmon": "unknown",
+      "busId": "0000:01:00.0"
+     },
+     {
+      "driver": "amdgpu",
+      "vendor": "AMD",
+      "displayName": "0000:06:00.0 Display controller: HawkPoint2",
+      "fullName": "AMD 0000:06:00.0 Display controller: HawkPoint2",
+      "pciId": "1002:1901",
+      "rawLine": "0000:06:00.0 Display controller: HawkPoint2 [1002:1901]",
+      "temperature": 0,
+      "hwmon": "unknown",
+      "busId": "0000:06:00.0"
+     }
+    ]
+   }
+  },
+  "dgop.hardware": {
+   "id": 10,
+   "result": {
+    "kernel": "7.2.14-arch1-1",
+    "distro": "Arch Linux",
+    "hostname": "<hostname-43>",
+    "arch": "x86_64",
+    "cpu": {
+     "count": 12,
+     "model": "AMD Ryzen 7 7445HS w/ Radeon 740M Graphics"
+    },
+    "bios": {
+     "vendor": "HP",
+     "version": "F.15",
+     "date": "04/27/2026",
+     "motherboard": "HP 8DD0"
+    },
+    "initSystem": "systemd"
+   }
+  },
+  "weather.getState": {
+   "id": 11,
+   "error": "unknown method: weather.getState"
+  },
+  "location.getState": {
+   "id": 12,
+   "error": "location manager not initialized"
+  },
+  "lyrics.getState": {
+   "id": 13,
+   "error": "unknown method: lyrics.getState"
+  },
+  "sysupdate.getState": {
+   "id": 14,
+   "result": {
+    "phase": "idle",
+    "distro": "arch",
+    "distroPretty": "Arch Linux",
+    "backends": [
+     {
+      "id": "yay",
+      "displayName": "Yay (AUR)",
+      "repo": "system",
+      "needsAuth": true,
+      "runsInTerminal": true
+     },
+     {
+      "id": "flatpak",
+      "displayName": "Flatpak",
+      "repo": "flatpak",
+      "needsAuth": false,
+      "runsInTerminal": false
+     }
+    ],
+    "packages": null,
+    "count": 0,
+    "intervalSeconds": 86400,
+    "shell": {
+     "installMethod": "unknown",
+     "channel": "unknown",
+     "running": "v2.1.0",
+     "restartPending": false
+    },
+    "reboot": {
+     "recommended": false
+    }
+   }
+  },
+  "wellbeing.getState": {
+   "id": 15,
+   "result": {
+    "today": {
+     "date": "2026-11-10",
+     "active": 0,
+     "apps": {}
+    }
+   }
+  }
+ },
+ "events": [
+  {
+   "id": 1,
+   "result": {
+    "service": "server",
+    "data": {
+     "apiVersion": 38,
+     "cliVersion": "v2.1.0",
+     "capabilities": [
+      "plugins",
+      "dgop",
+      "drives",
+      "lyrics",
+      "lyrics.plugins",
+      "network",
+      "loginctl",
+      "freedesktop",
+      "gamma",
+      "bluetooth",
+      "browser",
+      "brightness",
+      "wlroutput",
+      "evdev",
+      "clipboard",
+      "theme.auto",
+      "wallpaper",
+      "wellbeing",
+      "dbus",
+      "sysupdate",
+      "files"
+     ]
+    }
+   }
+  },
+  {
+   "id": 1,
+   "result": {
+    "service": "network",
+    "data": {
+     "backend": "networkmanager",
+     "networkStatus": "wifi",
+     "preference": "auto",
+     "ethernetIP": "<ethernetIP-44>",
+     "ethernetDevice": "eno1",
+     "ethernetConnected": false,
+     "ethernetConnectionUuid": "<ethernetConnectionUuid-45>",
+     "ethernetDevices": [
+      {
+       "name": "<name-46>",
+       "hwAddress": "<hwAddress-47>",
+       "state": "unavailable",
+       "connected": false,
+       "driver": "r8169"
+      }
+     ],
+     "cellularIP": "<cellularIP-48>",
+     "cellularDevice": "",
+     "cellularConnected": false,
+     "cellularEnabled": true,
+     "cellularHardwareEnabled": true,
+     "cellularConnectionUuid": "<cellularConnectionUuid-49>",
+     "cellularDevices": null,
+     "cellularConnections": null,
+     "wifiIP": "<wifiIP-50>",
+     "wifiDevice": "wlan0",
+     "wifiConnected": true,
+     "wifiEnabled": true,
+     "wifiSSID": "<wifiSSID-51>",
+     "wifiBSSID": "<wifiBSSID-52>",
+     "wifiSignal": 74,
+     "wifiNetworks": [
+      {
+       "ssid": "<ssid-53>",
+       "bssid": "<bssid-54>",
+       "signal": 74,
+       "secured": true,
+       "enterprise": false,
+       "connected": true,
+       "saved": true,
+       "autoconnect": true,
+       "hidden": false,
+       "outOfRange": false,
+       "frequency": 2462,
+       "mode": "infrastructure",
+       "rate": 144,
+       "channel": 11
+      }
+     ],
+     "savedWifiNetworks": [
+      {
+       "ssid": "<ssid-55>",
+       "bssid": "<bssid-56>",
+       "signal": 74,
+       "secured": true,
+       "enterprise": false,
+       "connected": true,
+       "saved": true,
+       "autoconnect": true,
+       "hidden": false,
+       "outOfRange": false,
+       "frequency": 2462,
+       "mode": "infrastructure",
+       "rate": 144,
+       "channel": 11,
+       "device": "wlan0"
+      },
+      {
+       "ssid": "<ssid-57>",
+       "bssid": "<bssid-58>",
+       "signal": 0,
+       "secured": true,
+       "enterprise": false,
+       "connected": false,
+       "saved": true,
+       "autoconnect": true,
+       "hidden": false,
+       "outOfRange": true,
+       "frequency": 0,
+       "mode": "infrastructure",
+       "rate": 0,
+       "channel": 0
+      },
+      {
+       "ssid": "<ssid-59>",
+       "bssid": "<bssid-60>",
+       "signal": 0,
+       "secured": true,
+       "enterprise": false,
+       "connected": false,
+       "saved": true,
+       "autoconnect": true,
+       "hidden": false,
+       "outOfRange": true,
+       "frequency": 0,
+       "mode": "infrastructure",
+       "rate": 0,
+       "channel": 0
+      },
+      {
+       "ssid": "<ssid-61>",
+       "bssid": "<bssid-62>",
+       "signal": 0,
+       "secured": true,
+       "enterprise": false,
+       "connected": false,
+       "saved": true,
+       "autoconnect": true,
+       "hidden": false,
+       "outOfRange": true,
+       "frequency": 0,
+       "mode": "infrastructure",
+       "rate": 0,
+       "channel": 0
+      },
+      {
+       "ssid": "<ssid-63>",
+       "bssid": "<bssid-64>",
+       "signal": 0,
+       "secured": true,
+       "enterprise": false,
+       "connected": false,
+       "saved": true,
+       "autoconnect": true,
+       "hidden": false,
+       "outOfRange": true,
+       "frequency": 0,
+       "mode": "infrastructure",
+       "rate": 0,
+       "channel": 0
+      },
+      {
+       "ssid": "<ssid-65>",
+       "bssid": "<bssid-66>",
+       "signal": 0,
+       "secured": true,
+       "enterprise": false,
+       "connected": false,
+       "saved": true,
+       "autoconnect": true,
+       "hidden": false,
+       "outOfRange": true,
+       "frequency": 0,
+       "mode": "infrastructure",
+       "rate": 0,
+       "channel": 0
+      }
+     ],
+     "wifiDevices": [
+      {
+       "name": "<name-67>",
+       "hwAddress": "<hwAddress-68>",
+       "state": "connected",
+       "connected": true,
+       "apCapable": true,
+       "ssid": "<ssid-69>",
+       "bssid": "<bssid-70>",
+       "signal": 74,
+       "ip": "<ip-71>",
+       "networks": [
+        {
+         "ssid": "<ssid-72>",
+         "bssid": "<bssid-73>",
+         "signal": 74,
+         "secured": true,
+         "enterprise": false,
+         "connected": true,
+         "saved": true,
+         "autoconnect": true,
+         "hidden": false,
+         "outOfRange": false,
+         "frequency": 2462,
+         "mode": "infrastructure",
+         "rate": 144,
+         "channel": 11,
+         "device": "wlan0"
+        }
+       ]
+      }
+     ],
+     "hotspotSupported": true,
+     "hotspotAvailable": true,
+     "hotspotConfigured": false,
+     "hotspotEnabled": false,
+     "hotspotActivating": false,
+     "hotspotSecured": false,
+     "hotspotSSID": "<hotspotSSID-74>",
+     "hotspotDevice": "",
+     "hotspotBand": "",
+     "hotspotLastError": "",
+     "wiredConnections": [
+      {
+       "path": "<path-75>",
+       "id": "Wired connection 1",
+       "uuid": "<uuid-76>",
+       "type": "802-3-ethernet",
+       "isActive": false
+      }
+     ],
+     "vpnProfiles": null,
+     "vpnActive": null,
+     "isConnecting": false,
+     "connectingSSID": "<connectingSSID-77>",
+     "lastError": "",
+     "vpnError": "",
+     "vpnErrorUuid": "<vpnErrorUuid-78>"
+    }
+   }
+  },
+  {
+   "id": 1,
+   "result": {
+    "service": "loginctl",
+    "data": {
+     "sessionId": "<sessionId-79>",
+     "sessionPath": "<sessionPath-80>",
+     "locked": false,
+     "active": true,
+     "idleHint": false,
+     "idleSinceHint": 0,
+     "lockedHint": false,
+     "sessionType": "wayland",
+     "sessionClass": "user",
+     "user": 1000,
+     "userName": "<userName-81>",
+     "remoteHost": "",
+     "service": "sddm",
+     "tty": "tty1",
+     "display": "",
+     "remote": false,
+     "seat": "seat0",
+     "vtnr": 1,
+     "preparingForSleep": false
+    }
+   }
+  },
+  {
+   "id": 1,
+   "result": {
+    "service": "freedesktop",
+    "data": {
+     "accounts": {
+      "available": true,
+      "userPath": "<userPath-82>",
+      "iconFile": "/home/user/.face",
+      "realName": "<realName-83>",
+      "userName": "<userName-84>",
+      "accountType": 1,
+      "homeDirectory": "/home/user",
+      "shell": "/usr/bin/bash",
+      "email": "",
+      "language": "",
+      "location": "",
+      "locked": false,
+      "passwordMode": 0,
+      "uid": 1000
+     },
+     "settings": {
+      "available": true,
+      "colorScheme": 1
+     },
+     "screensaver": {
+      "available": true,
+      "active": false,
+      "inhibited": false,
+      "inhibitors": []
+     }
+    }
+   }
+  },
+  {
+   "id": 1,
+   "result": {
+    "service": "gamma",
+    "data": {
+     "config": {
+      "Outputs": [],
+      "LowTemp": 4000,
+      "HighTemp": 6500,
+      "Latitude": null,
+      "Longitude": null,
+      "UseIPLocation": false,
+      "ManualSunrise": null,
+      "ManualSunset": null,
+      "ManualDuration": null,
+      "Gamma": 1,
+      "Contrast": 1,
+      "Enabled": false,
+      "ElevationTwilight": -6,
+      "ElevationDaylight": 3
+     },
+     "currentTemp": 6500,
+     "nextTransition": "2026-11-11T00:00:00+00:00",
+     "sunriseTime": "0001-01-01T00:00:00Z",
+     "sunsetTime": "0001-01-01T00:00:00Z",
+     "dawnTime": "0001-01-01T00:00:00Z",
+     "nightTime": "0001-01-01T00:00:00Z",
+     "isDay": true,
+     "sunPosition": 1,
+     "iccProfiles": {},
+     "outputTemps": {},
+     "outputs": [
+      "eDP-1"
+     ]
+    }
+   }
+  },
+  {
+   "id": 1,
+   "result": {
+    "service": "freedesktop.screensaver",
+    "data": {
+     "available": true,
+     "active": false,
+     "inhibited": false,
+     "inhibitors": []
+    }
+   }
+  },
+  {
+   "id": 1,
+   "result": {
+    "service": "wallpaper",
+    "data": {
+     "config": {
+      "perMonitor": false,
+      "global": {
+       "enabled": false,
+       "mode": "interval",
+       "intervalSec": 300,
+       "time": "06:00"
+      },
+      "monitors": {}
+     },
+     "nextRotation": "0001-01-01T00:00:00Z",
+     "cycleSeq": 0,
+     "target": ""
+    }
+   }
+  },
+  {
+   "id": 1,
+   "result": {
+    "service": "theme.auto",
+    "data": {
+     "config": {
+      "enabled": false,
+      "mode": "time",
+      "startHour": 18,
+      "startMinute": 0,
+      "endHour": 6,
+      "endMinute": 0,
+      "useIPLocation": false,
+      "elevationTwilight": -6,
+      "elevationDaylight": 3
+     },
+     "isLight": false,
+     "nextTransition": "2026-11-11T21:03:56.384006235+00:00"
+    }
+   }
+  },
+  {
+   "id": 1,
+   "result": {
+    "service": "bluetooth",
+    "data": {
+     "powered": false,
+     "discovering": false,
+     "adapters": [
+      {
+       "path": "<path-85>",
+       "name": "<name-86>",
+       "address": "<address-87>",
+       "powered": false,
+       "discovering": false
+      }
+     ],
+     "devices": null,
+     "pairedDevices": null,
+     "connectedDevices": null
+    }
+   }
+  },
+  {
+   "id": 1,
+   "result": {
+    "service": "brightness",
+    "data": {
+     "devices": [
+      {
+       "class": "backlight",
+       "id": "backlight:amdgpu_bl1",
+       "name": "<name-88>",
+       "current": 0,
+       "max": 65535,
+       "currentPercent": 1,
+       "backend": "sysfs"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": 1,
+   "result": {
+    "service": "wlroutput",
+    "data": {
+     "outputs": [
+      {
+       "name": "eDP-1",
+       "description": "Chimei Innolux Corporation 0x1560  (eDP-1)",
+       "make": "Chimei Innolux Corporation",
+       "model": "0x1560",
+       "serialNumber": "",
+       "physicalWidth": 340,
+       "physicalHeight": 190,
+       "enabled": true,
+       "x": 0,
+       "y": 0,
+       "transform": 0,
+       "scale": 1,
+       "currentMode": {
+        "width": 1920,
+        "height": 1080,
+        "refresh": 144003,
+        "preferred": true,
+        "id": 4278190081
+       },
+       "modes": [
+        {
+         "width": 1920,
+         "height": 1080,
+         "refresh": 144003,
+         "preferred": true,
+         "id": 4278190081
+        },
+        {
+         "width": 1920,
+         "height": 1080,
+         "refresh": 60004,
+         "preferred": false,
+         "id": 4278190082
+        },
+        {
+         "width": 1680,
+         "height": 1050,
+         "refresh": 144003,
+         "preferred": false,
+         "id": 4278190083
+        },
+        {
+         "width": 1280,
+         "height": 1024,
+         "refresh": 144003,
+         "preferred": false,
+         "id": 4278190084
+        },
+        {
+         "width": 1440,
+         "height": 900,
+         "refresh": 144003,
+         "preferred": false,
+         "id": 4278190085
+        },
+        {
+         "width": 1280,
+         "height": 800,
+         "refresh": 144003,
+         "preferred": false,
+         "id": 4278190086
+        },
+        {
+         "width": 1280,
+         "height": 720,
+         "refresh": 144003,
+         "preferred": false,
+         "id": 4278190087
+        },
+        {
+         "width": 1024,
+         "height": 768,
+         "refresh": 144003,
+         "preferred": false,
+         "id": 4278190088
+        },
+        {
+         "width": 800,
+         "height": 600,
+         "refresh": 144003,
+         "preferred": false,
+         "id": 4278190089
+        },
+        {
+         "width": 640,
+         "height": 480,
+         "refresh": 144003,
+         "preferred": false,
+         "id": 4278190090
+        }
+       ],
+       "adaptiveSync": 0,
+       "adaptiveSyncSupported": true,
+       "id": 4278190080
+      }
+     ],
+     "serial": 163941
+    }
+   }
+  },
+  {
+   "id": 1,
+   "result": {
+    "service": "evdev",
+    "data": {
+     "available": true,
+     "capsLock": false,
+     "numLock": false
+    }
+   }
+  },
+  {
+   "id": 1,
+   "result": {
+    "service": "clipboard",
+    "data": {
+     "enabled": true,
+     "history": null
+    }
+   }
+  },
+  {
+   "id": 1,
+   "result": {
+    "service": "wellbeing",
+    "data": {
+     "today": {
+      "date": "2026-11-10",
+      "active": 0,
+      "apps": {}
+     },
+     "resync": true
+    }
+   }
+  },
+  {
+   "id": 1,
+   "result": {
+    "service": "sysupdate",
+    "data": {
+     "phase": "idle",
+     "distro": "arch",
+     "distroPretty": "Arch Linux",
+     "backends": [
+      {
+       "id": "yay",
+       "displayName": "Yay (AUR)",
+       "repo": "system",
+       "needsAuth": true,
+       "runsInTerminal": true
+      },
+      {
+       "id": "flatpak",
+       "displayName": "Flatpak",
+       "repo": "flatpak",
+       "needsAuth": false,
+       "runsInTerminal": false
+      }
+     ],
+     "packages": null,
+     "count": 0,
+     "intervalSeconds": 86400,
+     "shell": {
+      "installMethod": "unknown",
+      "channel": "unknown",
+      "running": "v2.1.0",
+      "restartPending": false
+     },
+     "reboot": {
+      "recommended": false
+     }
+    }
+   }
+  }
+ ]
+}
