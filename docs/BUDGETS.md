@@ -43,7 +43,7 @@ Each surface gets a measured memory delta and a frame budget. The limits are fix
 |---|---|
 | CPU | ≤ 25% of one core |
 | Memory over Silent-open, including iGPU textures | ≤ +400 MiB |
-| dGPU | Never woken |
+| dGPU | Never woken outside Overdrive. In Overdrive the heavy layer runs on it (OPEN 13, the owner, 10 November 2026; FARG measured about 38 % and 12–14 W) |
 | Frame time | p95 ≤ 6.9 ms, p99 ≤ 10 ms |
 | Release | Back to the Silent baseline ±10 MiB within 5 s |
 | Battery | Suspended on battery (Z122) |
