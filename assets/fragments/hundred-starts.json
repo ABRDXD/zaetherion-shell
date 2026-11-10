@@ -1,0 +1,8 @@
+{
+  "when": {
+    "counter": "core.starts",
+    "atLeast": 100
+  },
+  "whisper": "the hundredth start",
+  "text": "The camp has been struck and pitched one hundred times.\nThe pegs go back into the same holes every time. We have stopped moving them.\nThe holes were here when we arrived. There were exactly one hundred."
+}

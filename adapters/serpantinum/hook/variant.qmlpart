@@ -1,0 +1,27 @@
+        cursorShape: Qt.PointingHandCursor
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
+        // FART: right-click toggles FART, unfolding from this clock's rect on its screen.
+        function fartPlacement() {
+            const w = root.barWindow;
+            const m = w && w.margins ? w.margins : null;
+            const a = w && w.anchors ? w.anchors : null;
+            const s = w && w.screen ? w.screen : null;
+            function origin(near, far, nearMargin, farMargin, screenSize, windowSize) {
+                if (!a || a[near] || !a[far] || !s) return m ? (m[nearMargin] || 0) : 0;
+                return screenSize - windowSize - (m ? (m[farMargin] || 0) : 0);
+            }
+            const p = root.mapToItem(null, 0, 0);
+            const x = p.x + origin("left", "right", "left", "right", s ? s.width : 0, w ? w.width : 0);
+            const y = p.y + origin("top", "bottom", "top", "bottom", s ? s.height : 0, w ? w.height : 0);
+            const rect = [x, y, root.width, root.height].map(Math.round).join(",");
+            return ["--from", rect, "--screen", s && s.name ? s.name : ""];
+        }
+        onClicked: mouse => {
+            if (mouse.button === Qt.RightButton) {
+                Quickshell.execDetached([Quickshell.env("HOME") + "/.local/bin/fart", "toggle"].concat(fartPlacement()));
+                return;
+            }
+            if (Caching.serpantinumDir) {
+                Quickshell.execDetached(["bash", Caching.serpantinumDir + "/scripts/qs_manager.sh", "toggle", "calendar"]);
+            }
+        }

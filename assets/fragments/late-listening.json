@@ -1,0 +1,11 @@
+{
+  "when": {
+    "listening": true,
+    "hours": [
+      0,
+      4
+    ]
+  },
+  "whisper": "still listening, past midnight",
+  "text": "Music in the camp after midnight. The surveyor's ears follow it from tent to tent.\nWhen the song ends it keeps listening a little longer than we do.\nWhatever it hears after the song is quieter than the song. It has started wagging at it."
+}

@@ -7,17 +7,18 @@ unofficial work and is not endorsed by any of the projects named below.
 
 Status
 ------
-As of 8 November 2026 this repository contains design documents only. No code
-from any other project has been copied yet. The entries below record what the
-plan says will be brought in, so the obligations are known in advance.
+Seeded on 10 November 2026 (milestone S0) from FART-next, tag FARG, commit
+c13d8747c5d8f7e6abc91a0f871ec87eeafc77e3. The seeded files are the code
+(adapters, assets, core, licenses, tests, tools, view, shell*.qml) and FART's
+docs under docs/fart/.
 
-Lineage (to be seeded at milestone S0)
+Lineage (seeded at milestone S0)
 --------------------------------------
 - FART-next, the predecessor control centre (GPL-3.0). It descends from
   pctrade/end4-pC and end-4/dots-hyprland ("illogical-impulse"), both GPL-3.0,
   and includes a Caelestia shell asset (GPL-3.0). FART-next's own NOTICE lists
-  the derived files. That NOTICE will be carried over in full, and the seed
-  commit will be recorded here.
+  the derived files. That NOTICE is carried over in full as
+  licenses/FART-NOTICE.
 
 Planned third-party use
 -----------------------

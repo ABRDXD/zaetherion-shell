@@ -1,0 +1,60 @@
+FART (FART-native successor)
+Copyright (C) 2026 FART contributors
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License, version 3 (see LICENSE). It is an
+unofficial work and is not endorsed by any of the projects named below.
+
+It was seeded on 6 November 2026 from the FART fork at
+~/.local/share/fart/source (branch `fart`, commit f442c93), itself an
+unofficial fork of pctrade/end4-pC built on end-4/illogical-impulse. That
+repository remains the rollback archive and keeps the full upstream history.
+
+Upstream work
+-------------
+- end-4/dots-hyprland ("illogical-impulse"), https://github.com/end-4/dots-hyprland
+  GPL-3.0. Original Quickshell desktop the fork chain descends from.
+- pctrade/end4-pC, https://github.com/pctrade/end4-pC
+  GPL-3.0. Derived files in this repository (service APIs adapted from it):
+    view/compat/Todo.qml                (from services/Todo.qml)
+    view/compat/TimerService.qml        (from services/TimerService.qml)
+    adapters/common/LinuxSystem.qml     (telemetry sampling from services/ResourceUsage.qml,
+                                         contributors include Y-astro; CPU model from
+                                         services/SystemInfo.qml, contributors include cold)
+    adapters/common/ResourceMath.js     (from the fork's ResourceUsage helpers)
+    view/rooms/LyricsTimeline.qml       (line timing from services/LyricsService.qml)
+    tools/lyrics/lyrics.py              (fetchers from scripts/lyrics/lyrics.py)
+  M1 (6 November 2026) removed the remaining code from services/DotsUpdater.qml
+  (contributors include atsauban).
+- Caelestia shell, https://github.com/caelestia-dots/shell (Caelestia contributors)
+  GPL-3.0, full text in licenses/Caelestia-GPL-3.0.txt.
+    assets/caelestia/bongocat.gif  original upstream asset, blob f960fecd7d91c028506ddf7a7ace5bcb84c473bd
+    view/rooms/FCalendar.qml       calendar adapted from the fork's CaelestiaCalendar port
+
+- Serpantinum 2.4.1 (the host desktop; no licence file in its installed source tree)
+    adapters/serpantinum/hook/upstream.qmlpart  quotes the 6-line clock handler of
+        quickshell/bar/faces/timedate/TimeDateFace.qml, kept only to match it exactly
+    adapters/serpantinum/hook/archive.qmlpart   the archive's hook of that handler
+        (~/.local/share/fart/source tools/fart_clock.py), kept to recognise it
+    adapters/serpantinum/hook/variant.qmlpart   FART's replacement; it keeps the host's
+        left-click line from the handler above
+
+- Quickshell, https://git.outfoxxed.me/quickshell/quickshell (mirror:
+  github.com/quickshell-mirror/quickshell), revision 4f508be (Quickshell contributors)
+  LGPL-3.0, full text in licenses/Quickshell-LGPL-3.0.txt.
+    tools/measure/quickshell/1434-file-urls.patch  a measurement-only patch to
+        src/core/qsintercept.{hpp,cpp} and src/core/generation.cpp, with their context
+        lines; never built into or shipped with FART
+
+Generated in this repository (no third-party content; rebuild them, don't edit them)
+-------------------------------------------------------------------------------------
+    assets/sounds/orbit-out.wav, orbit-in.wav   synthesized by tools/sounds/make_whoosh.py
+    assets/sounds/overdrive-ignite.wav, overdrive-off.wav   synthesized by tools/sounds/make_ignite.py
+    assets/sounds/foley-*.wav, chord-*.wav, quiet-*.wav   synthesized by tools/sounds/make_foley.py
+    view/strata/shaders/*.qsb                   compiled by tools/make_shaders.py (Qt's qsb)
+                                                from the .vert/.frag sources beside them
+    view/strata/shaders/temporal.frag.qsb        FART temporal field; generated from temporal.frag
+                                                by python3 tools/make_shaders.py (no external assets)
+
+All other files were written for FART. Third-party assets added later must be
+recorded here with their licence before they are committed.

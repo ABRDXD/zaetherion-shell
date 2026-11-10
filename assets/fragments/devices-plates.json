@@ -1,0 +1,9 @@
+{
+  "when": {
+    "visits": {
+      "devices": 50
+    }
+  },
+  "whisper": "fifty visits to the devices",
+  "text": "The surveyor has learned which of the device plates are warm.\nIt sleeps on the one plugged in last. When something is unplugged it gets up, turns round three times, and moves to the next.\nLast night it slept on a plate with nothing plugged into it. It was warm."
+}
