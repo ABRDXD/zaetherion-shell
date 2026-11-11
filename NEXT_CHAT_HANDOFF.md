@@ -34,7 +34,7 @@ Read this first, then `HANDOFF.md` (top entry). Continue from the files, not fro
 - **S1 (approved by the user) — done so far:** Hyprland require list (`~/.config/hypr/zaetherion.lua` + `~/.config/hypr/zaetherion/`, copies in `session/hypr/`), `tools/session-start` (interim starter with DMS restart backoff and stop-on-logout), SDDM entry (template `session/zaetherion.desktop` with `@HOME@`), installed and login/logout tested.
 - **S1 still owed:**
   - ~~nested Hyprland check (Z109)~~ **done 11 Nov afternoon:** viable, `tools/nested_hypr.py selftest` 9/9 (docs/NESTED.md);
-  - **F1**: `fartd` supervising `dms run -c` and the panel (state machine, restart backoff, DMS-dies case, named clients), replacing `session-start`'s loop. The roadmap marks F1 as a Fable design session; suggest the user raise effort / switch model for it (CLAUDE.md effort rules);
+  - **F1 (brief ready: `docs/F1_BRIEF.md`, recon `docs/F1_RECON.md`; a Fable 5.2 chat starts from the brief)**: `fartd` supervising `dms run -c` and the panel (state machine, restart backoff, DMS-dies case, named clients), replacing `session-start`'s loop. The roadmap marks F1 as a Fable design session; suggest the user raise effort / switch model for it (CLAUDE.md effort rules);
   - `zaetherion start/stop/restart/status` exists from the seed; check it fits the session;
   - `session-start` logs DMS's whole output into `session.log` (noisy); trim when F1 lands.
 - **New design inputs from the user (11 Nov), already in docs:**
