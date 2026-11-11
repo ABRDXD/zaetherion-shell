@@ -4,7 +4,7 @@ import re
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-QML = sorted(p for p in ROOT.rglob("*.qml") if ".git" not in p.parts)
+QML = sorted(p for p in ROOT.rglob("*.qml") if not {".git", "fixtures"} & set(p.parts))
 
 
 class LayoutTests(unittest.TestCase):
