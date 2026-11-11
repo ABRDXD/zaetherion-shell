@@ -52,12 +52,16 @@ Every pair not in the table is ignored: nothing changes. `backoff or failed` is 
 | `starting` | `stop` | `stopping` | `cancel`, `sweep` |
 | `up` | `exited` | `crashed` | `fail`, `cancel`, `note_down`, `sweep` |
 | `up` | `stable` | `up` | `reset` |
+| `up` | `duplicate` | `crashed` | `fail`, `cancel`, `note_down`, `sweep` |
 | `up` | `stop` | `stopping` | `cancel`, `sweep` |
 | `crashed` | `swept` | `backoff or failed` | — |
 | `crashed` | `stop` | `stopping` | `sweep` |
 | `backoff` | `timer` | `starting` | `cancel`, `launch` |
 | `backoff` | `start` | `starting` | `cancel`, `launch` |
+| `backoff` | `hold` | `held` | `cancel`, `note_held` |
 | `backoff` | `stop` | `stopped` | `cancel`, `note_stopped` |
+| `held` | `start` | `starting` | `cancel`, `reset`, `launch` |
+| `held` | `stop` | `stopped` | `cancel`, `note_stopped` |
 | `failed` | `start` | `starting` | `reset`, `launch` |
 | `failed` | `stop` | `stopped` | `note_stopped` |
 | `stopping` | `swept` | `stopped` | `note_stopped` |
@@ -65,7 +69,7 @@ Every pair not in the table is ignored: nothing changes. `backoff or failed` is 
 | `stopping` | `adopted` | `stopping` | `sweep` |
 <!-- table:end -->
 
-Actions: `launch` (adopt a running DMS or spawn ours), `probe` (wait for ready), `watch` (pidfd on an adopted DMS), `arm_stable`, `cancel` (timers, probe, watch), `sweep` (§6), `schedule` (the wait and its look-outs), `fail`/`reset` (the failure count), `note_up`/`note_down`/`note_stopped`/`gave_up` (events, §4).
+Actions: `launch` (adopt a running DMS or spawn ours), `probe` (wait for ready), `watch` (pidfd on an adopted DMS), `arm_stable`, `cancel` (timers, probe, watch), `sweep` (§6), `schedule` (the wait and its look-outs), `fail`/`reset` (the failure count), `note_up`/`note_down`/`note_held`/`note_stopped`/`gave_up` (events, §4).
 
 Three rules the table encodes, each with its own test:
 - **A process that arrives late is never left running.** A spawn in flight when `stop` arrives is waited for and then stopped.
@@ -211,7 +215,7 @@ Follow-up work, in order:
 
 ## 13. After the design: the owner's answers (11 November 2026) and what F2 asked for
 
-The code still behaves as §3–§5 describe. The answers below are decided and are built with the switch-over (follow-up 1). The design for each is written here so it is not worked out twice.
+**Built 11 November 2026 (switch-over):** `held` and the duplicate sweep are in the table and the code, with unit tests (26 OK); `tools/supervisor_check.py` 16/16 still passes. Not yet checked live: a second `dms run` in the private folder, and `held`; and `dms kill` is still not measured. The adopted-DMS clean-exit rule uses the pid file as written below (`unknown` is kept for a crash with no status). The design for each answer: The design for each is written here so it is not worked out twice.
 
 **OPEN 15 → comeback notice only.** This is what §4 already provides: the resident reads `last` (`what`, `downAt`, `upAt`) or takes `downFor` from the `up` event. There is no "went down" surface.
 

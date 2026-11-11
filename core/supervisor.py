@@ -20,9 +20,9 @@ from typing import Callable, NamedTuple
 
 log = logging.getLogger("fart.supervisor")
 
-STATES = ("stopped", "starting", "up", "crashed", "backoff", "stopping", "failed")
+STATES = ("stopped", "starting", "up", "crashed", "backoff", "held", "stopping", "failed")
 EVENTS = ("start", "stop", "spawned", "adopted", "spawn_failed", "ready", "start_timeout", "exited",
-          "swept", "timer", "stable")
+          "swept", "timer", "hold", "stable", "duplicate")
 RETRY = "backoff|failed"  # decided by the policy's limit when the row fires
 
 # (state, event) -> (next state, actions). The same table is printed in docs/SUPERVISOR.md §2 and
@@ -40,12 +40,16 @@ TABLE: dict[tuple[str, str], tuple[str, tuple[str, ...]]] = {
     ("starting", "stop"): ("stopping", ("cancel", "sweep")),
     ("up", "exited"): ("crashed", ("fail", "cancel", "note_down", "sweep")),
     ("up", "stable"): ("up", ("reset",)),
+    ("up", "duplicate"): ("crashed", ("fail", "cancel", "note_down", "sweep")),
     ("up", "stop"): ("stopping", ("cancel", "sweep")),
     ("crashed", "swept"): (RETRY, ()),
     ("crashed", "stop"): ("stopping", ("sweep",)),
     ("backoff", "timer"): ("starting", ("cancel", "launch")),
     ("backoff", "start"): ("starting", ("cancel", "launch")),
+    ("backoff", "hold"): ("held", ("cancel", "note_held")),
     ("backoff", "stop"): ("stopped", ("cancel", "note_stopped")),
+    ("held", "start"): ("starting", ("cancel", "reset", "launch")),
+    ("held", "stop"): ("stopped", ("cancel", "note_stopped")),
     ("failed", "start"): ("starting", ("reset", "launch")),
     ("failed", "stop"): ("stopped", ("note_stopped",)),
     ("stopping", "swept"): ("stopped", ("note_stopped",)),
@@ -148,6 +152,7 @@ class Child:
         self.retry_at: float | None = None
         self.was_up = False
         self._backoff_from = 0.0
+        self.extras: list[Ident] = []  # other dms found next to ours; swept with it
         self._stopped = asyncio.Event()
         self._stopped.set()
         self._launching: asyncio.Task | None = None
@@ -244,7 +249,10 @@ class Child:
     def _exited(self, root: Ident | None, code: int | None):
         if root != self.root or self.state not in ("starting", "up"):
             return
-        self.cause = classify(code, self.ui is not None, bool(self.ui and self.ports.alive(self.ui)))
+        if code is None and self.ports.left_cleanly(root):
+            self.cause = {"what": "stopped", "code": 0}  # an adopted dms has no status; DMS removes its pid file only on a clean exit
+        else:
+            self.cause = classify(code, self.ui is not None, bool(self.ui and self.ports.alive(self.ui)))
         self._dispatch("exited", clean=self.cause["what"] in ("stopped", "unknown"))
 
     def _do_watch(self):
@@ -270,12 +278,14 @@ class Child:
         self._dispatch("start_timeout")
 
     def _look(self):
-        """Another dms next to ours is only reported (docs/OPEN.md 18): at ready and once more when stable."""
+        """Another dms next to ours (OPEN 18, decided): stop both and start one, so `dms.path` is valid. Looked for at ready and once more when stable."""
         if self.state != "up" or not self.root:
             return
         others = self.ports.others(self.root)
         if others:
             self._emit("duplicate", pids=[ident.pid for ident in others])
+            self.extras, self.cause = others, {"what": "duplicate"}
+            self._dispatch("duplicate")
 
     def _do_arm_stable(self):
         self.scheduler.at(self._key("stable"), self.clock.now().boot + self.machine.policy.stable, lambda _: self._stable())
@@ -299,9 +309,24 @@ class Child:
         wait = self.machine.delay()
         self._backoff_from = self.clock.now().boot
         self.retry_at = self._backoff_from + wait
-        self.scheduler.at(self._key("retry"), self.retry_at, lambda _: self._dispatch("timer"))
+        self.scheduler.at(self._key("retry"), self.retry_at, lambda _: self._retry())
         self._arm_peek()
         self._emit("retry", inSeconds=wait, failures=self.machine.failures)
+
+    def _retry(self):
+        """The wait is over. After a clean exit with no new dms in sight the owner stopped it on purpose
+        (OPEN 16, decided): stay down until asked. Any other failure starts it again."""
+        if self.state != "backoff":
+            return
+        if self.cause.get("what") == "stopped" and not self.ports.find_foreign():
+            return self._dispatch("hold")
+        self._dispatch("timer")
+
+    def _do_note_held(self):
+        self.was_up, self.down_at = False, None
+        self.retry_at = None
+        self._emit("held")
+        self.scheduler.at(self._key("peek"), self.clock.now().boot + self.machine.policy.peek_slow, lambda _: self._peek())
 
     def _arm_peek(self):
         policy, now = self.machine.policy, self.clock.now().boot
@@ -311,10 +336,12 @@ class Child:
 
     def _peek(self):
         """The wait ends at once when a dms someone else started shows up (an owner restart: 0.36 s)."""
-        if self.state != "backoff":
+        if self.state not in ("backoff", "held"):
             return
         if self.ports.find_foreign():
-            return self._dispatch("timer")
+            return self._dispatch("start" if self.state == "held" else "timer")
+        if self.state == "held":
+            return self.scheduler.at(self._key("peek"), self.clock.now().boot + self.machine.policy.peek_slow, lambda _: self._peek())
         self._arm_peek()
 
     def _do_sweep(self):
@@ -327,6 +354,10 @@ class Child:
             async with self._sweep_lock:
                 if self._launching:
                     await asyncio.wait([self._launching])  # a spawn in flight must land before it can be stopped
+                for extra in self.extras:
+                    if self.ports.alive(extra):
+                        await self.ports.sweep(extra, set(), self.ports.leads_session(extra))
+                self.extras = []
                 root = self.root
                 if root:
                     left = await self.ports.sweep(root, {self.ui} if self.ui else set(), self.session)
@@ -502,6 +533,10 @@ class DmsPorts:
             except (OSError, ValueError):
                 continue
         return sorted(found, key=lambda ident: ident.start)
+
+    def left_cleanly(self, root: Ident) -> bool:
+        """DMS deletes dms-<pid>.pid when it exits cleanly; after a crash the file is still there."""
+        return not (self.runtime / f"dms-{root.pid}.pid").exists()
 
     def find_foreign(self) -> Ident | None:
         """Asked only while we have no dms of our own: the newest one running, if any."""
