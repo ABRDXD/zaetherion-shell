@@ -33,7 +33,7 @@ Read this first, then `HANDOFF.md` (top entry). Continue from the files, not fro
 - **S0 done:** full unit suite 673 OK; quiet baseline Serpantinum + FART-next = **768 MiB PSS** (533 with FART's panel reaped) → the total budget in BUDGETS.md.
 - **S1 (approved by the user) — done so far:** Hyprland require list (`~/.config/hypr/zaetherion.lua` + `~/.config/hypr/zaetherion/`, copies in `session/hypr/`), `tools/session-start` (interim starter with DMS restart backoff and stop-on-logout), SDDM entry (template `session/zaetherion.desktop` with `@HOME@`), installed and login/logout tested.
 - **S1 still owed:**
-  - nested Hyprland check for tests (Z109); if not viable, ask the user how lock testing goes;
+  - ~~nested Hyprland check (Z109)~~ **done 11 Nov afternoon:** viable, `tools/nested_hypr.py selftest` 9/9 (docs/NESTED.md);
   - **F1**: `fartd` supervising `dms run -c` and the panel (state machine, restart backoff, DMS-dies case, named clients), replacing `session-start`'s loop. The roadmap marks F1 as a Fable design session; suggest the user raise effort / switch model for it (CLAUDE.md effort rules);
   - `zaetherion start/stop/restart/status` exists from the seed; check it fits the session;
   - `session-start` logs DMS's whole output into `session.log` (noisy); trim when F1 lands.
