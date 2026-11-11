@@ -176,7 +176,8 @@ def start_core(path: Path) -> Connection:
         seed_state(state / "zaetherion", state / "fart")
         env = dict(os.environ, FART_STATE_DIR=str(state / "zaetherion"),
                    FART_CACHE_DIR=str(xdg("CACHE", ".cache") / "zaetherion"), FART_RUNTIME_DIR=str(path.parent),
-                   FART_HOST=os.environ.get("FART_HOST") or "serpantinum")
+                   FART_HOST=os.environ.get("FART_HOST") or "serpantinum",
+                   FART_SUPERVISE=os.environ.get("FART_SUPERVISE") or "dms")
         log = (path.parent / "core.log").open("ab")
         subprocess.Popen([sys.executable, "-I", str(ROOT / "core/fartd.py")], env=env, cwd="/", start_new_session=True,
                          stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=log)
@@ -269,7 +270,7 @@ def stop_core():
             pass
         connection.close()
         path = runtime() / "core.sock"
-        for _ in range(240):
+        for _ in range(480):  # a worst-case teardown is 9 s (docs/SUPERVISOR.md §12)
             if not path.exists():
                 break
             time.sleep(0.025)

@@ -90,7 +90,7 @@ class TableTests(unittest.TestCase):
         # crashed is left only by `swept` (or stop): the orphaned UI is gone before the next dms starts.
         self.assertEqual({event for state, event in TABLE if state == "crashed"}, {"swept", "stop"})
         launching = {key for key, (_, actions) in TABLE.items() if "launch" in actions}
-        self.assertEqual({state for state, _ in launching}, {"stopped", "backoff", "failed"})
+        self.assertEqual({state for state, _ in launching}, {"stopped", "backoff", "failed", "held"})
 
     def test_backoff_grows_holds_and_resets(self):
         machine = Machine(Policy(delays=(0.25, 1.0, 2.0), handover=3.0))
@@ -145,6 +145,7 @@ class FakePorts:
         self.processes: list[FakeProcess] = []
         self.live: set[Ident] = set()
         self.foreign: Ident | None = None
+        self.clean = False         # an adopted dms left its pid file behind (False) or removed it (True)
         self.ready = True          # the probe finds a UI
         self.fail_spawn = False
         self.session = True
@@ -154,6 +155,9 @@ class FakePorts:
 
     def session_alive(self):
         return self.session
+
+    def left_cleanly(self, root):
+        return self.clean
 
     def find_foreign(self):
         return self.foreign if self.foreign in self.live else None
@@ -340,7 +344,8 @@ class ChildTests(unittest.IsolatedAsyncioTestCase):
         await self.settle()
         self.assertEqual((self.child.state, len(self.ports.processes)), ("up", 1))
 
-    async def test_a_dms_stopped_on_purpose_comes_back_after_the_handover_wait(self):
+    async def test_a_dms_stopped_on_purpose_stays_down_until_asked(self):
+        # OPEN 16: a clean exit and no new dms within the handover wait means the owner turned it off.
         first = await self.up()
         self.ports.kill_ui(first, code=0)
         await self.settle()
@@ -349,7 +354,36 @@ class ChildTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual((self.child.state, len(self.ports.processes)), ("backoff", 1))
         self.clock.advance(0.1)
         await self.settle()
-        self.assertEqual((self.child.state, len(self.ports.processes), self.child.snapshot()["owned"]), ("up", 2, True))
+        self.assertEqual((self.child.state, len(self.ports.processes), self.events[-1]["event"]), ("held", 1, "held"))
+        self.clock.advance(600)
+        await self.settle()
+        self.assertEqual((self.child.state, len(self.ports.processes)), ("held", 1))
+        self.child.start()  # `zaetherion start`
+        await self.settle()
+        self.assertEqual((self.child.state, len(self.ports.processes)), ("up", 2))
+
+    async def test_a_dms_that_appears_while_held_is_adopted(self):
+        first = await self.up()
+        self.ports.kill_ui(first, code=0)
+        await self.settle()
+        self.clock.advance(3.0)
+        await self.settle()
+        self.assertEqual(self.child.state, "held")
+        self.ports.appear()  # Super+R brings one back
+        self.clock.advance(1.0)
+        await self.settle()
+        self.assertEqual((self.child.state, self.child.snapshot()["owned"]), ("up", False))
+
+    async def test_an_adopted_dms_that_left_cleanly_is_not_a_crash(self):
+        self.ports.appear()
+        self.child.start()
+        await self.settle()
+        self.assertEqual(self.child.state, "up")
+        self.ports.clean = True
+        self.ports.live.discard(self.ports.foreign)
+        self.ports.watched[self.ports.foreign]()
+        await self.settle()
+        self.assertEqual([e["what"] for e in self.events if e["event"] == "down"][-1], "stopped")
 
     async def test_a_dms_started_by_hand_during_a_long_wait_is_adopted(self):
         self.child = Child("dms", self.clock, self.scheduler, self.ports, Policy(delays=(8.0,)), on_event=self.events.append)
@@ -406,15 +440,21 @@ class ChildTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.ports.swept[0][0], Ident(1000, 1))
         self.assertNotIn(Ident(1000, 1), self.ports.live)
 
-    async def test_a_second_dms_next_to_ours_is_reported(self):
+    async def test_a_second_dms_next_to_ours_is_stopped_with_ours_and_one_fresh_start(self):
+        # OPEN 18: stop both, start one, so dms.path is valid.
         process = await self.up()
         self.assertNotIn("duplicate", self.names())
         stray = self.ports.appear()
         self.clock.advance(60)  # the look when stable
         await self.settle()
-        self.assertEqual((self.events[-1]["event"], self.events[-1]["pids"]), ("duplicate", [stray.pid]))
-        self.assertEqual((self.child.state, self.child.snapshot()["pid"]), ("up", process.pid))  # reported, not touched
-        self.assertIn(stray, self.ports.live)
+        self.assertIn(("duplicate", [stray.pid]), [(e["event"], e.get("pids")) for e in self.events if e["event"] == "duplicate"])
+        self.assertNotIn(stray, self.ports.live)
+        self.assertNotIn(Ident(process.pid, 1), self.ports.live)
+        down = [e for e in self.events if e["event"] == "down"][-1]
+        self.assertEqual(down["what"], "duplicate")
+        self.clock.advance(1)
+        await self.settle()
+        self.assertEqual((self.child.state, len(self.ports.processes)), ("up", 2))
 
     async def test_stop_from_any_state_leaves_nothing(self):
         async def crashed():
