@@ -24,6 +24,9 @@ alive() { [ -S "$SOCK" ]; }
 stop_all() {
     say "session end: stopping the core (and DMS with it)"
     "$ROOT/zaetherion" stop >>"$LOG" 2>&1
+    # Leave a record for the next login: anything of ours still running after the stop.
+    left=$(pgrep -u "$(id -u)" -a -f 'dms run|dms-shell|core/fartd.py' 2>/dev/null | grep -v "pgrep")
+    if [ -n "$left" ]; then say "LEFTOVER after stop: $left"; else say "logout check: nothing left"; fi
     exit 0
 }
 trap stop_all TERM INT HUP
