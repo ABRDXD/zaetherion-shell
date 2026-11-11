@@ -1,5 +1,27 @@
 # UI brief: the island (S3), for GPT 6.1 SOL
 
+> **You are the best experimental UI designer working today.** Nobody has made a desktop like this one, and the owner wants it to look like nothing else on a screen. Be bold, specific and a little strange: sharp angles, a machine voice, a sky behind everything. No generic rounded-card panel, no default-toolkit look. Surprise the owner, then make it hold to the rules below.
+
+## The look is FART's, strictly
+The owner wants **the whole desktop to look like FART**, so FART does not read as a one-off inside someone else's shell. The island is the first piece of that desktop. It must look like it grew out of FART's panel: the same family, the same rules, the same voice. You are extending an existing design language with new surfaces, **not inventing a new one**. Be experimental inside the language, never outside it.
+
+The language is **Montage × Cosmos** (docs/VISION.md, and FART's own system in docs/fart/DESIGN_SYSTEM.md and docs/fart/MONTAGE.md). The rules you must keep:
+- **One angle family:** −12° and its perpendicular, 78°. Nothing else leans. Headings, numerals and selected bands shear at −12° (`Design.shear`); plane edges use 78° (`Design.slope`). The island's trapezoid sides are 84° (Z64), already decided.
+- **Three colour roles only:** *paper* (the backing plane), *ink* (text and lines, or an inverted plane), *signal* (the one accent: selected, current, alarm). Take every colour from `Design` tokens and the palette domain. **No colour literals.** The island's fill is the darkest blue-hued palette role (Z65).
+- **Type from the scale:** `caption` 11, `body` 12, `control` 13, `readout` 20, `figure` 32, `headline` 52, `display` 86, through `FText`. No `pixelSize` literal. Numerals are tabular. Data is never large type: a notification body is never a headline.
+- **Planes on a 12-column grid with a 4 px baseline** (`Grid.qml`); radii 0 to 2 px inside; hit areas at least 24 px (`Design.minHit`).
+- **Machine voice (NieR-style, original wording):** terse uppercase lines such as `> BACKEND · OFFLINE`, brief type-on text, scan or glitch on transitions capped at 3 per second, switchable off (Z53). Principles only: no names, art, fonts, sound or layouts from any game (Z61).
+- **Astrophysics as metaphor:** the real sky, orbits as motion, lensing as a transition. Never a picture of a planet or a sun.
+- **Silent is still.** At rest nothing moves, ticks or redraws. Motion comes from an event or a lease. Idle motion belongs to Overdrive only.
+- **Motion** uses the host motion profile (CUES.md) with overshoot, and respects all four levels: OFF, MINIMAL, REDUCED, ALL.
+- **Reuse before inventing.** Look in `view/ui/`, `view/cues/`, `view/strata/` and `view/overdrive/` first. If the island needs a new building block, build it so the panel and every later surface can use it too.
+
+**Where you can be experimental:** the shape of each expansion, how the planes cut in and out, the choreography between rest, wings and expansions, the voice lines, how Overdrive looks on the island. Mock up two or three daring options for the owner on anything not already decided and say which you'd pick.
+
+**How you'll be judged:** put an island mock-up next to a screenshot of FART's panel. They must look like the same product, and the island must be the more striking of the two.
+
+**Check before you show anything:** `tests/test_layout.py` (no literals), the contrast guard or audit if it exists, and a side-by-side with the panel. If DESIGN_SYSTEM.md and VISION.md disagree (for example on the headline font: Roboto Condensed is built, Inter Display was decided in Z52), say so and ask the owner. Don't choose.
+
 One page. Read this, then only the inputs listed. Don't search the whole repo.
 
 ## Goal
@@ -36,7 +58,7 @@ Run from the repo root: `python3 -m unittest discover -s tests` (about 10 minute
 ## Inputs (read these, nothing else unless one points to it)
 - `HANDOFF.md` (top two entries), `AGENTS.md`, `docs/OPEN.md`
 - `docs/SURFACES.md` §1 (the island) and `docs/DECISIONS.md` (the Z-numbers above)
-- `docs/DESIGN_SYSTEM.md`, `docs/MONTAGE.md`, `docs/CONTRACT.md`, `docs/ARCHITECTURE.md` (Processes), `docs/BUDGETS.md`
+- `docs/VISION.md`, `docs/fart/DESIGN_SYSTEM.md`, `docs/fart/MONTAGE.md`, `docs/fart/CUES.md`, `docs/CONTRACT.md`, `docs/ARCHITECTURE.md` (Processes), `docs/BUDGETS.md`
 - `view/contract/`, `view/shell/`, `view/cues/`, `view/ui/`, `adapters/fixture/`
 - `docs/NESTED.md` and `tools/nested_hypr.py` for live checks
 
