@@ -22,6 +22,7 @@ from core.clock import SystemClock, TimerfdScheduler  # noqa: E402
 from core.host import Host, load_profile  # noqa: E402
 from core.notifications import BusctlSource  # noqa: E402
 from core.protocol import MAX_LINE  # noqa: E402
+from core.supervisor import Child, DmsPorts, SessionWatch, Supervisor  # noqa: E402
 from core.view import PressureTrigger, spawn_quickshell, stop_foreign_instance  # noqa: E402
 
 LOG_KEEP = 256 * 1024
@@ -66,6 +67,26 @@ def listening_socket(path: Path) -> tuple[socket.socket, bool]:
     return sock, True
 
 
+def supervise(core: Core, scheduler, env: dict, runtime: Path) -> SessionWatch | None:
+    """FART_SUPERVISE=dms: the core starts `dms run`, restarts it and ends with the compositor
+    (docs/SUPERVISOR.md). Off unless asked for, until the session is switched over from tools/session-start."""
+    if os.environ.get("FART_SUPERVISE") != "dms":
+        return None
+    watch = None
+    signature = os.environ.get("HYPRLAND_INSTANCE_SIGNATURE")
+    if signature:
+        watch = SessionWatch(Path(os.environ["XDG_RUNTIME_DIR"]) / "hypr" / signature, core.stopping.set)
+        watch.start()
+    resident = os.environ.get("FART_RESIDENT_DIR")  # unset until S3: DMS runs its own UI
+    ports = DmsPorts(env, Path(os.environ["XDG_RUNTIME_DIR"]), runtime / "dms.log", Path(resident) if resident else None,
+                     session_alive=watch.alive if watch else lambda: True)
+    supervisor = Supervisor()
+    supervisor.add(Child("dms", core.clock, scheduler, ports))
+    core.attach_supervisor(supervisor)
+    supervisor.start()
+    return watch
+
+
 async def serve(runtime: Path, state_dir: Path):
     loop = asyncio.get_running_loop()
     clock = SystemClock()
@@ -79,8 +100,9 @@ async def serve(runtime: Path, state_dir: Path):
     sock, owned = listening_socket(sock_path)
     server = await asyncio.start_unix_server(core.server.handle, sock=sock, limit=MAX_LINE)
     core.view.start_checks()  # off the first open's path (docs/CORE.md §7)
-    for signum in (signal.SIGTERM, signal.SIGINT):
+    for signum in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
         loop.add_signal_handler(signum, core.stopping.set)
+    watch = supervise(core, scheduler, env, runtime)
     source = None
     if os.environ.get("FART_MIRROR") != "0":
         source = BusctlSource(core.mirror, core.track)
@@ -89,6 +111,8 @@ async def serve(runtime: Path, state_dir: Path):
     await core.stopping.wait()
     log.info("core stopping")
     server.close()
+    if watch:
+        watch.stop()
     await core.close()
     if source:
         await source.stop()
