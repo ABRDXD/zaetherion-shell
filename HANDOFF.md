@@ -19,6 +19,16 @@
   4. **Routine, found on the way (not F1's):** two unit tests have failed since the nested fixtures were committed (`4db1718`): `test_qmldirs` (no qmldir in `tests/fixtures/nested/{lock,pamcheck}`) and `test_layout` (a font size literal in `tests/fixtures/nested/lock/shell.qml`). Both scan every `.qml` in the repo; test fixtures should be skipped by both. The supervisor check writes its test UI into its temporary folder for this reason.
 - F2 (the `dms` adapter) was not started: it needs its own brief first.
 
+# 11 November 2026, F2: `dms` adapter designed (note only, no code)
+
+- **The owner cut F2 to the design note.** `docs/DMS_ADAPTER.md` holds the design (brief points 1–6), the link's transition table (§2), the network mapping (§4), the service ↔ domain ↔ lease table (§5) and the build and test list (§9). No `adapters/dms/` exists yet; nothing was run against a real DMS.
+- **Owner's decision:** a DMS newer than the checked one (API 38) keeps working with a note in Settings; an older one is switched off. Z9 needs that sentence at the merge.
+- **The pattern to copy per domain:** one `DmsFeed` per DMS service with `wanted:` set to the lease (`holds("…")`, or `true` for un-leased contract state); properties are bindings on `feed.data`; methods go through `link.call` and never update properties themselves; a pure `Dms<Domain>Map.js` does the mapping and is tested under Node against the fixture.
+- **Needs from F1** (§7): the DMS socket path for the panel, at spawn and on change; stopping an orphaned resident; the source for Z123's expansions.
+- **New open items:** OPEN.md F2-1 to F2-6.
+- **Found on the way:** `tests/test_qmldirs.py` fails before any F2 change (`tests/fixtures/nested/{lock,pamcheck}/qmldir` missing). Left alone.
+- **Next:** build §9 in order (stand-in, link machine with its row tests, network, smoke), then roll the pattern out to bluetooth, brightness and the rest.
+
 # 11 November 2026, afternoon: nested Hyprland check (Z109) passed
 
 - **Nested Hyprland is viable for tests.** `tools/nested_hypr.py` (start / run / shot / stop / selftest) parks a nested Hyprland on a hidden special workspace with a headless `ZTEST` output that renders while hidden. Self-test 9/9 twice: fake lock shows and clears, a crashed lock client keeps the screen covered, a new client takes over, fake PAM permit/deny work from private config files, real session untouched. Details: docs/NESTED.md. Fixtures in `tests/fixtures/nested/`; `tests/test_nested_fixtures.py` 3 OK.
