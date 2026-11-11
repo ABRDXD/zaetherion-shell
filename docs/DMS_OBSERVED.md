@@ -38,5 +38,23 @@
 - Same results otherwise: `apiVersion` 38, the same 21 capabilities and 15 event services, the keyboards opened, the NVIDIA card still asleep, no user-bus names held. **The fixture now comes from this run**; the first run's events are discarded.
 - Scrubber: `tools/dms_scrub.py raw.json out.json` (keys + patterns + time-zone offset; fails if the user name survives).
 
+## Method names, from DMS's own QML (11 November)
+Read from the UI DMS unpacks while running (`$XDG_RUNTIME_DIR/dms-shell/<hash>/`):
+- **Lyrics:** `lyrics.get` with the track's fields plus `allowNetwork` and `providers` (`Services/LyricsController.qml`); `lyrics.plugins` lists providers.
+- **Location:** `location.getState`, used only when the `location` capability is present (`Services/LocationService.qml`). Absent on this machine.
+- **Weather is not a backend method.** `Services/WeatherService.qml` fetches Open-Meteo itself with `dms dl --connect-timeout 8 --timeout 20` under `nice`/`ionice`, plus reverse geocoding (Nominatim, Photon, BigDataCloud) and ip-api.com for an IP location. ZÆTHERION has to do its own (or call `dms dl`).
+- Also seen: `sysupdate.{refresh,upgrade,setInterval,repoStatus,releases,release,cancel,acquire}`, `wellbeing.{summary,setState,setLimits,clear}`.
+
+## Memory, first look (11 November, indicative: the owner was using DMS)
+| | RSS MiB | PSS MiB |
+| --- | --- | --- |
+| DMS backend, fresh | 52–56 | 49–53 |
+| DMS backend after a wallpaper change | 408–419 | 396–407 |
+| DMS UI (its Quickshell + children) | 611–681 | 415–490 |
+| FART view + core, at rest | 531–535 | 281–284 |
+- **The backend keeps ~350 MiB after building a theme from a wallpaper** (matugen, in-process; "Building theme: image …"). It doesn't grow afterwards, so it looks like Go holding freed heap, not a leak. Check whether it shrinks after several minutes. ZÆTHERION doesn't need DMS's theming, so don't trigger it (no wallpaper through DMS); a backend at ~50 MiB is the realistic figure.
+- Last night, after use: backend 158 PSS, UI 530 PSS.
+- **The S0 baseline (Serpantinum + FART at rest) is still owed:** Serpantinum is off while the owner tries DMS. BUDGETS.md's total isn't fixed yet.
+
 ## Not done yet in S0
-The scrub test, replaying the fixtures offscreen, the right weather, lyrics and location methods, and the quiet RSS/PSS baseline.
+Only the quiet baseline with Serpantinum on. Done: the scrub test and the replay (`tests/test_dms_fixtures.py`, `tools/dms_replay.py`), the method names (above).
