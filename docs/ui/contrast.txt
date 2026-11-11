@@ -1,0 +1,10 @@
+ink on navy: 16.37:1 PASS
+ink on paper: 14.95:1 PASS
+ink on sky: 12.52:1 PASS
+muted on navy: 10.16:1 PASS
+muted on paper: 9.28:1 PASS
+signal on navy: 11.27:1 PASS
+navy on ink: 16.37:1 PASS
+ink on lit face: 14.21:1 PASS
+muted on lit face: 8.82:1 PASS
+signal on lit face: 9.78:1 PASS

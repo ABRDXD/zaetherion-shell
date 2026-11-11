@@ -32,6 +32,17 @@ The goal: **the most distinctive daily driver possible, which still costs nothin
 
 **Motion:** four levels, OFF / MINIMAL / REDUCED / ALL. The default is ALL; Sessions force MINIMAL (Z116).
 
+## Future FARTland direction
+
+The owner wants two visual modes:
+
+- **Angular** keeps the sharp Montage × Cosmos look, including the approved S3 island with its shallow bevel (Z144).
+- **FARTland // Fluid** explores rounded corners and smooth, lively animations across the shell.
+
+FARTland // Fluid depends on **FART // Fluid**, which the owner plans to develop later. The scope, schedule and way to switch modes are open.
+
+The owner approved the Fluid island (Z145), a compact, matte navy notch attached to the screen edge. A subtle 3 px underside follows the rounded shape as it morphs. It shows the clock at rest and adds track information and a waveform while media plays. The other controls appear when it widens on hover. See the [approved island study](ui/fartland-fluid-study.svg) and [motion preview](ui/fartland-fluid-motion.gif).
+
 ## What it is not
 
 - Not a dock: the dock is dropped (Z46).
