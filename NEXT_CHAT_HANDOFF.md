@@ -1,49 +1,44 @@
-# Handoff for the next chat (written 11 November 2026, morning)
+# Handoff for the next chat (written 11 November 2026, ~12:40)
 
-Read this first, then `HANDOFF.md` (top entry) and `docs/DMS_OBSERVED.md`. Continue from the files, not from memory.
+Read this first, then `HANDOFF.md` (top entry). Continue from the files, not from memory.
 
 ## Who you are, how the user works
 - You're Claude A, working on two projects: **FART** (`~/.local/share/fart/next-m6`, branch `m6-design`; the user's everyday copy is `~/.local/share/fart/next`, branch `main`, command `fart`) and **ZÆTHERION** (`~/src/zaetherion-shell`, branch `s0-seed`).
 - Read FART's `CLAUDE.md` and `AGENTS.md` (the Overdrive mandate, the safety rules, "poop", no push).
-- **Short milestone updates in plain words; questions saved for the end.**
+- **Short milestone updates in plain words; questions saved for the end.** The user is enthusiastic and visual: show what changed (screenshots of the bar via `grim -g "0,0 1920x40"` worked well).
 - **"poop"** means the screen is free: run the on-screen measurements at once.
 - **Gosling rule (essential):** on "I Drive", *or whenever the user makes a Ryan Gosling / Drive / Barbie-Ken meme or pun*, make one back, then carry on.
 - **No frame-rate cap** in Overdrive (the user sees 144 vs 120 Hz): cut the cost of each frame instead.
-- **Shells aren't just UIs:** before saying a shell is off, find every path that restarts it, and re-check after waiting.
+- **Shells aren't just UIs:** before saying a shell is off, find every path that restarts it, and re-check after waiting. (Seen again today: `serpantinumd stop` leaves `serpantinum-audio daemon` running.)
 - Commits end with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`. Never push.
+- **Resuming:** `claude -c` opens the wrong chat if the folder differs; tell the user `claude --resume` and pick by name. `!` commands can't take a sudo password: give root commands for the user to run in their own terminal.
 
-## The user's desktop right now (important)
-- **DMS is running with its full UI** (`dms run`, started detached with `setsid`; logs in the old session's scratchpad). The user is trying it out and likes how customisable it is.
-- **Serpantinum is disabled:** `~/.local/share/serpantinum/bin/serpantinum` and `serpantinumd` are renamed to `*.off`. That breaks every launcher (`~/.local/bin` and `/usr/local/bin` are symlinks to them). Its Hyprland autostart (`~/.config/hypr/config/autostart.lua`) is untouched and fails quietly.
-  - **To restore:** rename both back, copy `~/.config/hypr/config/keybinds.lua.serpantinum-2026-11-10` over `keybinds.lua`, run `hyprctl reload`, then `serpantinumd start`. Stop DMS with `pkill -x dms`.
-  - **Backups:** `~/backups/serpantinum-2026-11-10.tar.zst` (full: program, config, state, caches, `~/.config/hypr`, `/usr/local/bin` helpers, `/etc/pam.d/serpantinum`) and `~/backups/serpantinum-state-2026-11-10-b.tar.zst`.
-- **Keybinds are retargeted to DMS** in `~/.config/hypr/config/keybinds.lua`: `dms ipc call …` for the launcher (spotlight), control centre, dash tabs (overview, media, wallpaper), notifications, settings, power menu, lock, audio and brightness (steps of 5); `dms screenshot` (piped to `satty -f -` for the edit keys); `dms restart` for reload. Workspaces use native Lua (`hl.dsp.focus({ workspace = ws })`, `hl.dsp.window.move({ workspace = ws })`), because `hyprctl dispatch workspace N` fails under this Hyprland's Lua config. Recording uses wf-recorder, toggled, saving to `~/Videos`. The clipboard key uses cliphist directly. The user confirmed workspaces were broken, and they were fixed; the other keys haven't been confirmed by the user yet.
-- **DMS clipboard history is off** (`clipboard.setConfig {"disabled": true}`, saved in `~/.config/dms/clsettings.json`). It still creates `~/.cache/dms/clipboard/db` at start. Never read clipboard contents.
-- **DMS's lock screen is untested** (PAM `dankshell`, then `login`).
-- FART (`fart`) is running. It didn't come back after the reboot by itself; it was started with `fart start`.
+## The user's desktop right now
+- **The user now logs into the ZÆTHERION session** (SDDM entry `/usr/share/wayland-sessions/zaetherion.desktop`, installed by the user). It runs Hyprland with `~/.config/hypr/zaetherion.lua`, which starts cliphist watchers and `tools/session-start` → ZÆTHERION's core (`core/fartd.py` from this repo) → `dms run` with **DMS's own UI** (ZÆTHERION's resident UI doesn't exist until S3). Logs: `$XDG_RUNTIME_DIR/zaetherion/session.log` and `dms.log`.
+  - **Login and logout tested 11 Nov:** clean login, no config errors; after logout + login none of the old processes survived and exactly one fresh set ran.
+  - Super+\` in this session opens **ZÆTHERION's** FART copy, not the everyday `fart`. FART-next's core isn't running in this session.
+  - ZÆTHERION's core reports `host serpantinum` (seeded default); fix with the S2 adapters.
+- **The plain "Hyprland" session** (`~/.config/hypr/hyprland.lua`) is Serpantinum's, unchanged except `config/keybinds.lua`, which currently holds the **DMS** keybinds. Serpantinum is disabled (`bin/serpantinum{,d}` → `*.off`), and nothing autostarts DMS there, so that session would come up with no shell. Restore steps for Serpantinum: rename the two back, copy `config/keybinds.lua.serpantinum-2026-11-10` over `keybinds.lua`, `hyprctl reload`, `serpantinumd start`. Backups in `~/backups/serpantinum-2026-11-10*.tar.zst`.
+- **DMS bar (user-tuned with Claude, 11 Nov):** `~/.config/dms/settings.json` (backup `settings.json.bak-2026-11-11`). Left: workspaces with `workspacePaddingCount` 7 (chosen to balance the sides). Centre: music (+ clock). Right: notifications, battery, control centre (Wi-Fi/volume), **power button**. CPU pill added then disabled. Sides within ~15 px. DMS has no "equal sides" option.
+  - The user is also changing DMS settings themselves (fonts changed mid-session); always re-read settings.json before writing it.
+- **Modern Clock** DMS plugin (`~/.config/dms/plugins/modernClock`, GPL-3.0; Anurati font is personal-use only, Poppins OFL) is the user's favourite thing. It's in PARITY.md as a ZÆTHERION widget (S10). Never commit Anurati.
+- **DMS clipboard history stays off**; cliphist records in the ZÆTHERION session (user's choice). Never read clipboard contents.
+- DMS's lock screen is still untested.
 
-## FART state
-- `main` is at `850a995`. `m6-design` is ahead by notes only: `12d2914`, `6d82e18`, `dedb464`, `c13d874` (the §9 on-screen rows), `af9d741` (the Gosling rule in CLAUDE.md). These reach `main` with the next tested merge (full suite on the hidden desktop first, then `fart stop; fart start`).
-- **Tag `FARG`** = `c13d874`: the ZÆTHERION seed.
-- **On-screen results (plugged in, `docs/OVERDRIVE.md` §9):** orbit 49 → 144 fps, Devices 72 → 144, Performance CPU 53 → 27 %, Home AMD 69 → 58 %.
-  - **Still to fix:** flights 162 % CPU, the Overlay keeping ~96 MiB after release, AMD 70 % with the heavy layer on.
-  - None of these show in Silent. The AMD optimisation task (gpu_probe `--off` per room on the hidden desktop, cache or lower-resolution strata) wasn't started.
+## FART state (unchanged today)
+- `main` at `850a995`; `m6-design` ahead by notes only (`12d2914`, `6d82e18`, `dedb464`, `c13d874`, `af9d741`), to reach `main` with the next tested merge. Tag `FARG` = `c13d874`.
+- Still to fix (Overdrive, on screen): flights 162 % CPU, the Overlay keeping ~96 MiB after release, AMD 70 % with the heavy layer on. AMD optimisation task not started.
 
-## ZÆTHERION state (branch `s0-seed`, last commit `e6a8cbe`)
-- **S0, done:**
-  - seeded from FARG (code at the root, FART docs in `docs/fart/`, `licenses/FART-NOTICE`, NOTICE updated);
-  - `./zaetherion` launcher (own runtime, state and cache folders; still says fart-next in its help text);
-  - OPEN 13 decided: the heavy layer stays on NVIDIA, Overdrive only; BUDGETS.md changed;
-  - OPEN 2: tesseract, zbarimg and satty are installed;
-  - DMS first runs: scrubbed fixture `tests/fixtures/dms/s0-v2.1.0.json`, `tools/dms_scrub.py`, `tools/dms_replay.py`, `tests/test_dms_fixtures.py` (10 OK);
-  - real method names; first memory figures.
-- **S0, owed:** the quiet RSS/PSS baseline of **Serpantinum + FART** at rest (needs Serpantinum back for a few minutes), then fix the total in BUDGETS.md. The full test suite hasn't run in the ZÆTHERION tree yet (only `test_orbit` and the new tests).
-- **Key DMS facts:**
-  - apiVersion 38 (v2.1.0), not 40;
-  - weather is UI-side (Open-Meteo through `dms dl`), lyrics is `lyrics.get`, location only with the `location` capability (absent here);
-  - DMS opens raw keyboard input (evdev);
-  - wellbeing records app usage on its own;
-  - the backend uses ~50 MiB PSS fresh but ~400 after a wallpaper theme build;
-  - DMS's UI uses ~420–530 MiB PSS (ZÆTHERION replaces the UI).
-- **Waiting on the user (asked, not answered yet):** approval for **S1**: (1) the SDDM session entry in `/usr/share/wayland-sessions/` (root, sudo), and (2) ZÆTHERION's own Hyprland require list (keybinds copy, `allow_session_lock_restore`, autostart of fartd → `dms run -c` → resident UI). Serpantinum's session must stay unchanged. Don't start S1 without that OK.
-- `docs/ROADMAP.md` is the user's uncommitted local file. Leave it alone.
+## ZÆTHERION state (branch `s0-seed`, last commit: this handoff)
+- **S0 done:** full unit suite 673 OK; quiet baseline Serpantinum + FART-next = **768 MiB PSS** (533 with FART's panel reaped) → the total budget in BUDGETS.md.
+- **S1 (approved by the user) — done so far:** Hyprland require list (`~/.config/hypr/zaetherion.lua` + `~/.config/hypr/zaetherion/`, copies in `session/hypr/`), `tools/session-start` (interim starter with DMS restart backoff and stop-on-logout), SDDM entry (template `session/zaetherion.desktop` with `@HOME@`), installed and login/logout tested.
+- **S1 still owed:**
+  - nested Hyprland check for tests (Z109); if not viable, ask the user how lock testing goes;
+  - **F1**: `fartd` supervising `dms run -c` and the panel (state machine, restart backoff, DMS-dies case, named clients), replacing `session-start`'s loop. The roadmap marks F1 as a Fable design session; suggest the user raise effort / switch model for it (CLAUDE.md effort rules);
+  - `zaetherion start/stop/restart/status` exists from the seed; check it fits the session;
+  - `session-start` logs DMS's whole output into `session.log` (noisy); trim when F1 lands.
+- **New design inputs from the user (11 Nov), already in docs:**
+  - Island modules they actually use: power, network, notifications, battery, active media (SURFACES.md §1). Power button and a notification glyph are missing from the wing lists: add at S3.
+  - **Memory on demand:** a memory-pressure island expansion (top 3 processes by PSS, pinnable). Threshold etc. is **OPEN 14** (S3).
+  - They love the "dynamic island" idea and DMS's customisability.
+- `docs/ROADMAP.md` is the user's file. Leave it alone.
