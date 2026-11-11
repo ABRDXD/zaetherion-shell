@@ -26,7 +26,10 @@ stop_all() {
     "$ROOT/zaetherion" stop >>"$LOG" 2>&1
     # Leave a record for the next login: anything of ours still running after the stop.
     left=$(pgrep -u "$(id -u)" -a -f 'dms run|dms-shell|core/fartd.py' 2>/dev/null | grep -v "pgrep")
-    if [ -n "$left" ]; then say "LEFTOVER after stop: $left"; else say "logout check: nothing left"; fi
+    if [ -n "$left" ]; then KEEP="LEFTOVER after stop: $left"; else KEEP="logout check: nothing left"; fi
+    say "$KEEP"
+    # The runtime folder goes with the session, so keep the record where it survives.
+    mkdir -p "${XDG_STATE_HOME:-$HOME/.local/state}/zaetherion" && echo "$(date '+%F %T') $KEEP" >>"${XDG_STATE_HOME:-$HOME/.local/state}/zaetherion/logout.log"
     exit 0
 }
 trap stop_all TERM INT HUP
