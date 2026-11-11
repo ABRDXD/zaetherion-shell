@@ -4,6 +4,12 @@ Only these remain open. Each is settled by the named test, and the result goes b
 
 | # | Item | How it is settled | When |
 |---|---|---|---|
+| F2-1 | Z123's "DMS went down" expansion: the island lives in the resident, which is DMS's child and ends with it, so nothing is left to draw it. Only the comeback can be shown (docs/DMS_ADAPTER.md §7) | Owner decides: comeback only (saying how long it was down), or another surface draws the outage | S3 |
+| F2-2 | Where Settings and the island read DMS's status (too old, version not checked, offline). The contract has no place for it | Propose at S10: a small contract addition (`hostActions.backend`) or the supervisor's core topic; owner approves a contract change | S3, S10 |
+| F2-3 | Wi-Fi toggle, connect and scan through DMS were never run for real (tests must not actuate); their shapes come from DMS's QML | One check of each with the owner present | S2 |
+| F2-4 | Keeping DMS's clipboard history off: does the saved setting stop it recording from the start, and what does `clipboard.getConfig` answer | Record the fixture in a private nested run; then build the check in DMS_ADAPTER.md §8 | S2 |
+| F2-5 | How often to rescan while the "nearby" list stays open (the design scans once per open) | Measure a rescan's cost; owner decides the interval | S2 |
+| F2-6 | The `location` capability is absent on DMS 2.1.0 here, so Z15 and Z16 have no source. Gamma has its own IP-location switch. Related to item 9 | Owner decides with item 9 | S8 |
 | 1 | Wellbeing source: DMS `wellbeing` or Serpantinum's `focus_daemon.py` (Z51) | Run both side by side for 2 days. Compare, in the owner's order of priority: low cost (RSS, PSS, wakeups), keeping existing history (can `focustime.db` be imported or read), and accuracy against known focus time (idle and lock excluded). | S2 |
 | 2 | Whether tesseract, zbarimg and satty are installed | Read-only package check. Any install needs the owner's approval. | S0 |
 | 3 | Lyrics source order: DMS `lyrics` or FART's lrclib cache | Compare hit rates over the owner's recent tracks | S2 |
