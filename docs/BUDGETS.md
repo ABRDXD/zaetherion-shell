@@ -54,6 +54,18 @@ Each surface gets a measured memory delta and a frame budget. The limits are fix
 | Overview | S11 | Thumbnails only in Overdrive |
 | Panel | carried over | Cold start target ≤ 450 ms; p99 ≤ 6.9 ms on open, navigation and command line; reap timer set at S2 (Z142) |
 
+### Angular island fixture sample (11 November 2026)
+
+Hidden nested Hyprland, Qt Quick software renderer, synthetic data. The preview process also loads the folded fixture panel. These are process readings, not isolated per-surface memory limits.
+
+| State | RSS (MiB) | PSS (MiB) | Private dirty (MiB) | Shared clean + dirty (MiB) |
+|---|---:|---:|---:|---:|
+| Rest | 106.85 | 46.27 | 37.66 | 69.15 |
+| Playing | 106.36 | 45.57 | 36.95 | 69.38 |
+| Wings | 107.77 | 46.54 | 37.74 | 69.99 |
+
+Four seconds between minute ticks yielded zero Qt frames and 0.00% of one core at the CPU counter resolution. Four seconds of synthetic playback yielded 3.25% of one core with timing logs enabled. Across eight OSD open and fold cycles over the wings, the 548 Qt software frame samples had a p99 of 1 ms at whole-millisecond resolution. This sample excludes compositor presentation time. Measure the separated resident, actual adapter and compositor presentation before fixing the live per-surface limits.
+
 ## Overdrive (carried over)
 
 | Rule | Limit |

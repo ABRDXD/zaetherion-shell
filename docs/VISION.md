@@ -26,7 +26,7 @@ The goal: **the most distinctive daily driver possible, which still costs nothin
 
 **Originality rule (Z61):** principles only. No names, logos, fonts, art, sound or copied layouts from those games.
 
-**Type:** Inter Display for headlines and the clock; JetBrains Mono for the system voice and readouts (Z52).
+**Type:** Inter Display for display text, Roboto Condensed for the Angular island clock, and JetBrains Mono for the system voice and readouts (Z52).
 
 **Colour:** the island uses a theme-derived navy, recalling the laptop's "Performance Blue" chassis (Z65). Everything else uses the active preset or Matugen palette behind a contrast guard (Z43).
 

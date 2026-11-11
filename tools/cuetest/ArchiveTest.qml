@@ -85,8 +85,10 @@ Scope {
             ViewState.markNight();
             const log = find(a, i => typeof i.text === "string" && i.text.startsWith("NIGHT LOG / "));
             const lines = log ? log.text.split("\n") : [];
-            check("archive.nightlog", !!log && log.visible && lines[1] === "2026-11-09 02:10 · FULL · 100% LIT" && lines[2] === "2026-11-08 23:40 · FIRST QUARTER · 50% LIT"
-                  && ViewState.nightLog.length === ((h >= 22 || h < 6) ? 3 : 2), { lines: lines, kept: ViewState.nightLog.length });
+            const added = h >= 22 || h < 6 ? 1 : 0;
+            check("archive.nightlog", !!log && log.visible && lines[1 + added] === "2026-11-09 02:10 · FULL · 100% LIT"
+                  && lines[2 + added] === "2026-11-08 23:40 · FIRST QUARTER · 50% LIT"
+                  && ViewState.nightLog.length === 2 + added, { lines: lines, kept: ViewState.nightLog.length });
             // With the fiction off, the tape doesn't run.
             ViewState.loreEnabled = false;
             const before = ViewState.tapeSeconds;

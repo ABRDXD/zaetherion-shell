@@ -1,5 +1,6 @@
 // WifiNetwork: { id, ssid, strength, secured, known, connected }.
 HostDomain {
+    property var airplaneMode: null
     property bool wifiEnabled: false
     property string kind: "none"
     property bool connected: false

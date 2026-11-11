@@ -2,6 +2,7 @@
 module qs.view.contract
 AudioDomain 1.0 AudioDomain.qml
 BluetoothDomain 1.0 BluetoothDomain.qml
+CaptureDomain 1.0 CaptureDomain.qml
 ClipboardDomain 1.0 ClipboardDomain.qml
 ClockGeometryDomain 1.0 ClockGeometryDomain.qml
 EqualizerDomain 1.0 EqualizerDomain.qml
@@ -14,8 +15,11 @@ MediaDomain 1.0 MediaDomain.qml
 MotionDomain 1.0 MotionDomain.qml
 NetworkDomain 1.0 NetworkDomain.qml
 NotificationsDomain 1.0 NotificationsDomain.qml
+OsdDomain 1.0 OsdDomain.qml
 PaletteDomain 1.0 PaletteDomain.qml
 PowerDomain 1.0 PowerDomain.qml
 SfxDomain 1.0 SfxDomain.qml
 SystemDomain 1.0 SystemDomain.qml
+TrayDomain 1.0 TrayDomain.qml
+WeatherDomain 1.0 WeatherDomain.qml
 WorkspacesDomain 1.0 WorkspacesDomain.qml

@@ -58,3 +58,11 @@ S3 visual review artifacts (11 November 2026)
 - docs/ui/fartland-fluid-study.png and docs/ui/fartland-fluid-motion.gif:
   raster review renders of the Fluid drawings.
 No new third-party imagery or fonts are bundled.
+
+Dux Shell (MIT, copyright 2025 Avenge Media LLC)
+------------------------------------------------
+view/shell/IslandTrayMenu.qml adapts the submenu stack and navigation from
+quickshell/Modules/DBar/Widgets/TrayMenuContent.qml at commit
+e09c2b06813d3205276167cb69e21d386c1f428f of duxlabs-dev/dux-shell.
+The neutral menu tree replaces raw menu handles in the view. The full MIT
+notice is in licenses/DUX-SHELL-MIT.

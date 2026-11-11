@@ -115,10 +115,13 @@ class ContractTests(unittest.TestCase):
 
     def test_adapters_fill_every_domain(self):
         domains = re.findall(r"^    property (\w+Domain) (\w+):", (CONTRACT / "HostAdapter.qml").read_text(), re.M)
-        self.assertEqual(len(domains), 16)
+        self.assertEqual(len(domains), 20)
+        resident_only = {"tray", "weather", "osd", "capture"}
         for adapter in ("serpantinum/SerpantinumAdapter.qml", "fixture/FixtureAdapter.qml"):
             text = (ROOT / "adapters" / adapter).read_text()
             for _, name in domains:
+                if adapter.startswith("serpantinum/") and name in resident_only:
+                    continue  # The legacy panel does not provide resident domains.
                 # Filled where declared, or by loadDeferred() (root.<name> = …).
                 self.assertRegex(text, re.compile(rf"^    {name}: \w+|root\.{name} = \w+", re.M), f"{adapter}: {name}")
 
@@ -129,6 +132,9 @@ class ContractTests(unittest.TestCase):
                 held |= set(re.findall(r'holds\("(\w+)"\)', qml.read_text()))
         for qml in VIEW:
             for feature in re.findall(r'HostLease \{[^}]*feature: "(\w+)"', qml.read_text()):
+                if feature == "menus" and qml == ROOT / "view/shell/IslandWindow.qml":
+                    self.assertIn('holds("menus")', (ROOT / "adapters/fixture/FixtureAdapter.qml").read_text())
+                    continue
                 self.assertIn(feature, held, f"{qml.relative_to(ROOT)}: lease {feature}")
 
 
