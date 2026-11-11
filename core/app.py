@@ -53,6 +53,7 @@ class Core:
         self.host = host
         self.started = clock.now()
         self.stopping = asyncio.Event()
+        self.supervisor = None  # core/supervisor.py, attached by fartd when it supervises dms
         self.server = server = Server()
         state_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
 
@@ -165,14 +166,27 @@ class Core:
             self._overdrive_off = off
             self.sfx.emit("overdrive.off" if off else "ignite")
 
+    def attach_supervisor(self, supervisor):
+        """The `supervisor` topic carries the state; each change of fortune is also pushed once as
+        `supervisor.event` (down, up, retry, failed, stopped), like a sound cue: never replayed."""
+        self.supervisor = supervisor
+        self.server.topic("supervisor", supervisor.snapshot)
+        supervisor.on_change = partial(self.server.publish, "supervisor")
+        supervisor.on_event = self._supervisor_event
+
+    def _supervisor_event(self, event: dict):
+        for client in [c for c in self.server.clients if "supervisor" in c.topics]:
+            self.server.push(client, "supervisor.event", event)
+
     def core_snapshot(self) -> dict:
         return {"version": VERSION, "protocol": PROTOCOL, "pid": os.getpid(), "host": self.host.name,
                 "startedAt": round(self.started.real * 1000)}
 
     def status(self) -> dict:
         now = self.clock.now()
+        supervised = {"supervisor": self.supervisor.snapshot()} if self.supervisor else {}
         return {"core": {"pid": os.getpid(), "rssKiB": rss_kib(), "uptime": round(now.boot - self.started.boot), "host": self.host.name},
-                "view": self.view.snapshot(), "timers": self.timers.summary(), "tasks": self.tasks.summary(),
+                **supervised, "view": self.view.snapshot(), "timers": self.timers.summary(), "tasks": self.tasks.summary(),
                 "notifications": self.mirror.summary(), "overdrive": self.overdrive.snapshot(), "session": self.sessions.snapshot()}
 
     def _register(self):
@@ -403,6 +417,8 @@ class Core:
     async def close(self):
         self.exhibit.stop()
         await self.view.reap("core shutdown", force=True)
+        if self.supervisor:
+            await self.supervisor.stop()  # after the panel: dms and its whole tree (docs/SUPERVISOR.md §6)
         self.guards.stop()
         self.genealogy.stop()
         self.quiet.stop()

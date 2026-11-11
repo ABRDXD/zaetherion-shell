@@ -21,7 +21,7 @@ SDDM ─► Hyprland, "Hyprland (ZÆTHERION)" session (its own entry file and re
 
 ### Startup and supervision
 - Hyprland autostart only, with no systemd units (Z13).
-- `zaetherion start` starts `fartd`, which starts `dms run -c`. DMS starts the resident process with `DMS_SOCKET` set.
+- `zaetherion start` starts `fartd`, which starts `dms run -c`. DMS starts the resident process with `DMS_SOCKET` set. The state machine, restart policy and logout sequence are in [SUPERVISOR.md](SUPERVISOR.md); the UI folder is passed as `DMS_SHELL_DIR` (the environment form of `-c`), so an owner restart keeps it.
 - If `dms` dies, the resident process dies with it. `fartd` restarts the pair, and the island announces it (Z123, Z127).
 - The panel keeps FART-next's crash limit: 3 crashes within 5 s halts it (Z128).
 - `fartd` today assumes a single view (one `process`, one `client`, `kind=="view"` in `core/view.py` and `core/app.py`). It is generalised to named clients, `resident` and `panel`.
