@@ -1,3 +1,11 @@
+# 11 November 2026, ~12:40: S1 session installed and tested; DMS bar tuned
+
+- SDDM entry installed by the owner; the owner now logs into **ZÆTHERION** (Hyprland + `zaetherion.lua` → `session-start` → core → `dms run` with DMS's UI). Login clean; logout + login left no old processes, one fresh set.
+- cliphist records in the ZÆTHERION session (owner's choice); DMS clipboard stays off.
+- Owner design inputs recorded: Modern Clock widget (PARITY, S10), island module list and memory-pressure expansion (SURFACES §1, OPEN 14).
+- DMS bar tuned for the owner (7 workspace dots, power button, CPU off); not in this repo.
+- **Next:** nested Hyprland check (Z109), then F1 (supervisor design). See NEXT_CHAT_HANDOFF.md.
+
 # 11 November 2026, midday: S0 done; S1 started (owner approved both parts)
 
 - **S0 done.** Full unit suite in this tree: 673 OK (572 s). Quiet baseline of Serpantinum + FART-next measured with Serpantinum back for ~10 min; **total budget fixed at 768 MiB PSS** (BUDGETS.md). Serpantinum is off again (`*.off`), DMS keybinds back in `config/keybinds.lua` (copy: `keybinds.lua.dms-2026-11-11`). Note: `serpantinumd stop` leaves `serpantinum-audio daemon` running; it had to be killed by hand.
