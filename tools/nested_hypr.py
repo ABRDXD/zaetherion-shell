@@ -105,7 +105,9 @@ def stop():
     st = json.loads(STATE.read_text())
     hypr(st["sig"], "dispatch", "hl.dsp.exit()")
     gone = wait(lambda: not (RUN / "hypr" / st["sig"] / ".socket.sock").exists()
-                and st["wayland"] not in sockets(), timeout=10)
+                and st["wayland"] not in sockets()
+                and subprocess.run(["pgrep", "-f", f"Hyprland -c {FIX / 'nested.lua'}"],
+                                   capture_output=True).returncode != 0, timeout=10)
     if not gone:
         sys.exit(f"nested Hyprland {st['sig']} did not exit")
     shutil.rmtree(RUN / "hypr" / st["sig"], ignore_errors=True)
@@ -123,7 +125,8 @@ def centre_rgb(path):
     from PIL import Image
     im = Image.open(path).convert("RGB")
     px = im.getpixel((im.width // 2, im.height // 3))
-    return tuple(px) if isinstance(px, tuple) else (px, px, px)
+    vals = px if isinstance(px, tuple) else (px, px, px)
+    return tuple(int(v or 0) for v in vals)
 
 
 def is_lock(path):

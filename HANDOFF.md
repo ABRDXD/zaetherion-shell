@@ -1,7 +1,9 @@
 # 11 November 2026, afternoon: nested Hyprland check (Z109) passed
 
 - **Nested Hyprland is viable for tests.** `tools/nested_hypr.py` (start / run / shot / stop / selftest) parks a nested Hyprland on a hidden special workspace with a headless `ZTEST` output that renders while hidden. Self-test 9/9 twice: fake lock shows and clears, a crashed lock client keeps the screen covered, a new client takes over, fake PAM permit/deny work from private config files, real session untouched. Details: docs/NESTED.md. Fixtures in `tests/fixtures/nested/`; `tests/test_nested_fixtures.py` 3 OK.
-- **Next:** F1 (fartd supervising DMS and the panel). The roadmap marks it a design session: suggest the owner raises effort first. Also check `zaetherion start/stop/restart/status` fits the session.
+- **F1 prepared for Fable 5.2:** brief `docs/F1_BRIEF.md`; recon `docs/F1_RECON.md` (DMS run nested with private folders: a UI crash takes DMS down and is not respawned; only TERM/INT stop the pair cleanly, HUP/KILL orphan the UI; the shared `dms.path` pointer is taken by any second DMS and deleted on exit).
+- **Incident during recon (fixed):** the first test DMS shared the real runtime folder, overwrote `dms.path` and deleted it on exit, so the owner's DMS keybinds pointed nowhere for under a minute. Restored by hand to the real UI path; `dms ipc` lists the real targets again. Tests now use a private `XDG_RUNTIME_DIR`.
+- **Next:** the F1 Fable session, from the brief. Also check `zaetherion start/stop/restart/status` fits the session.
 
 # 11 November 2026, ~12:40: S1 session installed and tested; DMS bar tuned
 
