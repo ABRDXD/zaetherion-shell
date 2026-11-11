@@ -90,7 +90,7 @@ ZÆTHERION inherits FART-next's D-series decisions (D1–D23) except where [Inhe
 ### Identity
 | # | Decision |
 |---|---|
-| Z52 | Typefaces: **Inter Display** for display text and **JetBrains Mono** for the system voice and readouts. No bundled font. |
+| Z52 | Typefaces: **Inter Display** for display text and **JetBrains Mono** for the system voice and readouts. No bundled font. **S3 mock-up review, 11 November 2026:** the owner chose **Roboto Condensed**, matching the built FART panel, for the island mock-ups. This resolves the mock-up font conflict only. |
 | Z53 | The NieR-style **system voice is a toggle**: `system` (terse uppercase log lines) or `plain`. |
 | Z54 | Sounds: **Serpantinum's sounds, read at runtime.** If they're missing, playback is silent. |
 | Z55 | A **boot sequence at every login**: about 1.5 s of type-on system log, skippable by any key, and off under reduced motion. |
@@ -201,6 +201,20 @@ ZÆTHERION inherits FART-next's D-series decisions (D1–D23) except where [Inhe
 | Z140 | **Video wallpaper:** paused when covered, and shown as a **still frame on battery**. |
 | Z141 | **Per-surface budgets.** Each of these gets a measured delta and a limit, enforced by a `check-budgets` gate: island rest, island hover, launcher open, widgets loaded, video wallpaper, lock, overview. The limits are set from measurements at the milestone that builds each surface. |
 | Z142 | **Panel reap timer:** chosen at **S2** by measuring cold-open cost against held memory (candidates 10 min and 60 min). |
+
+## S3 mock-up review (11 November 2026)
+
+| # | Decision |
+|---|---|
+| Z143 | The island's **power glyph opens the session card**; its **notification glyph opens Inbox**. The owner confirmed these destinations during step 1. No implementation or approval of the look is implied. |
+| Z144 | **Approved S3 island look.** Keep the Angular mock-up with the continuous navy trapezoid, fixed lighting and shallow 4 px bevel. Use the inverted app tag shown in the main notification. The island widens into wings and deepens for events within the same outline. See [the approved study](ui/island-s3-review.svg). |
+
+## Future FARTland // Fluid
+
+| # | Decision |
+|---|---|
+| Z145 | **Approved Fluid island look.** A compact matte navy notch attaches to the screen edge, with rounded corners and a subtle 3 px underside. At rest it shows the clock. While media plays it adds track information and a waveform. On hover it widens to reveal the other controls. See [the approved study](ui/fartland-fluid-study.svg) and [motion preview](ui/fartland-fluid-motion.gif). FARTland // Fluid depends on the future FART // Fluid project. |
+| Z146 | **Two separate dials.** **Form** is Angular or Fluid (owner toggles it, across the whole desktop: FART, FARTland and the island). **Mode** is Silent or Overdrive, and those are FART's only two modes. That gives four combinations: Angular Silent, Angular Overdrive, Fluid Silent, Fluid Overdrive. Angular is the reference look. Fluid needs FART // Fluid, which is still to be designed; until then the island is built on Angular (Z144). Silent is still in both forms. |
 
 ## Inherited decisions that change
 

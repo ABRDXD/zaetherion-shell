@@ -25,7 +25,7 @@ Each surface lists its process (**R** = resident, **P** = panel; see [ARCHITECTU
 - **Long-press ~600 ms:** ignites Overdrive, with the meter filling inside the island (Z119).
 - **Keyboard focus:** a bind (chosen at S3) focuses the hover state. Arrows/hjkl move, Enter activates, Esc leaves (Z115).
 
-- **Owner's modules (11 Nov 2026, from daily DMS use):** power button, network (Wi-Fi/Ethernet), notifications, battery, active media. That's all they use; everything else stays out of the rest state. Check the wings against this at S3: the power button and a notification glyph (unread dot) aren't in the lists above yet.
+- **Owner's modules (11 Nov 2026, from daily DMS use):** power button, network (Wi-Fi/Ethernet), notifications, battery, active media. That's all they use; everything else stays out of the rest state. Check the wings against this at S3: the power button and a notification glyph (unread dot) aren't in the lists above yet. **Owner confirmed at the S3 mock-up review (11 November):** clicking the power glyph opens the session card; clicking the notification glyph opens Inbox.
 - **Memory on demand (owner, 11 Nov 2026):** memory isn't shown normally. It appears only when it matters: the *Memory pressure* expansion below, or pinned by hand while the owner is doing something memory-heavy, showing where the memory is going (top processes by PSS). Threshold and pin control: OPEN 14.
 
 ### Expansions (Z22, Z23, Z71)

@@ -43,3 +43,18 @@ Design references
 -----------------
 Persona and NieR:Automata are named only as design inspiration. No names,
 logos, fonts, artwork, sounds or layouts from them are used.
+
+S3 visual review artifacts (11 November 2026)
+-------------------------------------------
+- docs/ui/island-s3-review.svg: original island design studies using the
+  seeded FART Design tokens and geometric language; embeds a fixture-only
+  screenshot of the seeded FART Timers panel (GPL-3.0 lineage above).
+- docs/ui/island-s3-review.png: raster rendering of that SVG.
+- docs/ui/island-s3-motion.gif: a motion study using the same island drawings
+  with synthetic events and readings.
+- docs/ui/contrast.txt: derived contrast ratios for the review token snapshot.
+- docs/ui/fartland-fluid-study.svg: original Fluid mock-up with the same
+  FART token snapshot, synthetic sky and event content.
+- docs/ui/fartland-fluid-study.png and docs/ui/fartland-fluid-motion.gif:
+  raster review renders of the Fluid drawings.
+No new third-party imagery or fonts are bundled.
