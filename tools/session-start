@@ -1,0 +1,51 @@
+#!/bin/sh
+# ZÆTHERION session starter, run once by Hyprland at login (~/.config/hypr/zaetherion/session.lua).
+# Interim S1 version: starts the core (fartd), then DMS with its own UI (the resident UI arrives at S3
+# and then runs as `dms run -c <dir>`). Restarts DMS with backoff, and on logout stops both, so no
+# processes are left behind. fartd's own supervision of DMS (roadmap F1) replaces this loop.
+ROOT=$(dirname "$(dirname "$(readlink -f "$0")")")
+RUN=${XDG_RUNTIME_DIR:-/run/user/$(id -u)}
+LOG_DIR=$RUN/zaetherion
+mkdir -p "$LOG_DIR"
+LOG=$LOG_DIR/session.log
+SOCK=$RUN/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket.sock
+
+say() { echo "$(date '+%F %T') $*" >>"$LOG"; }
+
+# Only one starter per Hyprland instance.
+exec 9>"$LOG_DIR/session.lock"
+flock -n 9 || { say "another session starter is running; leaving"; exit 0; }
+
+say "session start (Hyprland $HYPRLAND_INSTANCE_SIGNATURE)"
+"$ROOT/zaetherion" start >>"$LOG" 2>&1 || say "core did not start"
+
+alive() { [ -S "$SOCK" ]; }
+dms_pid=
+start_dms() {
+    dms run --log-file "$LOG_DIR/dms.log" >>"$LOG" 2>&1 &
+    dms_pid=$!
+    say "dms started ($dms_pid)"
+}
+stop_all() {
+    say "session end: stopping dms and the core"
+    [ -n "$dms_pid" ] && kill "$dms_pid" 2>/dev/null
+    pkill -x dms 2>/dev/null
+    "$ROOT/zaetherion" stop >>"$LOG" 2>&1
+    exit 0
+}
+trap stop_all TERM INT HUP
+
+start_dms
+delay=1
+while alive; do
+    sleep 2
+    # `dms restart` (Super+R) swaps in a new process, so look for any dms, not just ours.
+    if ! pgrep -x dms >/dev/null; then
+        say "dms exited; restarting in ${delay}s"
+        sleep "$delay"
+        alive || break
+        start_dms
+        [ "$delay" -lt 30 ] && delay=$((delay * 2))
+    fi
+done
+stop_all
