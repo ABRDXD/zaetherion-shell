@@ -200,11 +200,41 @@ Today `hello` accepts `cli` and `view`, and only the one process the core spawne
 
 ## 12. Left open
 
-Questions for the owner (docs/OPEN.md 15–18): the "went down" notice (Z123), whether a DMS the owner stopped on purpose should come back, faster retries while locked, and what to do about a second DMS.
+The owner answered OPEN 15, 16 and 18 on 11 November 2026; the design for those answers is in §13. Still open: OPEN 17 (retry pace while locked, S7) and OPEN 19 (a deliberate stop while locked, before S7).
 
 Follow-up work, in order:
-1. **Switch the session over** (needs the owner's go; nothing in Hyprland's config changes): `tools/zaetherion.py` `start_core` sets `FART_SUPERVISE=dms`; `tools/session-start` shrinks to "start the core and wait" (no DMS loop, no `pkill`). Until S3 `FART_RESIDENT_DIR` stays unset, so DMS runs its own UI as now. `stop_core` waits 6 s for the core's socket to go; a worst-case teardown is 9 s (panel 3 s, DMS 6 s), so raise that wait to 12 s. Then a real login/logout test.
+1. **Switch the session over** (needs the owner's go; nothing in Hyprland's config changes), together with §13's two changes: `tools/zaetherion.py` `start_core` sets `FART_SUPERVISE=dms`; `tools/session-start` shrinks to "start the core and wait" (no DMS loop, no `pkill`). Until S3 `FART_RESIDENT_DIR` stays unset, so DMS runs its own UI as now. `stop_core` waits 6 s for the core's socket to go; a worst-case teardown is 9 s (panel 3 s, DMS 6 s), so raise that wait to 12 s. Then a real login/logout test.
 2. Named clients and the panel adapter (§9), with `tests/test_core_view.py` staying green.
-3. OPEN 18, once decided: stop the extra DMS.
+3. Measure `dms kill` (§13) before relying on "exit code 0 means on purpose".
 4. Trim what goes into `session.log`; decide who rotates `dms.log`.
 5. Who restarts `fartd` if it dies (§8).
+
+## 13. After the design: the owner's answers (11 November 2026) and what F2 asked for
+
+The code still behaves as §3–§5 describe. The answers below are decided and are built with the switch-over (follow-up 1). The design for each is written here so it is not worked out twice.
+
+**OPEN 15 → comeback notice only.** This is what §4 already provides: the resident reads `last` (`what`, `downAt`, `upAt`) or takes `downFor` from the `up` event. There is no "went down" surface.
+
+**OPEN 16 → a DMS the owner stopped on purpose stays down.**
+- "On purpose" is the verdict `stopped` **and** no new DMS within the 3 s wait. An owner restart also exits 0, but its new DMS appears (0.36 s) and is adopted as now.
+- New state `held`: wanted, deliberately down, nothing running, no retry timer. Rows:
+  - `backoff` + `timer` → `held` when the last verdict was `stopped`, else `starting` as now (decided like `backoff or failed`, by a flag the `exited` event sets);
+  - `held` + `start` → `starting` (`launch`); `held` + `stop` → `stopped`.
+  - The look-out must then dispatch `start`, not `timer`, when it sees a DMS, in `backoff` and in `held` alike: a DMS that appeared is always adopted, never held.
+- `zaetherion start` or `restart` and Super+R (a DMS appears) bring it back. Emit a `held` event for the island and the trial log.
+- Look-out while `held`: the slow one that already exists (once a second). It is the only steady look in the design, and it runs only while the shell is deliberately off.
+- An adopted DMS has no exit status. Use DMS's own files instead (recon, "Left behind"): after a clean exit `dms-<pid>.pid` is gone; after any crash it is still there. So for an adopted DMS: pid file gone → `stopped`; still there → `dms` (UI alive) or `resident`. That also replaces `unknown`. Check it live when it is built: the recon rows are single samples.
+- **`dms kill` is not measured.** If it uses SIGKILL the supervisor sees a crash and restarts. Find out how it picks its targets before running it anywhere near the session's DMS: it may go by process name, not by the runtime folder.
+- **Lock (Z35):** while the screen is locked, a stopped DMS is restarted anyway; `held` is entered only while unlocked. The core learns `locked` at S7 (§8). Until then it cannot tell → OPEN 19.
+
+**OPEN 18 → stop the extra DMS.**
+- The extra one is whichever is not the supervised root. It is usually the newer one, so `dms.path` is its, and DMS deletes that file when it exits: stopping only the extra leaves the survivor without keybinds (§7).
+- So: **stop both, start one.** `_look` (at ready and after 60 s) dispatches `duplicate` instead of only reporting it. Row: `up` + `duplicate` → `crashed` (`fail`, `cancel`, `note_down`, `sweep`), with `sweep` taking the extras as well, each by its own session rule (§6). Then the normal wait and a fresh start: the bar blinks once, one DMS runs, `dms.path` is valid. The verdict is `what: duplicate`; it gets no crash notice.
+- The same sequence is right while locked: the new resident takes the lock over (§8).
+- Add a unit test (a stray appears, the look, both swept, one fresh start) and a live check (a second `dms run` in the private folder; make the 60 s look shorter for the check).
+- Still a limit: a stray started after the 60 s look is seen only at the next start, or (from S3) when its resident says `hello` and is refused (§9).
+
+**What F2 asked of F1** (docs/DMS_ADAPTER.md §7):
+1. *The DMS socket path for the panel:* the `supervisor` topic, `children.dms.socket` (with `state`, `pid`, `since`, `owned`). It changes on every restart, including an adopted owner restart. At panel spawn the same value goes into `DMS_SOCKET` (wiring belongs to follow-up 2); while DMS is down it is unset and the panel waits for the topic.
+2. *Stopping an orphaned resident:* the sweep after every crash (§6; live check 6).
+3. *The source for the comeback notice:* `last`, and `downFor` on the `up` event (§4).
