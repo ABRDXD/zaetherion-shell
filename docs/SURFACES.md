@@ -25,6 +25,9 @@ Each surface lists its process (**R** = resident, **P** = panel; see [ARCHITECTU
 - **Long-press ~600 ms:** ignites Overdrive, with the meter filling inside the island (Z119).
 - **Keyboard focus:** a bind (chosen at S3) focuses the hover state. Arrows/hjkl move, Enter activates, Esc leaves (Z115).
 
+- **Owner's modules (11 Nov 2026, from daily DMS use):** power button, network (Wi-Fi/Ethernet), notifications, battery, active media. That's all they use; everything else stays out of the rest state. Check the wings against this at S3: the power button and a notification glyph (unread dot) aren't in the lists above yet.
+- **Memory on demand (owner, 11 Nov 2026):** memory isn't shown normally. It appears only when it matters: the *Memory pressure* expansion below, or pinned by hand while the owner is doing something memory-heavy, showing where the memory is going (top processes by PSS). Threshold and pin control: OPEN 14.
+
 ### Expansions (Z22, Z23, Z71)
 
 The island morphs continuously (width and height, host motion profile with overshoot) and cross-fades its content. When several are due, a fixed priority queue decides; a higher one interrupts and a lower one resumes after:
@@ -48,6 +51,7 @@ The island morphs continuously (width and height, host motion profile with overs
 | Recording | Signal-coloured timer; stopped by the same keybind (Z105) | When stopped |
 | Mic/camera in use | Signal dot at rest; app name on hover (Z74) | When the stream ends |
 | Workspace switch | N blades, active highlighted (Z21) | ~0.8 s |
+| Memory pressure (owner, 11 Nov 2026) | Used/total bar, then the top 3 processes by PSS; pinnable to stay while working | Pressure falls below the threshold for ~10 s, unless pinned |
 | Low battery | Signal plane at 20, 10 and 5%; 5% is critical and passes DND (Z129) | Timeout, or on click |
 | Session debrief | Duration, tasks done, streak (Z103) | When dismissed |
 | DMS offline/online | `> BACKEND · OFFLINE` / `ONLINE`; affected glyphs greyed (Z123) | Timeout |
