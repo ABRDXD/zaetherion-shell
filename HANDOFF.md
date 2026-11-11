@@ -1,3 +1,8 @@
+# 11 November 2026, afternoon: nested Hyprland check (Z109) passed
+
+- **Nested Hyprland is viable for tests.** `tools/nested_hypr.py` (start / run / shot / stop / selftest) parks a nested Hyprland on a hidden special workspace with a headless `ZTEST` output that renders while hidden. Self-test 9/9 twice: fake lock shows and clears, a crashed lock client keeps the screen covered, a new client takes over, fake PAM permit/deny work from private config files, real session untouched. Details: docs/NESTED.md. Fixtures in `tests/fixtures/nested/`; `tests/test_nested_fixtures.py` 3 OK.
+- **Next:** F1 (fartd supervising DMS and the panel). The roadmap marks it a design session: suggest the owner raises effort first. Also check `zaetherion start/stop/restart/status` fits the session.
+
 # 11 November 2026, ~12:40: S1 session installed and tested; DMS bar tuned
 
 - SDDM entry installed by the owner; the owner now logs into **ZÆTHERION** (Hyprland + `zaetherion.lua` → `session-start` → core → `dms run` with DMS's UI). Login clean; logout + login left no old processes, one fresh set.
