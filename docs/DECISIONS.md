@@ -19,7 +19,7 @@ ZÆTHERION inherits FART-next's D-series decisions (D1–D23) except where [Inhe
 | # | Decision |
 |---|---|
 | Z8 | **DMS owns everything it offers**: network (NM/iwd), Bluetooth with a pairing agent, brightness/DDC, clipboard, `wayland.gamma` night light, outputs/DPMS, logind, dgop stats, weather, location and lyrics. Quickshell built-ins cover only what DMS does in QML: audio (Pipewire), notifications server, lock/PAM, idle, polkit, MPRIS, UPower and the tray. |
-| Z9 | Package **`dux-shell` from Arch's `extra` repository** (changed 10 November 2026: the owner installed `dux-shell` 2.1.0-1, not `dux-shell-git`). Pin the accepted `apiVersion` range (40 at research time; recheck against 2.1.0 when the fixtures are recorded in S0). |
+| Z9 | Package **`dux-shell` from Arch's `extra` repository** (changed 10 November 2026: the owner installed `dux-shell` 2.1.0-1, not `dux-shell-git`). Pin the accepted `apiVersion` range (40 at research time; recheck against 2.1.0 when the fixtures are recorded in S0). **Decided 11 November 2026:** a DMS newer than the checked API version keeps working, with a note in Settings; an older one is switched off. |
 | Z10 | DMS is launched as **`dms run -c <zaetherion resident UI dir>`**. DMS runs its backend, then starts ZÆTHERION's resident Quickshell as its child and passes it `DMS_SOCKET`. |
 | Z11 | When DMS is down: **degrade and restart.** `fartd` restarts it with backoff, and affected controls show OFFLINE in the system voice. |
 | Z12 | **Two Quickshell processes.** The resident one is always alive and holds the island, wallpaper, widgets, notifications, OSD, lock, idle and polkit. The panel is disposable and reaped (rooms, settings window, overview). |
