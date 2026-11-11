@@ -71,8 +71,8 @@ The inventory was read from Serpantinum's installed source on 8 Nov 2026.
 | | Calculator and converters | replaced | Launcher `=` | Z47 |
 | | Timer, notes, system usage, mini dock | dropped | FART Timers, notes widget, Performance room | Z47 |
 | **Dock** | Pinned apps, magnify, running indicators | dropped | — | Z46 |
-| | *(from DMS, owner's request 11 Nov 2026)* Modern Clock desktop widget: huge spaced day name, small date, `– time –` | **added** | A desktop widget kind, owner's favourite: day name in Anurati, date and time in Poppins, centred upper third. Port of the GPL-3.0 DMS plugin `modernClock` (credit in NOTICE). Anurati is personal-use only, so it is **never committed**: loaded from the installed plugin or `~/.local/share/fonts`, falling back to a picked font. Poppins (OFL) may ship. Shown in the interim session already (it runs DMS's UI) | S10 |
 | **Desktop widgets** | Editor; time, music, visualizer, weather, image, user, stats, GitHub, notes, text | replaced | Clock/sky, music/lyrics, notes, text, image; same kind of editor | Z46, Z85 |
+| | *(from DMS, owner's request 11 Nov 2026)* Modern Clock desktop widget: huge spaced day name, small date, `– time –` | **added** | A desktop widget kind, owner's favourite: day name in Anurati, date and time in Poppins, centred upper third. Port of the GPL-3.0 DMS plugin `modernClock` (credit in NOTICE). Anurati is personal-use only, so it is **never committed**: loaded from the installed plugin or `~/.local/share/fonts`, falling back to a picked font. Poppins (OFL) may ship. Shown in the interim session already (it runs DMS's UI) | S10 |
 | **Settings app** | 13 tabs with search | replaced | Settings window, 17 tabs | Z93 |
 | | 23 translations | dropped (for now) | English, string table ready for translations | Z56 |
 | **Wellbeing** | Focus tracking, charts, app limits | kept | Source decided at S2 | OPEN 1 |
