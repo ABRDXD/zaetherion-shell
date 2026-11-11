@@ -21,5 +21,10 @@ Scope {
     property LyricsDomain lyrics: LyricsDomain {}
     property SystemDomain system: SystemDomain {}
     property ClipboardDomain clipboard: ClipboardDomain {}
+    // Resident additions in docs/CONTRACT.md. Legacy panel adapters leave these unavailable.
+    property TrayDomain tray: TrayDomain {}
+    property WeatherDomain weather: WeatherDomain {}
+    property OsdDomain osd: OsdDomain {}
+    property CaptureDomain capture: CaptureDomain {}
     property KeybindsDomain keybinds: KeybindsDomain {}
 }

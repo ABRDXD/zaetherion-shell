@@ -90,7 +90,7 @@ ZÆTHERION inherits FART-next's D-series decisions (D1–D23) except where [Inhe
 ### Identity
 | # | Decision |
 |---|---|
-| Z52 | Typefaces: **Inter Display** for display text and **JetBrains Mono** for the system voice and readouts. No bundled font. **S3 mock-up review, 11 November 2026:** the owner chose **Roboto Condensed**, matching the built FART panel, for the island mock-ups. This resolves the mock-up font conflict only. |
+| Z52 | Typefaces: **Inter Display** for display text and **JetBrains Mono** for the system voice and readouts. No bundled font. **S3 mock-up review, 11 November 2026:** the owner chose **Roboto Condensed**, matching the built FART panel, for the island mock-ups. At S3 implementation review the owner confirmed **Roboto Condensed for the Angular island clock**. |
 | Z53 | The NieR-style **system voice is a toggle**: `system` (terse uppercase log lines) or `plain`. |
 | Z54 | Sounds: **Serpantinum's sounds, read at runtime.** If they're missing, playback is silent. |
 | Z55 | A **boot sequence at every login**: about 1.5 s of type-on system log, skippable by any key, and off under reduced motion. |
@@ -165,7 +165,7 @@ ZÆTHERION inherits FART-next's D-series decisions (D1–D23) except where [Inhe
 ### Round 4 (8 Nov 2026)
 | # | Decision |
 |---|---|
-| Z115 | **Island keyboard focus:** a bind, chosen at S3 from the free keys in `hyprctl binds` with owner's approval, gives the hover state keyboard focus. Arrows or hjkl move across glyphs, tray items and actions; Enter activates; Esc leaves. |
+| Z115 | **Island keyboard focus:** **Super+Shift+I**, chosen by the owner at S3 after checking `hyprctl binds`, gives the hover state keyboard focus. Arrows or hjkl move across glyphs, tray items and actions; Enter activates; Esc leaves. |
 | Z116 | **Motion setting with four levels.** **OFF:** no animation, instant changes. **MINIMAL:** short opacity fades only (≤120 ms). **REDUCED:** morphs and slides without overshoot; no shake, type-on, wipes or glitch; Overdrive shaders off. **ALL:** everything, including Overdrive effects when ignited. The default is **ALL**, and **Sessions set it to MINIMAL** for their duration. |
 | Z117 | **Focus:** the launcher and polkit take **exclusive** keyboard focus, and focus returns to the previous window on close. |
 | Z118 | **UI scale:** a setting from 0.9 to 1.5 that multiplies all ZÆTHERION text and hit areas. |
@@ -215,6 +215,12 @@ ZÆTHERION inherits FART-next's D-series decisions (D1–D23) except where [Inhe
 |---|---|
 | Z145 | **Approved Fluid island look.** A compact matte navy notch attaches to the screen edge, with rounded corners and a subtle 3 px underside. At rest it shows the clock. While media plays it adds track information and a waveform. On hover it widens to reveal the other controls. See [the approved study](ui/fartland-fluid-study.svg) and [motion preview](ui/fartland-fluid-motion.gif). FARTland // Fluid depends on the future FART // Fluid project. |
 | Z146 | **Two separate dials.** **Form** is Angular or Fluid (owner toggles it, across the whole desktop: FART, FARTland and the island). **Mode** is Silent or Overdrive, and those are FART's only two modes. That gives four combinations: Angular Silent, Angular Overdrive, Fluid Silent, Fluid Overdrive. Angular is the reference look. Fluid needs FART // Fluid, which is still to be designed; until then the island is built on Angular (Z144). Silent is still in both forms. |
+
+## S3 event timings
+
+| # | Decision |
+|---|---|
+| Z147 | **Island notice dwell.** Charging stays for 2 s. Low battery and the backend comeback notice stay for 5 s. |
 
 ## Inherited decisions that change
 

@@ -26,6 +26,8 @@ Hairline 1.0 Hairline.qml
 Halo 1.0 Halo.qml
 Hatch 1.0 Hatch.qml
 HostLease 1.0 HostLease.qml
+IslandFrame 1.0 IslandFrame.qml
+LineWaveform 1.0 LineWaveform.qml
 MaterialSymbol 1.0 MaterialSymbol.qml
 Palimpsest 1.0 Palimpsest.qml
 singleton Periodic 1.0 Periodic.qml

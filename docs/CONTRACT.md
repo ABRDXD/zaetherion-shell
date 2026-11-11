@@ -38,3 +38,12 @@ Signatures are written as they will be specified at S2. Exact property lists get
 | `sky` (from `fartd`) | `sun` {alt, az}, `moon` {alt, az, phase}, `planets` [...], `stars` (projected, cached), `sidereal` | — | `sky` |
 
 The `location` domain exposes no coordinates to the view. Only `fartd` and DMS handle them.
+
+## S3 fixture snapshots
+
+The island uses the existing adapter for media, audio, network, Bluetooth, notifications, workspaces, power, palette and motion. The fixture also supplies the resident tray, weather, OSD and capture status domains above. The legacy panel can leave those domains unavailable.
+
+- `tray.menuEntries` carries plain rows `{id, label, enabled?, children?}` under the `menus` lease. The adapter receives `triggerMenuItem(itemId, entryId)` when the user chooses a row. Service handles stay inside the adapter.
+- `keybinds.capsLock`, `keybinds.numLock` and `network.airplaneMode` are optional status values. `null` means the fixture has no reading. `audio.privacy` carries visible mic/camera uses as `{kind, app}`.
+- `system.memory.pressureSomeAvg10` is a percentage, and `processes` contains `{name, pss}` rows with PSS in KiB. The island uses Z23 and OPEN 14 for the queue and recovery.
+- The fixture gives the island an inert core client for timer and session snapshots, plus a synthetic startup notice. The live producer of backend status is still F2-2. Notification actions and panel, power, log and ignition requests leave the island as signals.

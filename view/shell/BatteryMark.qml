@@ -6,10 +6,13 @@ import QtQuick
 Row {
     id: root
     required property var battery
+    property bool showPercentage: true
+    property bool signalOnly: false
     readonly property real level: Math.max(0, Math.min(1, battery.level ?? 0))
     readonly property bool draining: !!battery.available && !battery.pluggedIn
     // The same thresholds as the footer's power readout.
-    readonly property color tone: draining && level <= 0.1 ? Design.danger : draining && level <= 0.2 ? Design.warning : battery.charging ? Design.accent : Design.ink
+    readonly property color tone: signalOnly ? (draining && level <= 0.2 || battery.charging ? Design.accent : Design.ink)
+        : draining && level <= 0.1 ? Design.danger : draining && level <= 0.2 ? Design.warning : battery.charging ? Design.accent : Design.ink
     visible: !!battery.available
     spacing: 7
     Accessible.role: Accessible.StaticText
@@ -43,6 +46,7 @@ Row {
         }
     }
     FText {
+        visible: root.showPercentage
         anchors.verticalCenter: parent.verticalCenter
         text: Math.round(root.level * 100) + "%" + (root.battery.charging ? " ↑" : "")
         technical: true

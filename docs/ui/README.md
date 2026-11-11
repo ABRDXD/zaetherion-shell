@@ -22,4 +22,32 @@ The sky guide marks, album tile, notification and readings are synthetic. OPEN 1
 - The layout check passed all 7 tests. The SVG was rendered with `rsvg-convert` and inspected alongside the motion study. The repository contrast guard and audit are absent. [Contrast ratios](contrast.txt) cover the text pairs in the mock-up palette.
 - This step changes the review materials and handoff. The full unit suite was not run.
 
-The step 1 review is complete. The next implementation task is UI_BRIEF step 2, the fixture-driven island shell.
+## S3 step 2 fixture
+
+`shell-island-fixture.qml` runs the Angular frame with the inert adapter. It previews the top notch by default. Set `ZAETHERION_FIXTURE_EDGE=bottom` for the bottom edge or `ZAETHERION_FIXTURE_PLACEMENT=floating` for the 16 px gap from the mock-up. This gap is a fixture value. Both placements reserve 36 px.
+
+Use the hidden compositor from [NESTED.md](../NESTED.md). Run the second command in one terminal and capture from another.
+
+```sh
+python3 tools/nested_hypr.py start
+python3 tools/nested_hypr.py run env ZAETHERION_FIXTURE_OUTPUT=ZTEST qs -p shell-island-fixture.qml
+python3 tools/nested_hypr.py shot island.png
+python3 tools/nested_hypr.py stop
+```
+
+While the fixture is running, use its private IPC target to exercise fullscreen hiding. The command changes a fixture workspace record.
+
+```sh
+python3 tools/nested_hypr.py run qs ipc -p shell-island-fixture.qml call island-fixture fullscreen true
+python3 tools/nested_hypr.py run qs ipc -p shell-island-fixture.qml call island-fixture fullscreen false
+```
+
+The offscreen frame and palette check runs with `python3 -m unittest discover -s tests -p test_island.py`. The native window requires a Wayland layer-shell compositor.
+
+## Populated Angular preview
+
+The same entry point now includes the resting modules, the 300 ms hover wings, and the expansion queue. The preview reads its own defaults and uses a disconnected core. Hover to see seconds, battery percentage, status glyphs, weather and the sample tray. Click the centre to open or fold the fixture panel. Hold the centre for 600 ms to show the fixture Overdrive lease line.
+
+The IPC target also accepts `focus`, `playing true`, `track`, `volume 0.42`, `notification false`, `memory 1.2`, `workspace 2`, `recording true`, `battery 0.05 false` and `comeback 3`. These commands change synthetic records. Invoke them through `tools/nested_hypr.py run qs ipc -p shell-island-fixture.qml call island-fixture …`.
+
+Super+Shift+I is the chosen shortcut. The fixture exposes the focus action through IPC. Arrow keys or hjkl move focus, Enter activates, and Escape leaves. The compositor keybind remains a separate session change.

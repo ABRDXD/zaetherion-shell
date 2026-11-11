@@ -9,6 +9,15 @@ singleton FartCommands 1.0 FartCommands.qml
 HeavyLayer 1.0 HeavyLayer.qml
 singleton Host 1.0 Host.qml
 IndexBand 1.0 IndexBand.qml
+IslandEvents 1.0 IslandEvents.qml
+IslandExpansion 1.0 IslandExpansion.qml
+IslandGlyph 1.0 IslandGlyph.qml
+IslandQueue 1.0 IslandQueue.qml
+IslandRest 1.0 IslandRest.qml
+IslandSurface 1.0 IslandSurface.qml
+IslandTrayMenu 1.0 IslandTrayMenu.qml
+IslandWindow 1.0 IslandWindow.qml
+IslandWings 1.0 IslandWings.qml
 LiveTitle 1.0 LiveTitle.qml
 OrbitSystem 1.0 OrbitSystem.qml
 OrbitTile 1.0 OrbitTile.qml

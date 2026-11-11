@@ -18,6 +18,13 @@ Item {
     required property Unfold unfold
     // Shell exists while the panel is open or folding.
     property bool retained: false
+    property real cornerRadius: Fart.Design.radiusPanel
+    property bool dismissOnEscape: false
+    Shortcut {
+        sequence: "Escape"
+        enabled: root.dismissOnEscape && !root.shell?.externalDialogOpen
+        onActivated: Host.close()
+    }
     // DAILY_DRIVER Q2: Shell stays loaded while folded (its room is still released), so a warm open
     // only incubates the room. Measured: warm first frame 6.8–7.5 ms instead of 10.3–16.6 ms, closed
     // PSS within noise (docs/M5-VIEW.md).
@@ -94,7 +101,7 @@ Item {
             Rotation { origin.x: root.origin.x; origin.y: root.origin.y; angle: root.holeAngle },
             Translate { y: root.bodyRise }
         ]
-        radius: Fart.Design.radiusPanel
+        radius: root.cornerRadius
         color: root.spaceShows ? (root.spaceOnOrbit ? "transparent" : Qt.alpha(Fart.Design.background, 0.62)) : Qt.alpha(Fart.Design.background, Fart.Design.panelOpacity)
         clip: true
         Keys.onEscapePressed: Host.close()

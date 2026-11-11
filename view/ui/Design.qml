@@ -44,6 +44,36 @@ Singleton {
     readonly property color portraitText: palette.text ?? "#f5f6f2"
     readonly property color portraitDetail: palette.textMuted ?? "#ced9df"
     readonly property color success: palette.success ?? "#a7d8b5"
+    readonly property color islandFill: darkestIslandRole(palette)
+
+    function linearChannel(value: real): real {
+        return value <= 0.04045 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+    }
+
+    function darkestIslandRole(colors: var): color {
+        let darkest = background;
+        let darkestBlue = null;
+        let low = Infinity;
+        let lowBlue = Infinity;
+        for (const value of Object.values(colors)) {
+            const candidate = Qt.color(value);
+            const luminance = 0.2126 * linearChannel(candidate.r)
+                            + 0.7152 * linearChannel(candidate.g)
+                            + 0.0722 * linearChannel(candidate.b);
+            const hue = candidate.hslHue * 360;
+            if (luminance < low) {
+                darkest = candidate;
+                low = luminance;
+            }
+            // The blue sector used in the approved study, excluding neutral colours.
+            if (hue >= 195 && hue <= 260 && luminance < lowBlue) {
+                darkestBlue = candidate;
+                lowBlue = luminance;
+            }
+        }
+        return darkestBlue ?? darkest;
+    }
+
     readonly property real panelOpacity: theme.opacity ?? 0.94
     readonly property int radiusPanel: theme.radius ?? 24
     readonly property bool blur: theme.blur ?? false

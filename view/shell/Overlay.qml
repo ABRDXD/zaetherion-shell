@@ -18,6 +18,9 @@ Scope {
     required property CoreClient core
     property string currentPage: "home"
     property bool opened: false
+    property var companionWindows: []
+    // The island shares the panel's focus grab and supplies the gap at its edge.
+    property int adjacentIslandGap: -1
     // The panel opens like a host popup and folds from wherever it is; a reversal takes the
     // time left (docs/CUES.md §9, §15). No scope: the surface's visibility depends on it.
     Unfold { id: unfold; on: root.opened }
@@ -191,7 +194,7 @@ Scope {
     }
     HyprlandFocusGrab {
         active: root.opened && root.surfaceDrawn && !body.shell?.externalDialogOpen
-        windows: [surface]
+        windows: [surface].concat(root.companionWindows)
         onCleared: if (!body.shell?.externalDialogOpen) Host.close()
     }
     // Diagnostics only: open, page, close and toggle arrive from the core.
@@ -257,8 +260,8 @@ Scope {
         anchors.bottom: full || body.edge === "bottom"
         anchors.left: full
         anchors.right: full
-        margins.top: full ? 0 : 8
-        margins.bottom: full ? 0 : 8
+        margins.top: full ? 0 : root.adjacentIslandGap >= 0 ? root.adjacentIslandGap : 8
+        margins.bottom: full ? 0 : root.adjacentIslandGap >= 0 ? root.adjacentIslandGap : 8
         exclusionMode: full ? ExclusionMode.Ignore : ExclusionMode.Normal
         color: "transparent"
         implicitWidth: full ? screen.width : Math.min(1360, screen.width - 24)
@@ -266,10 +269,11 @@ Scope {
         WlrLayershell.namespace: "fart-control-centre"
         // The heavy layer takes the Top layer, under the panel.
         WlrLayershell.layer: full || heavy.up ? WlrLayer.Overlay : WlrLayer.Top
-        WlrLayershell.keyboardFocus: root.opened && !body.shell?.externalDialogOpen ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
-        mask: Region { item: body.shape; radius: Fart.Design.radiusPanel * body.bodyScale }
+        WlrLayershell.keyboardFocus: !root.opened || body.shell?.externalDialogOpen ? WlrKeyboardFocus.None
+            : root.adjacentIslandGap >= 0 ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.OnDemand
+        mask: Region { item: body.shape; radius: body.cornerRadius * body.bodyScale }
         BackgroundEffect.blurRegion: Fart.Design.blur && surface.visible && !heavy.showing ? frameRegion : null
-        Region { id: frameRegion; item: body.shape; radius: Fart.Design.radiusPanel * body.bodyScale }
+        Region { id: frameRegion; item: body.shape; radius: body.cornerRadius * body.bodyScale }
         PanelBody {
             id: body
             width: surface.width
@@ -279,6 +283,8 @@ Scope {
             context: context
             unfold: unfold
             retained: root.retained
+            cornerRadius: root.adjacentIslandGap >= 0 ? 0 : Fart.Design.radiusPanel
+            dismissOnEscape: root.adjacentIslandGap >= 0 && root.opened
             page: root.currentPage
             spaceShows: heavy.showing
             spaceOnOrbit: !!body.shell?.orbitOpen

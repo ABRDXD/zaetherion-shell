@@ -46,8 +46,25 @@ HostAdapter {
         items: [{ id: "1", appName: "Fixture", summary: "Calibration notice", body: "Fixture body text.", time: 1767225600000, urgency: "normal", read: false, hasActions: true }]
         unread: 1
     }
+    tray: TrayDomain {
+        available: true
+        recordCalls: true
+        items: [{ id: "sample", title: "Sample tray item", icon: "", status: "active", hasMenu: true }]
+        menuEntries: holds("menus") ? [
+            { id: "open", label: "Open sample" },
+            { id: "submenu", label: "Options", children: [{ id: "detail", label: "Sample detail" }] }
+        ] : []
+    }
+    weather: WeatherDomain {
+        available: true
+        current: ({ icon: "cloud", tempC: 24 })
+    }
+    osd: OsdDomain { available: true }
+    capture: CaptureDomain { available: true }
     keybinds: KeybindsDomain {
         available: true
+        capsLock: true
+        numLock: true
         binds: [{ mods: ["SUPER"], key: "V", section: "Utilities", description: "Clipboard history" },
                 { mods: ["SUPER", "SHIFT"], key: "S", section: "Utilities", description: "Screen snip" },
                 { mods: ["SUPER"], key: "Q", section: "Window", description: "Close" },
