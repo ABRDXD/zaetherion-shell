@@ -20,6 +20,23 @@ A point-in-time reading from planning, 8 Nov 2026 (not a quiet measurement):
 | FART-next view | 506 | 218 | — |
 | FART-next `fartd` | 22 | 12 | — |
 
+**Quiet S0 baseline, 11 Nov 2026** (Serpantinum freshly started, 90 s settle, 6 samples 20 s apart, no input; FART-next view then opened, closed and sampled warm 4 × 15 s; plugged in). Last sample shown; the Serpantinum `quickshell` ranged 480–494 PSS across the run.
+
+| Process | RSS (MiB) | PSS (MiB) | Private dirty (MiB) |
+|---|---|---|---|
+| Serpantinum `quickshell` | 743 | 491 | 386 |
+| Serpantinum focus daemon | 21 | 11 | 9 |
+| Serpantinum idle helper | 17 | 9 | 8 |
+| Serpantinum audio daemon | 10 | 5 | 4 |
+| `serpantinumd` (bash) | 6 | 1 | 1 |
+| Serpantinum `inotifywait` × 2 | 5 | 0 | 0 |
+| cliphist `wl-paste` watchers × 2 (Serpantinum autostart) | 4 | 0.4 | — |
+| FART-next view (warm, closed) | 498 | 235 | 172 |
+| FART-next `fartd` | 24 | 15 | 14 |
+| **Total** | | **≈ 768** | |
+
+**Fixed total budget: ZÆTHERION ≤ 768 MiB PSS** (resident + warm panel + `fartd` + `dms`, measured the same way). With the panel reaped, the comparison is ≈ 533 MiB.
+
 ## Per surface (Z141)
 
 Each surface gets a measured memory delta and a frame budget. The limits are fixed at the milestone that builds the surface, then enforced by a `check-budgets` gate.
