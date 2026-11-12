@@ -19,9 +19,13 @@ PowerDomain {
     function setIdleInhibited(on: bool) {}
     function setBrightness(level: real) {}
     function setNightLight(on: bool) {}
-    function lock() {}
-    function suspend() {}
-    function logout() {}
-    function reboot() {}
-    function powerOff() {}
+
+    // Lock: the command the session's own binds use (Super+L, the power key). S7 decides how lock really works
+    // (OPEN F2-5); until then this one stands in.
+    function lock() { Quickshell.execDetached(["dms", "ipc", "call", "lock", "lock"]); }
+    // Z158: suspend, reboot and power off are systemd's; log out ends the Hyprland session.
+    function suspend() { Quickshell.execDetached(["systemctl", "suspend"]); }
+    function logout() { Hyprland.dispatch("hl.dsp.exit()"); }
+    function reboot() { Quickshell.execDetached(["systemctl", "reboot"]); }
+    function powerOff() { Quickshell.execDetached(["systemctl", "poweroff"]); }
 }

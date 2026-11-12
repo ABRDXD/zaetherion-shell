@@ -1,3 +1,10 @@
+# 12 November 2026 · Sonnet (S2): step 3, the session actions
+
+- **Built.** `DmsPower`: `suspend`, `reboot`, `powerOff` run `systemctl suspend|reboot|poweroff`; `logout` is `Hyprland.dispatch("hl.dsp.exit()")` (Z158). **`lock` runs `dms ipc call lock lock`**, the command the session's keybinds already use; this is a stand-in until S7 decides lock (OPEN F2-5), and the island's Lock button depends on it.
+- **Tests.** `test_dms_adapter.SessionActions` runs the four command actions with stub `systemctl` and `dms` as the only things on PATH, and checks each stub saw exactly its arguments; logout is checked from the log of the refused dispatch (no compositor in the run). A static test pins the exact command list. Nothing real was suspended, locked or dispatched.
+- **Not checked.** `dms ipc call lock lock` against a live DMS, and `hl.dsp.exit()` on the live session: both only with the owner present.
+- **Next.** Step 4, notifications from the core's mirror.
+
 # 12 November 2026 · Sonnet (S2): step 2, the Quickshell and Hyprland pieces
 
 - **Built.** `adapters/quickshell/`: `QuickshellMedia` (MPRIS, the `position` and `spectrum` leases), `QuickshellAudio` (Pipewire, the `mixer` lease), `QuickshellTray` (SystemTray; the `menus` lease opens the item named by `menu(id)` through `QuickshellMenuNode`, one node per menu level, entry ids are index paths such as `2.0`), `QuickshellPowerSource` (UPower battery and profile). `adapters/hyprland/`: `HyprlandWorkspaces`, `HyprlandKeybinds`. `adapters/dms/DmsPower` (battery and profile for now) and `DmsAdapter` now fills media, audio (deferred), network, workspaces, keybinds, power, tray, system, lyrics (deferred) and clipboard (deferred, cliphist).

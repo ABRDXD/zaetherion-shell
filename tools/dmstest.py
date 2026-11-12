@@ -19,6 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 TREE = ("view", "adapters", "core", "tools", "assets")
 FIXTURE = ROOT / "tests/fixtures/dms/s0-v2.1.0.json"
+QS = shutil.which("qs") or "qs"      # absolute, so a test may give the run a PATH of its own
 
 
 class Stand:
@@ -82,7 +83,7 @@ class Harness:
         env.update(env_extra or {})        # e.g. the nested compositor's WAYLAND_DISPLAY, HYPRLAND_INSTANCE_SIGNATURE, XDG_RUNTIME_DIR
         self.env = env
         self.log = open(directory / "qs.log", "w")
-        self.process = subprocess.Popen(["qs", "-n", "--no-color", "-p", str(self.entry)], env=env, stdin=subprocess.DEVNULL,
+        self.process = subprocess.Popen([QS, "-n", "--no-color", "-p", str(self.entry)], env=env, stdin=subprocess.DEVNULL,
                                         stdout=self.log, stderr=subprocess.STDOUT)
         self.wait_for_ipc()
 
@@ -98,7 +99,7 @@ class Harness:
         raise RuntimeError("qs did not answer over ipc:\n" + self.output())
 
     def _ipc(self, *args, check=True):
-        return subprocess.run(["qs", "ipc", "--pid", str(self.process.pid), *args], env=self.env, capture_output=True,
+        return subprocess.run([QS, "ipc", "--pid", str(self.process.pid), *args], env=self.env, capture_output=True,
                               text=True, timeout=15, check=False)
 
     def ipc(self, function: str, *args: str, target: str = "t") -> str:

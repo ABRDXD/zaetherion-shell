@@ -43,6 +43,14 @@ class DmsContract(unittest.TestCase):
             for feature in features:
                 self.assertIn(f'holds("{feature}")', text, f"{file}: lease {feature}")
 
+    def test_session_actions_are_exactly_the_decided_commands(self):
+        # Z158: systemctl for suspend, reboot and power off; Hyprland's exit for logout; lock is the session's own bind.
+        text = (DMS / "DmsPower.qml").read_text()
+        self.assertEqual(sorted(re.findall(r"execDetached\((\[[^\]]*\])\)", text)),
+                         sorted(['["dms", "ipc", "call", "lock", "lock"]', '["systemctl", "suspend"]',
+                                 '["systemctl", "reboot"]', '["systemctl", "poweroff"]']))
+        self.assertIn('Hyprland.dispatch("hl.dsp.exit()")', text)
+
     def test_only_the_link_uses_a_socket(self):
         for qml in sorted(DMS.glob("*.qml")):
             uses = re.search(r"\bSocket\b", qml.read_text())

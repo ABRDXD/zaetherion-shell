@@ -215,6 +215,46 @@ class Composition(Base):
             self.assertNotIn(bad, output, output[-2500:])
 
 
+class SessionActions(Base):
+    """The session card's calls (Z158), run with stub commands: the real systemctl and dms are not on PATH."""
+
+    def stubs(self):
+        bin_dir = self.dir / "stubs"
+        bin_dir.mkdir()
+        log = self.dir / "calls.log"
+        for name in ("systemctl", "dms"):
+            stub = bin_dir / name
+            stub.write_text(f'#!/bin/sh\necho "{name} $*" >> "{log}"\n')
+            stub.chmod(0o755)
+        # Nothing but the stubs: a stub that failed to start must not fall through to the real command.
+        self.assertEqual(shutil.which("systemctl", path=str(bin_dir)), str(bin_dir / "systemctl"))
+        return bin_dir, log
+
+    def test_each_action_runs_its_command_and_nothing_else(self):
+        bin_dir, log = self.stubs()
+        stand = self.stand()
+        self.harness = dmstest.Harness(stand.path, self.dir, env_extra={"PATH": str(bin_dir)})
+        self.ready(self.harness)
+        for action in ("lock", "suspend", "reboot", "powerOff"):
+            self.harness.ipc("session", action)
+        deadline = time.time() + 5
+        while time.time() < deadline and (not log.exists() or len(log.read_text().splitlines()) < 4):
+            time.sleep(0.05)
+        self.assertEqual(sorted(log.read_text().splitlines()),
+                         sorted(["dms ipc call lock lock", "systemctl suspend", "systemctl reboot", "systemctl poweroff"]))
+
+    def test_logout_asks_hyprland_to_exit_and_nothing_else(self):
+        bin_dir, log = self.stubs()
+        stand = self.stand()
+        self.harness = dmstest.Harness(stand.path, self.dir, env_extra={"PATH": str(bin_dir)})
+        self.ready(self.harness)
+        self.harness.ipc("session", "logout")
+        time.sleep(0.5)
+        # No compositor in the run (HYPRLAND_INSTANCE_SIGNATURE is empty), so the request is only logged as failed.
+        self.assertIn('dispatch of "hl.dsp.exit()"', self.harness.output())
+        self.assertFalse(log.exists())
+
+
 class Leases(Base):
     def test_the_list_is_network_alone_with_no_view_lease(self):
         stand, harness = self.start()

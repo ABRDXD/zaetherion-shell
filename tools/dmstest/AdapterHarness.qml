@@ -68,6 +68,15 @@ ShellRoot {
             return JSON.stringify({ focusedScreen: w.focusedScreen, activeId: w.activeId,
                 workspaces: w.workspaces.map(s => s.id), monitors: w.monitors.map(m => m.name), binds: adapter.keybinds.binds.length });
         }
+        // The session card's calls. Tests run them only with stub commands on PATH.
+        function session(action: string): void {
+            const p = adapter.power;
+            if (action === "lock") p.lock();
+            else if (action === "suspend") p.suspend();
+            else if (action === "logout") p.logout();
+            else if (action === "reboot") p.reboot();
+            else if (action === "powerOff") p.powerOff();
+        }
         function switchTo(id: string): void { adapter.workspaces.switchTo(id); }
         function refreshBinds(): void { adapter.keybinds.refresh(); }
         function results(): string { return JSON.stringify(root.results); }
