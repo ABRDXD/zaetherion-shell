@@ -35,6 +35,9 @@ ShellRoot {
         adjacentIslandGap: island.edgeGap
         islandRect: island.islandRect
         islandHasKeyboard: island.companionWindow?.wantsKeyboard ?? false
+        islandAlert: island?.coveredEvent ?? null
+        onIslandAlertDismissed: id => island?.dismissCovered(id)
+        onIslandAlertAction: (id, action, reply) => fixture.notifications.record("action", [id, action, reply])
     }
     function showPanel(room: string): void {
         panel.openPage(room, { screen: target?.name ?? "", from: island.islandRect });
@@ -94,7 +97,8 @@ ShellRoot {
                 draftLength: island.companionWindow?.draftLength ?? 0,
                 lastNotificationAction: args[1] ?? "", lastReplyLength: args[2]?.length ?? 0,
                 lastReply: args[2] ?? "", keyboard: island.companionWindow?.keyboardRequest ?? "",
-                powerCalls: fixture.power.calls.map(call => call.method) });
+                powerCalls: fixture.power.calls.map(call => call.method),
+                coveredEvent: island.coveredEvent?.kind ?? "" });
         }
         function focus(): void { island.focusIsland(); }
         function tray(): void { island.openTray("sample"); }

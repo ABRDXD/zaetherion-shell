@@ -4,7 +4,9 @@ BatteryMark 1.0 BatteryMark.qml
 ColdProbe 1.0 ColdProbe.qml
 CommandLine 1.0 CommandLine.qml
 singleton Config 1.0 Config.qml
+CriticalFlash 1.0 CriticalFlash.qml
 singleton Directories 1.0 Directories.qml
+FartAlertDrop 1.0 FartAlertDrop.qml
 singleton FartCommands 1.0 FartCommands.qml
 HeavyLayer 1.0 HeavyLayer.qml
 singleton Host 1.0 Host.qml

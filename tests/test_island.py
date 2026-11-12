@@ -19,9 +19,11 @@ class IslandFrameTests(unittest.TestCase):
 
     def test_island_faces_hover_and_queue(self):
         self.run_fixture("SurfaceTest.qml", ("preemption saves dwell", "resume and hover pause",
-            "hover resumes remaining time", "rest frame", "idle has no leases",
+            "hover resumes remaining time", "critical interrupts held face", "panel holds ordinary event",
+            "critical shows over panel", "ordinary event resumes after panel", "rest frame", "idle has no leases",
             "hover delay and playing lease", "hover shows wings", "leases released",
-            "track face", "workspace flash", "memory face", "osd face", "notification face"))
+            "track face", "workspace flash", "memory face", "osd face", "notification face", "offscreen capture",
+            "docked hands critical to FART", "docked holds ordinary", "events resume after fold"))
 
     def test_status_faces(self):
         self.run_fixture("EventTest.qml", ("recording status", "charging notice", "DND suppresses ordinary battery warning",

@@ -28,6 +28,10 @@ Scope {
     // itself growing: its silhouette (IslandFrame) grows from this rect to the panel's, revealing FART inside, and
     // folds back into it. FART's header takes the island's place at the top.
     property var islandRect: null
+    // Z161: a critical event that arrived while FART covers the island; it drops down inside FART.
+    property var islandAlert: null
+    signal islandAlertDismissed(string id)
+    signal islandAlertAction(string id, string action, string reply)
     // The island's rect when this open began: the growth starts here and the fold returns here.
     property var islandFrom: null
     readonly property bool islandMorph: adjacentIslandGap >= 0 && !surface.full
@@ -376,6 +380,16 @@ Scope {
                 coldProbe.interactive();
                 if (coldProbe.enabled) console.log("FART_CMDLINE ready", Date.now());
             }
+        }
+        FartAlertDrop {
+            x: body.x
+            width: body.width
+            height: surface.height
+            headerHeight: body.shell?.headerBottom ?? 0
+            visible: root.opened && surface.growP >= 1 && !!body.shell
+            event: visible ? root.islandAlert : null
+            onDismissed: id => root.islandAlertDismissed(id)
+            onNotificationAction: (id, action, reply) => root.islandAlertAction(id, action, reply)
         }
     }
 }

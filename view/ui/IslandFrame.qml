@@ -14,6 +14,8 @@ Item {
     property real shoulderDepth: height
     // Fluid: the radius of the two corners away from the screen edge.
     property real corner: Design.roundIsland
+    // The matte fill; a critical event's flash (Z161) draws a second frame in Design.danger over it.
+    property color fill: Design.islandFill
     implicitWidth: 420
     implicitHeight: 36
 
@@ -39,7 +41,7 @@ Item {
         visible: !root.fluid
         preferredRendererType: Shape.CurveRenderer
         ShapePath {
-            fillColor: Design.islandFill
+            fillColor: root.fill
             strokeWidth: -1
             PathPolyline {
                 path: [root.vertex(0, 0), root.vertex(root.width, 0),
@@ -58,7 +60,7 @@ Item {
         visible: root.fluid
         preferredRendererType: Shape.CurveRenderer
         ShapePath {
-            fillColor: Design.islandFill
+            fillColor: root.fill
             strokeWidth: -1
             startX: 0; startY: root.y0
             PathArc { x: root.ear; y: root.edgeY(root.ear); radiusX: root.ear; radiusY: root.ear; direction: root.concave }

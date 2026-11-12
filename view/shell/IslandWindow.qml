@@ -17,6 +17,9 @@ Scope {
     property bool docked: false
     readonly property var companionWindow: layer.active ? layer.item : null
     readonly property var islandRect: companionWindow?.islandRect ?? null
+    // Z161: the critical event FART shows while it covers the island.
+    readonly property var coveredEvent: companionWindow?.coveredEvent ?? null
+    function dismissCovered(id: string): void { companionWindow?.dismissCovered(id); }
     signal ignite()
     signal notificationAction(string id, string action, string reply)
     property var workspaceIds: []
@@ -49,6 +52,8 @@ Scope {
             id: panel
             property string trayItem: ""
             readonly property int draftLength: frame.draftLength
+            readonly property var coveredEvent: frame.coveredEvent
+            function dismissCovered(id: string): void { frame.dismissCovered(id); }
             readonly property string keyboardRequest: frame.keyboardRequest
             readonly property bool wantsKeyboard: frame.wantsKeyboard
             readonly property var islandRect: ({

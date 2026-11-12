@@ -28,6 +28,24 @@ ShellRoot {
         order.hovered = false;
         check(order.deadline === fakeNow + 4250, "hover resumes remaining time");
         order.remove("notice");
+        // Z161: a held face blocks ordinary events; critical interrupts it; a panel's ceiling holds the rest.
+        order.offer("session", "session", 5, {}, null);
+        order.offer("notice", "notification", 40, {}, 5000);
+        order.offer("crit", "critical", 0, {}, 5000);
+        check(order.current.id === "crit" && order.entries[1].id === "session" && order.entries[2].remaining === 5000,
+            "critical interrupts held face");
+        order.remove("crit");
+        order.remove("session");
+        fakeNow += 1000;
+        order.ceiling = 0;
+        check(order.current === null && order.deadline === 0 && order.entries[0].remaining === 4000, "panel holds ordinary event");
+        order.offer("crit", "critical", 0, {}, 5000);
+        check(order.current.id === "crit", "critical shows over panel");
+        order.remove("crit");
+        fakeNow += 3000;
+        order.ceiling = Infinity;
+        check(order.current.id === "notice" && order.deadline === fakeNow + 4000, "ordinary event resumes after panel");
+        order.remove("notice");
     }
     Component.onDestruction: Design.source = null
 
@@ -91,11 +109,28 @@ ShellRoot {
                 break;
             case 10:
                 root.check(island.expansion?.kind === "critical" && island.height === 124, "notification face");
+                scene.grabToImage(result => root.check(result.saveToFile(Quickshell.env("ISLAND_FRAME_SHOT")), "offscreen capture"));
+                break;
+            // Z161: FART grown from the island covers it. A critical event is handed to FART; ordinary ones wait.
+            case 11:
+                island.docked = true;
+                break;
+            case 12:
+                root.check(island.coveredEvent?.kind === "critical" && island.expansion === null, "docked hands critical to FART");
+                fixture.notifications.items = fixture.notifications.items.concat([{ id: "later", appName: "DEMO",
+                    summary: "Ordinary fixture", body: "Synthetic", urgency: "normal" }]);
+                island.dismissCovered("notification:critical");
+                break;
+            case 13:
+                root.check(island.coveredEvent === null && island.expansion === null, "docked holds ordinary");
+                island.docked = false;
+                break;
+            case 14:
+                // The waiting events resume in priority order: the volume OSD from step 9 (left unexpired while
+                // docked) comes first; the queue checks above show an ordinary notice resuming with its time intact.
+                root.check(island.expansion?.kind === "osd" && island.coveredEvent === null, "events resume after fold");
                 running = false;
-                scene.grabToImage(result => {
-                    root.check(result.saveToFile(Quickshell.env("ISLAND_FRAME_SHOT")), "offscreen capture");
-                    Qt.quit();
-                });
+                Qt.quit();
                 break;
             }
         }

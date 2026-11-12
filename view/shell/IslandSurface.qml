@@ -32,16 +32,16 @@ FocusScope {
     property bool overdriveActive: false
     property CoreClient core: null
     property var startupNotice: null
-    // The open tray item (Z157): its menu is one of the island's faces, ahead of every event while it is open.
+    // The open tray item (Z157): its menu is one of the island's faces, ahead of every event but a critical one while it is open (Z161).
     property string trayItem: ""
     readonly property bool trayOpen: trayItem !== ""
     signal closeTray()
     signal chooseTray(string entryId)
-    onTrayItemChanged: trayItem ? queue.offer("tray", "tray", -1, { item: trayItem }, null) : queue.remove("tray")
-    // The session card (Z158) grows from the island like the tray menu, ahead of every event while it is open.
+    onTrayItemChanged: trayItem ? queue.offer("tray", "tray", events.priority.held, { item: trayItem }, null) : queue.remove("tray")
+    // The session card (Z158) grows from the island like the tray menu, ahead of every event but a critical one while it is open (Z161).
     function openSession(): void {
         keyboardMode = false;
-        queue.offer("session", "session", -1, {}, null);
+        queue.offer("session", "session", events.priority.held, {}, null);
     }
     function closeSession(): void { queue.remove("session"); }
     // Faces the owner opened and holds: the keyboard goes to them, and a click outside closes them.
@@ -60,7 +60,17 @@ FocusScope {
     property var shownEvent: null
     property var outgoingEvent: null
     property var replyDrafts: ({})
-    readonly property var expansion: queue.current
+    readonly property var expansion: docked ? null : queue.current
+    // The critical event FART shows while it covers the island (Z161).
+    readonly property var coveredEvent: docked ? queue.current : null
+    function dismissCovered(id: string): void { queue.remove(id); }
+    // A critical event flashes the island red once (Z161).
+    readonly property bool criticalShown: expansion?.priority === events.priority.critical
+    onCriticalShownChanged: if (criticalShown) alarm.fire()
+    CriticalFlash {
+        id: alarm
+        still: root.motionLevel === "off"
+    }
     readonly property int draftLength: (replyDrafts[expansion?.id] ?? "").length
     readonly property bool noticeVisible: expansion?.kind === "notification" || expansion?.kind === "critical"
     // Keyboard interactivity for the layer. A queued reply draft keeps OnDemand through pre-emption:
@@ -159,6 +169,9 @@ FocusScope {
     IslandQueue {
         id: queue
         hovered: root.pointerInside
+        // Z161: FART grown from the island covers it: ordinary events wait (time intact) until it folds, and a
+        // critical one drops down inside FART instead (`coveredEvent`, drawn by the Overlay).
+        ceiling: root.docked ? events.priority.critical : Infinity
         onEntriesChanged: {
             const keep = {};
             const ids = entries.map(event => event.id);
@@ -200,6 +213,13 @@ FocusScope {
     IslandFrame {
         anchors.fill: parent
         bottomEdge: root.bottomEdge
+    }
+    IslandFrame {
+        anchors.fill: parent
+        bottomEdge: root.bottomEdge
+        fill: Design.danger
+        visible: alarm.value > 0
+        opacity: alarm.value * 0.85
     }
     MouseArea {
         id: gesture

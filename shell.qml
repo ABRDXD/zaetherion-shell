@@ -41,6 +41,8 @@ ShellRoot {
         adjacentIslandGap: root.island ? root.island.edgeGap : -1
         islandRect: root.island?.islandRect ?? null
         islandHasKeyboard: root.island?.companionWindow?.wantsKeyboard ?? false
+        islandAlert: root.island?.coveredEvent ?? null
+        onIslandAlertDismissed: id => root.island?.dismissCovered(id)
     }
     function showPanel(room: string): void {
         panel.openPage(room, { screen: root.islandScreen?.name ?? "", from: root.island?.islandRect ?? null });

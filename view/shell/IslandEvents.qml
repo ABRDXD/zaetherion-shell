@@ -28,8 +28,9 @@ Scope {
     property string previousWorkspace: ""
 
     // Z23 and the owner's S3 additions. Smaller numbers interrupt larger ones.
+    // held: a face the owner opened (tray menu, session card); only critical interrupts it (Z161).
     readonly property var priority: ({
-        critical: 0, done: 10, osd: 20, memory: 30, workspace: 31, notification: 40,
+        critical: 0, held: 5, done: 10, osd: 20, memory: 30, workspace: 31, notification: 40,
         recording: 50, charging: 60, track: 70, timer: 80
     })
 
