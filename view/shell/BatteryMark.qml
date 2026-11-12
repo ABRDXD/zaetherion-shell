@@ -8,6 +8,8 @@ Row {
     required property var battery
     property bool showPercentage: true
     property bool signalOnly: false
+    // Fluid: upright with rounded corners instead of the −12° cell.
+    property bool rounded: false
     readonly property real level: Math.max(0, Math.min(1, battery.level ?? 0))
     readonly property bool draining: !!battery.available && !battery.pluggedIn
     // The same thresholds as the footer's power readout.
@@ -21,27 +23,30 @@ Row {
         anchors.verticalCenter: parent.verticalCenter
         width: 30
         height: 13
-        transform: Matrix4x4 { matrix: Qt.matrix4x4(1, Design.shear, 0, -Design.shear * 13 / 2, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1) }
+        transform: Matrix4x4 { matrix: Qt.matrix4x4(1, root.rounded ? 0 : Design.shear, 0, root.rounded ? 0 : -Design.shear * 13 / 2, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1) }
         Rectangle {
             id: cell
             width: parent.width - 3
             height: parent.height
             color: "transparent"
-            border.width: 1
+            radius: root.rounded ? 4 : 0
+            border.width: root.rounded ? 1.5 : 1
             border.color: root.tone
         }
         Rectangle {
-            x: 2
-            y: 2
-            width: (cell.width - 4) * root.level
-            height: cell.height - 4
+            x: root.rounded ? 2.5 : 2
+            y: root.rounded ? 2.5 : 2
+            width: Math.max(0, (cell.width - (root.rounded ? 5 : 4)) * root.level)
+            height: cell.height - (root.rounded ? 5 : 4)
+            radius: root.rounded ? 2 : 0
             color: root.tone
         }
         Rectangle {
-            x: cell.width
+            x: cell.width + (root.rounded ? 0.5 : 0)
             y: 4
-            width: 3
+            width: root.rounded ? 2.5 : 3
             height: parent.height - 8
+            radius: root.rounded ? 1.25 : 0
             color: root.tone
         }
     }

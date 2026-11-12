@@ -18,6 +18,8 @@ Item {
     property bool memoryPinned: false
     property bool systemVoice: true
     property bool bottomEdge: false
+    // Optical shift towards the screen edge for a flush notch (IslandSurface.lift).
+    property int lift: 0
     property string replyDraft: ""
 
     function voice(line: string): string {
@@ -41,7 +43,8 @@ Item {
     // Content keeps clear of the 84° shoulders at the deepest row. The frame is matte, with no facet to clear.
     readonly property real shoulderSlope: 1 / Math.tan(84 * Math.PI / 180)
     // A notice is sized by its text, so its inset uses the deepest notice, not its own depth.
-    readonly property real sideInset: Math.ceil(12 + (noticeKind ? 140 : shape(kind).height) * shoulderSlope)
+    readonly property real sideInset: Design.fluid ? 16
+        : Math.ceil(12 + (noticeKind ? 140 : shape(kind).height) * shoulderSlope)
     readonly property int edgePad: 10
     readonly property int facet: 0
     readonly property real noticeContent: noticeKind && face.item ? face.item.implicitHeight : 0
@@ -55,8 +58,8 @@ Item {
         anchors.fill: parent
         anchors.leftMargin: root.sideInset
         anchors.rightMargin: root.sideInset
-        anchors.topMargin: root.edgePad + (root.bottomEdge ? root.facet : 0)
-        anchors.bottomMargin: root.edgePad + (root.bottomEdge ? 0 : root.facet)
+        anchors.topMargin: root.edgePad + (root.bottomEdge ? root.facet + root.lift : -root.lift)
+        anchors.bottomMargin: root.edgePad + (root.bottomEdge ? -root.lift : root.facet + root.lift)
         sourceComponent: {
             switch (root.kind) {
             case "notification":
@@ -169,9 +172,16 @@ Item {
                         asynchronous: true
                     }
                 }
+                // The sheet's notched rule in Angular; a plain hairline in Fluid.
                 FRule {
-                    visible: actionRow.visible
+                    visible: actionRow.visible && !Design.fluid
                     width: parent.width
+                    color: card.critical ? Design.accent : Design.line
+                }
+                Rectangle {
+                    visible: actionRow.visible && Design.fluid
+                    width: parent.width
+                    height: 1
                     color: card.critical ? Design.accent : Design.line
                 }
                 Row {
@@ -209,6 +219,23 @@ Item {
                             rightPadding: send.width + 2 * Design.baseline
                             font.pixelSize: Design.body
                             placeholderText: root.systemVoice ? "REPLY…" : "Reply…"
+                            // The sheet's cut-corner field in Angular; a rounded one in Fluid.
+                            background: Item {
+                                FFrame {
+                                    anchors.fill: parent
+                                    visible: !Design.fluid
+                                    fillColor: Design.surface
+                                    lineColor: reply.activeFocus ? Design.accent : Design.line
+                                }
+                                Rectangle {
+                                    anchors.fill: parent
+                                    visible: Design.fluid
+                                    radius: height / 2
+                                    color: Design.surface
+                                    border.width: 1
+                                    border.color: reply.activeFocus ? Design.accent : Design.line
+                                }
+                            }
                             text: root.replyDraft
                             onTextEdited: root.replyEdited(text)
                             onAccepted: send.submit()
@@ -263,6 +290,8 @@ Item {
                 return "tune";
             }
             MaterialSymbol {
+                fill: Design.iconFill
+                weight: Design.iconWeight
                 id: osdGlyph
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
@@ -285,7 +314,7 @@ Item {
                 width: 64
                 horizontalAlignment: Text.AlignRight
                 headline: true
-                sheared: true
+                sheared: !Design.fluid
                 font.weight: Font.Bold
                 font.pixelSize: Design.readout
                 text: root.payload.muted ? "MUTED" : Math.round((root.payload.level ?? 0) * 100) + "%"
@@ -306,14 +335,16 @@ Item {
     Component {
         id: track
         Item {
-            Plane {
+            FPlate {
                 id: tile
                 anchors.verticalCenter: parent.verticalCenter
                 width: 44
                 height: 44
                 role: "signal"
-                slant: 3
+                radius: Design.roundPlate
                 MaterialSymbol {
+                    fill: Design.iconFill
+                    weight: Design.iconWeight
                     anchors.centerIn: parent
                     visible: cover.status !== Image.Ready
                     text: "music_note"
@@ -370,12 +401,12 @@ Item {
                 spacing: Design.baseline
                 Repeater {
                     model: root.payload.ids ?? []
-                    Plane {
+                    FPlate {
                         required property string modelData
                         width: Math.min(40, (root.width - 2 * root.sideInset) / Math.max(1, root.payload.ids?.length ?? 1) - Design.baseline)
                         height: Design.minHit
                         role: modelData === root.payload.active ? "signal" : "paper"
-                        slant: 3
+                        radius: height / 2
                         FText {
                             anchors.centerIn: parent
                             color: parent.textColor
@@ -407,7 +438,7 @@ Item {
                 id: reading
                 anchors.right: parent.right
                 headline: true
-                sheared: true
+                sheared: !Design.fluid
                 font.weight: Font.Bold
                 font.pixelSize: Design.readout
                 font.capitalization: Font.MixedCase
@@ -490,11 +521,11 @@ Item {
         Item {
             id: statusFace
             readonly property bool inverse: ["done", "low-battery"].includes(root.event?.kind)
-            Plane {
+            FPlate {
                 id: backing
                 anchors.fill: parent
                 role: "signal"
-                slant: 3
+                radius: Design.roundPlate
                 visible: statusFace.inverse
             }
             MouseArea {
@@ -549,14 +580,14 @@ Item {
     Component {
         id: recording
         Item {
-            Plane {
+            FPlate {
                 id: mark
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
                 width: 3 * Design.baseline
-                height: 4 * Design.baseline
+                height: Design.fluid ? width : 4 * Design.baseline
                 role: "signal"
-                slant: 3
+                radius: width / 2
             }
             FText {
                 anchors.left: mark.right

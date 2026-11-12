@@ -89,3 +89,10 @@ Super+Shift+I with the panel open moves the keyboard to the island, and the pane
 - **Fixture calls:** `layout mirror|sides|framed`, `nomedia`, `trayItems N` and `title TEXT`. `ZAETHERION_FIXTURE_LAYOUT` picks the arrangement at start (default `framed`).
 - **Open:** with the island grown into FART, a second click on the island (Z134) and Super+Shift+I while FART is open (Z148) need new answers from the owner.
 
+## FARTland // Fluid (12 November 2026)
+
+[Fluid states](fartland-fluid-build.png) shows rest, playing, hover, track change, notification, critical, volume and memory at actual size; [growth](fartland-fluid-grow.gif) records it opening FART (Z153). Run the preview with `ZAETHERION_FIXTURE_FORM=fluid`, or switch live with the `form angular|fluid` call. `icons fill|thin|plain` compares Fluid icon styles, and `playing true` starts the fixture player so the media view shows.
+
+- `Design.form` and `Design.fluid` select the form. `FPlate` draws a 78° plane in Angular and a rounded plate in Fluid; `FTag`, `FBlades`, `IslandFrame` and `BatteryMark` (`rounded`) have Fluid forms; `MaterialSymbol` exposes the FILL and weight axes.
+- Spacing and centring follow Z154.
+

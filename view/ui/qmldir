@@ -16,6 +16,7 @@ FHalftone 1.0 FHalftone.qml
 FHeading 1.0 FHeading.qml
 FMenuItem 1.0 FMenuItem.qml
 FMeter 1.0 FMeter.qml
+FPlate 1.0 FPlate.qml
 FRule 1.0 FRule.qml
 FStatusDot 1.0 FStatusDot.qml
 FTag 1.0 FTag.qml

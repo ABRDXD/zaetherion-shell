@@ -1,3 +1,11 @@
+# 12 November 2026 · Opus: FARTland // Fluid, even spacing (Z153, Z154)
+
+- **Built and owner-approved.** FARTland // Fluid as a second form of the island (Z153), and one spacing rhythm with an optical lift for the flush notch (Z154). Captures and calls are in `docs/ui/README.md`.
+- **Checks.** `test_island` 5/5, including the new `FluidTest.qml`. Layout, contract and qmldirs OK. `qmllint` reported 0 syntax diagnostics. Nested: docked focus passed 6/6, and an exact reply arrived once.
+- **For Sol.** The full suite had one failure: `test_keytest` reported `timers.loaded` with an empty value, so the Timers room did not load in time. It fails the same way on `5f86e7e` and on `bd4ebdb`, which passed earlier the same day, so it looks environmental, not caused by the island. `BatteryMark` gained `rounded` (default off, so FART's header is unchanged), and `MaterialSymbol` gained `fill` and `weight` (defaults render as before).
+- **Open for the owner.** Z134 (should a click on FART's header fold it back?), Z148 (should Super+Shift+I fold FART back and focus the island?), whether the right-click choice should survive a restart, whether Fluid shows media while paused, deleting `IslandWings.qml` along with the Mirror and Sides arrangements, and where the Angular/Fluid switch is stored.
+- **Next.** See the owner's next-chat prompt: commit cleanup, the open questions, persisting the form, wiring the island into `shell.qml` with Sol, and island budgets.
+
 # 12 November 2026 · Opus: island grows into FART; Framed, matte, Amoled Black
 
 - **Owner-approved** (Z149–Z152): the Framed layout; the island widening into a bar and dropping into FART, then folding back; a matte fill; DMS Amoled Black as the built-in palette. The layout review and growth animation are in `docs/ui/` (see its README).

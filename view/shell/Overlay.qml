@@ -307,7 +307,7 @@ Scope {
         color: "transparent"
         // Grown from the island, the surface also holds the bar's 84° shoulders on either side of the body.
         readonly property real shoulderRun: (root.islandFrom?.height ?? root.islandRect?.height ?? 36) / Math.tan(84 * Math.PI / 180)
-        implicitWidth: full ? screen.width : root.islandMorph ? Math.min(screen.width, 1360 + 2 * Math.ceil(shoulderRun))
+        implicitWidth: full ? screen.width : root.islandMorph ? Math.min(screen.width, 1360 + (Fart.Design.fluid ? 0 : 2 * Math.ceil(shoulderRun)))
             : Math.min(1360, screen.width - 24)
         implicitHeight: full ? screen.height : root.islandMorph ? Math.min(860, screen.height - root.adjacentIslandGap - 32)
             : Math.min(860, screen.height - (root.host.workspaces.monitors.find(m => m.name === screen.name)?.reservedTop || 0) - 32)
@@ -344,6 +344,8 @@ Scope {
             visible: root.islandMorph
             bottomEdge: body.edge === "bottom"
             shoulderDepth: surface.fromRect.height
+            // Fluid: the island's corners open into the panel's softer ones as it drops.
+            corner: Fart.Design.roundIsland + (2 * Fart.Design.roundPlate - Fart.Design.roundIsland) * surface.drop
             x: surface.fromRect.x * (1 - surface.widen)
             width: surface.fromRect.width + (surface.width - surface.fromRect.width) * surface.widen
             height: surface.fromRect.height + (surface.height - surface.fromRect.height) * surface.drop

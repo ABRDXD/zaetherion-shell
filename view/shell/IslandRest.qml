@@ -6,7 +6,7 @@ import qs.view.ui
 // The island's row, at rest and hovered, balanced around the centred clock (Z124). Each side of the clock is one
 // run from the clock to a shoulder:
 //   - media fills its run toward the clock, so the title takes whatever the run has left;
-//   - the other run is justified, status first, spaced evenly up to the actions;
+//   - the other run is a packed group, status first, starting one gap past the clock;
 //   - actions (power, inbox) ride the shoulders, at rest and hovered.
 // Status glyphs are quiet (smaller, muted); actions and content are ink.
 // Arrangements under review:
@@ -27,6 +27,15 @@ Item {
     signal openPower()
     signal openTray(string itemId)
 
+    // Fluid at rest (Z145): the clock alone, or the track and its waveform either side of it while playing.
+    // Hovered, Fluid shows the same row as Angular inside its rounded ends.
+    readonly property bool compact: Design.fluid && !wings
+    // Fluid at rest while a player plays: the media instead of the clock, as DMS does. Right-click on the island
+    // flips this (IslandSurface.preferClock).
+    property bool preferClock: false
+    readonly property bool mediaView: compact && visualising && !preferClock
+    // The width Fluid needs at rest: the clock alone, or the media row.
+    readonly property real compactWidth: mediaView ? Math.ceil(mediaRow.implicitWidth) + 2 * edge : 100
     readonly property bool sides: arrangement === "sides"
     // Power at the right shoulder (Sides) or the left (Mirror, Framed, as in the approved study).
     readonly property bool powerRight: sides
@@ -38,14 +47,18 @@ Item {
     readonly property bool visualising: live && !!player?.playing
     readonly property string networkGlyph: host.network.kind === "ethernet" && host.network.connected
         ? "lan" : host.network.connected ? "wifi" : "wifi_off"
-    readonly property int edge: 3 * Design.baseline     // inside each shoulder
+    // Inside each end: Angular's shoulders take little, Fluid's flare and corners take more, so Fluid keeps
+    // 16 px of clear padding past its flare.
+    readonly property int edge: Design.fluid ? Design.roundEar + 4 * Design.baseline : 3 * Design.baseline
     readonly property int gap: 3 * Design.baseline      // between a run and the clock
-    readonly property int tight: 2 * Design.baseline    // spacing inside a group
+    // One rhythm between every glyph on both sides (owner, 12 November): nothing is spread to fill a run.
+    readonly property int tight: 3 * Design.baseline
     readonly property real leftShoulder: edge - reach
     readonly property real rightShoulder: width + reach - edge
     readonly property real clockLeft: clock.x
     readonly property real clockRight: clock.x + clock.width
-    readonly property real pillMinimum: 200
+    // The title's share of the hovered width; any width the other side leaves goes to the title.
+    readonly property real pillMinimum: 140
 
     // Status glyphs shown only while hovered (Z130's list, trimmed). Network stays in the run at rest, so in Sides the
     // hover list leaves it out; in Mirror the resting network glyph steps aside for the hovered one.
@@ -60,7 +73,7 @@ Item {
         { glyph: "flight", label: "Airplane mode", shown: host.network.airplaneMode === true }
     ].filter(entry => entry.shown)
 
-    // How far past the centre the fuller side needs to reach while hovered (IslandSurface.wingSpan).
+    // How much the fuller side needs while hovered (IslandSurface.wingSpan).
     function runWidth(items: var, spacing: real): real {
         const shown = items.filter(item => item.visible && item.width > 0);
         return shown.reduce((sum, item) => sum + item.width, 0) + Math.max(0, shown.length - 1) * spacing;
@@ -68,7 +81,9 @@ Item {
     readonly property real leftNeed: (leftPower.active ? leftPower.width + tight : 0)
         + (leftInfo.width > 0 ? leftInfo.width + tight : 0) + (player ? pillMinimum : 0)
     readonly property real rightNeed: runWidth(right.parts, tight) + gap + actions.width
-    readonly property real wingNeed: Math.max(leftNeed, rightNeed) + edge + gap + clock.width / 2 - width / 2
+    // From the clock's centre to the shoulder on the fuller side. IslandSurface subtracts its target centre width,
+    // never this item's animating width, so the hovered width does not loop through itself.
+    readonly property real sideNeed: Math.max(leftNeed, rightNeed) + edge + gap + clock.width / 2
 
     HostLease {
         domain: root.host.media
@@ -94,6 +109,8 @@ Item {
         height: Design.minHit
         spacing: Design.baseline
         MaterialSymbol {
+            fill: Design.iconFill
+            weight: Design.iconWeight
             anchors.verticalCenter: parent.verticalCenter
             text: root.host.weather.current?.icon ?? ""
             iconSize: 4 * Design.baseline
@@ -129,7 +146,7 @@ Item {
     // clock instead, mirroring the status on the right.
     Loader {
         id: leftPower
-        active: !root.powerRight
+        active: !root.powerRight && !root.compact
         x: root.leftShoulder
         anchors.verticalCenter: parent.verticalCenter
         sourceComponent: Power {}
@@ -146,25 +163,29 @@ Item {
             sourceComponent: Weather {}
         }
         Loader { active: !root.statusLeft && root.hovered; visible: active; sourceComponent: Row { spacing: root.tight; Tray {} } }
-        Loader { active: root.statusLeft && root.hovered; visible: active; sourceComponent: Row { spacing: Design.baseline; HoverStatus {} } }
+        Loader { active: root.statusLeft && root.hovered; visible: active; sourceComponent: Row { spacing: root.tight; HoverStatus {} } }
     }
 
     Item {
         id: pill
-        visible: !!root.player
+        visible: !!root.player && !root.compact
         x: leftInfo.width > 0 ? leftInfo.x + leftInfo.width + root.tight : root.afterPower
-        width: Math.max(104, root.clockLeft - root.gap - x)
+        width: root.compact ? Math.max(0, root.clockLeft - root.gap - x) : Math.max(104, root.clockLeft - root.gap - x)
         height: Design.minHit
         anchors.verticalCenter: parent.verticalCenter
 
         // The player's mark, inverted on signal as in the approved study (Z144).
-        Plane {
+        FPlate {
             id: art
             width: Design.readout
             height: width
             anchors.verticalCenter: parent.verticalCenter
+            radius: Design.roundSmall
+            slant: 0
             role: "signal"
             MaterialSymbol {
+                fill: Design.iconFill
+                weight: Design.iconWeight
                 anchors.fill: parent
                 text: "music_note"
                 iconSize: Design.control
@@ -185,7 +206,7 @@ Item {
             anchors.left: art.right
             anchors.leftMargin: Design.baseline
             anchors.right: parent.right
-            y: root.visualising ? 0 : (parent.height - height) / 2
+            y: root.visualising && !root.compact ? 0 : (parent.height - height) / 2
             technical: true
             text: root.player?.title ?? ""
         }
@@ -195,8 +216,54 @@ Item {
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             height: Design.baseline * 2
-            active: root.visualising
+            active: root.visualising && !root.compact
             sourceComponent: LineWaveform { levels: root.host.media.spectrum }
+        }
+    }
+    // Fluid at rest while playing: the art, the live waveform and the title, centred where the clock was.
+    Row {
+        id: mediaRow
+        visible: root.mediaView
+        anchors.centerIn: parent
+        spacing: Design.baseline * 2
+        FPlate {
+            width: Design.readout
+            height: width
+            anchors.verticalCenter: parent.verticalCenter
+            radius: Design.roundSmall
+            slant: 0
+            role: "signal"
+            MaterialSymbol {
+                fill: Design.iconFill
+                weight: Design.iconWeight
+                anchors.fill: parent
+                text: "music_note"
+                iconSize: Design.control
+                color: parent.textColor
+                visible: mediaCover.status !== Image.Ready
+            }
+            Image {
+                id: mediaCover
+                anchors.fill: parent
+                source: root.player?.artUrl ?? ""
+                sourceSize.width: Design.readout
+                sourceSize.height: Design.readout
+                fillMode: Image.PreserveAspectCrop
+                asynchronous: true
+            }
+        }
+        Loader {
+            width: Design.readout + Design.baseline
+            height: Design.baseline * 3
+            anchors.verticalCenter: parent.verticalCenter
+            active: root.mediaView
+            sourceComponent: LineWaveform { levels: root.host.media.spectrum }
+        }
+        FText {
+            anchors.verticalCenter: parent.verticalCenter
+            width: Math.min(implicitWidth, 240)
+            font.capitalization: Font.MixedCase
+            text: root.player?.title ?? ""
         }
     }
 
@@ -207,26 +274,28 @@ Item {
     }
     FText {
         id: clock
+        visible: !root.mediaView
         anchors.centerIn: parent
         headline: true
         font.weight: Font.Bold
         font.pixelSize: Design.readout
-        sheared: true
+        sheared: !Design.fluid
         text: seconds.item ? Qt.formatTime(seconds.item.date, "HH:mm:ss") : Clock.hourStr + ":" + Clock.minuteStr
     }
 
     // Right run: status from one gap past the clock, then (hovered) Mirror's weather and tray or the other
-    // arrangements' status glyphs. With media the run is justified up to the actions at the shoulder, to match
-    // the title's run; with none it stays a group against the clock. Spacing never drops below the group spacing.
+    // arrangements' status glyphs, packed at the shared rhythm. The hovered width is set by the fuller side, so the
+    // inbox at the shoulder follows straight on unless the left side is the fuller one.
     Row {
         id: right
+        visible: !root.compact
         readonly property real end: actions.x - root.gap
         readonly property var parts: children
         readonly property real used: root.runWidth(parts, 0)
         readonly property int count: parts.filter(item => item.visible && item.width > 0).length
         x: root.clockRight + root.gap
         anchors.verticalCenter: parent.verticalCenter
-        spacing: root.player && count > 1 ? Math.max(root.tight, (end - x - used) / (count - 1)) : root.tight
+        spacing: root.tight
 
         IslandGlyph {
             // Mirror: the hovered status run on the left shows Wi-Fi, so this one steps aside.
@@ -251,7 +320,9 @@ Item {
             text: root.host.audio.privacy.map(stream => stream.app).join(", ")
         }
         Item {
-            visible: battery.visible
+            // From the data, not from the mark: the mark's visibility includes this item's, which would lock both
+            // hidden once anything hid the row.
+            visible: !!root.host.power.battery?.available
             width: battery.width
             height: Design.minHit
             BatteryMark {
@@ -260,6 +331,7 @@ Item {
                 battery: root.host.power.battery
                 showPercentage: root.wings
                 signalOnly: true
+                rounded: Design.fluid
                 // A status reading: quiet like the glyphs beside it, unless it is calling for attention.
                 opacity: tone === Design.accent ? 1 : 0.72
             }
@@ -272,6 +344,7 @@ Item {
     // Actions at the right shoulder: the inbox, and in Sides the power button after it.
     Row {
         id: actions
+        visible: !root.compact
         x: root.rightShoulder - width
         anchors.verticalCenter: parent.verticalCenter
         spacing: root.tight

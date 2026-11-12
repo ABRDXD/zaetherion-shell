@@ -1,7 +1,7 @@
 import QtQuick
 
-// The sheet's inverted tag (DESIGN_SYSTEM.md "ink tag"): a plane with both sides at 78° that carries a
-// name or a short label in the plane's own text colour. Ink by default; signal for an alarm.
+// The sheet's inverted tag (DESIGN_SYSTEM.md "ink tag"): a plane with both sides at 78° (a pill in Fluid) that
+// carries a name or a short label in the plane's own text colour. Ink by default; signal for an alarm.
 Item {
     id: root
     property string text: ""
@@ -9,23 +9,25 @@ Item {
     property string role: "ink"     // ink | signal
     property bool technical: true
     readonly property color textColor: plane.textColor
-    readonly property real run: height * Math.tan(12 * Math.PI / 180)
+    readonly property real run: Design.fluid ? height / 2 : height * Math.tan(12 * Math.PI / 180)
     implicitHeight: Design.baseline * 5
     readonly property real glyphWidth: symbol !== "" ? Design.control + Design.baseline : 0
     readonly property real padding: 2 * run + 2 * Design.baseline
     implicitWidth: Math.ceil(label.implicitWidth + glyphWidth + padding)
 
-    Plane {
+    FPlate {
         id: plane
         anchors.fill: parent
         role: root.role
-        slant: 3
+        radius: height / 2
     }
     Row {
         id: row
         anchors.centerIn: parent
         spacing: Design.baseline
         MaterialSymbol {
+            fill: Design.iconFill
+            weight: Design.iconWeight
             visible: root.symbol !== ""
             anchors.verticalCenter: parent.verticalCenter
             text: root.symbol

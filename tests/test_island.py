@@ -33,6 +33,11 @@ class IslandFrameTests(unittest.TestCase):
             "draft survives pre-emption", "focus claim when inactive", "claim is released",
             "island waits for docked panel", "island claims after panel lets go"))
 
+    def test_fluid_form(self):
+        self.run_fixture("FluidTest.qml", ("fluid rests compact", "fluid shows media while playing",
+            "right-click switches to the clock",
+            "fluid hover shows the row", "fluid notification face"))
+
     def run_fixture(self, filename, checks):
         harness = (ROOT / "tests/fixtures/island" / filename).read_text()
         with tempfile.TemporaryDirectory(prefix="zaetherion-island-") as tmp:

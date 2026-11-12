@@ -19,12 +19,11 @@ AbstractButton {
     Keys.onReturnPressed: clicked()
     Keys.onEnterPressed: clicked()
 
-    // Keyboard focus is the sheet's inversion (an ink plane at 78°); hover is a quiet paper plane.
-    background: Plane {
+    // Keyboard focus is the sheet's inversion (an ink plane at 78°, a rounded plate in Fluid); hover is paper.
+    background: FPlate {
         id: plate
-        z: -1   // Plane sets its own z, which would lift it over the glyph.
+        z: -1
         role: root.activeFocus || root.down ? "ink" : root.hovered ? "paper" : "clear"
-        slant: 3
     }
 
     contentItem: Item {
@@ -32,6 +31,8 @@ AbstractButton {
             anchors.fill: parent
             text: root.glyph
             iconSize: Design.readout
+            fill: Design.iconFill
+            weight: Design.iconWeight
             color: root.quiet && plate.role === "clear" ? Design.muted : plate.textColor
             visible: image.status !== Image.Ready
         }

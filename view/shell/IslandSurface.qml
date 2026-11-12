@@ -16,6 +16,11 @@ FocusScope {
     // The panel is open from this island: the island has grown into it (Overlay draws the growth), so its own row
     // fades out and hover stays shut until the panel folds back.
     property bool docked: false
+    // Flush against the screen edge (notch), the black island merges with the bezel, so the space on the edge side
+    // reads larger than it is. Content sits this much towards the edge to look centred; none when floating.
+    property bool notch: true
+    readonly property int lift: notch ? 3 : 0
+    readonly property int liftOffset: bottomEdge ? lift : -lift
     // The width the island had when the panel took over: it holds it while docked, so the growth starts from and
     // folds back into exactly that shape, then eases to its natural width.
     property real dockWidth: 0
@@ -84,10 +89,16 @@ FocusScope {
     readonly property int morphEasing: motionLevel === "all" ? Motion.roles.emphasis.easing : Easing.OutCubic
     // Z66 keeps the resting width. Hovered, the centre opens by 40 px a side so the media pill keeps its room
     // when the clock gains seconds; the wings sit outside it.
-    readonly property int centreWidth: wings && !expansion ? 500 : 420
+    // Fluid rests compact (Z145): the clock alone, or the media row while a player plays.
+    readonly property bool playing: !!host.media.active?.playing
+    readonly property int hoverCentre: 500
+    // Fluid at rest shows the clock or, while a player plays, the media (right-click switches).
+    property bool preferClock: false
+    readonly property int centreWidth: wings && !expansion ? hoverCentre : Design.fluid ? (restPane.item?.compactWidth ?? 100) : 420
     readonly property int restHeight: 36
-    // Wide enough for the fuller side of the hovered row, actions at the shoulders included (IslandRest.wingNeed).
-    readonly property int wingSpan: Math.max(160, Math.ceil(restPane.item?.wingNeed ?? 0))
+    // Wide enough for the fuller side of the hovered row, actions at the shoulders included (IslandRest.sideNeed),
+    // past half the hovered centre.
+    readonly property int wingSpan: Math.max(Design.minHit, Math.ceil((restPane.item?.sideNeed ?? 0) - hoverCentre / 2))
     signal openPanel(string room)
     signal togglePanel(string room)
     signal openPower()
@@ -173,14 +184,21 @@ FocusScope {
         anchors.fill: parent
         enabled: !root.expansion
         pressAndHoldInterval: 600
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
         property bool held: false
         onPressed: held = false
-        onPressAndHold: {
+        onPressAndHold: mouse => {
+            if (mouse.button !== Qt.LeftButton) return;
             held = true;
             root.ignite();
         }
-        onClicked: {
+        onClicked: mouse => {
             if (held) return;
+            // Fluid: right-click switches the resting view between the media and the clock.
+            if (mouse.button === Qt.RightButton) {
+                if (Design.fluid) root.preferClock = !root.preferClock;
+                return;
+            }
             root.keyboardMode = false;
             const timers = root.core?.timersData;
             const room = root.host.media.active?.playing ? "media"
@@ -191,7 +209,7 @@ FocusScope {
 
     Cue {
         id: ignition
-        on: gesture.pressed && !gesture.held
+        on: gesture.pressed && !gesture.held && (gesture.pressedButtons & Qt.LeftButton)
         scope: root
         name: "island.ignite"
         enter: root.motionLevel === "off" ? 0 : 600
@@ -211,6 +229,7 @@ FocusScope {
     Loader {
         id: restPane
         anchors.centerIn: parent
+        anchors.verticalCenterOffset: root.liftOffset
         width: Math.min(parent.width, root.centreWidth)
         height: root.restHeight
         active: !root.shownEvent || root.restVisible
@@ -218,6 +237,7 @@ FocusScope {
         enabled: !root.expansion && !root.docked
         sourceComponent: IslandRest {
             host: root.host
+            preferClock: root.preferClock
             arrangement: root.arrangement
             reveal: wingReveal.value
             onOpenTray: itemId => root.openTray(itemId)
@@ -245,6 +265,7 @@ FocusScope {
         sourceComponent: IslandExpansion {
             event: root.outgoingEvent
             bottomEdge: root.bottomEdge
+            lift: root.lift
             systemVoice: root.systemVoice
             replyDraft: root.replyDrafts[event?.id] ?? ""
         }
@@ -260,6 +281,7 @@ FocusScope {
         sourceComponent: IslandExpansion {
             event: root.shownEvent
             bottomEdge: root.bottomEdge
+            lift: root.lift
             systemVoice: root.systemVoice
             replyDraft: root.replyDrafts[event?.id] ?? ""
             restoreReplyFocus: !!event && root.replyFocusId === event.id

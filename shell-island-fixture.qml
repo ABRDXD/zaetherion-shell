@@ -93,6 +93,7 @@ ShellRoot {
         // The approved mock-up uses the Design fallback palette.
         fixture.palette.colors = ({});
         Design.source = fixture.palette;
+        Design.form = Quickshell.env("ZAETHERION_FIXTURE_FORM") === "fluid" ? "fluid" : "angular";
     }
     Component.onDestruction: Design.source = null
 
@@ -151,6 +152,8 @@ ShellRoot {
                 { title: ++root.sampleId % 2 ? "Fixture Horizon" : "Fixture Signal" });
         }
         function layout(name: string): void { root.arrangement = name; }
+        function form(name: string): void { Design.form = name === "fluid" ? "fluid" : "angular"; }
+        function icons(style: string): void { Design.fluidIcons = style; }
         function nomedia(): void { fixture.media.active = null; }
         function trayItems(count: int): void {
             fixture.tray.items = Array.from({ length: Math.max(0, count) }, (_, i) =>

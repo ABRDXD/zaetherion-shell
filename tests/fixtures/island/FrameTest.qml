@@ -41,6 +41,21 @@ ShellRoot {
                 anchors.bottom: parent.bottom
                 bottomEdge: true
             }
+            // Fluid (Z145): the rounded silhouette, both edges.
+            IslandFrame {
+                x: 440
+                width: 100
+                height: implicitHeight
+                fluid: true
+            }
+            IslandFrame {
+                x: 440
+                width: 100
+                height: implicitHeight
+                anchors.bottom: parent.bottom
+                bottomEdge: true
+                fluid: true
+            }
         }
     }
 

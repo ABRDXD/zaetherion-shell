@@ -6,6 +6,20 @@ import Quickshell
 
 Singleton {
     id: root
+    // Z146: the desktop's form, "angular" or "fluid". Only the island (FARTland) reads it so far; FART stays
+    // Angular until FART // Fluid is designed.
+    property string form: "angular"
+    readonly property bool fluid: form === "fluid"
+    // Fluid corner radii: small parts, plates and the island's lower corners.
+    readonly property int roundSmall: 6
+    readonly property int roundPlate: 10
+    readonly property int roundIsland: 14
+    // Fluid: the concave curve where the island's sides meet the screen edge.
+    readonly property int roundEar: 8
+    // Fluid's island icons: "fill" (solid rounded glyphs), "thin" (light rounded outlines) or "plain".
+    property string fluidIcons: "fill"
+    readonly property real iconFill: fluid && fluidIcons === "fill" ? 1 : 0
+    readonly property int iconWeight: fluid && fluidIcons === "thin" ? 300 : 400
     // The entry file injects the host palette once; until then every token uses its fallback.
     property PaletteDomain source: null
     // A copy, refreshed on change, so tokens never re-evaluate against a palette being destroyed.

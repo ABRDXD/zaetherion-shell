@@ -88,6 +88,7 @@ Scope {
                 x: Math.round((panel.width - width) / 2)
                 y: root.bottomEdge ? panel.height - root.edgeGap - height : root.edgeGap
                 bottomEdge: root.bottomEdge
+                notch: root.edgeGap === 0
                 onOpenPanel: room => root.openPanel(room)
                 onTogglePanel: room => root.togglePanel(room)
                 docked: root.docked
