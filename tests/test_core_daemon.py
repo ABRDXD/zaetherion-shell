@@ -21,10 +21,15 @@ class DaemonTests(unittest.TestCase):
         cls.runtime = base / "run"
         cls.fixture_log = base / "fixture.jsonl"
         home = base / "home"
-        cls.env = dict(os.environ, FART_RUNTIME_DIR=str(cls.runtime), FART_HOST="fixture", FART_MIRROR="0",
-                       FART_FIXTURE_LOG=str(cls.fixture_log), XDG_STATE_HOME=str(home / "state"),
-                       XDG_CACHE_HOME=str(home / "cache"), XDG_CONFIG_HOME=str(home / "config"),
-                       FART_VIEW_ENTRY=str(base / "no-view.qml"))  # a press may try to spawn; nothing is there
+        cls.runtime.mkdir(mode=0o700)
+        no_bus = f"unix:path={base}/no-bus"
+        # Desktop FART_* settings can enable the real supervisor even with the fixture host.
+        cls.env = dict(PATH=os.environ.get("PATH", os.defpath), HOME=str(home), XDG_RUNTIME_DIR=str(cls.runtime),
+                       XDG_STATE_HOME=str(home / "state"), XDG_CACHE_HOME=str(home / "cache"),
+                       XDG_CONFIG_HOME=str(home / "config"), XDG_DATA_HOME=str(home / "data"),
+                       DBUS_SESSION_BUS_ADDRESS=no_bus, DBUS_SYSTEM_BUS_ADDRESS=no_bus,
+                       FART_RUNTIME_DIR=str(cls.runtime), FART_HOST="fixture", FART_MIRROR="0",
+                       FART_FIXTURE_LOG=str(cls.fixture_log), FART_VIEW_ENTRY=str(base / "no-view.qml"))
         cls.state = home / "state/fart-next"
         (home / "state/fart").mkdir(parents=True)
         (home / "state/fart/todo.json").write_text(json.dumps([{"content": f"t{n}", "done": False} for n in range(12)]))
@@ -112,7 +117,11 @@ class DaemonTests(unittest.TestCase):
         self.assertEqual(rows, legacy["tasks"])
 
     def test_4_reply_follows_its_event(self):
-        self.cli("start")
+        out = self.cli("start")
+        if out.returncode:
+            log = self.runtime / "core.log"
+            detail = log.read_text(errors="replace") if log.is_file() else "No daemon log was written."
+            self.fail(f"CLI start exited {out.returncode}\n{out.stderr}\n{detail}")
         sock, reader = self.raw()
         sock.sendall(b'{"id":1,"op":"hello","args":{"client":"cli","protocol":1}}\n'
                      b'{"id":2,"op":"subscribe","args":{"topics":["tasks"]}}\n'

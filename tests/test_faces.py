@@ -1,3 +1,4 @@
+import os
 import subprocess
 import sys
 import tempfile
@@ -12,11 +13,22 @@ class FacesTest(unittest.TestCase):
     per shown second while a timer runs (tools/faces.py, offscreen, a private core)."""
 
     def test_faces_render_and_timers_steps_per_second(self):
-        with tempfile.TemporaryDirectory(prefix='fart-faces-test-') as out:
-            run = subprocess.run([sys.executable, str(ROOT / 'tools/faces.py'), out], capture_output=True, text=True, timeout=120)
+        with tempfile.TemporaryDirectory(prefix='fart-faces-test-') as tmp:
+            base = Path(tmp)
+            out = base / 'shots'
+            home = base / 'home'
+            runtime = base / 'run'
+            runtime.mkdir(mode=0o700)
+            presets = home / '.local/share/serpantinum/src/assets/themes'
+            presets.mkdir(parents=True)
+            (presets / 'Mocha.json').write_text('{"colors":{"base":"#161922","text":"#f2f2f0","blue":"#91a9d4"}}')
+            env = dict(PATH=os.environ.get('PATH', os.defpath), HOME=str(home), XDG_RUNTIME_DIR=str(runtime),
+                       QT_LOGGING_RULES='qml.debug=true')
+            run = subprocess.run([sys.executable, str(ROOT / 'tools/faces.py'), str(out)], env=env,
+                                 capture_output=True, text=True, timeout=120)
             self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
             self.assertIn('stepping ok', run.stdout)
-            self.assertEqual(len(list(Path(out).glob('faces-*.png'))), 3)
+            self.assertEqual(len(list(out.glob('faces-*.png'))), 3)
 
 
 if __name__ == '__main__':
