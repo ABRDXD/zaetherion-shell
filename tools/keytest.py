@@ -293,6 +293,7 @@ Scope {
         Fart.Plane { id: planeCut; width: 120; height: 40; slant: 1; cut: 6; role: "ink"; backing: true; visible: false }
         Fart.Plane { id: planeClear; width: 120; height: 40; role: "clear"; backing: true; visible: false }
     }
+    property int roomWait: 0
     Timer {
         interval: 300; running: true; repeat: true
         onTriggered: {
@@ -325,8 +326,15 @@ Scope {
                       { sheared: planeCut.sheared, points: planeCut.polygon.length });
                 check("plane.backing.opaque", planeClear.effectiveRole === "paper", { role: planeClear.effectiveRole });
             } else if (dashboard.loadedPage === pages[cursor]) {
+                // How long the room took past the first tick, so a slow room still shows without failing the walk.
+                if (roomWait > 0) console.log("KEY_SLOW " + pages[cursor] + " " + (roomWait * 300) + " ms");
+                roomWait = 0;
                 walk(pages[cursor]);
+            } else if (++roomWait < 20) {
+                // A room incubates asynchronously; on a busy machine one 300 ms tick is not always enough.
+                return;
             } else {
+                roomWait = 0;
                 check(pages[cursor] + ".loaded", false, { loaded: dashboard.loadedPage });
             }
             cursor++;
