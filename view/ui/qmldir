@@ -39,3 +39,4 @@ Pointer 1.0 Pointer.qml
 Register 1.0 Register.qml
 Reticle 1.0 Reticle.qml
 Wipe 1.0 Wipe.qml
+PaletteBinding 1.0 PaletteBinding.qml

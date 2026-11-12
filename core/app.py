@@ -15,6 +15,7 @@ from core.genealogy import Genealogy
 from core.guards import BatteryGuard, FullscreenGuard, Guards, SessionGuard, focused_fullscreen
 from core.hostcalls import HostCalls
 from core.island import Island
+from core.palette import Palette
 from core.ignite import LOST, Ignite
 from core.notifications import Mirror
 from core.journey import Journey
@@ -67,6 +68,7 @@ class Core:
         self.tasks = Tasks(clock, state_dir)
         self.sessions = Sessions(clock, scheduler, host, state_dir)
         self.island = Island(state_dir)
+        self.palette = Palette(state_dir)
         self.sessions.tasks_done = self.tasks.done_between
         self.sessions.music = self._session_music
         self.discovery = Discovery(state_dir, clock)
@@ -83,13 +85,15 @@ class Core:
         self.view.on_closed.append(self.overdrive.panel_closed)
         self.hostcalls = HostCalls(self.view)
         server.on_disconnect.append(self.hostcalls.disconnected)
+        server.on_disconnect.append(self.palette.cancel)
+        self.view.on_closed.append(self.palette.cancel)
         self.overdrive.on_release = self.view.check_idle_reap
         session_guard = self.guards.by_name.get("session")
         if session_guard:
             self.sessions.on_guard = session_guard.changed
 
         for name, owner in (("timers", self.timers), ("tasks", self.tasks), ("notifications", self.mirror),
-                            ("overdrive", self.overdrive), ("session", self.sessions), ("island", self.island),
+                            ("overdrive", self.overdrive), ("session", self.sessions), ("island", self.island), ("palette", self.palette),
                             ("view", self.view)):
             server.topic(name, owner.snapshot)
             if name != "view":
@@ -205,6 +209,10 @@ class Core:
     def _register(self):
         op = self.server.op
         op("hello", self.hello)
+        op("palette.list", lambda peer: self.palette.listing())
+        op("palette.choose", lambda peer, name: self.palette.choose(name))
+        op("palette.preview", lambda peer, name: self.palette.preview_name(name, peer))
+        op("palette.cancel", lambda peer: self.palette.cancel(peer))
         op("exhibit.prepare", lambda peer, reduced=True, metadata=None: self.exhibit.prepare(reduced, metadata))
         op("exhibit.start", lambda peer: self.exhibit.start())
         op("exhibit.stop", lambda peer: self.exhibit.stop())

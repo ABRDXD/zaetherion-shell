@@ -1,3 +1,9 @@
+# 12 November 2026 · Astra: S8 palette checkpoint on `s8-palette`
+
+- Built the stored palette/topic, shared preview/cancel, CLI verb and palette section inside FART settings. Runtime-only Serpantinum/DMS readers; ten original AMOLED studies, no new default. Z162–Z165 record the rules.
+- Python storage/topic/command tests and the offscreen Design/preview fixture pass. Nested picker capture shown before this UI commit.
+- Remaining: CLI process check, keyboard coverage, five-preset captures and the ten-study comparison; then final checks and cleanup. Next: finish the fixture captures, keeping live services untouched.
+
 # 12 November 2026 · Astra: current-code plateau rechecked; CAVA-inclusive CPU still over budget
 
 - **Scope/source.** Measured detached `eb09501`, excluding concurrent shared edits. The allocator default and 20 Hz settings were already applied in `946feb7`. `DmsAdapter` uses `QuickshellMedia`, which launches `tools/cava.conf`; the resident view uses `spawn_quickshell`'s child-only allocator default.

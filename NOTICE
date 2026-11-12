@@ -79,3 +79,5 @@ quickshell/Modules/DBar/Widgets/TrayMenuContent.qml at commit
 e09c2b06813d3205276167cb69e21d386c1f428f of duxlabs-dev/dux-shell.
 The neutral menu tree replaces raw menu handles in the view. The full MIT
 notice is in licenses/DUX-SHELL-MIT.
+
+S8 palette catalogue: core/palette_catalog.py reads installed Serpantinum and DMS JSON at runtime; no theme files or upstream implementation are bundled. The Amoled Black fallback repeats the DMS colour values already used by view/ui/Design.qml (DMS MIT notice above). The ten AMOLED studies and palette picker implementation are original ZÆTHERION work.

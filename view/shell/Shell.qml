@@ -1704,88 +1704,13 @@ Item {
             onClosed: root.leaseOpen = false
         }
     }
-    Rectangle {
-        visible: root.preferencesOpen
-        x: 40
-        y: Math.max(20, root.height - height - 80)
-        width: 290
-        height: prefs.implicitHeight + 32
-        color: Design.surface
-        radius: Design.radiusCard
-        border.width: 1
-        border.color: Design.line
-        z: 10
-        ColumnLayout {
-            id: prefs
-            x: 16
-            y: 16
-            width: parent.width - 32
-            spacing: 10
-            RowLayout {
-                FText {
-                    text: "INSTRUMENT SETTINGS"
-                    technical: true
-                    color: Design.accent
-                    Layout.fillWidth: true
-                }
-                FButton {
-                    symbol: "close"
-                    implicitHeight: 26
-                    hint: "Close preferences"
-                    onClicked: root.preferencesOpen = false
-                }
-            }
-            FButton {
-                Layout.fillWidth: true
-                label: "CURVED SHELL · HARD INTERIOR"
-                enabled: false
-            }
-            FButton {
-                Layout.fillWidth: true
-                label: Design.italic ? "Shell asides: italic" : "Shell asides: upright"
-                selected: Design.italic
-                onClicked: Config.options.appearance.fonts.italicMain = !Design.italic
-            }
-            FButton {
-                Layout.fillWidth: true
-                label: ViewState.motionEnabled ? "Motion: full" : "Motion: reduced"
-                selected: ViewState.motionEnabled
-                onClicked: ViewState.motionEnabled = !ViewState.motionEnabled
-            }
-            FButton {
-                Layout.fillWidth: true
-                label: ViewState.fullscreen ? "Size: fullscreen" : "Size: panel"
-                selected: ViewState.fullscreen
-                onClicked: ViewState.fullscreen = !ViewState.fullscreen
-            }
-            FButton {
-                Layout.fillWidth: true
-                label: ViewState.visualiserEnabled ? "Visualiser: on" : "Visualiser: off"
-                selected: ViewState.visualiserEnabled
-                onClicked: ViewState.visualiserEnabled = !ViewState.visualiserEnabled
-            }
-            FButton {
-                Layout.fillWidth: true
-                visible: Motion.overdrive
-                label: ViewState.ambientEnabled ? "Ambient detail: on" : "Ambient detail: off"
-                selected: ViewState.ambientEnabled
-                onClicked: ViewState.ambientEnabled = !ViewState.ambientEnabled
-            }
-            FButton {
-                Layout.fillWidth: true
-                label: "Optional field archive"
-                symbol: "folder_special"
-                onClicked: {
-                    root.preferencesOpen = false;
-                    root.archiveOpen = true;
-                }
-            }
-            FButton {
-                Layout.fillWidth: true
-                label: root.shell.wideLayout ? "Exterior: wide → clock" : "Exterior: clock → wide"
-                onClicked: root.shell.toggleLayout()
-            }
-        }
+    PreferencesPane {
+        core: root.core
+        expanded: root.preferencesOpen && root.shell.panelOpen
+        wideLayout: root.shell.wideLayout
+        onClosed: root.preferencesOpen = false
+        onArchiveRequested: { root.preferencesOpen = false; root.archiveOpen = true; }
+        onToggleExterior: root.shell.toggleLayout()
     }
     // The archive and profile dialogs load by URL, so they compile when first opened instead of
     // with Shell on every cold start (branch coldstart).
