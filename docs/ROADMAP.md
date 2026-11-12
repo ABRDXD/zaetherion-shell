@@ -114,6 +114,7 @@ Security-critical. The owner chose no fallback locker (Z35), so a crash must nev
 - Real-session lock and polkit checks happen only with the owner present (Z109).
 
 ### S8 — Wallpaper and palette
+- S, first and on its own (Z160): **palette picker.** A stored palette choice in the core (like `island.json`, with a `palette` verb); one PaletteDomain fed from it that reads Serpantinum's 96 presets and the DMS themes at runtime and maps them to the neutral roles (as `SerpantinumPalette` does today); a picker in FART's settings with live previews; Amoled Black the default. Contrast guard on ≥ 5 presets. Captures to the owner before commit; OPEN 20 first.
 - S: image mode (picker, montage wipe, video, cuts, online search), sky mode, ephemeris in `fartd` (check positions against a reference to 1°), Matugen and templates, presets, contrast guard on ≥ 5 presets, Silent ≤ 1 redraw per minute.
 - S: confirm the star catalogue licence (OPEN 4). Ask the owner on OPEN 9, 10 and 12.
 - S: if video decoding wakes the dGPU, measure `runtime_status` and report. **F only** if the cause is not found after one attempt.
