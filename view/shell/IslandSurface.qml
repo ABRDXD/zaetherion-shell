@@ -28,13 +28,56 @@ FocusScope {
     readonly property var expansion: queue.current
     readonly property int draftLength: (replyDrafts[expansion?.id] ?? "").length
     readonly property bool noticeVisible: expansion?.kind === "notification" || expansion?.kind === "critical"
-    readonly property bool keyboardFocus: keyboardMode
+    // Keyboard interactivity for the layer. A queued reply draft keeps OnDemand through pre-emption:
+    // dropping to None and back strands a resting pointer, so Hyprland never refocuses on click.
+    readonly property bool replyHeld: noticeVisible || queue.entries.some(event =>
+        (event.kind === "notification" || event.kind === "critical") && !!replyDrafts[event.id])
+    property string replyFocusId: ""
+    property bool focusClaim: false
+    readonly property bool windowActive: Window.active
+    // A docked panel holds Exclusive. The island announces that it wants the keyboard, the panel lets go,
+    // and the island claims it a moment later: Hyprland does not hand focus to an Exclusive layer that
+    // committed while another Exclusive one still held it.
+    property bool keyboardPeer: false
+    readonly property bool wantsKeyboard: keyboardMode || focusClaim
+    property bool peerSettled: true
+    onKeyboardPeerChanged: {
+        peerSettled = keyboardPeer;
+        if (!keyboardPeer) peerSettle.restart();
+    }
+    Timer {
+        id: peerSettle
+        interval: 60
+        onTriggered: root.peerSettled = true
+    }
+    readonly property string keyboardRequest: wantsKeyboard && !keyboardPeer && peerSettled ? "exclusive"
+        : replyHeld ? "ondemand" : "none"
+    onWindowActiveChanged: {
+        if (windowActive) focusClaim = false;
+        else if (!noticeVisible) replyFocusId = "";
+    }
+    // The field took Qt focus but the compositor did not hand over the keyboard: claim it once.
+    Timer {
+        running: root.focusClaim
+        interval: 400
+        onTriggered: root.focusClaim = false
+    }
+    function replyFocus(id: string, focused: bool): void {
+        if (focused) {
+            replyFocusId = id;
+            if (!windowActive) focusClaim = true;
+        } else if (expansion?.id === id && replyFocusId === id) {
+            replyFocusId = "";
+        }
+    }
     readonly property int fadeDuration: motionLevel === "off" ? 0 : Math.min(120, Motion.feedback)
     readonly property bool wings: hoverOpen || keyboardMode || trayOpen
     readonly property bool geometryMotion: motionLevel === "all" || motionLevel === "reduced"
     readonly property int morphDuration: geometryMotion ? Motion.emphasis : 0
     readonly property int morphEasing: motionLevel === "all" ? Motion.roles.emphasis.easing : Easing.OutCubic
-    readonly property int centreWidth: 420
+    // Z66 keeps the resting width. Hovered, the centre opens by 40 px a side so the media pill keeps its room
+    // when the clock gains seconds; the wings sit outside it.
+    readonly property int centreWidth: wings && !expansion ? 500 : 420
     readonly property int restHeight: 36
     readonly property int wingSpan: Math.max(224, 64 + host.tray.items.length * (Design.minHit + 8))
     signal openPanel(string room)
@@ -115,6 +158,7 @@ FocusScope {
     IslandFrame {
         anchors.fill: parent
         bottomEdge: root.bottomEdge
+        alarm: root.expansion?.kind === "critical"
     }
     MouseArea {
         id: gesture
@@ -187,6 +231,7 @@ FocusScope {
         enabled: false
         sourceComponent: IslandExpansion {
             event: root.outgoingEvent
+            bottomEdge: root.bottomEdge
             systemVoice: root.systemVoice
             replyDraft: root.replyDrafts[event?.id] ?? ""
         }
@@ -201,8 +246,11 @@ FocusScope {
         opacity: eventFade.value
         sourceComponent: IslandExpansion {
             event: root.shownEvent
+            bottomEdge: root.bottomEdge
             systemVoice: root.systemVoice
             replyDraft: root.replyDrafts[event?.id] ?? ""
+            restoreReplyFocus: !!event && root.replyFocusId === event.id
+            onReplyFocused: focused => root.replyFocus(String(event?.id ?? ""), focused)
             onReplyEdited: text => {
                 if (!event) return;
                 root.replyDrafts = Object.assign({}, root.replyDrafts, { [event.id]: text });

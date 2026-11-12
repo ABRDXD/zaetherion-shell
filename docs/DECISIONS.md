@@ -221,6 +221,7 @@ ZÆTHERION inherits FART-next's D-series decisions (D1–D23) except where [Inhe
 | # | Decision |
 |---|---|
 | Z147 | **Island notice dwell.** Charging stays for 2 s. Low battery and the backend comeback notice stay for 5 s. |
+| Z148 | **Island focus while the panel is docked.** Super+Shift+I moves the keyboard from the open panel to the island, and the panel stays open. Esc returns the keyboard to the panel, and a second Esc closes the panel. Chosen by the owner on 12 November 2026. |
 
 ## Inherited decisions that change
 

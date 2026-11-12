@@ -51,3 +51,30 @@ The same entry point now includes the resting modules, the 300 ms hover wings, a
 The IPC target also accepts `focus`, `playing true`, `track`, `volume 0.42`, `notification false`, `memory 1.2`, `workspace 2`, `recording true`, `battery 0.05 false` and `comeback 3`. These commands change synthetic records. Invoke them through `tools/nested_hypr.py run qs ipc -p shell-island-fixture.qml call island-fixture …`.
 
 Super+Shift+I is the chosen shortcut. The fixture exposes the focus action through IPC. Arrow keys or hjkl move focus, Enter activates, and Escape leaves. The compositor keybind remains a separate session change.
+
+## Opus pass on the Angular island (12 November 2026)
+
+[Before and after](island-s3-opus-review.png) shows each state from the hidden nested compositor, at 0baeef2 and now. [Docked](island-s3-opus-docked.png) shows the island over the FART panel.
+
+- **App tag.** The notification now puts the app's name on an inverted 78° ink tag, matching FART's resident and artist tags. A critical notice uses a signal tag, with a signal rule and a signal-tinted rim.
+- **Depth.** `IslandFrame` uses the approved study's fixed light: a lit rim that fades from the left shoulder, a faint upper face and a graded 4 px facet.
+- **Shoulders.** Expansion content keeps clear of the 84° sides. Memory rows and the first action button no longer touch the edge.
+- **Faces.** The notification ends with FART's notched rule, the first action as an ink tag, and a full-width reply field with SEND inside. A body that wraps adds one line, so the face grows from 124 to 140 px. Volume adds its glyph. Memory adds a sheared readout, a blade meter and ruled rows. Track adds an inverted signal tile and a `> NOW PLAYING` line. The resting media mark is the study's signal tile.
+- **Focus.** Keyboard focus on an island glyph is an ink plane at 78°, and hover is a quiet paper plane.
+- **New shared parts.** `view/ui/FTag.qml` is the inverted tag, and `view/ui/FBlades.qml` is the −12° blade meter.
+
+### Media pill (owner review)
+
+[Media pill](island-s3-media-pill.png) shows the rest and hover states before and after the change, with the same long synthetic title. The red line marks the screen centre. The pill now runs up to the clock. At rest, network sits with the bell and battery, so the resting width stays 420 px (Z66). Hovered, the centre opens to 500 px before the wings begin. The visible title grew from 9 to 14 characters at rest and from 9 to 18 on hover. The fixture's `title <text>` call sets the synthetic title.
+
+### Reply after a pop-up
+
+When an OSD covered a notification, the island dropped keyboard interactivity to None, then restored OnDemand when the notification returned. Hyprland gives click focus to an OnDemand layer only after the pointer moves, so a click from a resting pointer focused the field in Qt but delivered no keys. A queued notification with a reply draft now keeps OnDemand through the pre-emption. If the field takes focus while the window is inactive, the island briefly asks for Exclusive until the window becomes active. The field regains focus when its notification returns, and Send dismisses the notification.
+
+Hyprland still drops the first click when the island grows under a pointer that has not moved, because it sends no pointer enter. Any pointer movement before the click avoids this. The fix has to come from the compositor.
+
+### Focus while the panel is docked (Z148)
+
+Super+Shift+I with the panel open moves the keyboard to the island, and the panel stays open. Esc returns the keyboard to the panel. The handover follows a fixed order because Hyprland does not focus a layer that requests Exclusive while another Exclusive layer holds the keyboard. The island first sets `wantsKeyboard`, and the panel drops to None and pauses its focus grab. The island requests Exclusive 60 ms later. When the island lets go, the panel retakes Exclusive and resumes the grab 100 ms later, because resuming it while focus is still moving clears it and closes the panel. While the island holds the keyboard, a click outside does not close the panel.
+
+`tests/fixtures/island/ReplyTest.qml` checks the keyboard policy and the handover offscreen. The fixture's `state` call reports `lastReply` and `keyboard` for nested checks.

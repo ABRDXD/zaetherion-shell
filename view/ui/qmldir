@@ -5,6 +5,7 @@ CoverDisc 1.0 CoverDisc.qml
 CutCornerFrame 1.0 CutCornerFrame.qml
 CutTitle 1.0 CutTitle.qml
 singleton Design 1.0 Design.qml
+FBlades 1.0 FBlades.qml
 FButton 1.0 FButton.qml
 FChoice 1.0 FChoice.qml
 FCreature 1.0 FCreature.qml
@@ -17,6 +18,7 @@ FMenuItem 1.0 FMenuItem.qml
 FMeter 1.0 FMeter.qml
 FRule 1.0 FRule.qml
 FStatusDot 1.0 FStatusDot.qml
+FTag 1.0 FTag.qml
 FText 1.0 FText.qml
 FToggle 1.0 FToggle.qml
 FTrace 1.0 FTrace.qml

@@ -17,11 +17,12 @@ AbstractButton {
     Keys.onReturnPressed: clicked()
     Keys.onEnterPressed: clicked()
 
-    background: Rectangle {
-        color: root.hovered || root.down || root.activeFocus ? Design.hover : "transparent"
-        radius: Design.radiusControl
-        border.width: root.activeFocus ? 1 : 0
-        border.color: Design.accent
+    // Keyboard focus is the sheet's inversion (an ink plane at 78°); hover is a quiet paper plane.
+    background: Plane {
+        id: plate
+        z: -1   // Plane sets its own z, which would lift it over the glyph.
+        role: root.activeFocus || root.down ? "ink" : root.hovered ? "paper" : "clear"
+        slant: 3
     }
 
     contentItem: Item {
@@ -29,7 +30,7 @@ AbstractButton {
             anchors.fill: parent
             text: root.glyph
             iconSize: Design.readout
-            color: Design.ink
+            color: plate.textColor
             visible: image.status !== Image.Ready
         }
         Image {

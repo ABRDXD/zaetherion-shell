@@ -21,6 +21,11 @@ Scope {
     property var companionWindows: []
     // The island shares the panel's focus grab and supplies the gap at its edge.
     property int adjacentIslandGap: -1
+    // The island wants the keyboard (Super+Shift+I while docked): the panel stays open and yields it
+    // until the island lets go (Escape), then takes it back.
+    property bool islandHasKeyboard: false
+    readonly property bool holdsKeyboard: opened && !body.shell?.externalDialogOpen && adjacentIslandGap >= 0
+        && !islandHasKeyboard
     // The panel opens like a host popup and folds from wherever it is; a reversal takes the
     // time left (docs/CUES.md §9, §15). No scope: the surface's visibility depends on it.
     Unfold { id: unfold; on: root.opened }
@@ -192,10 +197,22 @@ Scope {
         enabled: root.retained && !root.surfaceDrawn
         function onFrameSwapped() { root.surfaceDrawn = true; }
     }
+    // Hyprland clears the grab when a docked island takes the keyboard, and again if it resumes while focus is
+    // still moving. It pauses while the island has the keyboard and resumes once the panel holds it again.
+    property bool grabResumed: true
+    onIslandHasKeyboardChanged: {
+        grabResumed = false;
+        if (!islandHasKeyboard) resumeGrab.restart();
+    }
+    Timer {
+        id: resumeGrab
+        interval: 100
+        onTriggered: root.grabResumed = true
+    }
     HyprlandFocusGrab {
-        active: root.opened && root.surfaceDrawn && !body.shell?.externalDialogOpen
+        active: root.opened && root.surfaceDrawn && !body.shell?.externalDialogOpen && root.grabResumed
         windows: [surface].concat(root.companionWindows)
-        onCleared: if (!body.shell?.externalDialogOpen) Host.close()
+        onCleared: if (!body.shell?.externalDialogOpen && root.grabResumed) Host.close()
     }
     // Diagnostics only: open, page, close and toggle arrive from the core.
     IpcHandler {
@@ -269,7 +286,9 @@ Scope {
         WlrLayershell.namespace: "fart-control-centre"
         // The heavy layer takes the Top layer, under the panel.
         WlrLayershell.layer: full || heavy.up ? WlrLayer.Overlay : WlrLayer.Top
-        WlrLayershell.keyboardFocus: !root.opened || body.shell?.externalDialogOpen ? WlrKeyboardFocus.None
+        // Hyprland keeps focus on a layer that only steps down to OnDemand, so the panel yields fully (None)
+        // while the island has the keyboard; the focus grab is paused meanwhile.
+        WlrLayershell.keyboardFocus: !root.opened || body.shell?.externalDialogOpen || root.islandHasKeyboard ? WlrKeyboardFocus.None
             : root.adjacentIslandGap >= 0 ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.OnDemand
         mask: Region { item: body.shape; radius: body.cornerRadius * body.bodyScale }
         BackgroundEffect.blurRegion: Fart.Design.blur && surface.visible && !heavy.showing ? frameRegion : null

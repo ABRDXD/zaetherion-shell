@@ -27,6 +27,12 @@ class IslandFrameTests(unittest.TestCase):
         self.run_fixture("EventTest.qml", ("recording status", "charging notice", "DND suppresses ordinary battery warning",
             "critical battery passes DND", "backend comeback", "resident restart", "timer status", "timer done", "session debrief"))
 
+    def test_reply_draft_keeps_keyboard(self):
+        self.run_fixture("ReplyTest.qml", ("rest takes no keyboard", "notice offers keyboard",
+            "OSD over a notice without a draft releases keyboard", "notice resumes", "draft holds keyboard through OSD",
+            "draft survives pre-emption", "focus claim when inactive", "claim is released",
+            "island waits for docked panel", "island claims after panel lets go"))
+
     def run_fixture(self, filename, checks):
         harness = (ROOT / "tests/fixtures/island" / filename).read_text()
         with tempfile.TemporaryDirectory(prefix="zaetherion-island-") as tmp:

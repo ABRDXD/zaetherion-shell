@@ -22,7 +22,11 @@ Item {
         active: root.visualising
     }
 
+    // The left half holds power and the media pill; the pill runs up to the clock so the title gets every
+    // pixel the centred clock leaves. Network sits with the other status glyphs on the right (Z66: contents
+    // rearrange inside the resting width).
     Row {
+        id: leftGroup
         anchors.left: parent.left
         anchors.leftMargin: 12
         anchors.verticalCenter: parent.verticalCenter
@@ -33,29 +37,24 @@ Item {
             description: "Session card"
             onClicked: root.openPower()
         }
-        IslandGlyph {
-            visible: root.host.network.available
-            glyph: root.networkGlyph
-            description: "Network"
-            onClicked: root.openPanel("devices")
-        }
         Item {
+            id: pill
             visible: !!root.player
-            width: 104
+            width: Math.max(104, clock.x - 3 * Design.baseline - leftGroup.x - x)
             height: Design.minHit
 
-            Rectangle {
+            // The player's mark, inverted on signal as in the approved study (Z144).
+            Plane {
                 id: art
                 width: Design.readout
                 height: width
                 anchors.verticalCenter: parent.verticalCenter
-                color: Design.hover
-                radius: Design.radiusSmall
+                role: "signal"
                 MaterialSymbol {
                     anchors.fill: parent
                     text: "music_note"
                     iconSize: Design.control
-                    color: Design.accent
+                    color: art.textColor
                     visible: cover.status !== Image.Ready
                 }
                 Image {
@@ -94,6 +93,7 @@ Item {
         sourceComponent: SystemClock { precision: SystemClock.Seconds }
     }
     FText {
+        id: clock
         anchors.centerIn: parent
         headline: true
         font.weight: Font.Bold
@@ -108,6 +108,12 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         spacing: Design.baseline * 2
 
+        IslandGlyph {
+            visible: root.host.network.available
+            glyph: root.networkGlyph
+            description: "Network"
+            onClicked: root.openPanel("devices")
+        }
         IslandGlyph {
             visible: root.host.notifications.available
             glyph: "notifications"
