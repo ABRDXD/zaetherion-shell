@@ -1,3 +1,10 @@
+# 12 November 2026 · Opus (Sol's items): keytest race fixed; island settings in the core
+
+- **`test_keytest` `timers.loaded`.** A timing race, not a broken room: 1 failure in 3 standalone runs, and a failed load skipped the Timers walk. Each room now gets up to 20 ticks of 300 ms; any extra wait logs `KEY_SLOW` (seen once: Timers, 300 ms). 4/4 runs passed 172/172 (`4fa474a`).
+- **Island settings (Z155).** `core/island.py` keeps `form`, `edge`, `placement` and `screen` in `island.json`, published as the `island` topic (`CoreClient.islandData`). The `island` verb sets them from FART's command line or `zaetherion island fluid|angular|top|bottom|notch|floating|screen <name>|screen auto`. `shell.qml` binds `Design.form`, edge, placement and screen to it; the `ZAETHERION_ISLAND_*` variables only stand in while no core is connected. Tests: `tests/test_core_island.py`.
+- **Checks.** Core, verb, contract and CLI tests OK; nested `shell.qml` wiring 11/11; qmllint 0 syntax diagnostics.
+- **Next.** Turning the island on in the ZÆTHERION session, after the owner sees how it will look.
+
 # 12 November 2026 · Opus: tray menu and session card grow from the island (Z157, Z158)
 
 - **Tray menu.** No longer a popup window: a `tray` queue entry (priority -1, no dwell) whose face is `IslandTrayMenu` (unframed, capped at the 160 px depth). `IslandWindow` gained a `HyprlandFocusGrab` for held faces, armed 100 ms after the island holds the keyboard (Hyprland clears a grab while focus is moving); `tests/test_contract.py` allows `Quickshell.Hyprland` there for that grab only.

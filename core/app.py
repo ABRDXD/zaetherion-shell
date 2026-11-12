@@ -14,6 +14,7 @@ from core.errors import OpError
 from core.genealogy import Genealogy
 from core.guards import BatteryGuard, FullscreenGuard, Guards, SessionGuard, focused_fullscreen
 from core.hostcalls import HostCalls
+from core.island import Island
 from core.ignite import LOST, Ignite
 from core.notifications import Mirror
 from core.journey import Journey
@@ -64,6 +65,7 @@ class Core:
         self.timers = Timers(clock, scheduler, host, state_dir)
         self.tasks = Tasks(clock, state_dir)
         self.sessions = Sessions(clock, scheduler, host, state_dir)
+        self.island = Island(state_dir)
         self.sessions.tasks_done = self.tasks.done_between
         self.sessions.music = self._session_music
         self.discovery = Discovery(state_dir, clock)
@@ -84,7 +86,8 @@ class Core:
             self.sessions.on_guard = session_guard.changed
 
         for name, owner in (("timers", self.timers), ("tasks", self.tasks), ("notifications", self.mirror),
-                            ("overdrive", self.overdrive), ("session", self.sessions), ("view", self.view)):
+                            ("overdrive", self.overdrive), ("session", self.sessions), ("island", self.island),
+                            ("view", self.view)):
             server.topic(name, owner.snapshot)
             if name != "view":
                 owner.on_change = partial(server.publish, name)

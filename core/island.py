@@ -1,0 +1,51 @@
+"""The island's settings (Z155): one value for every surface, kept by the core and published as `island`.
+
+The view reads them from the topic; the owner changes them with the `island` verb, from the command line or
+`zaetherion island ...`. Stored in the state directory as island.json.
+"""
+from __future__ import annotations
+
+import logging
+from pathlib import Path
+
+from core.errors import bad_args
+from core.store import read_json, write_json
+
+log = logging.getLogger("fart.island")
+
+DEFAULTS = {"form": "angular", "edge": "top", "placement": "notch", "screen": ""}
+CHOICES = {"form": ("angular", "fluid"), "edge": ("top", "bottom"), "placement": ("notch", "floating")}
+
+
+class Island:
+    def __init__(self, state_dir: Path):
+        self.path = state_dir / "island.json"
+        self.on_change = lambda: None
+        try:
+            saved = read_json(self.path, {}) or {}
+        except ValueError as error:
+            log.warning("%s; using defaults", error)
+            saved = {}
+        self.state = dict(DEFAULTS)
+        for key, value in saved.items():
+            if self._valid(key, value):
+                self.state[key] = value
+
+    @staticmethod
+    def _valid(key, value) -> bool:
+        if key == "screen":
+            return isinstance(value, str) and len(value) <= 64
+        return key in CHOICES and value in CHOICES[key]
+
+    def snapshot(self) -> dict:
+        return dict(self.state)
+
+    def set(self, **changes) -> dict:
+        for key, value in changes.items():
+            if not self._valid(key, value):
+                raise bad_args(f"island {key}: {value!r} is not one of " + ", ".join(CHOICES.get(key, ("a screen name",))))
+        if any(self.state[key] != value for key, value in changes.items()):
+            self.state.update(changes)
+            write_json(self.path, self.state)
+            self.on_change()
+        return self.snapshot()

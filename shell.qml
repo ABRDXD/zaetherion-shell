@@ -17,8 +17,16 @@ ShellRoot {
     // The island (S3) runs only where the session asks for it: FART-next under Serpantinum keeps Serpantinum's own
     // bar, so without ZAETHERION_ISLAND=1 this shell is the panel alone, as before.
     readonly property bool islandWanted: Quickshell.env("ZAETHERION_ISLAND") === "1"
-    // Until the daemon stores the owner's choices (Z155), these come from the environment.
-    readonly property string islandOutput: Quickshell.env("ZAETHERION_ISLAND_OUTPUT") ?? ""
+    // The owner's choices (Z155) come from the core's `island` topic (the `island` verb sets them); the
+    // environment only stands in while no core is connected.
+    readonly property var islandSettings: client.islandData ?? ({
+        form: Quickshell.env("ZAETHERION_ISLAND_FORM") === "fluid" ? "fluid" : "angular",
+        edge: Quickshell.env("ZAETHERION_ISLAND_EDGE") === "bottom" ? "bottom" : "top",
+        placement: Quickshell.env("ZAETHERION_ISLAND_PLACEMENT") === "floating" ? "floating" : "notch",
+        screen: Quickshell.env("ZAETHERION_ISLAND_OUTPUT") ?? ""
+    })
+    readonly property string islandOutput: islandSettings.screen ?? ""
+    Binding { target: Design; property: "form"; value: root.islandSettings.form === "fluid" ? "fluid" : "angular" }
     readonly property var islandScreen: !islandWanted ? null
         : Quickshell.screens.find(screen => screen.name === islandOutput)
           ?? Quickshell.screens.find(screen => screen.name === adapter.workspaces.focusedScreen)
@@ -51,8 +59,8 @@ ShellRoot {
             host: adapter
             core: client
             output: root.islandScreen
-            bottomEdge: Quickshell.env("ZAETHERION_ISLAND_EDGE") === "bottom"
-            edgeGap: Quickshell.env("ZAETHERION_ISLAND_PLACEMENT") === "floating" ? 16 : 0
+            bottomEdge: root.islandSettings.edge === "bottom"
+            edgeGap: root.islandSettings.placement === "floating" ? 16 : 0
             workspaceIds: adapter.workspaces.workspaces
                 .filter(space => space.monitor === root.islandScreen?.name)
                 .map(space => String(space.id))
@@ -73,9 +81,5 @@ ShellRoot {
     IpcHandler {
         target: "island"
         function focus(): void { root.island?.focusIsland(); }
-    }
-    Component.onCompleted: {
-        const form = Quickshell.env("ZAETHERION_ISLAND_FORM");
-        if (form === "fluid" || form === "angular") Design.form = form;
     }
 }
