@@ -203,11 +203,12 @@ class Composition(Base):
         time.sleep(0.5)                                                            # deferred domains are created by URL
         got = json.loads(harness.ipc("domains"))
         expected = {"media": "QuickshellMedia", "audio": "QuickshellAudio", "network": "DmsNetwork",
-                    "workspaces": "HyprlandWorkspaces", "power": "DmsPower",
+                    "notifications": "DmsNotifications", "workspaces": "HyprlandWorkspaces", "power": "DmsPower",
                     "tray": "QuickshellTray", "keybinds": "HyprlandKeybinds", "lyrics": "LyricsSource",
                     "clipboard": "CliphistClipboard", "system": "LinuxSystem"}
         for domain, kind in expected.items():
             self.assertTrue(got[domain].startswith(kind), f"{domain}: {got[domain]}")
+        self.assertFalse(got["notificationsAvailable"])                            # no core in the run, so no mirror
         self.assertTrue(got["powerAvailable"] and got["trayAvailable"] and got["mediaAvailable"])
         self.assertEqual(got["trayItems"], 0)                                      # no tray host in the offscreen run
         output = harness.output()

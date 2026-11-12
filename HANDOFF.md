@@ -1,3 +1,10 @@
+# 12 November 2026 · Sonnet (S2): step 4, notifications
+
+- **Built.** `DmsNotifications` reads the core's mirror (`core.notificationsData`) exactly as the Serpantinum one does; `markAllRead` and `dismiss` go to the core. `openHost` runs `dms ipc call notifications toggle`, the session's own Super+Shift+N bind. **Do-not-disturb is not wired**: `setDnd` only logs a warning, since there is no notification server of ours until S4 and I did not guess a DMS call. `dnd` stays false. No notification server was built.
+- **Tests.** Contract and static checks as for the other domains; the adapter test confirms the domain is `DmsNotifications` and reads unavailable when there is no core.
+- **A flake to know about.** The step 3 full run failed once on `test_core_ignite.InCore.test_a_release_with_the_view_absent` (core code, untouched by this branch). It passed 15 of 15 on its own and in the full runs before and after; it looks like a timing flake under load. Step 3 was committed before I looked at it; the step 4 run below is the confirmation.
+- **Suite.** 824 tests OK with `FART_*` unset (run by Opus on this tree after Sonnet stopped); `test_core_ignite` passed.
+
 # 12 November 2026 · Sonnet (S2): step 3, the session actions
 
 - **Built.** `DmsPower`: `suspend`, `reboot`, `powerOff` run `systemctl suspend|reboot|poweroff`; `logout` is `Hyprland.dispatch("hl.dsp.exit()")` (Z158). **`lock` runs `dms ipc call lock lock`**, the command the session's keybinds already use; this is a stand-in until S7 decides lock (OPEN F2-5), and the island's Lock button depends on it.

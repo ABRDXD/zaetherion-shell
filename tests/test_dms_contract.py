@@ -11,6 +11,7 @@ CONTRACT = ROOT / "view/contract"
 DOMAINS = {
     "NetworkDomain": "DmsNetwork.qml",
     "PowerDomain": "DmsPower.qml",
+    "NotificationsDomain": "DmsNotifications.qml",
 }
 # Leases the DMS-backed domains serve, per file.
 LEASES = {"DmsNetwork.qml": {"details", "scan"}}
@@ -50,6 +51,11 @@ class DmsContract(unittest.TestCase):
                          sorted(['["dms", "ipc", "call", "lock", "lock"]', '["systemctl", "suspend"]',
                                  '["systemctl", "reboot"]', '["systemctl", "poweroff"]']))
         self.assertIn('Hyprland.dispatch("hl.dsp.exit()")', text)
+
+    def test_notifications_read_the_core_mirror_and_start_no_host_command_but_the_sessions_own(self):
+        text = (DMS / "DmsNotifications.qml").read_text()
+        self.assertIn("core.notificationsData", text)
+        self.assertEqual(re.findall(r"execDetached\((\[[^\]]*\])\)", text), ['["dms", "ipc", "call", "notifications", "toggle"]'])
 
     def test_only_the_link_uses_a_socket(self):
         for qml in sorted(DMS.glob("*.qml")):

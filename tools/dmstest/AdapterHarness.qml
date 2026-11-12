@@ -58,7 +58,7 @@ ShellRoot {
                 media: kind(adapter.media), audio: kind(adapter.audio), network: kind(adapter.network), notifications: kind(adapter.notifications),
                 workspaces: kind(adapter.workspaces), power: kind(adapter.power), tray: kind(adapter.tray), keybinds: kind(adapter.keybinds),
                 lyrics: kind(adapter.lyrics), clipboard: kind(adapter.clipboard), system: kind(adapter.system),
-                powerAvailable: adapter.power.available, trayAvailable: adapter.tray.available, trayItems: adapter.tray.items.length,
+                powerAvailable: adapter.power.available, notificationsAvailable: adapter.notifications.available, trayAvailable: adapter.tray.available, trayItems: adapter.tray.items.length,
                 workspacesAvailable: adapter.workspaces.available, mediaAvailable: adapter.media.available
             });
         }

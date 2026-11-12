@@ -36,6 +36,7 @@ DMS = {
     "NetworkDomain": "dms/DmsNetwork.qml",
     "WorkspacesDomain": "hyprland/HyprlandWorkspaces.qml",
     "KeybindsDomain": "hyprland/HyprlandKeybinds.qml",
+    "NotificationsDomain": "dms/DmsNotifications.qml",
     "PowerDomain": "dms/DmsPower.qml",
     "TrayDomain": "quickshell/QuickshellTray.qml",
     "LyricsDomain": "common/LyricsSource.qml",
@@ -43,7 +44,7 @@ DMS = {
     "ClipboardDomain": "common/CliphistClipboard.qml",
 }
 # Domains the DMS adapter leaves on their contract placeholders for now.
-DMS_UNBUILT = {"weather", "osd", "capture", "palette", "motion", "sfx", "clockGeometry", "hostActions", "bluetooth", "notifications"}
+DMS_UNBUILT = {"weather", "osd", "capture", "palette", "motion", "sfx", "clockGeometry", "hostActions", "bluetooth"}
 # Host-facing modules and commands. Overlay keeps the Hyprland focus grab (a compositor feature, not a host one).
 FORBIDDEN_IMPORTS = re.compile(r"^import (qs\.adapters\b|Quickshell\.Services\b|Quickshell\.Bluetooth\b|Quickshell\.Networking\b|Quickshell\.Hyprland\b)", re.M)
 # Focus grabs only: the panel's, and the island's for its tray menu (Z157), which replaced a grabbing popup.
