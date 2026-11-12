@@ -6,7 +6,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 VIEW = sorted((ROOT / "view").rglob("*.qml"))
 CONTRACT = ROOT / "view/contract"
-ADAPTER_DIRS = (ROOT / "adapters/serpantinum", ROOT / "adapters/common")
+ADAPTER_DIRS = (ROOT / "adapters/serpantinum", ROOT / "adapters/common", ROOT / "adapters/dms")
 
 # Contract domain -> its Serpantinum implementation.
 SERPANTINUM = {
