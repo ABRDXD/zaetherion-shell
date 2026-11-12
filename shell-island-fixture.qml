@@ -16,7 +16,6 @@ ShellRoot {
     readonly property string outputName: Quickshell.env("ZAETHERION_FIXTURE_OUTPUT")
     readonly property string edge: Quickshell.env("ZAETHERION_FIXTURE_EDGE")
     readonly property string placement: Quickshell.env("ZAETHERION_FIXTURE_PLACEMENT")
-    property string arrangement: Quickshell.env("ZAETHERION_FIXTURE_LAYOUT") || "framed"
     readonly property var target: outputName
         ? Quickshell.screens.find(screen => screen.name === outputName) ?? null
         : Quickshell.screens.length === 1 ? Quickshell.screens[0] : null
@@ -108,7 +107,6 @@ ShellRoot {
         workspaceIds: ["1", "2", "3", "4", "5", "6", "7"]
         overdriveActive: root.overdrive
         keyboardPeer: panel.holdsKeyboard
-        arrangement: root.arrangement
         onOpenPanel: room => root.showPanel(room)
         onTogglePanel: room => root.togglePanel(room)
         docked: panel.retained
@@ -151,7 +149,6 @@ ShellRoot {
             fixture.media.active = Object.assign({}, fixture.media.active,
                 { title: ++root.sampleId % 2 ? "Fixture Horizon" : "Fixture Signal" });
         }
-        function layout(name: string): void { root.arrangement = name; }
         function form(name: string): void { Design.form = name === "fluid" ? "fluid" : "angular"; }
         function icons(style: string): void { Design.fluidIcons = style; }
         function nomedia(): void { fixture.media.active = null; }

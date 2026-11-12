@@ -9,16 +9,12 @@ import qs.view.ui
 //   - the other run is a packed group, status first, starting one gap past the clock;
 //   - actions (power, inbox) ride the shoulders, at rest and hovered.
 // Status glyphs are quiet (smaller, muted); actions and content are ink.
-// Arrangements under review:
-//   mirror (Z130 as agreed): power | hover status, media · clock · status, weather, tray | inbox
-//   sides:                   weather, tray | media · clock · status, hover status | inbox, power
-//   framed (recommended):    power | weather, tray, media · clock · status, hover status | inbox
+// Framed (Z149): power | weather, tray, media · clock · status, hover status | inbox
 Item {
     id: root
     required property HostAdapter host
     required property bool wings
     property bool live: true
-    property string arrangement: "framed"
     // How far the island reaches past this centre on each side while hovered.
     property real reach: 0
     // The hover fade (0–1) for items that appear only with the wings.
@@ -36,12 +32,6 @@ Item {
     readonly property bool mediaView: compact && visualising && !preferClock
     // The width Fluid needs at rest: the clock alone, or the media row.
     readonly property real compactWidth: mediaView ? Math.ceil(mediaRow.implicitWidth) + 2 * edge : 100
-    readonly property bool sides: arrangement === "sides"
-    // Power at the right shoulder (Sides) or the left (Mirror, Framed, as in the approved study).
-    readonly property bool powerRight: sides
-    // Z130 as agreed: the hovered status glyphs grow on the left. Otherwise they join the status run on the right
-    // and weather and tray go left, beside the media.
-    readonly property bool statusLeft: arrangement === "mirror"
     readonly property bool hovered: wings || reveal > 0
     readonly property var player: host.media.available ? host.media.active : null
     readonly property bool visualising: live && !!player?.playing
@@ -60,11 +50,10 @@ Item {
     // The title's share of the hovered width; any width the other side leaves goes to the title.
     readonly property real pillMinimum: 140
 
-    // Status glyphs shown only while hovered (Z130's list, trimmed). Network stays in the run at rest, so in Sides the
-    // hover list leaves it out; in Mirror the resting network glyph steps aside for the hovered one.
+    // Status glyphs shown only while hovered (Z130's list, trimmed). Network stays in the resting run, so the hover
+    // list leaves it out.
     readonly property var audio: host.audio
     readonly property var hoverStatus: [
-        { glyph: networkGlyph, label: "Network", shown: host.network.available && statusLeft },
         { glyph: host.bluetooth.enabled ? "bluetooth" : "bluetooth_disabled", label: "Bluetooth", shown: host.bluetooth.available },
         { glyph: audio.output?.muted ? "volume_off" : "volume_up", label: "Volume", shown: !!audio.output },
         { glyph: audio.input?.muted ? "mic_off" : "mic", label: "Microphone", shown: !!audio.input },
@@ -140,13 +129,12 @@ Item {
         onClicked: root.openPower()
     }
 
-    // Left run. Power rides the left shoulder (unless it rides the right). The information beside it (the hovered
-    // status glyphs under Z130, otherwise weather and tray) follows power when there is media, and the media fills
+    // Left run. Power rides the left shoulder. Weather and tray follow power when there is media, and the media fills
     // the rest of the run up to the clock. With no media there is no title to match, so the information hugs the
     // clock instead, mirroring the status on the right.
     Loader {
         id: leftPower
-        active: !root.powerRight && !root.compact
+        active: !root.compact
         x: root.leftShoulder
         anchors.verticalCenter: parent.verticalCenter
         sourceComponent: Power {}
@@ -158,12 +146,11 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         spacing: root.tight
         Loader {
-            active: !root.statusLeft && root.hovered && root.host.weather.available && !!root.host.weather.current
+            active: root.hovered && root.host.weather.available && !!root.host.weather.current
             visible: active
             sourceComponent: Weather {}
         }
-        Loader { active: !root.statusLeft && root.hovered; visible: active; sourceComponent: Row { spacing: root.tight; Tray {} } }
-        Loader { active: root.statusLeft && root.hovered; visible: active; sourceComponent: Row { spacing: root.tight; HoverStatus {} } }
+        Loader { active: root.hovered; visible: active; sourceComponent: Row { spacing: root.tight; Tray {} } }
     }
 
     Item {
@@ -283,8 +270,8 @@ Item {
         text: seconds.item ? Qt.formatTime(seconds.item.date, "HH:mm:ss") : Clock.hourStr + ":" + Clock.minuteStr
     }
 
-    // Right run: status from one gap past the clock, then (hovered) Mirror's weather and tray or the other
-    // arrangements' status glyphs, packed at the shared rhythm. The hovered width is set by the fuller side, so the
+    // Right run: status from one gap past the clock, then (hovered) the hover status glyphs, packed at the shared
+    // rhythm. The hovered width is set by the fuller side, so the
     // inbox at the shoulder follows straight on unless the left side is the fuller one.
     Row {
         id: right
@@ -298,8 +285,7 @@ Item {
         spacing: root.tight
 
         IslandGlyph {
-            // Mirror: the hovered status run on the left shows Wi-Fi, so this one steps aside.
-            visible: root.host.network.available && (!root.statusLeft || !root.wings)
+            visible: root.host.network.available
             quiet: true
             glyph: root.networkGlyph
             description: "Network"
@@ -336,12 +322,10 @@ Item {
                 opacity: tone === Design.accent ? 1 : 0.72
             }
         }
-        HoverStatus { model: !root.statusLeft && root.hovered ? root.hoverStatus : [] }
-        Weather { visible: root.statusLeft && root.hovered && root.host.weather.available && !!root.host.weather.current }
-        Tray { model: root.statusLeft && root.hovered && root.host.tray.available ? root.host.tray.items : [] }
+        HoverStatus {}
     }
 
-    // Actions at the right shoulder: the inbox, and in Sides the power button after it.
+    // Actions at the right shoulder: the inbox.
     Row {
         id: actions
         visible: !root.compact
@@ -355,6 +339,5 @@ Item {
             signalDot: root.host.notifications.unread > 0
             onClicked: root.openPanel("notifications")
         }
-        Loader { active: root.powerRight; visible: active; sourceComponent: Power {} }
     }
 }

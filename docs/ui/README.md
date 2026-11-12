@@ -86,7 +86,7 @@ Super+Shift+I with the panel open moves the keyboard to the island, and the pane
 - **No more resize jitter.** The island's layer surface keeps one size (the output's width, 160 px deep plus the gap) and the island morphs inside it. A surface resized on every frame of a morph showed stretched frames.
 - **Growth.** `Overlay` draws `IslandFrame` from the island's rect at the click: first the width, then the depth, with `shoulderDepth` keeping the 84° ends to the bar. FART is clipped to the growing shape and has no fill of its own here. The island holds its width while docked and fades its row; the desktop field arrives once the growth completes.
 - **Matte** (Z151) and **Amoled Black** (Z152) apply to every surface through `Design`.
-- **Fixture calls:** `layout mirror|sides|framed`, `nomedia`, `trayItems N` and `title TEXT`. `ZAETHERION_FIXTURE_LAYOUT` picks the arrangement at start (default `framed`).
+- **Fixture calls:** `nomedia`, `trayItems N` and `title TEXT`. The Mirror and Sides arrangements were removed after the review (owner, 12 November 2026); the image above is the record of them.
 - **Open:** with the island grown into FART, a second click on the island (Z134) and Super+Shift+I while FART is open (Z148) need new answers from the owner.
 
 ## FARTland // Fluid (12 November 2026)

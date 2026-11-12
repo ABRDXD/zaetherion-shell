@@ -1,3 +1,12 @@
+# 12 November 2026 · Opus: header click folds FART, Framed only (Z155)
+
+- **Owner's answers (Z155).** A click on empty space in FART's header folds it back into the island when FART grew from it (Z134 extended). Super+Shift+I keeps Z148. Fluid forgets the right-click clock/media choice on restart and shows media only while playing.
+- **Removed.** `IslandWings.qml`, the Mirror and Sides arrangements, the fixture's `layout` call and `ZAETHERION_FIXTURE_LAYOUT`. Framed is the only arrangement.
+- **Header click.** `Shell.qml` gained `headerEmptyClicked()`, from a MouseArea under the header's controls, enabled once the header is fully revealed. `PanelBody` closes on it only when grown from the island and open. Without an adjacent island nothing changes.
+- **Checks.** Island, layout, contract and qmldirs 23/23; `qmllint` 0 syntax diagnostics. Nested: header fold 8/8 twice (three empty spots fold, command line and two chips keep FART open), docked focus 6/6, exact reply once.
+- **For Sol.** The owner wants the Angular/Fluid choice (`Design.form`) stored with FART's settings by the daemon, so every surface reads one value. Opus will read it once you expose it. `test_keytest`'s `timers.loaded` failure (previous entry) is still yours.
+- **Next.** Opus wires the island into `shell.qml`; island memory against `docs/BUDGETS.md` is measured separately.
+
 # 12 November 2026 · Opus: FARTland // Fluid, even spacing (Z153, Z154)
 
 - **Built and owner-approved.** FARTland // Fluid as a second form of the island (Z153), and one spacing rhythm with an optical lift for the flush notch (Z154). Captures and calls are in `docs/ui/README.md`.

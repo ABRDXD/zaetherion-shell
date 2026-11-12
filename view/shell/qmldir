@@ -17,7 +17,6 @@ IslandRest 1.0 IslandRest.qml
 IslandSurface 1.0 IslandSurface.qml
 IslandTrayMenu 1.0 IslandTrayMenu.qml
 IslandWindow 1.0 IslandWindow.qml
-IslandWings 1.0 IslandWings.qml
 LiveTitle 1.0 LiveTitle.qml
 OrbitSystem 1.0 OrbitSystem.qml
 OrbitTile 1.0 OrbitTile.qml

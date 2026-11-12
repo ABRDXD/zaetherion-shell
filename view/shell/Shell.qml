@@ -555,6 +555,19 @@ Item {
             root.shell.openHost(kind);
         }
     }
+    // Z134 (owner, 12 November 2026): grown from the island, FART's header sits where the island was, so a click on
+    // its empty space folds FART back. It lies under the header's controls, so they keep their own clicks.
+    signal headerEmptyClicked()
+    MouseArea {
+        id: headerEmpty
+        objectName: "headerEmpty"
+        x: 0
+        y: 0
+        width: root.width
+        height: panelContent.y + header.y + header.height + panelContent.spacing / 2
+        enabled: root.headerReveal >= 1
+        onClicked: root.headerEmptyClicked()
+    }
     ColumnLayout {
         id: panelContent
         anchors.fill: parent

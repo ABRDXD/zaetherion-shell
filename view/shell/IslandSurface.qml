@@ -30,7 +30,6 @@ FocusScope {
     property bool hoverOpen: false
     property var workspaceIds: []
     property bool overdriveActive: false
-    property string arrangement: "framed"
     property CoreClient core: null
     property var startupNotice: null
     property bool trayOpen: false
@@ -238,7 +237,6 @@ FocusScope {
         sourceComponent: IslandRest {
             host: root.host
             preferClock: root.preferClock
-            arrangement: root.arrangement
             reveal: wingReveal.value
             onOpenTray: itemId => root.openTray(itemId)
             reach: Math.max(0, (root.width - root.centreWidth) / 2)

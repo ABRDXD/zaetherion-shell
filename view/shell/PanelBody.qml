@@ -135,6 +135,7 @@ Item {
                 roomReveal: root.islandMorph ? root.morphRoom : root.unfold.room.value
                 roomRise: root.islandMorph ? 0 : root.unfold.roomRise
                 onCurrentPageChanged: Host.page = currentPage
+                onHeaderEmptyClicked: if (root.islandMorph && root.dismissOnEscape) Host.close()
             }
             onLoaded: {
                 root.loadedOnce = true;

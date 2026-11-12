@@ -25,7 +25,6 @@ Scope {
     property var startupNotice: null
     // Another surface (the docked panel) holds Exclusive keyboard focus and must let go first.
     property bool keyboardPeer: false
-    property string arrangement: "framed"
     signal openLog(string url)
     function focusIsland(): void { companionWindow?.focusIsland(); }
     function openTray(itemId: string): void { companionWindow?.openTray(itemId); }
@@ -98,7 +97,6 @@ Scope {
                 core: root.core
                 startupNotice: root.startupNotice
                 keyboardPeer: root.keyboardPeer
-                arrangement: root.arrangement
                 onOpenLog: url => root.openLog(url)
                 trayOpen: panel.trayItem !== ""
                 onOpenTray: itemId => panel.openTray(itemId)
