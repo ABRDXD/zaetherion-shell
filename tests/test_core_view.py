@@ -39,7 +39,7 @@ class FakeClient:
         self.sent.append(message)
 
 
-class ViewTests(unittest.IsolatedAsyncioTestCase):
+class ViewHarness(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.clock, self.scheduler, _, _ = fakes()
         self.processes = []
@@ -73,6 +73,8 @@ class ViewTests(unittest.IsolatedAsyncioTestCase):
         self.view.report(True, "tasks")
         self.view.report(False, "tasks")
 
+
+class ViewTests(ViewHarness):
     async def test_open_spawns_and_delivers_the_command(self):
         snapshot = await self.view.command("open", "timers", {"x": 1, "y": 2, "width": 3, "height": 4})
         self.assertEqual(snapshot["state"], "ready")
@@ -290,6 +292,71 @@ class ViewTests(unittest.IsolatedAsyncioTestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ResidentViewTests(ViewHarness):
+    """FART_RESIDENT_VIEW=1 (Z159): started with the core, never reaped, restarted when it exits."""
+
+    async def asyncSetUp(self):
+        await super().asyncSetUp()
+        self.view.resident = True
+
+    async def test_keep_starts_it_closed(self):
+        self.view.keep()
+        await self.settle()
+        self.assertEqual(self.view.state, "ready")
+        self.assertFalse(self.view.open)
+        self.assertTrue(self.view.snapshot()["resident"])
+
+    async def test_never_reaped_while_closed_or_under_pressure(self):
+        await self.open_then_close()
+        self.clock.advance(REAP_AFTER * 3)
+        self.triggers[0]()
+        await self.settle()
+        self.assertEqual(self.processes[0].signals, [])
+        self.assertEqual(self.view.state, "ready")
+
+    async def test_an_exit_is_restarted(self):
+        self.view.keep()
+        await self.settle()
+        self.processes[0].exit.set_result(1)
+        await self.settle()
+        self.assertEqual(self.view.state, "absent")
+        self.clock.advance(view_module.RESPAWN_AFTER)
+        await self.settle()
+        self.assertEqual(len(self.processes), 2)
+        self.assertEqual(self.view.state, "ready")
+
+    async def test_three_quick_crashes_stop_the_restarts(self):
+        self.view.keep()
+        for _ in range(view_module.CRASH_LIMIT):
+            await self.settle()
+            self.processes[-1].exit.set_result(1)
+            await self.settle()
+            self.clock.advance(view_module.RESPAWN_AFTER * view_module.CRASH_LIMIT)
+        await self.settle()
+        self.assertEqual(len(self.processes), view_module.CRASH_LIMIT)
+        self.assertEqual(self.view.state, "absent")
+
+    async def test_the_core_stop_ends_it_for_good(self):
+        self.view.keep()
+        await self.settle()
+        await self.view.stop()
+        self.clock.advance(60)
+        await self.settle()
+        self.assertEqual(self.processes[0].signals, ["TERM"])
+        self.assertEqual(len(self.processes), 1)
+        self.view.keep()
+        await self.settle()
+        self.assertEqual(len(self.processes), 1)
+
+
+class NotResidentTests(ViewHarness):
+    async def test_keep_does_nothing(self):
+        self.view.keep()
+        await self.settle()
+        self.assertEqual(self.processes, [])
+        self.assertFalse(self.view.snapshot()["resident"])
 
 
 class SpawnEnvTests(unittest.IsolatedAsyncioTestCase):

@@ -21,6 +21,7 @@ SETTLE = 5.0  # closed at least this long before any reap: close animation and p
 GRACE = 3.0
 CRASH_WINDOW = 5.0
 CRASH_LIMIT = 3
+RESPAWN_AFTER = 1.0  # resident view: seconds before a restart, times the quick crashes so far
 PSI_TRIGGER = b"some 150000 2000000\0"  # 150 ms stalled within 2 s; unprivileged windows are multiples of 2 s
 
 
@@ -105,8 +106,12 @@ def stop_foreign_instance(entry: Path, own_pid: int | None):
 class ViewManager:
     def __init__(self, clock, scheduler, spawn: Callable, on_change: Callable[[], None],
                  pressure: Callable | None = None, may_reap: Callable[[], bool] = lambda: True,
-                 before_spawn: Callable[[], None] = lambda: None):
+                 before_spawn: Callable[[], None] = lambda: None, resident: bool = False):
         self.clock = clock
+        # Resident (interim, docs/DECISIONS.md Z159): the view carries the island, so it is started with the core,
+        # never reaped while closed or under pressure, and restarted when it exits; only the core's stop ends it.
+        self.resident = resident
+        self.stopping = False
         self.scheduler = scheduler
         self.spawn = spawn  # async () -> process with .pid, .wait(), .terminate(), .kill()
         self.on_change = on_change
@@ -137,7 +142,7 @@ class ViewManager:
             now = self.clock.now()
             closed = round((now.real - (now.boot - self.closed_since)) * 1000)
         return {"state": self.state, "pid": self.process.pid if self.process else None, "open": self.open,
-                "page": self.page, "closedSince": closed}
+                "page": self.page, "closedSince": closed, "resident": self.resident}
 
     def _set(self, **changes):
         for key, value in changes.items():
@@ -149,6 +154,13 @@ class ViewManager:
         It takes 60–130 ms (`qs list`); the first spawn awaits it only if it is still running."""
         if not self.checked_foreign and self.foreign_check is None:
             self.foreign_check = asyncio.get_running_loop().run_in_executor(None, self.before_spawn)
+
+    def keep(self):
+        """Resident view: start it now if absent. Failures are logged; `_watch` schedules the next try."""
+        if not self.resident or self.stopping or self.state != "absent":
+            return
+        task = asyncio.get_running_loop().create_task(self.ensure())
+        task.add_done_callback(lambda t: t.cancelled() or not t.exception() or log.warning("resident view: %s", t.exception()))
 
     # Commands
 
@@ -259,6 +271,12 @@ class ViewManager:
         self._set(state="absent", open=False, page="", closed_since=None)
         for callback in self.on_closed:
             callback()
+        if self.resident and not self.stopping:
+            if self.crashes >= CRASH_LIMIT:
+                log.error("the resident view crashed at start %d times; not restarting it", self.crashes)
+            else:
+                delay = RESPAWN_AFTER * max(1, self.crashes)
+                self.scheduler.at("view.respawn", self.clock.now().boot + delay, lambda _: self.keep())
 
     # From the view
 
@@ -293,7 +311,8 @@ class ViewManager:
             now = self.clock.now()
             since = self.closed_since if self.closed_since is not None and not was_open else now.boot
             self._set(open=False, page=page, closed_since=since)
-            self.scheduler.at("view.reap", since + REAP_AFTER, lambda _: self.check_idle_reap())
+            if not self.resident:
+                self.scheduler.at("view.reap", since + REAP_AFTER, lambda _: self.check_idle_reap())
             if was_open:
                 for callback in self.on_closed:
                     callback()
@@ -301,7 +320,7 @@ class ViewManager:
     # Reaping
 
     def _closed_for(self) -> float | None:
-        if self.state != "ready" or self.open or self.closed_since is None:
+        if self.resident or self.state != "ready" or self.open or self.closed_since is None:
             return None
         return self.clock.now().boot - self.closed_since
 
@@ -319,6 +338,12 @@ class ViewManager:
             self.scheduler.at("view.reap", self.closed_since + SETTLE, lambda _: self.pressure())
             return
         asyncio.get_running_loop().create_task(self.reap("memory pressure"))
+
+    async def stop(self):
+        """The core's own stop: the only end of a resident view."""
+        self.stopping = True
+        self.scheduler.cancel("view.respawn")
+        await self.reap("core shutdown", force=True)
 
     async def reap(self, reason: str, force: bool = False):
         if force and self.spawning:

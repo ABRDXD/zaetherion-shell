@@ -49,7 +49,8 @@ def rss_kib() -> int:
 
 
 class Core:
-    def __init__(self, clock, scheduler, host, state_dir: Path, spawn, pressure=None, guard_types=None, before_spawn=lambda: None):
+    def __init__(self, clock, scheduler, host, state_dir: Path, spawn, pressure=None, guard_types=None, before_spawn=lambda: None,
+                 resident_view: bool = False, dms_bar=None):
         self.clock = clock
         self.host = host
         self.started = clock.now()
@@ -71,8 +72,10 @@ class Core:
         self.discovery = Discovery(state_dir, clock)
         self.sky = SkyWatch(clock, scheduler, getattr(host.profile, "location", lambda: None), self.discovery)
         self.mirror = Mirror(clock, scheduler, host.run, state_dir)
-        self.view = ViewManager(clock, scheduler, spawn, lambda: server.publish("view"), pressure,
-                                may_reap=lambda: self.overdrive.state.mode == "off", before_spawn=before_spawn)
+        self.view = ViewManager(clock, scheduler, spawn, self._view_changed, pressure,
+                                may_reap=lambda: self.overdrive.state.mode == "off", before_spawn=before_spawn,
+                                resident=resident_view)
+        self.dms_bar = dms_bar  # core/dms_bar.py: hidden while a resident view is up (Z159)
         types = guard_types or [FullscreenGuard, BatteryGuard, SessionGuard]
         types = [partial(SessionGuard, active=self.sessions.active) if t is SessionGuard else t for t in types]
         self.guards = Guards(lambda name, on: self.overdrive.guard(name, on), types)
@@ -176,6 +179,11 @@ class Core:
         self.server.topic("supervisor", supervisor.snapshot)
         supervisor.on_change = partial(self.server.publish, "supervisor")
         supervisor.on_event = self._supervisor_event
+
+    def _view_changed(self):
+        self.server.publish("view")
+        if self.dms_bar:
+            self.dms_bar.sync(self.view.state == "ready")
 
     def _supervisor_event(self, event: dict):
         for client in [c for c in self.server.clients if "supervisor" in c.topics]:
@@ -419,7 +427,7 @@ class Core:
 
     async def close(self):
         self.exhibit.stop()
-        await self.view.reap("core shutdown", force=True)
+        await self.view.stop()  # the view's end shows DMS's bar again (_view_changed), before DMS stops
         if self.supervisor:
             await self.supervisor.stop()  # after the panel: dms and its whole tree (docs/SUPERVISOR.md §6)
         self.guards.stop()

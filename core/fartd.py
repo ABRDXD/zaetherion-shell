@@ -19,6 +19,7 @@ sys.path.insert(0, str(ROOT))  # -I leaves the script directory off sys.path
 
 from core.app import Core  # noqa: E402
 from core.clock import SystemClock, TimerfdScheduler  # noqa: E402
+from core.dms_bar import DmsBar  # noqa: E402
 from core.host import Host, load_profile  # noqa: E402
 from core.notifications import BusctlSource  # noqa: E402
 from core.protocol import MAX_LINE  # noqa: E402
@@ -95,14 +96,23 @@ async def serve(runtime: Path, state_dir: Path):
     sock_path = runtime / "core.sock"
     entry = Path(os.environ.get("FART_VIEW_ENTRY") or ROOT / "shell.qml")
     env = dict(os.environ, FART_CORE_SOCKET=str(sock_path), FART_STATE_DIR=str(state_dir))
+    # FART_RESIDENT_VIEW=1 (interim, docs/DECISIONS.md Z159): the view carries the island and stays up with the
+    # core; DMS's own bar is hidden while it is up. Off unless asked for.
+    resident = os.environ.get("FART_RESIDENT_VIEW") == "1"
+    if resident:
+        env["ZAETHERION_ISLAND"] = "1"
     core = Core(clock, scheduler, host, state_dir, spawn=lambda: spawn_quickshell(entry, env),
-                pressure=lambda callback: PressureTrigger(loop, callback), before_spawn=lambda: stop_foreign_instance(entry, None))
+                pressure=lambda callback: PressureTrigger(loop, callback), before_spawn=lambda: stop_foreign_instance(entry, None),
+                resident_view=resident, dms_bar=DmsBar() if resident else None)
     sock, owned = listening_socket(sock_path)
     server = await asyncio.start_unix_server(core.server.handle, sock=sock, limit=MAX_LINE)
     core.view.start_checks()  # off the first open's path (docs/CORE.md §7)
     for signum in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
         loop.add_signal_handler(signum, core.stopping.set)
     watch = supervise(core, scheduler, env, runtime)
+    if core.dms_bar:
+        core.dms_bar.sync(False)  # shown until the view is up, also after a core that was killed with it hidden
+    core.view.keep()  # resident view only
     source = None
     if os.environ.get("FART_MIRROR") != "0":
         source = BusctlSource(core.mirror, core.track)
