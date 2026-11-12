@@ -6,7 +6,8 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 VIEW = sorted((ROOT / "view").rglob("*.qml"))
 CONTRACT = ROOT / "view/contract"
-ADAPTER_DIRS = (ROOT / "adapters/serpantinum", ROOT / "adapters/common")
+ADAPTER_DIRS = (ROOT / "adapters/serpantinum", ROOT / "adapters/common", ROOT / "adapters/dms",
+                ROOT / "adapters/quickshell", ROOT / "adapters/hyprland")
 
 # Contract domain -> its Serpantinum implementation.
 SERPANTINUM = {
@@ -27,6 +28,23 @@ SERPANTINUM = {
     "SystemDomain": "common/LinuxSystem.qml",
     "ClipboardDomain": "common/CliphistClipboard.qml",
 }
+# The same for the DMS adapter (docs/DMS_ADAPTER.md §5). Weather, osd, capture, palette, motion, sfx, clockGeometry, hostActions,
+# equalizer, bluetooth and the DMS-backed power controls are not built yet; they read "unavailable".
+DMS = {
+    "MediaDomain": "quickshell/QuickshellMedia.qml",
+    "AudioDomain": "quickshell/QuickshellAudio.qml",
+    "NetworkDomain": "dms/DmsNetwork.qml",
+    "WorkspacesDomain": "hyprland/HyprlandWorkspaces.qml",
+    "KeybindsDomain": "hyprland/HyprlandKeybinds.qml",
+    "NotificationsDomain": "dms/DmsNotifications.qml",
+    "PowerDomain": "dms/DmsPower.qml",
+    "TrayDomain": "quickshell/QuickshellTray.qml",
+    "LyricsDomain": "common/LyricsSource.qml",
+    "SystemDomain": "common/LinuxSystem.qml",
+    "ClipboardDomain": "common/CliphistClipboard.qml",
+}
+# Domains the DMS adapter leaves on their contract placeholders for now.
+DMS_UNBUILT = {"weather", "osd", "capture", "palette", "motion", "sfx", "clockGeometry", "hostActions", "bluetooth"}
 # Host-facing modules and commands. Overlay keeps the Hyprland focus grab (a compositor feature, not a host one).
 FORBIDDEN_IMPORTS = re.compile(r"^import (qs\.adapters\b|Quickshell\.Services\b|Quickshell\.Bluetooth\b|Quickshell\.Networking\b|Quickshell\.Hyprland\b)", re.M)
 # Focus grabs only: the panel's, and the island's for its tray menu (Z157), which replaced a grabbing popup.
@@ -104,7 +122,13 @@ class ContractTests(unittest.TestCase):
                     self.assertFalse(needle in text, f"{source.relative_to(ROOT)}: {needle}")
 
     def test_serpantinum_implements_every_contract_method(self):
-        for domain, impl in SERPANTINUM.items():
+        self.check_implements(SERPANTINUM)
+
+    def test_dms_adapter_implements_every_contract_method(self):
+        self.check_implements(DMS)
+
+    def check_implements(self, table):
+        for domain, impl in table.items():
             contract = functions((CONTRACT / f"{domain}.qml").read_text())
             implemented = functions((ROOT / "adapters" / impl).read_text())
             self.assertRegex((ROOT / "adapters" / impl).read_text(), re.compile(rf"^{domain} \{{", re.M), f"{impl} must derive from {domain}")
@@ -118,11 +142,14 @@ class ContractTests(unittest.TestCase):
         domains = re.findall(r"^    property (\w+Domain) (\w+):", (CONTRACT / "HostAdapter.qml").read_text(), re.M)
         self.assertEqual(len(domains), 20)
         resident_only = {"tray", "weather", "osd", "capture"}
-        for adapter in ("serpantinum/SerpantinumAdapter.qml", "fixture/FixtureAdapter.qml"):
+        for adapter in ("serpantinum/SerpantinumAdapter.qml", "dms/DmsAdapter.qml", "fixture/FixtureAdapter.qml"):
             text = (ROOT / "adapters" / adapter).read_text()
             for _, name in domains:
                 if adapter.startswith("serpantinum/") and name in resident_only:
                     continue  # The legacy panel does not provide resident domains.
+                if adapter.startswith("dms/") and name in DMS_UNBUILT:
+                    self.assertNotRegex(text, re.compile(rf"^    {name}: \w+", re.M), f"{adapter}: {name} is built; take it off DMS_UNBUILT")
+                    continue
                 # Filled where declared, or by loadDeferred() (root.<name> = …).
                 self.assertRegex(text, re.compile(rf"^    {name}: \w+|root\.{name} = \w+", re.M), f"{adapter}: {name}")
 

@@ -59,6 +59,19 @@ S3 visual review artifacts (11 November 2026)
   raster review renders of the Fluid drawings.
 No new third-party imagery or fonts are bundled.
 
+Derived inside this repository (S2, 12 November 2026)
+-----------------------------------------------------
+These copy files already under the GPL-3.0 lineage above, with the host command calls removed:
+- adapters/quickshell/QuickshellMedia.qml, QuickshellAudio.qml: from adapters/serpantinum/SerpantinumMedia.qml and
+  SerpantinumAudio.qml.
+- adapters/hyprland/HyprlandWorkspaces.qml, HyprlandKeybinds.qml: from SerpantinumWorkspaces.qml and
+  SerpantinumKeybinds.qml (workspace switching now uses Hyprland's own dispatcher).
+- adapters/quickshell/QuickshellPowerSource.qml: the UPower part of SerpantinumPower.qml.
+- adapters/dms/DmsNotifications.qml: the mirror part of SerpantinumNotifications.qml.
+- adapters/dms/DeferredCreate.js: a copy of adapters/serpantinum/DeferredCreate.js.
+adapters/dms/DmsLinkMachine.js, DmsLink.qml, DmsNetwork.qml and the other DMS files are written from docs/DMS_ADAPTER.md,
+which read DMS's method names from its QML but copied no code; no DMS file is adapted yet.
+
 Dux Shell (MIT, copyright 2025 Avenge Media LLC)
 ------------------------------------------------
 view/shell/IslandTrayMenu.qml adapts the submenu stack and navigation from
