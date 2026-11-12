@@ -45,7 +45,7 @@ ShellRoot {
     }
 
     Timer {
-        interval: 33
+        interval: 50  // 20 Hz, as tools/cava.conf (docs/ISLAND_DIAGNOSIS.md)
         running: fixture.media.holds("spectrum")
         repeat: true
         onTriggered: {

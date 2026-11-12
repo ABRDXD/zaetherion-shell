@@ -71,6 +71,10 @@ class PressureTrigger:
 
 
 async def spawn_quickshell(entry: Path, env: dict):
+    # Allocator tuning (docs/ISLAND_DIAGNOSIS.md): without it jemalloc keeps ~90 MiB more dirty pages after
+    # FART open/fold cycles. An owner-supplied MALLOC_CONF wins.
+    env = dict(env)
+    env.setdefault("MALLOC_CONF", "thp:never,narenas:4,dirty_decay_ms:3000")
     # The view keeps its own Quickshell log; FART_VIEW_STDOUT (tests) also captures its console.
     out = asyncio.subprocess.DEVNULL
     if env.get("FART_VIEW_STDOUT"):

@@ -290,3 +290,27 @@ class ViewTests(unittest.IsolatedAsyncioTestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SpawnEnvTests(unittest.IsolatedAsyncioTestCase):
+    async def spawned_env(self, env):
+        seen = {}
+        async def fake_exec(*args, env, **kwargs):
+            seen.update(env)
+        real = view_module.asyncio.create_subprocess_exec
+        view_module.asyncio.create_subprocess_exec = fake_exec
+        try:
+            await view_module.spawn_quickshell(view_module.Path("shell.qml"), env)
+        finally:
+            view_module.asyncio.create_subprocess_exec = real
+        return seen
+
+    async def test_allocator_tuning_by_default(self):
+        env = {"A": "1"}
+        seen = await self.spawned_env(env)
+        self.assertEqual(seen["MALLOC_CONF"], "thp:never,narenas:4,dirty_decay_ms:3000")
+        self.assertNotIn("MALLOC_CONF", env)  # the caller's dict is untouched
+
+    async def test_an_owner_value_wins(self):
+        seen = await self.spawned_env({"MALLOC_CONF": "narenas:2"})
+        self.assertEqual(seen["MALLOC_CONF"], "narenas:2")
