@@ -49,6 +49,13 @@ ShellRoot {
     Binding { target: Motion; property: "profile"; value: fixture.motion.roles }
     Component.onCompleted: {
         Design.form = "fluid";
+        fixture.network.available = false;
+        fixture.network.connected = false;
+        fixture.network.name = "";
+        fixture.network.networks = [];
+        fixture.system.user = "";
+        fixture.system.hostname = "";
+        fixture.media.active = null;
         fixture.notifications.items = [];
         fixture.notifications.unread = 0;
     }

@@ -159,3 +159,34 @@ class PaletteIntegrationTests(unittest.IsolatedAsyncioTestCase):
         callback()
         self.assertFalse(self.core.palette.snapshot()["preview"])
         self.assertFalse(self.core.palette.path.exists())
+
+
+class PaletteCliTests(unittest.TestCase):
+    def test_zaetherion_palette_command_in_private_core(self):
+        import os
+        import subprocess
+        import sys
+        import time
+        root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory(prefix="palette-cli-") as directory:
+            base = Path(directory)
+            for name in ("home", "run", "state", "cache", "config"):
+                (base / name).mkdir(mode=0o700)
+            env = {k: v for k, v in os.environ.items() if not k.startswith("FART_")}
+            env.update(HOME=str(base / "home"), XDG_RUNTIME_DIR=str(base / "run"), XDG_STATE_HOME=str(base / "state"),
+                XDG_CACHE_HOME=str(base / "cache"), XDG_CONFIG_HOME=str(base / "config"), FART_HOST="fixture", FART_MIRROR="0",
+                FART_RUNTIME_DIR=str(base / "run"), FART_STATE_DIR=str(base / "state"), WAYLAND_DISPLAY="", HYPRLAND_INSTANCE_SIGNATURE="",
+                DBUS_SESSION_BUS_ADDRESS="unix:path=/nonexistent/palette-fixture", DBUS_SYSTEM_BUS_ADDRESS="unix:path=/nonexistent/palette-fixture")
+            process = subprocess.Popen([sys.executable, "-I", str(root / "core/fartd.py")], env=env,
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            try:
+                for _ in range(100):
+                    if (base / "run/core.sock").exists(): break
+                    time.sleep(.02)
+                run = subprocess.run([sys.executable, "-I", str(root / "tools/zaetherion.py"), "--json", "palette", "Ice"],
+                    env=env, capture_output=True, text=True, timeout=10)
+                self.assertEqual(run.returncode, 0, run.stderr)
+                self.assertTrue(json.loads(run.stdout)["ok"])
+                self.assertEqual(json.loads((base / "state/palette.json").read_text()), {"name": "amoled:ice"})
+            finally:
+                process.terminate(); process.wait(5)
