@@ -1,3 +1,10 @@
+# 12 November 2026 · Opus: the view follows DMS's socket through the core (S2 merged)
+
+- **Merged.** `s2-host-adapter` into `s0-seed` (`f2d9969`) with the owner's OK; 837 tests OK on the merged tree.
+- **DMS's socket.** The core always offers the `supervisor` topic (`{"children": {}}` when it does not supervise DMS), and `CoreClient` subscribes to it (`supervisorData`). `shell-dms.qml` binds `DmsAdapter.socketPath` to `children.dms.socket` while a core is connected, else to `DMS_SOCKET`. A subscription naming an unknown topic fails whole, hence the always-offered topic.
+- **Checks.** Full suite 837 OK. Nested Hyprland, real core with `FART_RESIDENT_VIEW=1` and `FART_VIEW_ENTRY=shell-dms.qml`, supervising a real DMS (private home, bus and folders, no system bus): 11/11. The view connects to DMS's socket; DMS killed → back under a new socket → the same view process reconnects; the bar stays hidden through it (the new DMS reads the saved setting); core stop shows the bar, nothing left running.
+- **Turning it on (owner's go, owner present).** `tools/zaetherion.py` `start_core` sets `FART_RESIDENT_VIEW=1` and `FART_VIEW_ENTRY=<repo>/shell-dms.qml`; then `zaetherion restart` or a fresh login, and the real checks listed in the S2 entry. Rollback: unset both.
+
 # 12 November 2026 · Opus (S2, taking over from Sonnet): step 6, `shell-dms.qml`; review
 
 - **Built (Sonnet).** `shell-dms.qml` is `shell.qml` with `DmsAdapter { id: adapter; core: client; role: "shell" }`; `tests/test_shell_dms.py` fails when the two drift apart. Nothing starts it yet. Committed by Opus after the full suite (824 OK, with this file present).

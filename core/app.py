@@ -95,6 +95,9 @@ class Core:
             if name != "view":
                 owner.on_change = partial(server.publish, name)
         server.topic("core", self.core_snapshot)
+        # Always offered, so a view can subscribe whether or not this core supervises DMS: it reads DMS's socket
+        # here (children.dms.socket, docs/SUPERVISOR.md §13), which changes with every DMS restart.
+        server.topic("supervisor", lambda: self.supervisor.snapshot() if self.supervisor else {"children": {}})
         server.on_disconnect.append(self.view.disconnected)
         self.sfx = host.sfx = Sfx(host, clock, state_dir, sound_on=lambda: self.timers.state["config"]["sound"],
                                   session_active=self.sessions.active)
@@ -176,7 +179,6 @@ class Core:
         """The `supervisor` topic carries the state; each change of fortune is also pushed once as
         `supervisor.event` (down, up, retry, failed, stopped), like a sound cue: never replayed."""
         self.supervisor = supervisor
-        self.server.topic("supervisor", supervisor.snapshot)
         supervisor.on_change = partial(self.server.publish, "supervisor")
         supervisor.on_event = self._supervisor_event
 

@@ -14,7 +14,14 @@ import qs.view.ui
 ShellRoot {
     id: root
     CoreClient { id: client; host: adapter }
-    DmsAdapter { id: adapter; core: client; role: "shell" }
+    DmsAdapter {
+        id: adapter
+        core: client
+        role: "shell"
+        // With a core, DMS's socket follows the supervisor (it changes with every DMS restart, and is null while
+        // DMS is down); without one, DMS_SOCKET.
+        socketPath: client.connected ? (client.supervisorData?.children?.dms?.socket ?? "") : (Quickshell.env("DMS_SOCKET") ?? "")
+    }
 
     // The island (S3) runs only where the session asks for it, so without ZAETHERION_ISLAND=1 this shell is the panel alone.
     readonly property bool islandWanted: Quickshell.env("ZAETHERION_ISLAND") === "1"
