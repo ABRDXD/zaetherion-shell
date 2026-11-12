@@ -47,13 +47,15 @@ ShellRoot {
 
     LazyLoader {
         active: root.powerPreview
-        FloatingWindow {
-            title: "Session card · fixture"
+        // A fixed card under the island: a floating window would be tiled by the compositor and stretched.
+        PanelWindow {
             screen: root.target
+            anchors.top: true
+            margins.top: 48
+            exclusionMode: ExclusionMode.Ignore
             implicitWidth: 256
             implicitHeight: 252
             color: Design.islandFill
-            onVisibleChanged: if (!visible) root.powerPreview = false
             Column {
                 anchors.fill: parent
                 anchors.margins: 12

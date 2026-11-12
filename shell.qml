@@ -3,6 +3,7 @@
 //@ pragma Env QS_NO_RELOAD_POPUP=1
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import qs.adapters.serpantinum
 import qs.core.client
 import qs.view.overdrive
@@ -67,6 +68,12 @@ ShellRoot {
             // Notification actions and replies need S4's notification server; the contract has no call for them yet.
             onNotificationAction: (id, action, reply) => console.warn("island: notification actions wait for S4")
         }
+    }
+    // Super+Shift+I (Z148): `qs -p <repo>/shell.qml ipc call island focus`. With FART open the island takes the
+    // keyboard and FART stays open; Esc hands it back.
+    IpcHandler {
+        target: "island"
+        function focus(): void { root.island?.focusIsland(); }
     }
     Component.onCompleted: {
         const form = Quickshell.env("ZAETHERION_ISLAND_FORM");

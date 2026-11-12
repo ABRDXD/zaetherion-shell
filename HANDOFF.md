@@ -1,3 +1,10 @@
+# 12 November 2026 · Opus: Super+Shift+I bound, island actions confirmed (Z156)
+
+- **Owner.** Confirmed long-press `sticky` ignite, power to the host's power menu, and notification actions waiting for S4 (Z156). Sol is no longer on the project; Sol's open items (the `test_keytest` `timers.loaded` failure, storing the island's settings with FART's, and turning the island on in the ZÆTHERION session) have no owner yet.
+- **Bind.** `shell.qml` has an `island` IPC target with `focus()`. Super+Shift+I runs `qs -p <repo>/shell.qml ipc call island focus`. Added to `session/hypr/zaetherion/fart.lua` and, with the owner's go-ahead, to the installed copy; `hyprctl configerrors` empty and the bind is listed. It does nothing until the island runs in the session (the view is not started there yet: `FART_RESIDENT_DIR` is unset, so DMS draws its own UI).
+- **Fixture.** The session-card preview is a fixed layer card under the island instead of a floating window that Hyprland tiled to full height.
+- **Checks.** Nested `shell.qml` wiring 11/11, including the focus call with the island on and off; qmllint 0 syntax diagnostics.
+
 # 12 November 2026 · Opus: island in shell.qml (opt-in), island measured
 
 - **Island in `shell.qml`.** Opt-in with `ZAETHERION_ISLAND=1`; without it the shell is the panel alone, so FART-next under Serpantinum is unchanged. Wired as the fixture: `adjacentIslandGap`, `islandRect`, `companionWindows`, `islandHasKeyboard`, `keyboardPeer`, `docked`. Until the daemon stores the owner's choices (Z155), `ZAETHERION_ISLAND_OUTPUT` (default: focused screen), `_EDGE` (`bottom`), `_PLACEMENT` (`floating`) and `_FORM` (`fluid`|`angular`) come from the environment. The ids in `shell.qml` are now `adapter` and `client`: inside the island's LazyLoader, `host: host` bound the island's own empty property.
