@@ -75,6 +75,21 @@ Hidden nested Hyprland, Qt Quick software renderer, synthetic data. The preview 
 
 Four seconds between minute ticks yielded zero Qt frames and 0.00% of one core at the CPU counter resolution. Four seconds of synthetic playback yielded 3.25% of one core with timing logs enabled. Across eight OSD open and fold cycles over the wings, the 548 Qt software frame samples had a p99 of 1 ms at whole-millisecond resolution. This sample excludes compositor presentation time. Measure the separated resident, actual adapter and compositor presentation before fixing the live per-surface limits.
 
+### Island fixture sample, GPU renderer (12 November 2026, commit 9662778)
+
+Hidden nested Hyprland 0.57.1, Quickshell 0.3.2, GPU renderer, synthetic data, 5 s settle, `smaps_rollup` of the fixture process (island plus FART panel). Not comparable with the software-renderer sample above.
+
+| State | RSS (MiB) | PSS (MiB) | Private dirty (MiB) |
+|---|---:|---:|---:|
+| Rest, Angular | 370.71 | 102.62 | 71.27 |
+| Rest, Fluid | 376.21 | 103.82 | 72.03 |
+| Hovered (Fluid) | 379.00 | 106.09 | 74.14 |
+| Playing (Fluid) | 378.56 | 105.65 | 73.70 |
+| After 1 open/fold of FART | 439.21 | 151.92 | 114.17 |
+| After 21 open/fold cycles, idle | 466.09 | 179.02 | 141.70 |
+
+CPU over 30 s: 0.00% of one core at rest (pass, ≤ 2%); 6.37% while playing in Fluid (over the 5% rule; the fixture's own 33 ms spectrum timer is included). **Open:** memory does not return to idle after folding and still grew between cycle 1 and 21; whether it plateaus and what is retained are not yet known.
+
 ## Overdrive (carried over)
 
 | Rule | Limit |

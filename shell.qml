@@ -5,9 +5,71 @@ import QtQuick
 import Quickshell
 import qs.adapters.serpantinum
 import qs.core.client
+import qs.view.overdrive
 import qs.view.shell
+import qs.view.ui
 ShellRoot {
-    CoreClient { id: core; host: host }
-    SerpantinumAdapter { id: host; core: core }
-    Overlay { host: host; core: core }
+    id: root
+    CoreClient { id: client; host: adapter }
+    SerpantinumAdapter { id: adapter; core: client }
+
+    // The island (S3) runs only where the session asks for it: FART-next under Serpantinum keeps Serpantinum's own
+    // bar, so without ZAETHERION_ISLAND=1 this shell is the panel alone, as before.
+    readonly property bool islandWanted: Quickshell.env("ZAETHERION_ISLAND") === "1"
+    // Until the daemon stores the owner's choices (Z155), these come from the environment.
+    readonly property string islandOutput: Quickshell.env("ZAETHERION_ISLAND_OUTPUT") ?? ""
+    readonly property var islandScreen: !islandWanted ? null
+        : Quickshell.screens.find(screen => screen.name === islandOutput)
+          ?? Quickshell.screens.find(screen => screen.name === adapter.workspaces.focusedScreen)
+          ?? Quickshell.screens[0] ?? null
+    readonly property var island: islandLoader.item
+
+    Overlay {
+        id: panel
+        host: adapter
+        core: client
+        companionWindows: root.island?.companionWindow ? [root.island.companionWindow] : []
+        adjacentIslandGap: root.island ? root.island.edgeGap : -1
+        islandRect: root.island?.islandRect ?? null
+        islandHasKeyboard: root.island?.companionWindow?.wantsKeyboard ?? false
+    }
+    function showPanel(room: string): void {
+        panel.openPage(room, { screen: root.islandScreen?.name ?? "", from: root.island?.islandRect ?? null });
+    }
+    function togglePanel(room: string): void {
+        if (panel.opened) Host.close();
+        else showPanel(room);
+    }
+
+    OverdriveLease { id: lease; core: client }
+
+    LazyLoader {
+        id: islandLoader
+        active: root.islandWanted && root.islandScreen !== null
+        IslandWindow {
+            host: adapter
+            core: client
+            output: root.islandScreen
+            bottomEdge: Quickshell.env("ZAETHERION_ISLAND_EDGE") === "bottom"
+            edgeGap: Quickshell.env("ZAETHERION_ISLAND_PLACEMENT") === "floating" ? 16 : 0
+            workspaceIds: adapter.workspaces.workspaces
+                .filter(space => space.monitor === root.islandScreen?.name)
+                .map(space => String(space.id))
+            overdriveActive: client.overdriveData?.effective === "active"
+            docked: panel.retained
+            keyboardPeer: panel.holdsKeyboard
+            onOpenPanel: room => root.showPanel(room)
+            onTogglePanel: room => root.togglePanel(room)
+            onOpenPower: adapter.actions.open("power")
+            // A long press ignites, or cuts a running Overdrive, as the panel's plate does. FART is folded here, so
+            // the Overdrive asked for outlasts it ("sticky") instead of the panel's own "panel" mode.
+            onIgnite: lease.requested ? lease.release() : lease.request("sticky")
+            // Notification actions and replies need S4's notification server; the contract has no call for them yet.
+            onNotificationAction: (id, action, reply) => console.warn("island: notification actions wait for S4")
+        }
+    }
+    Component.onCompleted: {
+        const form = Quickshell.env("ZAETHERION_ISLAND_FORM");
+        if (form === "fluid" || form === "angular") Design.form = form;
+    }
 }

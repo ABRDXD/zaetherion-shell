@@ -1,3 +1,11 @@
+# 12 November 2026 · Opus: island in shell.qml (opt-in), island measured
+
+- **Island in `shell.qml`.** Opt-in with `ZAETHERION_ISLAND=1`; without it the shell is the panel alone, so FART-next under Serpantinum is unchanged. Wired as the fixture: `adjacentIslandGap`, `islandRect`, `companionWindows`, `islandHasKeyboard`, `keyboardPeer`, `docked`. Until the daemon stores the owner's choices (Z155), `ZAETHERION_ISLAND_OUTPUT` (default: focused screen), `_EDGE` (`bottom`), `_PLACEMENT` (`floating`) and `_FORM` (`fluid`|`angular`) come from the environment. The ids in `shell.qml` are now `adapter` and `client`: inside the island's LazyLoader, `host: host` bound the island's own empty property.
+- **Choices to confirm with the owner.** Island long-press ignites `sticky` Overdrive, or cuts a running one (the core's `panel` mode would end with the folded panel). Power opens `actions.open("power")`. Notification actions and replies only log a warning: the contract has no call for them until S4.
+- **Checks.** Nested, with the fixture adapter swapped into a copy of `shell.qml`: off by default, on shows the island, click grows FART, empty header click folds it, Fluid form; 8/8, no QML errors. Full suite 707/708 with `FART_*` unset; the one failure is the known `test_keytest` `timers.loaded` (Sol).
+- **For Sol.** The ZÆTHERION session (supervisor or launcher) should set `ZAETHERION_ISLAND=1` for the view. The Angular/Fluid choice and the island's screen, edge and placement belong in FART's settings (Z155). The Super+Shift+I bind is still the owner's to add.
+- **Measured** (`docs/BUDGETS.md`, GPU sample). Rest CPU passes. Media in Fluid used 6.37% of a core against 5%, fixture timer included. Memory grows with open/fold cycles (+46 MiB PSS on the first, +27 over the next 20) and does not return to idle; the owner is giving that diagnosis to Astra.
+
 # 12 November 2026 · Opus: header click folds FART, Framed only (Z155)
 
 - **Owner's answers (Z155).** A click on empty space in FART's header folds it back into the island when FART grew from it (Z134 extended). Super+Shift+I keeps Z148. Fluid forgets the right-click clock/media choice on restart and shows media only while playing.
