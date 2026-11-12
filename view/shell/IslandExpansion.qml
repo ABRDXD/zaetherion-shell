@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import Quickshell
+import qs.view.cues
 import qs.view.ui
 
 Item {
@@ -21,6 +22,15 @@ Item {
     // Optical shift towards the screen edge for a flush notch (IslandSurface.lift).
     property int lift: 0
     property string replyDraft: ""
+    // A tray item's menu, grown from the island (Z157).
+    property var trayEntries: []
+    signal trayClose()
+    signal trayChoose(string entryId)
+    readonly property bool trayKind: kind === "tray"
+    // The session card (Z158): lock on a click, the rest on a 1 s hold, as host power menus confirm them.
+    signal sessionAction(string action)
+    readonly property int holdMs: 1000
+    readonly property int deepest: 160
 
     function voice(line: string): string {
         if (systemVoice) return line;
@@ -36,6 +46,7 @@ Item {
         case "memory": return Qt.size(448, 140);
         case "osd": return Qt.size(444, 56);
         case "track": return Qt.size(420, 72);
+        case "session": return Qt.size(5 * 88 + 2 * 16 + (Design.fluid ? 0 : 2 * Math.ceil(12 + 76 / Math.tan(84 * Math.PI / 180))), 76);
         default: return Qt.size(420, 56);
         }
     }
@@ -48,8 +59,9 @@ Item {
     readonly property int edgePad: 10
     readonly property int facet: 0
     readonly property real noticeContent: noticeKind && face.item ? face.item.implicitHeight : 0
-    implicitWidth: shape(kind).width
-    implicitHeight: noticeKind
+    implicitWidth: trayKind ? 248 + 2 * sideInset : shape(kind).width
+    implicitHeight: trayKind ? Math.min(deepest, Math.max(shape(kind).height, (face.item?.implicitHeight ?? 0) + 2 * edgePad))
+        : noticeKind
         ? Math.max(shape(kind).height, Math.ceil((noticeContent + 2 * edgePad + facet) / Design.baseline) * Design.baseline)
         : shape(kind).height
 
@@ -69,6 +81,8 @@ Item {
             case "workspace": return workspaces;
             case "memory": return memory;
             case "recording": return recording;
+            case "tray": return tray;
+            case "session": return session;
             default: return status;
             }
         }
@@ -90,6 +104,132 @@ Item {
             id: tag
             text: action.label
             role: action.hovered || action.activeFocus || action.down ? "signal" : "ink"
+        }
+    }
+
+    // One session action. The hold is timed by a plain Timer, never by motion, so reduced or no motion cannot
+    // shorten it; the fill only shows it.
+    component SessionAction: AbstractButton {
+        id: act
+        property string glyph: ""
+        property string label: ""
+        property string verb: ""
+        property bool needsHold: true
+        property bool keyHeld: false
+        readonly property bool holding: needsHold && (pressed || keyHeld)
+        implicitWidth: 88
+        implicitHeight: 56
+        padding: 0
+        hoverEnabled: true
+        activeFocusOnTab: true
+        Accessible.name: needsHold ? "Hold to " + label.toLowerCase() : label
+        onClicked: if (!needsHold) root.sessionAction(verb)
+        function confirmKey(event): bool {
+            return event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space;
+        }
+        // Left and right step along the row (wrapping); the row is not a focus scope, so each action moves itself.
+        function step(by: int): void {
+            const row = parent.children.filter(item => item.verb !== undefined);
+            row[(row.indexOf(act) + by + row.length) % row.length].forceActiveFocus();
+        }
+        Keys.onPressed: event => {
+            if (event.key === Qt.Key_Left || event.key === Qt.Key_Right) {
+                event.accepted = true;
+                keyHeld = false;
+                step(event.key === Qt.Key_Right ? 1 : -1);
+                return;
+            }
+            if (!confirmKey(event)) return;
+            event.accepted = true;
+            if (event.isAutoRepeat) return;
+            if (needsHold) keyHeld = true;
+            else root.sessionAction(verb);
+        }
+        Keys.onReleased: event => {
+            if (!confirmKey(event) || event.isAutoRepeat) return;
+            event.accepted = true;
+            keyHeld = false;
+        }
+        onActiveFocusChanged: if (!activeFocus) keyHeld = false
+        Timer {
+            running: act.holding
+            interval: root.holdMs
+            onTriggered: {
+                act.keyHeld = false;
+                root.sessionAction(act.verb);
+            }
+        }
+        Cue {
+            id: fill
+            on: act.holding
+            scope: act
+            name: "island.hold"
+            enter: root.holdMs
+            exit: 0
+            easing: Easing.Linear
+        }
+        readonly property bool lit: hovered || activeFocus || holding
+        contentItem: Item {
+            MaterialSymbol {
+                id: actGlyph
+                anchors.horizontalCenter: parent.horizontalCenter
+                y: 6
+                fill: Design.iconFill
+                weight: Design.iconWeight
+                text: act.glyph
+                iconSize: 5 * Design.baseline
+                color: act.lit ? (act.needsHold ? Design.danger : Design.ink) : Design.muted
+            }
+            FText {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: actGlyph.bottom
+                anchors.topMargin: 2
+                technical: true
+                font.pixelSize: Design.caption
+                text: act.holding ? root.voice("> HOLD") : root.voice(act.label)
+                color: act.lit ? Design.ink : Design.muted
+            }
+        }
+        background: Item {
+            Rectangle {
+                anchors.fill: parent
+                radius: Design.fluid ? Design.roundSmall : 0
+                color: Design.hover
+                visible: act.hovered || act.activeFocus
+            }
+            Rectangle {
+                anchors.bottom: parent.bottom
+                height: 2
+                width: parent.width * fill.value
+                color: Design.danger
+            }
+        }
+    }
+
+    Component {
+        id: session
+        Row {
+            anchors.centerIn: parent
+            spacing: 0
+            Component.onCompleted: lockAction.forceActiveFocus()
+            Keys.onEscapePressed: root.dismiss()
+            SessionAction { id: lockAction; glyph: "lock"; label: "> LOCK"; verb: "lock"; needsHold: false }
+            SessionAction { glyph: "bedtime"; label: "> SUSPEND"; verb: "suspend" }
+            SessionAction { glyph: "logout"; label: "> LOG OUT"; verb: "logout" }
+            SessionAction { glyph: "restart_alt"; label: "> REBOOT"; verb: "reboot" }
+            SessionAction { glyph: "power_settings_new"; label: "> POWER OFF"; verb: "powerOff" }
+        }
+    }
+
+    Component {
+        id: tray
+        IslandTrayMenu {
+            framed: false
+            maximumHeight: root.deepest - 2 * root.edgePad
+            entries: root.trayEntries
+            onCloseRequested: root.trayClose()
+            onChoose: entryId => root.trayChoose(entryId)
+            Component.onCompleted: forceActiveFocus()
         }
     }
 

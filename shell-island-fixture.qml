@@ -23,7 +23,6 @@ ShellRoot {
     FixtureAdapter { id: fixture }
     CoreClient { id: core; path: ""; host: fixture }
     property bool overdrive: false
-    property bool powerPreview: false
     property var notice: null
     property int sampleId: 0
     property int waveStep: 0
@@ -43,40 +42,6 @@ ShellRoot {
     function togglePanel(room: string): void {
         if (panel.opened) Host.close();
         else showPanel(room);
-    }
-
-    LazyLoader {
-        active: root.powerPreview
-        // A fixed card under the island: a floating window would be tiled by the compositor and stretched.
-        PanelWindow {
-            screen: root.target
-            anchors.top: true
-            margins.top: 48
-            exclusionMode: ExclusionMode.Ignore
-            implicitWidth: 256
-            implicitHeight: 252
-            color: Design.islandFill
-            Column {
-                anchors.fill: parent
-                anchors.margins: 12
-                spacing: Design.baseline
-                FText { text: "> SESSION CARD · FIXTURE"; color: Design.accent; technical: true }
-                Repeater {
-                    model: ["Lock", "Suspend", "Log out", "Reboot", "Power off"]
-                    FText {
-                        required property string modelData
-                        text: modelData
-                        color: Design.muted
-                        height: Design.minHit
-                    }
-                }
-                FButton {
-                    label: "Close"
-                    height: Design.minHit
-                    onClicked: root.powerPreview = false
-                }
-            }
-        }
     }
 
     Timer {
@@ -112,7 +77,6 @@ ShellRoot {
         onOpenPanel: room => root.showPanel(room)
         onTogglePanel: room => root.togglePanel(room)
         docked: panel.retained
-        onOpenPower: root.powerPreview = !root.powerPreview
         onIgnite: root.overdrive = true
         onNotificationAction: (id, action, reply) => fixture.notifications.record("action", [id, action, reply])
         output: target
@@ -129,10 +93,12 @@ ShellRoot {
                 island: island.islandRect, overdrive: root.overdrive, notificationActions: calls.length,
                 draftLength: island.companionWindow?.draftLength ?? 0,
                 lastNotificationAction: args[1] ?? "", lastReplyLength: args[2]?.length ?? 0,
-                lastReply: args[2] ?? "", keyboard: island.companionWindow?.keyboardRequest ?? "" });
+                lastReply: args[2] ?? "", keyboard: island.companionWindow?.keyboardRequest ?? "",
+                powerCalls: fixture.power.calls.map(call => call.method) });
         }
         function focus(): void { island.focusIsland(); }
         function tray(): void { island.openTray("sample"); }
+        function power(): void { island.openSession(); }
         function panel(room: string): void { root.togglePanel(room); }
         function recording(on: bool): void {
             fixture.capture.recording = { active: on, startedAt: Date.now() / 1000 };

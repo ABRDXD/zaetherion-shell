@@ -1,3 +1,10 @@
+# 12 November 2026 · Opus: tray menu and session card grow from the island (Z157, Z158)
+
+- **Tray menu.** No longer a popup window: a `tray` queue entry (priority -1, no dwell) whose face is `IslandTrayMenu` (unframed, capped at the 160 px depth). `IslandWindow` gained a `HyprlandFocusGrab` for held faces, armed 100 ms after the island holds the keyboard (Hyprland clears a grab while focus is moving); `tests/test_contract.py` allows `Quickshell.Hyprland` there for that grab only.
+- **Session card.** A `session` queue entry from the island's power glyph. `PowerDomain` gained `suspend`, `logout`, `reboot`, `powerOff`; Serpantinum runs `systemctl suspend|reboot|poweroff` and Hyprland's `hl.dsp.exit()`; the fixture records only. **The DMS adapter (`f2-dms-adapter`) must implement the four new calls.** The island's `openPower` signal and the fixture's floating session-card preview are gone; the fixture gained `power` and reports `powerCalls`.
+- **Checks.** Nested, both forms: session card 18/18 (0.4 s and 0.65 s presses do nothing, a full hold fires, click locks, Esc and click outside fold, Enter hold on Reboot), tray 10/10, `shell.qml` wiring 11/11, docked focus 6/6. Island, contract, layout, qmldirs OK; qmllint 0 syntax diagnostics. The virtual pointer in the nested kit gained `hold:<ms>`.
+- **Next.** Opus took over Sol's items: `test_keytest` `timers.loaded`, storing the island's settings with FART's, and turning the island on in the ZÆTHERION session (show the owner first).
+
 # 12 November 2026 · Opus: Super+Shift+I bound, island actions confirmed (Z156)
 
 - **Owner.** Confirmed long-press `sticky` ignite, power to the host's power menu, and notification actions waiting for S4 (Z156). Sol is no longer on the project; Sol's open items (the `test_keytest` `timers.loaded` failure, storing the island's settings with FART's, and turning the island on in the ZÆTHERION session) have no owner yet.

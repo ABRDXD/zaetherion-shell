@@ -1,4 +1,5 @@
-// Suspend, reboot and power-off are never called by FART: open the host's power surface instead.
+// The session card (Z158) grows from the island and calls lock, suspend, logout, reboot and powerOff, each
+// confirmed by the owner (lock on a click, the rest on a 1 s hold). Nothing else in FART calls them.
 HostDomain {
     property var battery: ({ available: false, level: 0, charging: false, pluggedIn: true })
     property string profile: ""
@@ -13,4 +14,8 @@ HostDomain {
     function setBrightness(level: real) { record("setBrightness", [level]); }
     function setNightLight(on: bool) { record("setNightLight", [on]); }
     function lock() { record("lock", []); }
+    function suspend() { record("suspend", []); }
+    function logout() { record("logout", []); }
+    function reboot() { record("reboot", []); }
+    function powerOff() { record("powerOff", []); }
 }

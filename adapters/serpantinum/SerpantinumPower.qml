@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Services.UPower
 import qs.view.contract
@@ -33,6 +34,11 @@ PowerDomain {
         Quickshell.execDetached(["serpantinum", "brightness", "set", String(Math.round(Math.max(0, Math.min(1, level)) * 100))]);
     }
     function lock() { Quickshell.execDetached(["serpantinum", "lock"]); }
+    // The session card (Z158); the same commands DMS's power menu runs.
+    function suspend() { Quickshell.execDetached(["systemctl", "suspend"]); }
+    function logout() { Hyprland.dispatch("hl.dsp.exit()"); }
+    function reboot() { Quickshell.execDetached(["systemctl", "reboot"]); }
+    function powerOff() { Quickshell.execDetached(["systemctl", "poweroff"]); }
 
     // Brightness: the host's runtime file while leased, with one probe to discover support.
     readonly property bool brightnessHeld: holds("brightness")

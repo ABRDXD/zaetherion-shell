@@ -9,8 +9,11 @@ FocusScope {
     signal closeRequested()
     signal choose(string id)
 
+    // Inside the island (Z157) the island's own frame is the backing and its depth caps the menu.
+    property bool framed: true
+    property real maximumHeight: 340
     implicitWidth: 248
-    implicitHeight: Math.min(340, Math.max(Design.minHit, rows.contentHeight))
+    implicitHeight: Math.min(maximumHeight, Math.max(Design.minHit, rows.contentHeight))
     readonly property var topMenu: topEntry()
     readonly property var model: topMenu?.children ?? entries
 
@@ -42,6 +45,7 @@ FocusScope {
         else root.closeRequested();
     }
     Rectangle {
+        visible: root.framed
         anchors.fill: parent
         color: Design.surface
         border.color: Design.line

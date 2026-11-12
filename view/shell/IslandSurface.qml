@@ -32,7 +32,31 @@ FocusScope {
     property bool overdriveActive: false
     property CoreClient core: null
     property var startupNotice: null
-    property bool trayOpen: false
+    // The open tray item (Z157): its menu is one of the island's faces, ahead of every event while it is open.
+    property string trayItem: ""
+    readonly property bool trayOpen: trayItem !== ""
+    signal closeTray()
+    signal chooseTray(string entryId)
+    onTrayItemChanged: trayItem ? queue.offer("tray", "tray", -1, { item: trayItem }, null) : queue.remove("tray")
+    // The session card (Z158) grows from the island like the tray menu, ahead of every event while it is open.
+    function openSession(): void {
+        keyboardMode = false;
+        queue.offer("session", "session", -1, {}, null);
+    }
+    function closeSession(): void { queue.remove("session"); }
+    // Faces the owner opened and holds: the keyboard goes to them, and a click outside closes them.
+    readonly property bool heldFace: expansion?.kind === "tray" || expansion?.kind === "session"
+    function runSession(action: string): void {
+        closeSession();
+        Feedback.play("ui.click");
+        switch (action) {
+        case "lock": host.power.lock(); break;
+        case "suspend": host.power.suspend(); break;
+        case "logout": host.power.logout(); break;
+        case "reboot": host.power.reboot(); break;
+        case "powerOff": host.power.powerOff(); break;
+        }
+    }
     property var shownEvent: null
     property var outgoingEvent: null
     property var replyDrafts: ({})
@@ -50,7 +74,7 @@ FocusScope {
     // and the island claims it a moment later: Hyprland does not hand focus to an Exclusive layer that
     // committed while another Exclusive one still held it.
     property bool keyboardPeer: false
-    readonly property bool wantsKeyboard: keyboardMode || focusClaim
+    readonly property bool wantsKeyboard: keyboardMode || focusClaim || heldFace
     property bool peerSettled: true
     onKeyboardPeerChanged: {
         peerSettled = keyboardPeer;
@@ -82,7 +106,7 @@ FocusScope {
         }
     }
     readonly property int fadeDuration: motionLevel === "off" ? 0 : Math.min(120, Motion.feedback)
-    readonly property bool wings: !docked && (hoverOpen || keyboardMode || trayOpen)
+    readonly property bool wings: !docked && (hoverOpen || keyboardMode)
     readonly property bool geometryMotion: motionLevel === "all" || motionLevel === "reduced"
     readonly property int morphDuration: geometryMotion ? Motion.emphasis : 0
     readonly property int morphEasing: motionLevel === "all" ? Motion.roles.emphasis.easing : Easing.OutCubic
@@ -100,7 +124,6 @@ FocusScope {
     readonly property int wingSpan: Math.max(Design.minHit, Math.ceil((restPane.item?.sideNeed ?? 0) - hoverCentre / 2))
     signal openPanel(string room)
     signal togglePanel(string room)
-    signal openPower()
     signal ignite()
     signal openTray(string itemId)
     signal openLog(string url)
@@ -246,10 +269,7 @@ FocusScope {
                 root.keyboardMode = false;
                 root.openPanel(room);
             }
-            onOpenPower: {
-                root.keyboardMode = false;
-                root.openPower();
-            }
+            onOpenPower: root.openSession()
         }
     }
 
@@ -282,6 +302,10 @@ FocusScope {
             lift: root.lift
             systemVoice: root.systemVoice
             replyDraft: root.replyDrafts[event?.id] ?? ""
+            trayEntries: event?.kind === "tray" ? root.host.tray.menuEntries : []
+            onTrayClose: root.closeTray()
+            onTrayChoose: entryId => root.chooseTray(entryId)
+            onSessionAction: action => root.runSession(action)
             restoreReplyFocus: !!event && root.replyFocusId === event.id
             onReplyFocused: focused => root.replyFocus(String(event?.id ?? ""), focused)
             onReplyEdited: text => {

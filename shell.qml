@@ -61,7 +61,6 @@ ShellRoot {
             keyboardPeer: panel.holdsKeyboard
             onOpenPanel: room => root.showPanel(room)
             onTogglePanel: room => root.togglePanel(room)
-            onOpenPower: adapter.actions.open("power")
             // A long press ignites, or cuts a running Overdrive, as the panel's plate does. FART is folded here, so
             // the Overdrive asked for outlasts it ("sticky") instead of the panel's own "panel" mode.
             onIgnite: lease.requested ? lease.release() : lease.request("sticky")

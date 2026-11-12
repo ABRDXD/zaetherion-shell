@@ -29,7 +29,8 @@ SERPANTINUM = {
 }
 # Host-facing modules and commands. Overlay keeps the Hyprland focus grab (a compositor feature, not a host one).
 FORBIDDEN_IMPORTS = re.compile(r"^import (qs\.adapters\b|Quickshell\.Services\b|Quickshell\.Bluetooth\b|Quickshell\.Networking\b|Quickshell\.Hyprland\b)", re.M)
-IMPORT_ALLOWED = {"view/shell/Overlay.qml": {"Quickshell.Hyprland"}}
+# Focus grabs only: the panel's, and the island's for its tray menu (Z157), which replaced a grabbing popup.
+IMPORT_ALLOWED = {"view/shell/Overlay.qml": {"Quickshell.Hyprland"}, "view/shell/IslandWindow.qml": {"Quickshell.Hyprland"}}
 HOST_STRINGS = ("serpantinum", "qs_colors", "cliphist", "canberra-gtk-play", "pw-play", "wl-copy", "gdbus", "hyprctl")
 # The only view file that may start a process (the read-only update report).
 PROCESS_ALLOWED = {"view/shell/FartCommands.qml", 'view/shell/HeavyLayer.qml'}  # FART's own second process, never the host's

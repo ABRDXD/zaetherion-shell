@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import Quickshell.Hyprland
 import Quickshell.Wayland
 import qs.view.contract
 import qs.core.client
@@ -16,7 +17,6 @@ Scope {
     property bool docked: false
     readonly property var companionWindow: layer.active ? layer.item : null
     readonly property var islandRect: companionWindow?.islandRect ?? null
-    signal openPower()
     signal ignite()
     signal notificationAction(string id, string action, string reply)
     property var workspaceIds: []
@@ -28,6 +28,7 @@ Scope {
     signal openLog(string url)
     function focusIsland(): void { companionWindow?.focusIsland(); }
     function openTray(itemId: string): void { companionWindow?.openTray(itemId); }
+    function openSession(): void { companionWindow?.openSession(); }
     required property ShellScreen output
     required property bool bottomEdge
     required property int edgeGap
@@ -56,6 +57,7 @@ Scope {
                 width: frame.width, height: frame.height, edge: root.bottomEdge ? "bottom" : "top"
             })
             function focusIsland(): void { frame.enterKeyboard(); }
+            function openSession(): void { frame.openSession(); }
             function openTray(itemId: string): void {
                 trayItem = itemId;
                 root.host.tray.menu(itemId);
@@ -91,16 +93,18 @@ Scope {
                 onOpenPanel: room => root.openPanel(room)
                 onTogglePanel: room => root.togglePanel(room)
                 docked: root.docked
-                onOpenPower: root.openPower()
                 workspaceIds: root.workspaceIds
                 overdriveActive: root.overdriveActive
                 core: root.core
                 startupNotice: root.startupNotice
                 keyboardPeer: root.keyboardPeer
                 onOpenLog: url => root.openLog(url)
-                trayOpen: panel.trayItem !== ""
+                trayItem: panel.trayItem
                 onOpenTray: itemId => panel.openTray(itemId)
-                onExpansionChanged: if (expansion) panel.trayItem = ""
+                onCloseTray: panel.trayItem = ""
+                onChooseTray: entryId => root.host.tray.triggerMenuItem(panel.trayItem, entryId)
+                // An event that pre-empts the menu closes it.
+                onExpansionChanged: if (expansion && expansion.kind !== "tray") panel.trayItem = ""
                 onIgnite: root.ignite()
                 onNotificationAction: (id, action, reply) => root.notificationAction(id, action, reply)
             }
@@ -110,28 +114,24 @@ Scope {
                 feature: "menus"
                 active: panel.trayItem !== ""
             }
-            LazyLoader {
-                active: panel.trayItem !== ""
-                PopupWindow {
-                    anchor.window: panel
-                    anchor.rect: Qt.rect(Math.max(0, frame.x + frame.width - implicitWidth - 16),
-                                         root.bottomEdge ? frame.y : frame.y + frame.height, implicitWidth, 0)
-                    anchor.edges: root.bottomEdge ? Edges.Top : Edges.Bottom
-                    anchor.gravity: root.bottomEdge ? Edges.Top : Edges.Bottom
-                    grabFocus: true
-                    visible: true
-                    implicitWidth: menu.implicitWidth
-                    implicitHeight: menu.implicitHeight
-                    color: "transparent"
-                    onVisibleChanged: if (!visible) panel.trayItem = ""
-                    IslandTrayMenu {
-                        id: menu
-                        anchors.fill: parent
-                        focus: true
-                        entries: root.host.tray.menuEntries
-                        onCloseRequested: panel.trayItem = ""
-                        onChoose: entryId => root.host.tray.triggerMenuItem(panel.trayItem, entryId)
-                    }
+            // A click outside closes the tray menu, as the popup's grab did. Hyprland clears a grab while keyboard
+            // focus is still moving, so it starts once the island holds the keyboard (as Overlay's does).
+            // The same holds for the session card (Z158).
+            property bool grabArmed: false
+            readonly property bool heldFace: frame.heldFace
+            onHeldFaceChanged: if (!heldFace) grabArmed = false
+            Timer {
+                running: panel.heldFace && frame.windowActive && !panel.grabArmed
+                interval: 100
+                onTriggered: panel.grabArmed = true
+            }
+            HyprlandFocusGrab {
+                active: panel.heldFace && panel.grabArmed
+                windows: [panel]
+                onCleared: {
+                    if (!panel.grabArmed) return;
+                    panel.trayItem = "";
+                    frame.closeSession();
                 }
             }
         }
