@@ -78,3 +78,14 @@ Hyprland still drops the first click when the island grows under a pointer that 
 Super+Shift+I with the panel open moves the keyboard to the island, and the panel stays open. Esc returns the keyboard to the panel. The handover follows a fixed order because Hyprland does not focus a layer that requests Exclusive while another Exclusive layer holds the keyboard. The island first sets `wantsKeyboard`, and the panel drops to None and pauses its focus grab. The island requests Exclusive 60 ms later. When the island lets go, the panel retakes Exclusive and resumes the grab 100 ms later, because resuming it while focus is still moving clears it and closes the panel. While the island holds the keyboard, a click outside does not close the panel.
 
 `tests/fixtures/island/ReplyTest.qml` checks the keyboard policy and the handover offscreen. The fixture's `state` call reports `lastReply` and `keyboard` for nested checks.
+
+## Framed, grown into FART, matte, Amoled Black (12 November 2026)
+
+[Layout review](island-s3-layout-review.png) compares the earlier layout with Mirror, Sides and the chosen Framed arrangement (Z149) at actual size, with no media and with six tray items. [Growth](island-s3-grow.gif) records the island growing into FART and folding back (Z150), with the GPU renderer in hidden nested Hyprland.
+
+- **No more resize jitter.** The island's layer surface keeps one size (the output's width, 160 px deep plus the gap) and the island morphs inside it. A surface resized on every frame of a morph showed stretched frames.
+- **Growth.** `Overlay` draws `IslandFrame` from the island's rect at the click: first the width, then the depth, with `shoulderDepth` keeping the 84° ends to the bar. FART is clipped to the growing shape and has no fill of its own here. The island holds its width while docked and fades its row; the desktop field arrives once the growth completes.
+- **Matte** (Z151) and **Amoled Black** (Z152) apply to every surface through `Design`.
+- **Fixture calls:** `layout mirror|sides|framed`, `nomedia`, `trayItems N` and `title TEXT`. `ZAETHERION_FIXTURE_LAYOUT` picks the arrangement at start (default `framed`).
+- **Open:** with the island grown into FART, a second click on the island (Z134) and Super+Shift+I while FART is open (Z148) need new answers from the owner.
+

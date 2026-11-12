@@ -222,6 +222,10 @@ ZÆTHERION inherits FART-next's D-series decisions (D1–D23) except where [Inhe
 |---|---|
 | Z147 | **Island notice dwell.** Charging stays for 2 s. Low battery and the backend comeback notice stay for 5 s. |
 | Z148 | **Island focus while the panel is docked.** Super+Shift+I moves the keyboard from the open panel to the island, and the panel stays open. Esc returns the keyboard to the panel, and a second Esc closes the panel. Chosen by the owner on 12 November 2026. |
+| Z149 | **Island layout: Framed** (owner, 12 November 2026). Power rides the left shoulder and the inbox the right, at rest and hovered. Media fills its run up to the centred clock; status sits right of the clock, justified to the inbox while there is media and grouped against the clock without it. Hovered, weather and tray join the left beside the media and the status glyphs join the right beside the network glyph, so Wi-Fi shows once. This replaces Z130's wing sides. The hover status list is Wi-Fi, Bluetooth, volume and microphone, plus caps lock and airplane mode only while on; num lock and the power profile live in the Devices room. Status glyphs are muted, actions ink, all at one size. |
+| Z150 | **The island grows into FART** (owner, 12 November 2026). Clicking the island widens it sideways into a bar that keeps its 84° ends, then the panel drops straight down from the bar with straight sides; FART's header takes the island's place, so no island strip shows above it. Folding retraces both phases back into the island's shape. 560 ms open and 320 ms fold, through the host time scale and motion levels. |
+| Z151 | **Matte island** (owner, 12 November 2026). One flat fill: no lit rim, sheen or bevel. Replaces Z144's fixed lighting and 4 px bevel. |
+| Z152 | **Built-in palette: DMS Amoled Black**, black flavour, white accent (owner, 12 November 2026). A host palette still overrides any role. The theme's raised surface is black, so hover is derived as a faint ink tint. With no blue role the island's fill is the theme's black (Z65). |
 
 ## Inherited decisions that change
 

@@ -37,6 +37,13 @@ Item {
     // the panel's bar-side edge. `edge` "bottom" mirrors the rise into a drop.
     property point origin: Qt.point(width / 2, 0)
     property string edge: "top"
+    // Grown from the island (Overlay.islandMorph): the island's silhouette is the backing, so the frame has no fill,
+    // does not scale, and clips FART to the growing silhouette (morphRect, in body coordinates).
+    property bool islandMorph: false
+    property rect morphRect: Qt.rect(0, 0, width, height)
+    // Grown from the island, the header and the room arrive as the panel drops.
+    readonly property real morphHeader: Math.max(0, Math.min(1, (unfold.body.progress - 0.5) / 0.4))
+    readonly property real morphRoom: Math.max(0, Math.min(1, (unfold.body.progress - 0.62) / 0.38))
     readonly property Shell shell: dashboard.item
     readonly property real bodyScale: unfold.bodyScale
     // Overdrive's black hole (docs/OVERDRIVE.md §8): with the engine on, the panel falls into the clock it came
@@ -92,22 +99,28 @@ Item {
     }
     Rectangle {
         id: frame
-        width: root.width
-        height: root.height
-        opacity: Math.min(1, root.unfold.body.value)
-        transform: [
-            Scale { origin.x: root.origin.x; origin.y: root.origin.y; xScale: root.bodyScale; yScale: root.bodyScale },
-            Scale { origin.x: root.origin.x; origin.y: root.origin.y; xScale: root.holeX; yScale: root.holeY },
-            Rotation { origin.x: root.origin.x; origin.y: root.origin.y; angle: root.holeAngle },
-            Translate { y: root.bodyRise }
-        ]
+        readonly property real clipLeft: root.islandMorph ? Math.max(0, root.morphRect.x) : 0
+        readonly property real clipTop: root.islandMorph ? Math.max(0, root.morphRect.y) : 0
+        x: clipLeft
+        y: clipTop
+        width: root.islandMorph ? Math.max(0, Math.min(root.width, root.morphRect.x + root.morphRect.width) - clipLeft) : root.width
+        height: root.islandMorph ? Math.max(0, Math.min(root.height, root.morphRect.y + root.morphRect.height) - clipTop) : root.height
+        opacity: root.islandMorph ? 1 : Math.min(1, root.unfold.body.value)
+        transform: root.islandMorph ? [] : [bodyScaleTransform, holeScaleTransform, holeRotation, riseTransform]
+        Scale { id: bodyScaleTransform; origin.x: root.origin.x; origin.y: root.origin.y; xScale: root.bodyScale; yScale: root.bodyScale }
+        Scale { id: holeScaleTransform; origin.x: root.origin.x; origin.y: root.origin.y; xScale: root.holeX; yScale: root.holeY }
+        Rotation { id: holeRotation; origin.x: root.origin.x; origin.y: root.origin.y; angle: root.holeAngle }
+        Translate { id: riseTransform; y: root.bodyRise }
         radius: root.cornerRadius
-        color: root.spaceShows ? (root.spaceOnOrbit ? "transparent" : Qt.alpha(Fart.Design.background, 0.62)) : Qt.alpha(Fart.Design.background, Fart.Design.panelOpacity)
+        color: root.islandMorph ? "transparent" : root.spaceShows ? (root.spaceOnOrbit ? "transparent" : Qt.alpha(Fart.Design.background, 0.62)) : Qt.alpha(Fart.Design.background, Fart.Design.panelOpacity)
         clip: true
         Keys.onEscapePressed: Host.close()
         Loader {
             id: dashboard
-            // Keep the dashboard layout stable throughout the reveal.
+            // Keep the dashboard layout stable throughout the reveal; grown from the island it stays put while the
+            // clip around it grows.
+            x: -frame.x
+            y: -frame.y
             width: root.width
             height: root.height
             active: root.retained || (root.keepShell && root.loadedOnce)
@@ -117,10 +130,10 @@ Item {
                 shell: root.context
                 core: root.core
                 page: root.page
-                headerReveal: root.unfold.header.value
-                headerRise: root.unfold.headerRise
-                roomReveal: root.unfold.room.value
-                roomRise: root.unfold.roomRise
+                headerReveal: root.islandMorph ? root.morphHeader : root.unfold.header.value
+                headerRise: root.islandMorph ? 0 : root.unfold.headerRise
+                roomReveal: root.islandMorph ? root.morphRoom : root.unfold.room.value
+                roomRise: root.islandMorph ? 0 : root.unfold.roomRise
                 onCurrentPageChanged: Host.page = currentPage
             }
             onLoaded: {
@@ -134,7 +147,7 @@ Item {
     // The event horizon: a ring at the clock that flares while the panel falls through it (Overdrive only).
     Rectangle {
         readonly property real flare: 4 * root.hole * (1 - root.hole)
-        visible: flare > 0.01
+        visible: flare > 0.01 && !root.islandMorph
         width: 10 + 70 * root.hole
         height: width
         radius: width / 2

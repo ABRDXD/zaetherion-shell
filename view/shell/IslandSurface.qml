@@ -13,12 +13,19 @@ FocusScope {
     property string motionLevel: "all"
     property bool systemVoice: true
     property real maximumWidth: Infinity
-    property real dockedWidth: 0
+    // The panel is open from this island: the island has grown into it (Overlay draws the growth), so its own row
+    // fades out and hover stays shut until the panel folds back.
+    property bool docked: false
+    // The width the island had when the panel took over: it holds it while docked, so the growth starts from and
+    // folds back into exactly that shape, then eases to its natural width.
+    property real dockWidth: 0
+    onDockedChanged: if (docked) dockWidth = width
     property bool pointerInside: hover.hovered
     property bool keyboardMode: false
     property bool hoverOpen: false
     property var workspaceIds: []
     property bool overdriveActive: false
+    property string arrangement: "framed"
     property CoreClient core: null
     property var startupNotice: null
     property bool trayOpen: false
@@ -71,7 +78,7 @@ FocusScope {
         }
     }
     readonly property int fadeDuration: motionLevel === "off" ? 0 : Math.min(120, Motion.feedback)
-    readonly property bool wings: hoverOpen || keyboardMode || trayOpen
+    readonly property bool wings: !docked && (hoverOpen || keyboardMode || trayOpen)
     readonly property bool geometryMotion: motionLevel === "all" || motionLevel === "reduced"
     readonly property int morphDuration: geometryMotion ? Motion.emphasis : 0
     readonly property int morphEasing: motionLevel === "all" ? Motion.roles.emphasis.easing : Easing.OutCubic
@@ -79,7 +86,8 @@ FocusScope {
     // when the clock gains seconds; the wings sit outside it.
     readonly property int centreWidth: wings && !expansion ? 500 : 420
     readonly property int restHeight: 36
-    readonly property int wingSpan: Math.max(224, 64 + host.tray.items.length * (Design.minHit + 8))
+    // Wide enough for the fuller side of the hovered row, actions at the shoulders included (IslandRest.wingNeed).
+    readonly property int wingSpan: Math.max(160, Math.ceil(restPane.item?.wingNeed ?? 0))
     signal openPanel(string room)
     signal togglePanel(string room)
     signal openPower()
@@ -88,7 +96,8 @@ FocusScope {
     signal openLog(string url)
     signal notificationAction(string id, string action, string reply)
 
-    implicitWidth: Math.min(maximumWidth, Math.max(dockedWidth, expansion ? (eventPane.item?.implicitWidth ?? centreWidth)
+    implicitWidth: docked && dockWidth > 0 ? dockWidth
+        : Math.min(maximumWidth, Math.max(0, expansion ? (eventPane.item?.implicitWidth ?? centreWidth)
         : centreWidth + (wings ? 2 * wingSpan : 0)))
     implicitHeight: expansion ? (eventPane.item?.implicitHeight ?? restHeight) : restHeight
     width: implicitWidth
@@ -158,7 +167,6 @@ FocusScope {
     IslandFrame {
         anchors.fill: parent
         bottomEdge: root.bottomEdge
-        alarm: root.expansion?.kind === "critical"
     }
     MouseArea {
         id: gesture
@@ -201,14 +209,19 @@ FocusScope {
 
     readonly property bool restVisible: !shownEvent || !outgoingEvent && eventFade.value < 1
     Loader {
+        id: restPane
         anchors.centerIn: parent
         width: Math.min(parent.width, root.centreWidth)
         height: root.restHeight
         active: !root.shownEvent || root.restVisible
-        opacity: root.shownEvent ? 1 - eventFade.value : root.outgoingEvent ? eventFade.value : 1
-        enabled: !root.expansion
+        opacity: (root.shownEvent ? 1 - eventFade.value : root.outgoingEvent ? eventFade.value : 1) * undocked.value
+        enabled: !root.expansion && !root.docked
         sourceComponent: IslandRest {
             host: root.host
+            arrangement: root.arrangement
+            reveal: wingReveal.value
+            onOpenTray: itemId => root.openTray(itemId)
+            reach: Math.max(0, (root.width - root.centreWidth) / 2)
             wings: root.wings && !root.expansion
             live: !root.expansion
             onOpenPanel: room => {
@@ -350,25 +363,18 @@ FocusScope {
     onPointerInsideChanged: if (!pointerInside) hoverOpen = false
 
     Cue {
-        id: reveal
+        id: undocked
+        on: !root.docked
+        scope: root
+        name: "island.dock"
+        enter: root.fadeDuration
+        exit: root.fadeDuration
+    }
+    Cue {
+        id: wingReveal
         on: root.wings && !root.expansion
         scope: root
         name: "island.wings"
         enter: root.fadeDuration
-    }
-    Loader {
-        anchors.fill: parent
-        active: (root.wings && !root.expansion) || reveal.value > 0
-        opacity: reveal.value
-        enabled: root.wings && !root.expansion
-        sourceComponent: IslandWings {
-            host: root.host
-            centreWidth: root.centreWidth
-            onOpenDevices: {
-                root.keyboardMode = false;
-                root.openPanel("devices");
-            }
-            onOpenTray: itemId => root.openTray(itemId)
-        }
     }
 }

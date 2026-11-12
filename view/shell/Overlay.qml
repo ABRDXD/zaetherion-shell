@@ -24,11 +24,25 @@ Scope {
     // The island wants the keyboard (Super+Shift+I while docked): the panel stays open and yields it
     // until the island lets go (Escape), then takes it back.
     property bool islandHasKeyboard: false
+    // The island's resting rect in screen coordinates. With an island at the edge the panel opens as the island
+    // itself growing: its silhouette (IslandFrame) grows from this rect to the panel's, revealing FART inside, and
+    // folds back into it. FART's header takes the island's place at the top.
+    property var islandRect: null
+    // The island's rect when this open began: the growth starts here and the fold returns here.
+    property var islandFrom: null
+    readonly property bool islandMorph: adjacentIslandGap >= 0 && !surface.full
     readonly property bool holdsKeyboard: opened && !body.shell?.externalDialogOpen && adjacentIslandGap >= 0
         && !islandHasKeyboard
     // The panel opens like a host popup and folds from wherever it is; a reversal takes the
     // time left (docs/CUES.md §9, §15). No scope: the surface's visibility depends on it.
-    Unfold { id: unfold; on: root.opened }
+    // Grown from the island, the open is slower than a popup so the bar can widen and then drop (owner,
+    // 12 November): 560 ms in, 320 ms back, through the host's time scale and motion levels.
+    Unfold {
+        id: unfold
+        on: root.opened
+        enter: root.islandMorph ? Cues.Motion.scaled(560) : Cues.Motion.unfold
+        exit: root.islandMorph ? Cues.Motion.scaled(320) : Cues.Motion.fold
+    }
     readonly property bool retained: opened || unfold.value > 0
     Binding { target: Cues.Motion; property: "reduced"; value: !ViewState.motionEnabled }
     // Overdrive follows the core's lease (docs/OVERDRIVE.md §1): only an active lease drives; a suspended one
@@ -94,6 +108,7 @@ Scope {
             const rect = from ?? root.host.clockGeometry.rectFor(surface.screen.name);
             body.edge = rect?.edge === "bottom" ? "bottom" : "top";
             body.origin = body.originFrom(rect, (surface.screen.width - surface.width) / 2);
+            root.islandFrom = from ?? root.islandRect;
         }
         currentPage = page;
         body.show(page);
@@ -112,10 +127,18 @@ Scope {
     // against: its Stratum is `gpu: false`, and the shader inside it has its own.
     readonly property string shownRoom: body.shell?.currentPage ?? root.currentPage
     readonly property var panelSpot: {
+        if (root.islandMorph) {
+            // Grown from the island: the body sits centred at the island's edge, inside the silhouette's shoulders.
+            const screenHeight = surface.screen?.height ?? 0;
+            const top = body.edge === "bottom" ? screenHeight - surface.height - root.adjacentIslandGap : root.adjacentIslandGap;
+            return Qt.rect(Math.round(((surface.screen?.width ?? surface.width) - body.width) / 2), top, body.width, surface.height);
+        }
         const mon = root.host.workspaces.monitors.find(m => m.name === surface.screen?.name);
         const top = body.edge === "bottom" ? (surface.screen?.height ?? 0) - surface.height - 8 : (mon?.reservedTop ?? 0) + 8;
         return Qt.rect(Math.round(((surface.screen?.width ?? surface.width) - surface.width) / 2), top, surface.width, surface.height);
     }
+    // The desktop field rules the panel's footprint; grown from the island it arrives once the growth is complete.
+    readonly property bool fieldReady: !root.islandMorph || (root.opened && surface.growP >= 1)
     Binding { target: Eigenmode; property: "desktop"; value: Qt.rect(0,0,surface.screen?.width ?? 1920,surface.screen?.height ?? 1080) }
     Binding { target: Eigenmode; property: "origin"; value: ViewState.fullscreen ? Qt.point(0,0) : Qt.point(root.panelSpot.x,root.panelSpot.y) }
     // What a closed panel leaves behind while Overdrive goes on: the room and the time, for a quarter of a minute.
@@ -142,11 +165,11 @@ Scope {
         wanted: !ViewState.fullscreen && (root.retained || root.residue !== "")
         sourceComponent: DesktopField {
             screen: surface.screen
-            panelRect: root.retained ? root.panelSpot : Qt.rect(0, 0, 0, 0)
+            panelRect: root.retained && root.fieldReady ? root.panelSpot : Qt.rect(0, 0, 0, 0)
             roomTurn: body.shell?.navigationPages.findIndex(p => p.id === root.shownRoom) ?? 0
             meridianX: {
                 const shell = body.shell;
-                if (!shell || !root.retained)
+                if (!shell || !root.retained || !root.fieldReady)
                     return -1;
                 const left = shell.sideOf(root.shownRoom) === "left";
                 const cut = shell.width < 920 ? 104 : 150;
@@ -279,10 +302,15 @@ Scope {
         anchors.right: full
         margins.top: full ? 0 : root.adjacentIslandGap >= 0 ? root.adjacentIslandGap : 8
         margins.bottom: full ? 0 : root.adjacentIslandGap >= 0 ? root.adjacentIslandGap : 8
-        exclusionMode: full ? ExclusionMode.Ignore : ExclusionMode.Normal
+        // Grown from the island, the panel covers the island's own reserved strip.
+        exclusionMode: full || root.islandMorph ? ExclusionMode.Ignore : ExclusionMode.Normal
         color: "transparent"
-        implicitWidth: full ? screen.width : Math.min(1360, screen.width - 24)
-        implicitHeight: full ? screen.height : Math.min(860, screen.height - (root.host.workspaces.monitors.find(m => m.name === screen.name)?.reservedTop || 0) - 32)
+        // Grown from the island, the surface also holds the bar's 84° shoulders on either side of the body.
+        readonly property real shoulderRun: (root.islandFrom?.height ?? root.islandRect?.height ?? 36) / Math.tan(84 * Math.PI / 180)
+        implicitWidth: full ? screen.width : root.islandMorph ? Math.min(screen.width, 1360 + 2 * Math.ceil(shoulderRun))
+            : Math.min(1360, screen.width - 24)
+        implicitHeight: full ? screen.height : root.islandMorph ? Math.min(860, screen.height - root.adjacentIslandGap - 32)
+            : Math.min(860, screen.height - (root.host.workspaces.monitors.find(m => m.name === screen.name)?.reservedTop || 0) - 32)
         WlrLayershell.namespace: "fart-control-centre"
         // The heavy layer takes the Top layer, under the panel.
         WlrLayershell.layer: full || heavy.up ? WlrLayer.Overlay : WlrLayer.Top
@@ -290,13 +318,46 @@ Scope {
         // while the island has the keyboard; the focus grab is paused meanwhile.
         WlrLayershell.keyboardFocus: !root.opened || body.shell?.externalDialogOpen || root.islandHasKeyboard ? WlrKeyboardFocus.None
             : root.adjacentIslandGap >= 0 ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.OnDemand
-        mask: Region { item: body.shape; radius: body.cornerRadius * body.bodyScale }
+        mask: Region { item: root.islandMorph ? growth : body.shape; radius: root.islandMorph ? 0 : body.cornerRadius * body.bodyScale }
         BackgroundEffect.blurRegion: Fart.Design.blur && surface.visible && !heavy.showing ? frameRegion : null
-        Region { id: frameRegion; item: body.shape; radius: body.cornerRadius * body.bodyScale }
+        Region { id: frameRegion; item: root.islandMorph ? growth : body.shape; radius: root.islandMorph ? 0 : body.cornerRadius * body.bodyScale }
+
+        // The island growing, in two eased phases over the body track: the bar first widens to the panel's width,
+        // keeping its 84° ends, then the panel drops straight down from it. Folding retraces both.
+        readonly property real growP: unfold.body.progress
+        readonly property real growT: Math.max(0, Math.min(1, unfold.body.value))
+        function easeOut(p: real): real { const q = 1 - Math.max(0, Math.min(1, p)); return 1 - q * q * q; }
+        function easeInOut(p: real): real {
+            const t = Math.max(0, Math.min(1, p));
+            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        }
+        readonly property real widen: easeOut(growP / 0.4)
+        readonly property real drop: easeInOut((growP - 0.3) / 0.7)
+        readonly property rect fromRect: {
+            const r = root.islandFrom ?? root.islandRect;
+            if (!r) return Qt.rect(width / 2 - 210, body.edge === "bottom" ? height - 36 : 0, 420, 36);
+            const left = ((screen?.width ?? width) - width) / 2;
+            return Qt.rect(r.x - left, body.edge === "bottom" ? height - r.height : 0, r.width, r.height);
+        }
+        Fart.IslandFrame {
+            id: growth
+            visible: root.islandMorph
+            bottomEdge: body.edge === "bottom"
+            shoulderDepth: surface.fromRect.height
+            x: surface.fromRect.x * (1 - surface.widen)
+            width: surface.fromRect.width + (surface.width - surface.fromRect.width) * surface.widen
+            height: surface.fromRect.height + (surface.height - surface.fromRect.height) * surface.drop
+            y: body.edge === "bottom" ? surface.height - height : 0
+            // The first moments fade over the resting island underneath, so its row can fade out in place.
+            opacity: Math.min(1, surface.growP / 0.08)
+        }
         PanelBody {
             id: body
-            width: surface.width
+            width: root.islandMorph ? Math.min(1360, surface.width) : surface.width
+            x: (surface.width - width) / 2
             height: surface.height
+            islandMorph: root.islandMorph
+            morphRect: Qt.rect(growth.x - x, growth.y, growth.width, growth.height)
             host: root.host
             core: root.core
             context: context

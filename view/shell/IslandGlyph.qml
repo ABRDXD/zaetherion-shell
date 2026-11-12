@@ -7,6 +7,8 @@ AbstractButton {
     required property string glyph
     required property string description
     property bool signalDot: false
+    // A status indicator rather than an action: the muted role until hovered or focused, at the same size.
+    property bool quiet: false
     property url imageSource
     implicitWidth: Design.minHit
     implicitHeight: Design.minHit
@@ -30,7 +32,7 @@ AbstractButton {
             anchors.fill: parent
             text: root.glyph
             iconSize: Design.readout
-            color: plate.textColor
+            color: root.quiet && plate.role === "clear" ? Design.muted : plate.textColor
             visible: image.status !== Image.Ready
         }
         Image {

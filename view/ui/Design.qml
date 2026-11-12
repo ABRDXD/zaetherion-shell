@@ -25,25 +25,28 @@ Singleton {
         function onBlurChanged() { root.refresh(); }
         function onMonoFamilyChanged() { root.refresh(); }
     }
-    readonly property color background: palette.background ?? "#0d1218"
-    readonly property color surface: palette.surface ?? "#151c24"
-    readonly property color hover: palette.surfaceRaised ?? "#202b36"
-    readonly property color ink: palette.text ?? "#edf0ed"
-    readonly property color muted: palette.textMuted ?? "#b5c0c9"
-    readonly property color faint: palette.textFaint ?? "#9aa9b5"
-    readonly property color line: palette.line ?? "#4b5b67"
-    readonly property color accent: palette.accent ?? "#a5cfdf"
-    readonly property color warm: palette.warm ?? "#f4bc62"
+    // Built-in palette: DMS's Amoled Black theme, black flavour, white accent (owner, 12 November 2026). A host
+    // palette overrides any role. The theme's raised surface is also black, so hover is derived from it.
+    readonly property color background: palette.background ?? "#000000"
+    readonly property color surface: palette.surface ?? "#000000"
+    readonly property color hover: palette.surfaceRaised && !Qt.colorEqual(palette.surfaceRaised, surface)
+        ? palette.surfaceRaised : Qt.tint(surface, Qt.alpha(ink, 0.10))
+    readonly property color ink: palette.text ?? "#e6f0ff"
+    readonly property color muted: palette.textMuted ?? "#999999"
+    readonly property color faint: palette.textFaint ?? "#999999"
+    readonly property color line: palette.line ?? "#555555"
+    readonly property color accent: palette.accent ?? "#ffffff"
+    readonly property color warm: palette.warm ?? "#ffcc00"
     readonly property color warning: warm
-    readonly property color danger: palette.danger ?? "#ff4b55"
+    readonly property color danger: palette.danger ?? "#dd0000"
     readonly property color recording: danger
     readonly property color selected: palette.highlight ?? ink
     readonly property color mediaAccent: palette.highlight ?? ink
     readonly property color calendarAccent: palette.warm ?? ink
     readonly property color buttonSurface: palette.surface ?? "transparent"
-    readonly property color portraitText: palette.text ?? "#f5f6f2"
-    readonly property color portraitDetail: palette.textMuted ?? "#ced9df"
-    readonly property color success: palette.success ?? "#a7d8b5"
+    readonly property color portraitText: palette.text ?? "#ffffff"
+    readonly property color portraitDetail: palette.textMuted ?? "#999999"
+    readonly property color success: palette.success ?? accent
     readonly property color islandFill: darkestIslandRole(palette)
 
     function linearChannel(value: real): real {

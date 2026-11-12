@@ -16,6 +16,7 @@ ShellRoot {
     readonly property string outputName: Quickshell.env("ZAETHERION_FIXTURE_OUTPUT")
     readonly property string edge: Quickshell.env("ZAETHERION_FIXTURE_EDGE")
     readonly property string placement: Quickshell.env("ZAETHERION_FIXTURE_PLACEMENT")
+    property string arrangement: Quickshell.env("ZAETHERION_FIXTURE_LAYOUT") || "framed"
     readonly property var target: outputName
         ? Quickshell.screens.find(screen => screen.name === outputName) ?? null
         : Quickshell.screens.length === 1 ? Quickshell.screens[0] : null
@@ -34,6 +35,7 @@ ShellRoot {
         core: core
         companionWindows: island.companionWindow ? [island.companionWindow] : []
         adjacentIslandGap: island.edgeGap
+        islandRect: island.islandRect
         islandHasKeyboard: island.companionWindow?.wantsKeyboard ?? false
     }
     function showPanel(room: string): void {
@@ -105,10 +107,10 @@ ShellRoot {
         workspaceIds: ["1", "2", "3", "4", "5", "6", "7"]
         overdriveActive: root.overdrive
         keyboardPeer: panel.holdsKeyboard
+        arrangement: root.arrangement
         onOpenPanel: room => root.showPanel(room)
         onTogglePanel: room => root.togglePanel(room)
-        // Allow for both 84° shoulders so the inside edge meets the body.
-        dockedWidth: panel.retained && root.target ? Math.min(1360, root.target.width - 24) + 8 : 0
+        docked: panel.retained
         onOpenPower: root.powerPreview = !root.powerPreview
         onIgnite: root.overdrive = true
         onNotificationAction: (id, action, reply) => fixture.notifications.record("action", [id, action, reply])
@@ -147,6 +149,12 @@ ShellRoot {
         function track(): void {
             fixture.media.active = Object.assign({}, fixture.media.active,
                 { title: ++root.sampleId % 2 ? "Fixture Horizon" : "Fixture Signal" });
+        }
+        function layout(name: string): void { root.arrangement = name; }
+        function nomedia(): void { fixture.media.active = null; }
+        function trayItems(count: int): void {
+            fixture.tray.items = Array.from({ length: Math.max(0, count) }, (_, i) =>
+                ({ id: "sample-" + i, title: "Sample tray item " + (i + 1), icon: "", status: "active", hasMenu: i === 0 }));
         }
         function title(text: string): void {
             fixture.media.active = Object.assign({}, fixture.media.active, { title: text });

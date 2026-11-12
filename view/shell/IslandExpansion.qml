@@ -38,12 +38,12 @@ Item {
         }
     }
     readonly property bool noticeKind: kind === "notification" || kind === "critical"
-    // Content keeps clear of the 84° shoulders at the deepest row, and of the 4 px facet.
+    // Content keeps clear of the 84° shoulders at the deepest row. The frame is matte, with no facet to clear.
     readonly property real shoulderSlope: 1 / Math.tan(84 * Math.PI / 180)
     // A notice is sized by its text, so its inset uses the deepest notice, not its own depth.
     readonly property real sideInset: Math.ceil(12 + (noticeKind ? 140 : shape(kind).height) * shoulderSlope)
     readonly property int edgePad: 10
-    readonly property int facet: 4
+    readonly property int facet: 0
     readonly property real noticeContent: noticeKind && face.item ? face.item.implicitHeight : 0
     implicitWidth: shape(kind).width
     implicitHeight: noticeKind

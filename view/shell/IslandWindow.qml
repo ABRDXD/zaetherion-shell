@@ -13,7 +13,7 @@ Scope {
     property bool systemVoice: true
     signal openPanel(string room)
     signal togglePanel(string room)
-    property real dockedWidth: 0
+    property bool docked: false
     readonly property var companionWindow: layer.active ? layer.item : null
     readonly property var islandRect: companionWindow?.islandRect ?? null
     signal openPower()
@@ -25,6 +25,7 @@ Scope {
     property var startupNotice: null
     // Another surface (the docked panel) holds Exclusive keyboard focus and must let go first.
     property bool keyboardPeer: false
+    property string arrangement: "framed"
     signal openLog(string url)
     function focusIsland(): void { companionWindow?.focusIsland(); }
     function openTray(itemId: string): void { companionWindow?.openTray(itemId); }
@@ -52,7 +53,7 @@ Scope {
             readonly property bool wantsKeyboard: frame.wantsKeyboard
             readonly property var islandRect: ({
                 x: ((root.output?.width ?? frame.width) - frame.width) / 2,
-                y: root.bottomEdge ? (root.output?.height ?? frame.height) - height : root.edgeGap,
+                y: root.bottomEdge ? (root.output?.height ?? frame.height) - root.edgeGap - frame.height : root.edgeGap,
                 width: frame.width, height: frame.height, edge: root.bottomEdge ? "bottom" : "top"
             })
             function focusIsland(): void { frame.enterKeyboard(); }
@@ -63,9 +64,13 @@ Scope {
             screen: root.output
             anchors.top: !root.bottomEdge
             anchors.bottom: root.bottomEdge
-            // The transparent gap is inside the surface. A layer-shell margin would add to the reserved zone.
-            implicitWidth: frame.width
-            implicitHeight: frame.height + root.edgeGap
+            // The surface never resizes: a layer surface resized every frame of a morph shows stretched frames (the
+            // click-to-panel jitter). It spans the output and the deepest face; the island morphs inside it, the
+            // mask keeps input to the island, and the transparent gap is inside it (a layer-shell margin would add
+            // to the reserved zone).
+            readonly property int deepest: 160
+            implicitWidth: root.output?.width ?? frame.width
+            implicitHeight: deepest + root.edgeGap
             exclusiveZone: frame.restHeight
             color: "transparent"
             WlrLayershell.namespace: "zaetherion-island"
@@ -80,17 +85,19 @@ Scope {
                 maximumWidth: root.output?.width ?? 420
                 motionLevel: root.motionLevel
                 systemVoice: root.systemVoice
-                y: root.bottomEdge ? 0 : root.edgeGap
+                x: Math.round((panel.width - width) / 2)
+                y: root.bottomEdge ? panel.height - root.edgeGap - height : root.edgeGap
                 bottomEdge: root.bottomEdge
                 onOpenPanel: room => root.openPanel(room)
                 onTogglePanel: room => root.togglePanel(room)
-                dockedWidth: root.dockedWidth
+                docked: root.docked
                 onOpenPower: root.openPower()
                 workspaceIds: root.workspaceIds
                 overdriveActive: root.overdriveActive
                 core: root.core
                 startupNotice: root.startupNotice
                 keyboardPeer: root.keyboardPeer
+                arrangement: root.arrangement
                 onOpenLog: url => root.openLog(url)
                 trayOpen: panel.trayItem !== ""
                 onOpenTray: itemId => panel.openTray(itemId)
@@ -108,8 +115,8 @@ Scope {
                 active: panel.trayItem !== ""
                 PopupWindow {
                     anchor.window: panel
-                    anchor.rect: Qt.rect(Math.max(0, frame.width - implicitWidth - 16), root.bottomEdge ? 0 : panel.height,
-                                         implicitWidth, 0)
+                    anchor.rect: Qt.rect(Math.max(0, frame.x + frame.width - implicitWidth - 16),
+                                         root.bottomEdge ? frame.y : frame.y + frame.height, implicitWidth, 0)
                     anchor.edges: root.bottomEdge ? Edges.Top : Edges.Bottom
                     anchor.gravity: root.bottomEdge ? Edges.Top : Edges.Bottom
                     grabFocus: true

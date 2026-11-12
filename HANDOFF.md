@@ -1,3 +1,12 @@
+# 12 November 2026 · Opus: island grows into FART; Framed, matte, Amoled Black
+
+- **Owner-approved** (Z149–Z152): the Framed layout; the island widening into a bar and dropping into FART, then folding back; a matte fill; DMS Amoled Black as the built-in palette. The layout review and growth animation are in `docs/ui/` (see its README).
+- **Jitter fixed.** The island's surface no longer resizes during morphs, and the island holds its shape while FART grows from it. Recorded at 60 fps in nested Hyprland: the centre held within 0.5 px, and both open and fold were monotonic.
+- **Checks.** `test_island` 4/4, layout, contract and qmldirs OK, `qmllint` 0 syntax diagnostics. Nested: the docked focus handover passed 6/6, and an exact reply arrived once.
+- **Open for the owner.** Z134: FART's header now covers the island, so should a click on the header's empty area fold FART back? Z148: should Super+Shift+I fold FART back into the island and focus it? The island is hidden while FART is open.
+- **For Sol.** `Overlay` and `PanelBody` gained an island-growth path (`islandMorph`, `islandRect`, `islandFrom`, `morphRect`); without an adjacent island the panel behaves as before. When the island joins `shell.qml`, wire `docked`, `islandRect` and `keyboardPeer` as the fixture does. `IslandWings.qml` is unused now; deleting it waits for the owner's word. The Mirror and Sides arrangements are still selectable for comparison.
+- **Next.** FARTland // Fluid (Z145) as a second form of the same island.
+
 # 12 November 2026 · Opus: island reply fix, Angular pass and wider media pill
 
 - **Reply bug fixed.** When an OSD covered a notification, keyboard interactivity dropped to None and then returned to OnDemand. Hyprland gives click focus to an OnDemand layer only after the pointer moves, so the field took focus in Qt while the window stayed inactive and Enter delivered nothing. A queued reply draft now keeps OnDemand. A field that takes focus in an inactive window briefly claims Exclusive. The field regains focus when its notification returns, and Send dismisses the notification. Hidden nested Hyprland ran Sol's exact steps 3 times and the no-second-click path 3 times. Each run delivered `Synthetic reply` once, and `configerrors` was empty. Hyprland still drops the first click when the island grows under a pointer that has not moved.
