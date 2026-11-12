@@ -62,7 +62,7 @@ class Stand:
 
 
 class Harness:
-    def __init__(self, socket_path: str, directory: Path, harness: str = "AdapterHarness.qml"):
+    def __init__(self, socket_path: str, directory: Path, harness: str = "AdapterHarness.qml", env_extra: dict | None = None):
         self.dir = directory
         bundle = directory / "bundle"
         bundle.mkdir()
@@ -79,6 +79,7 @@ class Harness:
                    HYPRLAND_INSTANCE_SIGNATURE="", WAYLAND_DISPLAY="", PIPEWIRE_RUNTIME_DIR="/nonexistent/fart-fixture",
                    DBUS_SYSTEM_BUS_ADDRESS="unix:path=/nonexistent/fart-fixture",
                    DBUS_SESSION_BUS_ADDRESS="unix:path=/nonexistent/fart-fixture")
+        env.update(env_extra or {})        # e.g. the nested compositor's WAYLAND_DISPLAY, HYPRLAND_INSTANCE_SIGNATURE, XDG_RUNTIME_DIR
         self.env = env
         self.log = open(directory / "qs.log", "w")
         self.process = subprocess.Popen(["qs", "-n", "--no-color", "-p", str(self.entry)], env=env, stdin=subprocess.DEVNULL,
@@ -91,7 +92,7 @@ class Harness:
             if self.process.poll() is not None:
                 raise RuntimeError("qs exited early:\n" + self.output())
             done = self._ipc("call", "t", "state", check=False)
-            if done.returncode == 0:
+            if done.returncode == 0 and done.stdout.lstrip().startswith("{"):     # "No instance found" can exit 0
                 return
             time.sleep(0.05)
         raise RuntimeError("qs did not answer over ipc:\n" + self.output())
@@ -102,7 +103,7 @@ class Harness:
 
     def ipc(self, function: str, *args: str, target: str = "t") -> str:
         done = self._ipc("call", target, function, *args)
-        if done.returncode != 0:
+        if done.returncode != 0 or "No instance found" in done.stdout + done.stderr:
             raise RuntimeError(f"ipc {function} failed: {done.stderr or done.stdout}")
         return done.stdout.strip()
 

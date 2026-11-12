@@ -10,6 +10,7 @@ CONTRACT = ROOT / "view/contract"
 # Contract domain -> DMS-backed implementation in adapters/dms. Extended as domains arrive.
 DOMAINS = {
     "NetworkDomain": "DmsNetwork.qml",
+    "PowerDomain": "DmsPower.qml",
 }
 # Leases the DMS-backed domains serve, per file.
 LEASES = {"DmsNetwork.qml": {"details", "scan"}}
@@ -54,10 +55,12 @@ class DmsContract(unittest.TestCase):
 
     def test_the_clipboard_service_is_never_named(self):
         # DMS's clipboard history is off for this owner (cliphist records, F2-4). Only a DMS-backed clipboard domain,
-        # inside a holds("history") guard, may name it; none exists, so nothing in adapters/dms may.
+        # inside a holds("history") guard, may name the service or its methods; none exists, so nothing here may.
+        # (The cliphist clipboard domain is wired by DmsAdapter under its own name; that is not DMS's service.)
+        named = re.compile(r"""["']clipboard|clipboard\.(get|set|clear|delete|pin)""", re.I)
         for source in sorted(DMS.iterdir()):
             if source.suffix in (".qml", ".js"):
-                self.assertNotIn("clipboard", source.read_text().lower(), source.name)
+                self.assertIsNone(named.search(source.read_text()), source.name)
 
     def test_a_subscribe_is_only_built_by_the_machine_and_always_with_services(self):
         for source in sorted(DMS.iterdir()):

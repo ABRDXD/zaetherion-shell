@@ -195,6 +195,26 @@ class Contract(Base):
         self.assertEqual((state["untested"], state["apiVersion"], state["subscribed"]), (True, 39, ["network"]))
 
 
+class Composition(Base):
+    def test_the_adapter_fills_its_domains_with_the_right_implementations(self):
+        stand, harness = self.start()
+        self.ready(harness)
+        got = json.loads(harness.ipc("domains"))
+        time.sleep(0.5)                                                            # deferred domains are created by URL
+        got = json.loads(harness.ipc("domains"))
+        expected = {"media": "QuickshellMedia", "audio": "QuickshellAudio", "network": "DmsNetwork",
+                    "workspaces": "HyprlandWorkspaces", "power": "DmsPower",
+                    "tray": "QuickshellTray", "keybinds": "HyprlandKeybinds", "lyrics": "LyricsSource",
+                    "clipboard": "CliphistClipboard", "system": "LinuxSystem"}
+        for domain, kind in expected.items():
+            self.assertTrue(got[domain].startswith(kind), f"{domain}: {got[domain]}")
+        self.assertTrue(got["powerAvailable"] and got["trayAvailable"] and got["mediaAvailable"])
+        self.assertEqual(got["trayItems"], 0)                                      # no tray host in the offscreen run
+        output = harness.output()
+        for bad in ("ReferenceError:", "TypeError:", "Cannot assign", "Unable to assign", "is not a type", "Binding loop", "dms: "):
+            self.assertNotIn(bad, output, output[-2500:])
+
+
 class Leases(Base):
     def test_the_list_is_network_alone_with_no_view_lease(self):
         stand, harness = self.start()

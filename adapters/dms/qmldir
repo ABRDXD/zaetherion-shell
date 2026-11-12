@@ -4,3 +4,4 @@ DmsAdapter 1.0 DmsAdapter.qml
 DmsFeed 1.0 DmsFeed.qml
 DmsLink 1.0 DmsLink.qml
 DmsNetwork 1.0 DmsNetwork.qml
+DmsPower 1.0 DmsPower.qml
