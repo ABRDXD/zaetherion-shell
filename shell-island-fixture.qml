@@ -34,6 +34,7 @@ ShellRoot {
         core: core
         companionWindows: island.companionWindow ? [island.companionWindow] : []
         adjacentIslandGap: island.edgeGap
+        islandHasKeyboard: island.companionWindow?.wantsKeyboard ?? false
     }
     function showPanel(room: string): void {
         panel.openPage(room, { screen: target?.name ?? "", from: island.islandRect });
@@ -103,6 +104,7 @@ ShellRoot {
         systemVoice: Quickshell.env("ZAETHERION_FIXTURE_VOICE") !== "plain"
         workspaceIds: ["1", "2", "3", "4", "5", "6", "7"]
         overdriveActive: root.overdrive
+        keyboardPeer: panel.holdsKeyboard
         onOpenPanel: room => root.showPanel(room)
         onTogglePanel: room => root.togglePanel(room)
         // Allow for both 84° shoulders so the inside edge meets the body.
@@ -123,7 +125,8 @@ ShellRoot {
             return JSON.stringify({ panelOpen: panel.opened, panelRetained: panel.retained,
                 island: island.islandRect, overdrive: root.overdrive, notificationActions: calls.length,
                 draftLength: island.companionWindow?.draftLength ?? 0,
-                lastNotificationAction: args[1] ?? "", lastReplyLength: args[2]?.length ?? 0 });
+                lastNotificationAction: args[1] ?? "", lastReplyLength: args[2]?.length ?? 0,
+                lastReply: args[2] ?? "", keyboard: island.companionWindow?.keyboardRequest ?? "" });
         }
         function focus(): void { island.focusIsland(); }
         function tray(): void { island.openTray("sample"); }
@@ -144,6 +147,9 @@ ShellRoot {
         function track(): void {
             fixture.media.active = Object.assign({}, fixture.media.active,
                 { title: ++root.sampleId % 2 ? "Fixture Horizon" : "Fixture Signal" });
+        }
+        function title(text: string): void {
+            fixture.media.active = Object.assign({}, fixture.media.active, { title: text });
         }
         function volume(level: real): void {
             fixture.osd.event = { kind: "volume", level: Math.max(0, Math.min(1, level)), muted: false };

@@ -23,6 +23,8 @@ Scope {
     property bool overdriveActive: false
     property CoreClient core: null
     property var startupNotice: null
+    // Another surface (the docked panel) holds Exclusive keyboard focus and must let go first.
+    property bool keyboardPeer: false
     signal openLog(string url)
     function focusIsland(): void { companionWindow?.focusIsland(); }
     function openTray(itemId: string): void { companionWindow?.openTray(itemId); }
@@ -46,6 +48,8 @@ Scope {
             id: panel
             property string trayItem: ""
             readonly property int draftLength: frame.draftLength
+            readonly property string keyboardRequest: frame.keyboardRequest
+            readonly property bool wantsKeyboard: frame.wantsKeyboard
             readonly property var islandRect: ({
                 x: ((root.output?.width ?? frame.width) - frame.width) / 2,
                 y: root.bottomEdge ? (root.output?.height ?? frame.height) - height : root.edgeGap,
@@ -66,8 +70,8 @@ Scope {
             color: "transparent"
             WlrLayershell.namespace: "zaetherion-island"
             WlrLayershell.layer: WlrLayer.Top
-            WlrLayershell.keyboardFocus: frame.keyboardFocus ? WlrKeyboardFocus.Exclusive
-                : frame.noticeVisible ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+            WlrLayershell.keyboardFocus: frame.keyboardRequest === "exclusive" ? WlrKeyboardFocus.Exclusive
+                : frame.keyboardRequest === "ondemand" ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
             mask: Region { item: frame }
 
             IslandSurface {
@@ -86,6 +90,7 @@ Scope {
                 overdriveActive: root.overdriveActive
                 core: root.core
                 startupNotice: root.startupNotice
+                keyboardPeer: root.keyboardPeer
                 onOpenLog: url => root.openLog(url)
                 trayOpen: panel.trayItem !== ""
                 onOpenTray: itemId => panel.openTray(itemId)
