@@ -1,16 +1,18 @@
 """fart-next launcher checks; they never start a view or touch live state."""
+import fcntl
 import json
 from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import Mock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 import contextlib
 import io
 
-from fart_next import parser, placement, seed_state, split_verb
+from fart_next import parser, placement, seed_state, split_verb, stop_core
 
 
 class SeedStateTests(unittest.TestCase):
@@ -81,4 +83,26 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(self.parse("key", "up").edge, "up")
         self.refused("key", "sideways")
         self.assertEqual(split_verb(["key", "down"]), (False, None))  # a builtin, not a verb
+
+
+class StopCoreTests(unittest.TestCase):
+    def test_stop_waits_for_the_core_lock_after_socket_removal(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            runtime = Path(tmp)
+            socket_path = runtime / "core.sock"
+            socket_path.touch()
+            connection = Mock()
+            connection.request.side_effect = lambda op: socket_path.unlink()
+
+            with (runtime / "core.lock").open("a") as daemon_lock:
+                fcntl.flock(daemon_lock, fcntl.LOCK_EX)
+                # The old daemon finishes exiting on the next wait after unlinking its socket.
+                with (patch("fart_next.connect", return_value=connection),
+                      patch("fart_next.runtime", return_value=runtime),
+                      patch("fart_next.stop_legacy_view"),
+                      patch("fart_next.time.sleep", side_effect=lambda _: fcntl.flock(daemon_lock, fcntl.LOCK_UN)) as wait):
+                    stop_core()
+
+                connection.request.assert_called_once_with("shutdown")
+                wait.assert_called_once()
 

@@ -6,6 +6,15 @@ Rules carried over from FART-next:
 - Exclude runs interrupted by user input.
 - Measure before claiming.
 
+## Performance priorities
+
+Match DMS's functionality and responsiveness first. Compare performance on the same tasks, hardware, display mode and power state.
+
+- Keep idle CPU use and wakeups as close to zero as practical. Evaluate both alongside memory use. A smaller shell that wakes the CPU more often can use more battery.
+- Aim for consistent 144 Hz animation when the system can sustain it. Measure presented frames and their spacing.
+- Check that memory stabilizes after warm-up across repeated interactions. Report RSS, PSS and private dirty separately, with shared mappings noted.
+- Update background widgets when their underlying state changes. Stop expensive animations and rendering in hidden rooms.
+
 ## Total (Z60)
 
 **ZÆTHERION's total must be no larger than Serpantinum plus FART-next's total.** Its total is the resident process, the warm panel, `fartd` and `dms`, measured as PSS. The comparison total is re-measured quietly at S0.

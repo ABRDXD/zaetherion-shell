@@ -4,7 +4,7 @@
 
 FART started as a dynamic-island-style control centre that ran beside a host shell. The host owned everything else: the bar, launcher, notifications, OSD, wallpaper, lock, idle, polkit, screenshots, settings. Each of those had its own look and its own costs. ZÆTHERION is FART grown into the whole shell, so every surface speaks one design language and follows one rule about cost.
 
-The goal: **the most distinctive daily driver possible, which still costs nothing when it has nothing to do.**
+The goal is to **match DMS's functionality and responsiveness, then outperform it in the areas we can measure.** ZÆTHERION is a desktop control centre with orbital navigation, spacetime distortions, animated geometry, and a fictional creature that maintains an archive.
 
 ## Principles
 

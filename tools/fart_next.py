@@ -270,10 +270,22 @@ def stop_core():
         connection.close()
         path = runtime() / "core.sock"
         for _ in range(240):
-            if not path.exists():
+            if not path.exists() and core_lock_free(path.parent):
                 break
             time.sleep(0.025)
     stop_legacy_view()
+
+
+def core_lock_free(folder: Path) -> bool:
+    """The core unlinks its socket before it exits and drops core.lock; a start in that gap
+    launches a core that finds the lock held and quits. Probe under launch.lock, so no start is mid-launch."""
+    with (folder / "launch.lock").open("a") as launch, (folder / "core.lock").open("a") as lock:
+        fcntl.flock(launch, fcntl.LOCK_EX)
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return False
+    return True
 
 
 def stop_legacy_view():
