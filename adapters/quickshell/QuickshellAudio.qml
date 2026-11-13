@@ -12,6 +12,8 @@ AudioDomain {
     readonly property var deviceNodes: nodes.filter(n => n.audio && !n.isStream)
     readonly property var streamNodes: nodes.filter(n => n.audio && n.isStream && n.isSink)
     readonly property bool mixing: holds("mixer")
+    // The OSD, if this process has one: a level set from our own UI does not also show on the island.
+    property var osd: null
     function name(n) { return n.nickname || n.description || n.name; }
     // Null until the tracker has bound the node, so a waiting host call never reads or sets a stale level.
     function endpoint(n) {
@@ -30,11 +32,15 @@ AudioDomain {
 
     function setVolume(endpointId: string, level: real) {
         const n = node(endpointId);
-        if (n?.audio) n.audio.volume = Math.max(0, Math.min(1, level));
+        if (!n?.audio) return;
+        osd?.hush();
+        n.audio.volume = Math.max(0, Math.min(1, level));
     }
     function setMuted(endpointId: string, muted: bool) {
         const n = node(endpointId);
-        if (n?.audio) n.audio.muted = muted;
+        if (!n?.audio) return;
+        osd?.hush();
+        n.audio.muted = muted;
     }
     function setDefault(kind: string, deviceId: string) {
         const n = node(deviceId);

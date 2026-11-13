@@ -39,6 +39,12 @@ function needs(s) {
     return out.sort();
 }
 
+// S9a: DMS sends a change as "<service>.update" (brightness: {device}), beside the whole snapshot. It belongs to its
+// service: it arrives, is cached and is dropped with it, under its own name.
+function owner(service) {
+    return service.endsWith(".update") ? service.slice(0, -".update".length) : service;
+}
+
 function sameList(a, b) {
     return a.length === b.length && a.every((v, i) => v === b[i]);
 }
@@ -247,7 +253,7 @@ function onSettle(c) {
         const want = needs(s);
         if (sameList(want, s.subscribed)) return;                // S6
         for (const service of Object.keys(s.cache).sort()) {     // S4
-            if (want.indexOf(service) < 0) {
+            if (want.indexOf(owner(service)) < 0) {
                 s.cache = Object.assign({}, s.cache);
                 delete s.cache[service];
                 c.fx.push({ type: "state", service: service, data: null });
@@ -314,7 +320,7 @@ function onEventLine(c, msg) {
         c.fx.push({ type: "settleSoon" });
         return;
     }
-    if (s.subscribed.indexOf(r.service) < 0) {                   // S10
+    if (s.subscribed.indexOf(owner(r.service)) < 0) {            // S10, S9a
         c.fx.push({ type: "log", text: "dms: event for an unsubscribed service" });
         return;
     }

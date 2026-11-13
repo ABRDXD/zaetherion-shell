@@ -16,6 +16,8 @@ QtObject {
     readonly property bool usable: link.phase === "ready" && link.capabilities.indexOf(capability) >= 0
     // The last snapshot, or null while unwanted or unusable.
     readonly property var data: wanted && usable ? (link.snapshots[service] ?? null) : null
+    // The last "<service>.update" event (S9a), for services that send changes that way (brightness), or null.
+    readonly property var update: wanted && usable ? (link.snapshots[service + ".update"] ?? null) : null
 
     function register() { link.addFeed(key, service, capability, wanted); }
     onWantedChanged: if (key !== "") register()

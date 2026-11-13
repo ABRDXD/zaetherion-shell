@@ -90,4 +90,12 @@ quickshell/Services/NotificationService.qml at commit
 Popups, grouping, history, rules and dedupe are not taken; the list is kept by
 our own core.
 
+adapters/quickshell/QuickshellOsd.qml and adapters/quickshell/OsdChange.js
+follow the volume and mic OSD triggers (show on a level or mute change, a quiet
+2 s after start and after our own UI sets a level) of
+quickshell/Modules/OSD/VolumeOSD.qml and quickshell/Common/SessionData.qml at
+v2.1.0 of duxlabs-dev/dux-shell; no code is copied. tools/dms_quiet.py writes a
+local, unpublished copy of the installed DMS UI with its notification server
+removed.
+
 S8 palette catalogue: adapters/common/palette_sources.py reads installed Serpantinum and DMS JSON at runtime; no theme files or upstream implementation are bundled. The Amoled Black fallback repeats the DMS colour values already used by view/ui/Design.qml (DMS MIT notice above). The ten AMOLED studies and palette picker implementation are original ZÆTHERION work.

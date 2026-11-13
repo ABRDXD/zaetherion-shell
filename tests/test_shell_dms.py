@@ -12,10 +12,12 @@ def body(text):
 
 
 # DMS's socket follows the core's supervisor topic (it changes with every DMS restart); DMS_SOCKET without a core.
+# The OSD lives where the island lives (Z172).
 ADAPTER = """    DmsAdapter {
         id: adapter
         core: client
         role: "shell"
+        osdWanted: root.islandWanted
         socketPath: client.connected ? (client.supervisorData?.children?.dms?.socket ?? "") : (Quickshell.env("DMS_SOCKET") ?? "")
     }"""
 

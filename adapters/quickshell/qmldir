@@ -6,5 +6,6 @@ QuickshellMedia 1.0 QuickshellMedia.qml
 QuickshellMenuNode 1.0 QuickshellMenuNode.qml
 QuickshellNotification 1.0 QuickshellNotification.qml
 QuickshellNotificationServer 1.0 QuickshellNotificationServer.qml
+QuickshellOsd 1.0 QuickshellOsd.qml
 QuickshellPowerSource 1.0 QuickshellPowerSource.qml
 QuickshellTray 1.0 QuickshellTray.qml

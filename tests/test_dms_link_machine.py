@@ -412,6 +412,21 @@ class MachineTests(unittest.TestCase):
         self.assertEqual(out["changed"][0]["data"]["wifiEnabled"], False)
         self.assertEqual(out["cache"], {"network": {"wifiEnabled": False, "list": [1, 2]}})
 
+    def test_S9a_an_update_event_belongs_to_its_service(self):
+        out = self.js("""
+          toReady(); feed("b", "brightness", "brightness"); go({type: "settle"}); go({type: "eventsUp"});
+          const a = go(snap("brightness.update", {device: {id: "b", currentPercent: 95}}));
+          const same = go(snap("brightness.update", {device: {id: "b", currentPercent: 95}}));
+          const stray = go(snap("network.update", {x: 1}));
+          go({type: "unfeed", key: "b"});
+          const gone = go({type: "settle"});
+          process.stdout.write(JSON.stringify({a, same, stray: kinds(stray), gone, cache: s.cache}));""")
+        self.assertEqual(out["a"], [{"type": "state", "service": "brightness.update",
+                                     "data": {"device": {"id": "b", "currentPercent": 95}}}])
+        self.assertEqual((out["same"], out["stray"]), ([], ["log"]))
+        self.assertIn({"type": "state", "service": "brightness.update", "data": None}, out["gone"])
+        self.assertEqual(out["cache"], {})
+
     def test_S10_error_events_and_unsubscribed_services_are_logged_and_ignored(self):
         out = self.js("""
           toOpen();

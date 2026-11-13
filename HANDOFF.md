@@ -1,3 +1,12 @@
+# 13 November 2026 · Opus: S5 step 1, OSD levels for the island (branch `s5-osd`, owner away)
+
+- **Built (Z172).** `adapters/quickshell/OsdChange.js` (which change is an event), `QuickshellOsd.qml` (volume, mic from Pipewire), `adapters/dms/DmsOsd.qml` (adds brightness from DMS), `DmsBrightnessMap.js`. `DmsAdapter.osdWanted` (bound to `ZAETHERION_ISLAND` in `shell-dms.qml`) creates it at start; `QuickshellAudio.setVolume/setMuted` hush it for 2 s. The island's OSD face and queue entry were already there.
+- **DMS link (S9a).** DMS sends brightness changes as `brightness.update` (`{device}`), which the link dropped as "unsubscribed". `<service>.update` now belongs to its service: cached, passed on and dropped with it; `DmsFeed.update` exposes it.
+- **Checks.** `test_osd_change.py` (7), `test_dms_brightness_map.py` (6), a new S9a machine test. Full suite: 910 of 911; the one failure was `test_shell_dms` (its copy of the adapter block lacked `osdWanted`), fixed and rerun alone. Live probes against the real Pipewire and DMS (owner away; each change undone): a volume step, mute and unmute gave exactly one event each and none at start (volume back at 0.28); `dms ipc call brightness decrement/increment 5` gave 0.95 then 1 (back at 100 %). `brightnessctl` changes are not reported by DMS at all.
+- **Found.** A `DmsFeed` declared in the same file as its `DmsLink` registers before the link's `Component.onCompleted` resets its machine, so it never subscribes. Real adapters create domains after the link, so nothing live is affected; worth fixing in `DmsLink` (keep `feeds` across the reset).
+- **For the owner.** (1) While FART is open, an OSD waits with its time banked (Z161's rule for ordinary events) and shows after FART folds, a stale level. Drop OSDs that couldn't show instead? (2) Turning ours on means turning DMS's own OSD settings off (Z172); not done.
+- **Next in S5.** Media keys (already DMS's `dms ipc`), the hover-only states (caps/num lock, airplane, power profile, Z24), the EQ filter-chain. Not started.
+
 # 13 November 2026 · Opus: quiet DMS, so our notification server can hold the name (owner away; not live)
 
 - **Problem.** DMS has no switch for its notification server, and Quickshell won't take the name from a running owner (Z169), so ours could never go live beside DMS.

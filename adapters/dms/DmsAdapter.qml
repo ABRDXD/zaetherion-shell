@@ -16,6 +16,8 @@ HostAdapter {
     property alias socketPath: link.socketPath
     // Names this process's subscription in DMS's logs ("zaetherion-shell", "zaetherion-panel").
     property string role: "shell"
+    // Where the island lives (shell-dms.qml with ZAETHERION_ISLAND=1): volume and mic changes become OSD events (S5).
+    property bool osdWanted: false
     readonly property DmsLink dms: DmsLink { id: link; clientId: "zaetherion-" + root.role }
     name: "dms"
     media: QuickshellMedia {}
@@ -38,11 +40,16 @@ HostAdapter {
         if (deferredRequested)
             return;
         deferredRequested = true;
-        create("../quickshell/QuickshellAudio.qml", {}, domain => root.audio = domain);
+        create("../quickshell/QuickshellAudio.qml", {}, domain => {
+            domain.osd = Qt.binding(() => root.osd.hush ? root.osd : null);
+            root.audio = domain;
+        });
         create("DmsNotifications.qml", { core: root.core }, domain => root.notifications = domain);
         create("../common/LyricsSource.qml", { media: root.media }, domain => root.lyrics = domain);
         create("../common/CliphistClipboard.qml", {}, domain => root.clipboard = domain);
     }
+    // The OSD is at rest with the island (Z138), so it does not wait for the panel's first open.
+    Component.onCompleted: if (osdWanted) create("DmsOsd.qml", { link: link }, domain => root.osd = domain)
     function create(file, properties, done) {
         DeferredCreate.create(root, Qt.resolvedUrl(file), properties, done, "dms:");
     }

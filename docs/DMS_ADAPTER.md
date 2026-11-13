@@ -71,6 +71,7 @@ Backoff: 100, 200, 400, 800, 1600, then 2000 ms. It runs only while down.
 | S7 | open or opening | `eventsDown`, not asked for | → closed. Timer: backoff; on `tick`, S2 |
 | S8 | open | event, service `server` | Update version and capabilities, re-run the L6/L7 gate, `settleSoon` |
 | S9 | open | event, service ∈ subscribed | If it differs from the cached one: cache it, `state(service, data)` to the feeds |
+| S9a | open | event `<service>.update`, service ∈ subscribed | As S9, under its own name (`brightness.update`: `{device}`, one per change; observed 13 Nov 2026, v2.1.0). Dropped with its service (S4) |
 | S10 | open | event with `error`, or an unsubscribed service | Log, ignore. No automatic redial |
 | S11 | opening, closing | `settle` | Only note it; the list is compared again when the connection reaches open or closed |
 
