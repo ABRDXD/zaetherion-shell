@@ -3,7 +3,8 @@ import Quickshell
 import Quickshell.Io
 import qs.view.contract
 
-// Drives the host's own equaliser through its script; the state file is the source of truth.
+// Legacy: drives the host's own equaliser through its script; the state file is the source of truth. Only the
+// parts the owner kept (Z173): the ten bands, presets and mono.
 EqualizerDomain {
     id: root
     required property var settings
@@ -11,31 +12,23 @@ EqualizerDomain {
     property bool scriptFound: false
     property bool stateLoaded: false
     available: scriptFound && stateLoaded
+    enabled: available
+    active: available
     presets: ["Flat", "Bass", "Treble", "Vocal", "Pop", "Rock", "Jazz", "Classic"]
     function run(args) { if (available) Quickshell.execDetached([root.script, ...args]); }
     function apply(data) {
         bands = Array.from({ length: 10 }, (_, i) => Number(data["b" + (i + 1)]) || 0);
         preset = String(data.preset ?? "Custom");
-        balance = Number(data.balance) || 0;
         mono = data.mono === true;
-        swap = data.swap === true;
-        dynamicEq = data.dyneq === true;
-        dynamics = ["off", "balanced", "night"].includes(data.dynamics) ? data.dynamics : "off";
-        pending = data.pending === true;
     }
     function setBand(index: int, gain: int) {
         if (index < 0 || index > 9) return;
         run(["set_band", String(index + 1), String(Math.round(Math.max(minGain, Math.min(maxGain, gain))))]);
     }
     function applyPreset(name: string) { if (presets.includes(name)) run(["preset", name]); }
-    function setBalance(value: real) { run(["set_balance", String(Math.round(Math.max(-1, Math.min(1, value)) * 100) / 100)]); }
-    function setFlag(name: string, on: bool) {
-        const verbs = { mono: "set_mono", swap: "set_swap", dynamicEq: "set_dyneq" };
-        if (verbs[name]) run([verbs[name], on ? "true" : "false"]);
-    }
-    function setDynamics(mode: string) { if (["off", "balanced", "night"].includes(mode)) run(["set_dynamics", mode]); }
-    function resetAudio() { run(["reset_audio"]); }
-    function openHost() { Quickshell.execDetached(["serpantinum", "msg", "open", "music"]); }
+    function setMono(on: bool) { run(["set_mono", on ? "true" : "false"]); }
+    // The host's chain has no off switch of ours: it is always in the path while its script is there.
+    function setEnabled(on: bool) {}
     FileView {
         path: root.script
         printErrors: false

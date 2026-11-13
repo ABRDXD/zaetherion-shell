@@ -22,7 +22,7 @@ HostAdapter {
         outputs: [{ id: "1", name: "Fixture Speakers", isDefault: true }]
         inputs: [{ id: "2", name: "Fixture Microphone", isDefault: true }]
         streams: holds("mixer") ? [{ id: "3", app: "Fixture Player", volume: 0.8, muted: false }] : []
-        equalizer: EqualizerDomain { recordCalls: true; available: true; presets: ["Flat", "Vocal"]; preset: "Vocal"; bands: [-2, -1, 1, 3, 5, 5, 4, 2, 1, 0] }
+        equalizer: EqualizerDomain { recordCalls: true; available: true; enabled: true; active: true; presets: ["Flat", "Bass", "Treble", "Vocal", "Loudness"]; preset: "Vocal"; bands: [-2, -2, -1, 0, 2, 3, 3, 2, 0, -1] }
     }
     network: NetworkDomain {
         recordCalls: true; available: true; wifiEnabled: true; kind: "wifi"; connected: true; name: "FIXTURE-NET"; ipAddress: "192.0.2.10"

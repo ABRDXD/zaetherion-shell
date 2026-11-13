@@ -1,23 +1,20 @@
-// The host's own equaliser. FART never runs a second filter chain.
+// The ten-band equaliser and the mono switch (Z50, Z173). Gains are whole dB at `frequencies`.
+// enabled is the owner's switch; active means the chain is in the audio path right now.
 HostDomain {
+    property bool enabled: false
+    property bool active: false
+    // Why it is not active while enabled ("" when nothing is wrong).
+    property string error: ""
     property var bands: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     readonly property var frequencies: [31, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000]
     readonly property int minGain: -12
     readonly property int maxGain: 12
     property string preset: "Flat"
     property var presets: []
-    property real balance: 0
     property bool mono: false
-    property bool swap: false
-    property bool dynamicEq: false
-    property string dynamics: "off"
-    property bool pending: false
 
+    function setEnabled(on: bool) { record("setEnabled", [on]); }
     function setBand(index: int, gain: int) { record("setBand", [index, gain]); }
     function applyPreset(name: string) { record("applyPreset", [name]); }
-    function setBalance(value: real) { record("setBalance", [value]); }
-    function setFlag(name: string, on: bool) { record("setFlag", [name, on]); }
-    function setDynamics(mode: string) { record("setDynamics", [mode]); }
-    function resetAudio() { record("resetAudio", []); }
-    function openHost() { record("openHost", []); }
+    function setMono(on: bool) { record("setMono", [on]); }
 }

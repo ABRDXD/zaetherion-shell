@@ -20,6 +20,7 @@ sys.path.insert(0, str(ROOT))  # -I leaves the script directory off sys.path
 from core.app import Core  # noqa: E402
 from core.clock import SystemClock, TimerfdScheduler  # noqa: E402
 from core.dms_bar import DmsBar  # noqa: E402
+from core.equalizer import PipewireChain  # noqa: E402
 from core.host import Host, load_profile  # noqa: E402
 from core.notification_mirror import BusctlSource  # noqa: E402
 from core.protocol import MAX_LINE  # noqa: E402
@@ -103,6 +104,11 @@ def supervise(core: Core, scheduler, env: dict, runtime: Path) -> SessionWatch |
     supervisor.add(Child("dms", core.clock, scheduler, ports))
     core.attach_supervisor(supervisor)
     supervisor.start()
+    # The DMS session's audio has our own equaliser (Z173); its process joins the PipeWire this core's
+    # environment names and keeps its config in the runtime directory. A test core never touches PipeWire.
+    if os.environ.get("FART_HOST") != "fixture":
+        chain_env = {k: v for k, v in os.environ.items() if not k.startswith("FART_")}
+        core.equalizer.attach(PipewireChain(runtime, env=chain_env))
     return watch
 
 
