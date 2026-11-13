@@ -11,7 +11,8 @@ from core.app import Core
 from core.errors import OpError
 from core.guards import SessionGuard
 from core.palette import Palette
-from core.palette_catalog import DEFAULT, STUDIES, catalogue, contrast, dms_dark, normalize
+from core.palette_catalog import DEFAULT, STUDIES, catalogue, contrast, normalize
+from adapters.common.palette_sources import dms_dark
 
 
 def isolated_entries(path):

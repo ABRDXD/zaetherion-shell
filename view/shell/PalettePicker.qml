@@ -30,6 +30,19 @@ ColumnLayout {
     function send(op: string, name: string): void {
         core.request(op, name ? {name} : {}, (ok, result) => { root.error = ok ? "" : result.message; });
     }
+    function previewIndex(index: int): void {
+        if (index < 0 || index >= filtered.length) return;
+        list.currentIndex = index;
+        list.positionViewAtIndex(index, ListView.Contain);
+        preview(filtered[index].id);
+    }
+    function moveSelection(direction: int): void {
+        list.forceActiveFocus();
+        previewIndex(Math.max(0, Math.min(filtered.length - 1, list.currentIndex + direction)));
+    }
+    function chooseCurrent(): void {
+        if (list.currentIndex >= 0 && list.currentIndex < filtered.length) choose(filtered[list.currentIndex].id);
+    }
     function preview(name: string): void { if (active) send("palette.preview", name); }
     function choose(name: string): void { if (active) send("palette.choose", name); }
     function cancel(): void { send("palette.cancel", ""); }
@@ -58,7 +71,7 @@ ColumnLayout {
         font.pixelSize: Design.body
         onTextChanged: root.query = text
         background: Rectangle { color: Design.background; border.color: Design.line; border.width: 1 }
-        Keys.onDownPressed: { list.forceActiveFocus(); list.currentIndex = Math.max(0, list.currentIndex); }
+        Keys.onDownPressed: { list.forceActiveFocus(); root.previewIndex(Math.max(0, list.currentIndex)); }
         Keys.onEscapePressed: root.closeRequested()
     }
     ListView {
@@ -72,12 +85,10 @@ ColumnLayout {
         boundsBehavior: Flickable.StopAtBounds
         spacing: Design.baseline
         ScrollBar.vertical: ScrollBar {}
-        onCurrentIndexChanged: {
-            if (activeFocus && currentIndex >= 0 && currentIndex < count)
-                root.preview(root.filtered[currentIndex].id);
-        }
-        Keys.onReturnPressed: if (currentIndex >= 0) root.choose(root.filtered[currentIndex].id)
-        Keys.onEnterPressed: if (currentIndex >= 0) root.choose(root.filtered[currentIndex].id)
+        Keys.onDownPressed: root.moveSelection(1)
+        Keys.onUpPressed: root.moveSelection(-1)
+        Keys.onReturnPressed: root.chooseCurrent()
+        Keys.onEnterPressed: root.chooseCurrent()
         Keys.onEscapePressed: root.closeRequested()
         delegate: ItemDelegate {
             required property var modelData
@@ -87,8 +98,7 @@ ColumnLayout {
             hoverEnabled: true
             Accessible.name: modelData.name + ", " + modelData.source
             onHoveredChanged: if (hovered && root.active) {
-                list.currentIndex = index;
-                root.preview(modelData.id);
+                root.previewIndex(index);
             }
             onClicked: root.choose(modelData.id)
             background: Rectangle {
@@ -117,7 +127,7 @@ ColumnLayout {
             label: "Use palette"
             Layout.fillWidth: true
             enabled: list.currentIndex >= 0
-            onClicked: root.choose(root.filtered[list.currentIndex].id)
+            onClicked: root.chooseCurrent()
         }
         FButton { label: "Undo preview"; enabled: root.core.paletteData?.preview ?? false; onClicked: root.cancel() }
     }

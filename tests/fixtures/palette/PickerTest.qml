@@ -56,14 +56,14 @@ ShellRoot {
             case 0: picker.active = true; break;
             case 1:
                 root.check(Design.accent.toString() === "#ffffff", "initial stored palette");
-                picker.preview("amoled:ice"); break;
+                picker.moveSelection(1); break;
             case 2:
-                root.check(Design.accent.toString() === "#8edfff", "preview changes Design");
+                root.check(Design.accent.toString() === "#8edfff", "arrow navigation previews Design");
                 picker.active = false; break;
             case 3:
                 root.check(Design.accent.toString() === "#ffffff", "closing cancels preview");
                 picker.active = true; break;
-            case 4: picker.choose("amoled:ice"); break;
+            case 4: picker.previewIndex(1); picker.chooseCurrent(); break;
             case 5:
                 root.check(root.saved.name === "amoled:ice" && Design.accent.toString() === "#8edfff", "choose changes Design and selection");
                 picker.active = false; break;
