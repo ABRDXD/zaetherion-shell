@@ -1,0 +1,43 @@
+--- a/shell-island-fixture.qml
++++ b/shell-island-fixture.qml
+@@ -44,16 +44,23 @@
+         else showPanel(room);
+     }
+ 
+-    Timer {
+-        interval: 50  // 20 Hz, as tools/cava.conf (docs/ISLAND_DIAGNOSIS.md)
+-        running: fixture.media.holds("spectrum")
+-        repeat: true
+-        onTriggered: {
+-            root.waveStep += 1;
+-            fixture.media.spectrum = Array.from({ length: 24 }, (_, i) =>
+-                Math.abs(Math.sin(i * 0.45 + root.waveStep * 0.19)) * (1 - i / 28));
++    property int spectrumFrames: 0
++    property int activeBins: 0
++    Process {
++        id: measuredCava
++        running: fixture.media.holds("spectrum") && (fixture.media.active?.playing ?? false)
++        command: ["cava", "-p", Quickshell.env("ASTRA_CAVA_CONFIG")]
++        onRunningChanged: if (!running) fixture.media.spectrum = []
++        stdout: SplitParser {
++            onRead: line => {
++                const bars = line.trim().split(";").slice(0, 56).map(Number);
++                if (bars.length === 56 && bars.every(Number.isFinite)) {
++                    fixture.media.spectrum = bars.map(v => Math.min(1, Math.max(0, v / 1000)));
++                    root.spectrumFrames += 1;
++                    root.activeBins = bars.filter(v => v > 0).length;
++                }
++            }
+         }
+-        onRunningChanged: if (!running) fixture.media.spectrum = [];
+     }
+     Component.onCompleted: {
+         // The approved mock-up uses the Design fallback palette.
+@@ -96,6 +103,7 @@
+                 lastReply: args[2] ?? "", keyboard: island.companionWindow?.keyboardRequest ?? "",
+                 powerCalls: fixture.power.calls.map(call => call.method) });
+         }
++        function spectrumStats(): string { return JSON.stringify({frames: root.spectrumFrames, activeBins: root.activeBins}); }
+         function focus(): void { island.focusIsland(); }
+         function tray(): void { island.openTray("sample"); }
+         function power(): void { island.openSession(); }

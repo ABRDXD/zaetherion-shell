@@ -1,0 +1,14 @@
+diff --git a/tests/test_core_view.py b/tests/test_core_view.py
+index 7d0b21e..1d9f2c8 100644
+--- a/tests/test_core_view.py
++++ b/tests/test_core_view.py
+@@ -381,3 +381,9 @@ class SpawnEnvTests(unittest.IsolatedAsyncioTestCase):
+     async def test_an_owner_value_wins(self):
+         seen = await self.spawned_env({"MALLOC_CONF": "narenas:2"})
+         self.assertEqual(seen["MALLOC_CONF"], "narenas:2")
++
++    async def test_an_empty_owner_value_disables_defaults(self):
++        env = {"MALLOC_CONF": ""}
++        seen = await self.spawned_env(env)
++        self.assertEqual(seen["MALLOC_CONF"], "")
++        self.assertEqual(env, {"MALLOC_CONF": ""})

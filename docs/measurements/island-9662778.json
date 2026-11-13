@@ -1,0 +1,3205 @@
+{
+  "revision": "9662778140a261c7fb3f0ccaac6dccd29cfa4e51",
+  "date": "2026-11-12",
+  "units": {
+    "memory": "MiB except alloc fields, which are bytes",
+    "cpu": "percent of one core"
+  },
+  "method": {
+    "renderer": "OpenGL GPU",
+    "environment": "private fixture, hidden nested Hyprland; inherited FART_* unset",
+    "settle_seconds": 5,
+    "cpu_window_seconds": 30,
+    "tuned_malloc_conf": "thp:never,narenas:4,dirty_decay_ms:3000",
+    "tuned_runs": [
+      "baseline",
+      "pointer"
+    ],
+    "default_allocator_runs": [
+      "default_alloc",
+      "cpu",
+      "no_morph",
+      "no_room",
+      "no_keep",
+      "no_precompile",
+      "verify_curve56",
+      "verify_geometry56"
+    ],
+    "driver_note": "One DRM client sampled; repeated fdinfo entries were not summed. Driver allocations are separate from RSS/PSS.",
+    "probe_note": "Temporary IPC for GC and controls; native QObject/allocator probes. baseline has glibc-only allocator probe; jemalloc statistics are available in subsequent runs.",
+    "stimulus_note": "pointer/default_alloc use hover and click cycles; baseline/cpu/ablations use IPC. verify_* use all 56 simulated bins with nondegenerate amplitudes.",
+    "scope_note": "CAVA producer CPU and current-HEAD integration were not measured. Ablations overlap; allocator tuning combines three settings and does not isolate each setting."
+  },
+  "runs": {
+    "baseline": [
+      {
+        "label": "cycle0",
+        "Rss": 275.895,
+        "Pss": 85.916,
+        "Private_Dirty": 64.672,
+        "Private_Clean": 1.699,
+        "Shared_Clean": 209.52,
+        "Shared_Dirty": 0.004,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0
+        },
+        "lifecycle": {
+          "shell": false,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "AnonHugePages_MiB": 6.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 40.62890625
+        }
+      },
+      {
+        "label": "cycle1",
+        "Rss": 327.559,
+        "Pss": 120.83,
+        "Private_Dirty": 95.965,
+        "Private_Clean": 2.441,
+        "Shared_Clean": 229.148,
+        "Shared_Dirty": 0.004,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "AnonHugePages_MiB": 8.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 75.07421875
+        }
+      },
+      {
+        "label": "cycle21",
+        "Rss": 331.848,
+        "Pss": 125.685,
+        "Private_Dirty": 102.559,
+        "Private_Clean": 0.086,
+        "Shared_Clean": 229.199,
+        "Shared_Dirty": 0.004,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "AnonHugePages_MiB": 8.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 82.7109375
+        }
+      },
+      {
+        "label": "cycle50",
+        "Rss": 331.328,
+        "Pss": 128.987,
+        "Private_Dirty": 102.359,
+        "Private_Clean": 3.777,
+        "Shared_Clean": 225.188,
+        "Shared_Dirty": 0.004,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "AnonHugePages_MiB": 8.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 80.7109375
+        }
+      },
+      {
+        "label": "cycle100",
+        "Rss": 332.773,
+        "Pss": 130.172,
+        "Private_Dirty": 103.574,
+        "Private_Clean": 3.715,
+        "Shared_Clean": 225.48,
+        "Shared_Dirty": 0.004,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "AnonHugePages_MiB": 8.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 80.7109375
+        }
+      },
+      {
+        "label": "cycle200",
+        "Rss": 334.246,
+        "Pss": 131.613,
+        "Private_Dirty": 105.047,
+        "Private_Clean": 3.715,
+        "Shared_Clean": 225.48,
+        "Shared_Dirty": 0.004,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "AnonHugePages_MiB": 8.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 82.71484375
+        }
+      },
+      {
+        "label": "after_gc",
+        "Rss": 332.695,
+        "Pss": 130.062,
+        "Private_Dirty": 103.496,
+        "Private_Clean": 3.715,
+        "Shared_Clean": 225.48,
+        "Shared_Dirty": 0.004,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "AnonHugePages_MiB": 8.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 82.71484375
+        }
+      },
+      {
+        "label": "trim",
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0
+        }
+      },
+      {
+        "label": "after_trim",
+        "Rss": 332.695,
+        "Pss": 129.889,
+        "Private_Dirty": 103.496,
+        "Private_Clean": 3.715,
+        "Shared_Clean": 225.48,
+        "Shared_Dirty": 0.004,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "AnonHugePages_MiB": 8.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 82.71484375
+        }
+      }
+    ],
+    "pointer": [
+      {
+        "label": "cycle0",
+        "Rss": 282.32,
+        "Pss": 91.774,
+        "Private_Dirty": 70.285,
+        "Private_Clean": 1.625,
+        "Shared_Clean": 210.406,
+        "Shared_Dirty": 0.004,
+        "objects": 348,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 45200624,
+          "je_active": 51105792,
+          "je_resident": 58642432,
+          "je_retained": 13754368
+        },
+        "lifecycle": {
+          "shell": false,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 12,
+          "QQuickLoader": 16,
+          "QQuickShape": 9
+        },
+        "AnonHugePages_MiB": 10.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 10.015625,
+          "drm-total-vram": 38.734375
+        }
+      },
+      {
+        "label": "cycle1",
+        "Rss": 329.012,
+        "Pss": 123.027,
+        "Private_Dirty": 96.598,
+        "Private_Clean": 2.023,
+        "Shared_Clean": 230.387,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 57696736,
+          "je_active": 65900544,
+          "je_resident": 85352448,
+          "je_retained": 26034176
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 10.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 77.07421875
+        }
+      },
+      {
+        "label": "cycle21",
+        "Rss": 327.543,
+        "Pss": 121.559,
+        "Private_Dirty": 95.512,
+        "Private_Clean": 1.641,
+        "Shared_Clean": 230.387,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 59444712,
+          "je_active": 70135808,
+          "je_resident": 79572992,
+          "je_retained": 86069248
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 12.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 12.015625,
+          "drm-total-vram": 80.82421875
+        }
+      },
+      {
+        "label": "cycle50",
+        "Rss": 335.707,
+        "Pss": 129.128,
+        "Private_Dirty": 103.359,
+        "Private_Clean": 1.641,
+        "Shared_Clean": 230.703,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 58991328,
+          "je_active": 70053888,
+          "je_resident": 87932928,
+          "je_retained": 92925952
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 12.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 12.015625,
+          "drm-total-vram": 80.8203125
+        }
+      },
+      {
+        "label": "cycle100",
+        "Rss": 333.488,
+        "Pss": 134.628,
+        "Private_Dirty": 101.43,
+        "Private_Clean": 5.137,
+        "Shared_Clean": 226.918,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 58804984,
+          "je_active": 69976064,
+          "je_resident": 85549056,
+          "je_retained": 95309824
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 12.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 80.83203125
+        }
+      },
+      {
+        "label": "after_gc",
+        "Rss": 324.637,
+        "Pss": 125.776,
+        "Private_Dirty": 92.578,
+        "Private_Clean": 5.137,
+        "Shared_Clean": 226.918,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 58153672,
+          "je_active": 69730304,
+          "je_resident": 76861440,
+          "je_retained": 103997440
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 12.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 80.83203125
+        }
+      },
+      {
+        "label": "trim",
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 58100904,
+          "je_active": 69607424,
+          "je_resident": 76861440,
+          "je_retained": 103997440
+        }
+      },
+      {
+        "label": "after_trim",
+        "Rss": 324.223,
+        "Pss": 125.613,
+        "Private_Dirty": 92.461,
+        "Private_Clean": 5.137,
+        "Shared_Clean": 226.621,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 57852920,
+          "je_active": 69185536,
+          "je_resident": 76722176,
+          "je_retained": 104136704
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 12.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 80.83203125
+        }
+      },
+      {
+        "label": "purge",
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 57861688,
+          "je_active": 69193728,
+          "je_resident": 75464704,
+          "je_retained": 105394176
+        }
+      },
+      {
+        "label": "after_purge",
+        "Rss": 323.145,
+        "Pss": 124.535,
+        "Private_Dirty": 91.383,
+        "Private_Clean": 5.137,
+        "Shared_Clean": 226.621,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 57861688,
+          "je_active": 69193728,
+          "je_resident": 75464704,
+          "je_retained": 105394176
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 12.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 80.83203125
+        }
+      },
+      {
+        "label": "after_caches",
+        "Rss": 322.988,
+        "Pss": 124.379,
+        "Private_Dirty": 91.227,
+        "Private_Clean": 5.137,
+        "Shared_Clean": 226.621,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 57677536,
+          "je_active": 69074944,
+          "je_resident": 75390976,
+          "je_retained": 105467904
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 12.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 80.83203125
+        }
+      },
+      {
+        "label": "after_graphics",
+        "Rss": 322.551,
+        "Pss": 123.941,
+        "Private_Dirty": 90.789,
+        "Private_Clean": 5.137,
+        "Shared_Clean": 226.621,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 56755816,
+          "je_active": 67883008,
+          "je_resident": 74928128,
+          "je_retained": 105930752
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 12.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 80.83203125
+        }
+      },
+      {
+        "label": "after_graphics_purge",
+        "Rss": 321.734,
+        "Pss": 123.125,
+        "Private_Dirty": 89.973,
+        "Private_Clean": 5.137,
+        "Shared_Clean": 226.621,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 56740208,
+          "je_active": 67764224,
+          "je_resident": 74035200,
+          "je_retained": 106823680
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 12.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 80.83203125
+        }
+      }
+    ],
+    "default_alloc": [
+      {
+        "label": "cycle0",
+        "Rss": 330.039,
+        "Pss": 144.441,
+        "Private_Dirty": 118.195,
+        "Private_Clean": 2.746,
+        "Shared_Clean": 209.094,
+        "Shared_Dirty": 0.004,
+        "objects": 348,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 46809680,
+          "je_active": 53968896,
+          "je_resident": 67497984,
+          "je_retained": 38694912
+        },
+        "lifecycle": {
+          "shell": false,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 12,
+          "QQuickLoader": 16,
+          "QQuickShape": 9
+        },
+        "AnonHugePages_MiB": 78.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 10.015625,
+          "drm-total-vram": 38.734375
+        }
+      },
+      {
+        "label": "cycle1",
+        "Rss": 398.586,
+        "Pss": 199.773,
+        "Private_Dirty": 166.254,
+        "Private_Clean": 5.52,
+        "Shared_Clean": 226.809,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 58902464,
+          "je_active": 68886528,
+          "je_resident": 90497024,
+          "je_retained": 57110528
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 90.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 12.015625,
+          "drm-total-vram": 77.1875
+        }
+      },
+      {
+        "label": "cycle21",
+        "Rss": 425.473,
+        "Pss": 226.667,
+        "Private_Dirty": 193.523,
+        "Private_Clean": 5.137,
+        "Shared_Clean": 226.809,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 59152192,
+          "je_active": 71434240,
+          "je_resident": 97972224,
+          "je_retained": 102871040
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 100.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 80.82421875
+        }
+      },
+      {
+        "label": "cycle50",
+        "Rss": 425.438,
+        "Pss": 222.493,
+        "Private_Dirty": 193.488,
+        "Private_Clean": 0.488,
+        "Shared_Clean": 231.457,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 59823752,
+          "je_active": 72065024,
+          "je_resident": 98275328,
+          "je_retained": 114630656
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 98.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 78.8203125
+        }
+      },
+      {
+        "label": "cycle100",
+        "Rss": 420.426,
+        "Pss": 221.613,
+        "Private_Dirty": 188.477,
+        "Private_Clean": 5.137,
+        "Shared_Clean": 226.809,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 59121056,
+          "je_active": 71376896,
+          "je_resident": 94588928,
+          "je_retained": 125665280
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 94.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 76.82421875
+        }
+      },
+      {
+        "label": "after_gc",
+        "Rss": 419.75,
+        "Pss": 220.938,
+        "Private_Dirty": 187.801,
+        "Private_Clean": 5.137,
+        "Shared_Clean": 226.809,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 58733792,
+          "je_active": 71188480,
+          "je_resident": 93995008,
+          "je_retained": 126259200
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 94.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 76.82421875
+        }
+      },
+      {
+        "label": "trim",
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 58614624,
+          "je_active": 71008256,
+          "je_resident": 93995008,
+          "je_retained": 126259200
+        }
+      },
+      {
+        "label": "after_trim",
+        "Rss": 419.441,
+        "Pss": 220.892,
+        "Private_Dirty": 187.805,
+        "Private_Clean": 5.137,
+        "Shared_Clean": 226.496,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 58414944,
+          "je_active": 70836224,
+          "je_resident": 93995008,
+          "je_retained": 126259200
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 94.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 76.82421875
+        }
+      },
+      {
+        "label": "purge",
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 58301280,
+          "je_active": 70397952,
+          "je_resident": 81461248,
+          "je_retained": 138792960
+        }
+      },
+      {
+        "label": "after_purge",
+        "Rss": 408.391,
+        "Pss": 209.841,
+        "Private_Dirty": 176.754,
+        "Private_Clean": 5.137,
+        "Shared_Clean": 226.496,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 58301280,
+          "je_active": 70397952,
+          "je_resident": 81461248,
+          "je_retained": 138792960
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 82.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 76.82421875
+        }
+      },
+      {
+        "label": "after_caches",
+        "Rss": 408.551,
+        "Pss": 209.786,
+        "Private_Dirty": 176.668,
+        "Private_Clean": 5.137,
+        "Shared_Clean": 226.742,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 58246712,
+          "je_active": 70369280,
+          "je_resident": 81432576,
+          "je_retained": 138821632
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 82.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 76.82421875
+        }
+      },
+      {
+        "label": "after_graphics",
+        "Rss": 408.438,
+        "Pss": 209.673,
+        "Private_Dirty": 176.555,
+        "Private_Clean": 5.137,
+        "Shared_Clean": 226.742,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 57356560,
+          "je_active": 69345280,
+          "je_resident": 81375232,
+          "je_retained": 138878976
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 76.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 76.82421875
+        }
+      },
+      {
+        "label": "after_graphics_purge",
+        "Rss": 407.516,
+        "Pss": 208.751,
+        "Private_Dirty": 175.633,
+        "Private_Clean": 5.137,
+        "Shared_Clean": 226.742,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 57314888,
+          "je_active": 69304320,
+          "je_resident": 80367616,
+          "je_retained": 139886592
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 74.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 76.82421875
+        }
+      }
+    ],
+    "cpu": [
+      {
+        "label": "cycle0",
+        "Rss": 327.293,
+        "Pss": 141.566,
+        "Private_Dirty": 115.492,
+        "Private_Clean": 2.824,
+        "Shared_Clean": 208.973,
+        "Shared_Dirty": 0.004,
+        "objects": 348,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 46357344,
+          "je_active": 52367360,
+          "je_resident": 68349952,
+          "je_retained": 24182784
+        },
+        "lifecycle": {
+          "shell": false,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 12,
+          "QQuickLoader": 16,
+          "QQuickShape": 9
+        },
+        "AnonHugePages_MiB": 88.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 42.62109375
+        }
+      },
+      {
+        "label": "rest",
+        "cpu": 0.033332850108114924
+      },
+      {
+        "label": "media33",
+        "cpu": 6.533183635230601
+      },
+      {
+        "label": "compute_only",
+        "cpu": 0.6666558919074386
+      },
+      {
+        "label": "timer_off",
+        "cpu": 0.0
+      },
+      {
+        "label": "media50",
+        "cpu": 4.333271165191921
+      },
+      {
+        "label": "media66",
+        "cpu": 3.499933913898184
+      },
+      {
+        "label": "media100",
+        "cpu": 2.4332926925599434
+      },
+      {
+        "label": "renderer_switch",
+        "changed": "1"
+      },
+      {
+        "label": "geometry33",
+        "cpu": 6.0999075739973
+      },
+      {
+        "label": "geometry50",
+        "cpu": 3.933275563086522
+      },
+      {
+        "label": "rest_after",
+        "cpu": 0.03333290769321483
+      },
+      {
+        "label": "cycle1",
+        "Rss": 396.605,
+        "Pss": 197.71,
+        "Private_Dirty": 164.32,
+        "Private_Clean": 5.668,
+        "Shared_Clean": 226.613,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 59985632,
+          "je_active": 70369280,
+          "je_resident": 89370624,
+          "je_retained": 56778752
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 90.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 77.08203125
+        }
+      },
+      {
+        "label": "cycle21",
+        "Rss": 427.387,
+        "Pss": 230.559,
+        "Private_Dirty": 197.406,
+        "Private_Clean": 5.68,
+        "Shared_Clean": 224.297,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 59771656,
+          "je_active": 72564736,
+          "je_resident": 95191040,
+          "je_retained": 98144256
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 110.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 62.64453125
+        }
+      },
+      {
+        "label": "cycle50",
+        "Rss": 429.223,
+        "Pss": 232.401,
+        "Private_Dirty": 199.625,
+        "Private_Clean": 5.297,
+        "Shared_Clean": 224.297,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 59140776,
+          "je_active": 72667136,
+          "je_resident": 96006144,
+          "je_retained": 116731904
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 104.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 78.71875
+        }
+      },
+      {
+        "label": "after_gc",
+        "Rss": 426.809,
+        "Pss": 229.987,
+        "Private_Dirty": 197.211,
+        "Private_Clean": 5.297,
+        "Shared_Clean": 224.297,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 58586216,
+          "je_active": 72126464,
+          "je_resident": 93413376,
+          "je_retained": 119324672
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 104.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 78.71875
+        }
+      },
+      {
+        "label": "trim",
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 58508088,
+          "je_active": 71974912,
+          "je_resident": 93413376,
+          "je_retained": 119324672
+        }
+      },
+      {
+        "label": "after_trim",
+        "Rss": 426.348,
+        "Pss": 229.292,
+        "Private_Dirty": 196.488,
+        "Private_Clean": 5.297,
+        "Shared_Clean": 224.559,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 58323176,
+          "je_active": 71626752,
+          "je_resident": 92659712,
+          "je_retained": 120078336
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 104.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 62.65625
+        }
+      },
+      {
+        "label": "purge",
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 58372504,
+          "je_active": 71602176,
+          "je_resident": 83013632,
+          "je_retained": 129724416
+        }
+      },
+      {
+        "label": "after_purge",
+        "Rss": 417.383,
+        "Pss": 220.589,
+        "Private_Dirty": 187.824,
+        "Private_Clean": 5.297,
+        "Shared_Clean": 224.258,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 58156936,
+          "je_active": 71434240,
+          "je_resident": 83013632,
+          "je_retained": 129724416
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 96.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 62.65625
+        }
+      },
+      {
+        "label": "after_caches",
+        "Rss": 417.25,
+        "Pss": 220.456,
+        "Private_Dirty": 187.691,
+        "Private_Clean": 5.297,
+        "Shared_Clean": 224.258,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 57960416,
+          "je_active": 71278592,
+          "je_resident": 82919424,
+          "je_retained": 129818624
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 96.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 62.65625
+        }
+      },
+      {
+        "label": "after_graphics",
+        "Rss": 416.852,
+        "Pss": 220.058,
+        "Private_Dirty": 187.293,
+        "Private_Clean": 5.297,
+        "Shared_Clean": 224.258,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 56565832,
+          "je_active": 69619712,
+          "je_resident": 82501632,
+          "je_retained": 130236416
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 84.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 62.65625
+        }
+      },
+      {
+        "label": "after_graphics_purge",
+        "Rss": 415.371,
+        "Pss": 218.577,
+        "Private_Dirty": 185.812,
+        "Private_Clean": 5.297,
+        "Shared_Clean": 224.258,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 56483064,
+          "je_active": 69529600,
+          "je_resident": 80941056,
+          "je_retained": 131796992
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 82.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 62.65625
+        }
+      }
+    ],
+    "no_morph": [
+      {
+        "label": "cycle0",
+        "Rss": 319.996,
+        "Pss": 134.679,
+        "Private_Dirty": 108.75,
+        "Private_Clean": 2.773,
+        "Shared_Clean": 208.469,
+        "Shared_Dirty": 0.004,
+        "objects": 348,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 43829360,
+          "je_active": 49246208,
+          "je_resident": 64618496,
+          "je_retained": 23990272
+        },
+        "lifecycle": {
+          "shell": false,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 12,
+          "QQuickLoader": 16,
+          "QQuickShape": 9
+        },
+        "AnonHugePages_MiB": 86.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 42.62109375
+        }
+      },
+      {
+        "label": "cycle1",
+        "Rss": 388.895,
+        "Pss": 190.495,
+        "Private_Dirty": 157.285,
+        "Private_Clean": 5.57,
+        "Shared_Clean": 226.035,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 57515128,
+          "je_active": 66707456,
+          "je_resident": 87191552,
+          "je_retained": 50835456
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 104.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 12.015625,
+          "drm-total-vram": 77.078125
+        }
+      },
+      {
+        "label": "cycle21",
+        "Rss": 430.555,
+        "Pss": 234.229,
+        "Private_Dirty": 201.633,
+        "Private_Clean": 5.199,
+        "Shared_Clean": 223.719,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 58793016,
+          "je_active": 72388608,
+          "je_resident": 99164160,
+          "je_retained": 133603328
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 116.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 92.70703125
+        }
+      },
+      {
+        "label": "after_gc",
+        "Rss": 429.602,
+        "Pss": 233.276,
+        "Private_Dirty": 200.68,
+        "Private_Clean": 5.199,
+        "Shared_Clean": 223.719,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 58336144,
+          "je_active": 71970816,
+          "je_resident": 98562048,
+          "je_retained": 134205440
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 116.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 92.70703125
+        }
+      },
+      {
+        "label": "trim",
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 58256912,
+          "je_active": 71897088,
+          "je_resident": 98562048,
+          "je_retained": 134205440
+        }
+      },
+      {
+        "label": "after_trim",
+        "Rss": 428.863,
+        "Pss": 232.809,
+        "Private_Dirty": 200.254,
+        "Private_Clean": 5.199,
+        "Shared_Clean": 223.406,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 58060856,
+          "je_active": 71671808,
+          "je_resident": 98107392,
+          "je_retained": 134660096
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 116.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 92.70703125
+        }
+      },
+      {
+        "label": "purge",
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 57982616,
+          "je_active": 71348224,
+          "je_resident": 84439040,
+          "je_retained": 148328448
+        }
+      },
+      {
+        "label": "after_purge",
+        "Rss": 416.48,
+        "Pss": 220.426,
+        "Private_Dirty": 187.871,
+        "Private_Clean": 5.199,
+        "Shared_Clean": 223.406,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 57982616,
+          "je_active": 71348224,
+          "je_resident": 84439040,
+          "je_retained": 148328448
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 102.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 92.70703125
+        }
+      },
+      {
+        "label": "after_caches",
+        "Rss": 416.512,
+        "Pss": 220.457,
+        "Private_Dirty": 187.902,
+        "Private_Clean": 5.199,
+        "Shared_Clean": 223.406,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 57815344,
+          "je_active": 71217152,
+          "je_resident": 84561920,
+          "je_retained": 148205568
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 102.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 92.70703125
+        }
+      },
+      {
+        "label": "after_graphics",
+        "Rss": 415.816,
+        "Pss": 219.762,
+        "Private_Dirty": 187.207,
+        "Private_Clean": 5.199,
+        "Shared_Clean": 223.406,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 56834544,
+          "je_active": 69799936,
+          "je_resident": 83795968,
+          "je_retained": 148971520
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 94.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 92.70703125
+        }
+      },
+      {
+        "label": "after_graphics_purge",
+        "Rss": 414.867,
+        "Pss": 218.804,
+        "Private_Dirty": 186.258,
+        "Private_Clean": 5.199,
+        "Shared_Clean": 223.406,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 56760048,
+          "je_active": 69709824,
+          "je_resident": 82800640,
+          "je_retained": 149966848
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 90.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 92.70703125
+        }
+      }
+    ],
+    "no_room": [
+      {
+        "label": "cycle0",
+        "Rss": 327.051,
+        "Pss": 141.705,
+        "Private_Dirty": 115.773,
+        "Private_Clean": 2.746,
+        "Shared_Clean": 208.527,
+        "Shared_Dirty": 0.004,
+        "objects": 348,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 45230288,
+          "je_active": 51412992,
+          "je_resident": 68579328,
+          "je_retained": 27508736
+        },
+        "lifecycle": {
+          "shell": false,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 12,
+          "QQuickLoader": 16,
+          "QQuickShape": 9
+        },
+        "AnonHugePages_MiB": 94.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 42.62109375
+        }
+      },
+      {
+        "label": "cycle1",
+        "Rss": 377.793,
+        "Pss": 179.876,
+        "Private_Dirty": 149.109,
+        "Private_Clean": 3.414,
+        "Shared_Clean": 225.266,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 52548192,
+          "je_active": 60280832,
+          "je_resident": 81154048,
+          "je_retained": 47149056
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 108.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 12.01953125,
+          "drm-total-vram": 63.04296875
+        }
+      },
+      {
+        "label": "cycle21",
+        "Rss": 395.191,
+        "Pss": 197.274,
+        "Private_Dirty": 166.508,
+        "Private_Clean": 3.414,
+        "Shared_Clean": 225.266,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 52750216,
+          "je_active": 62951424,
+          "je_resident": 87306240,
+          "je_retained": 104316928
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 98.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 12.01953125,
+          "drm-total-vram": 63.05078125
+        }
+      },
+      {
+        "label": "after_gc",
+        "Rss": 394.855,
+        "Pss": 196.938,
+        "Private_Dirty": 166.172,
+        "Private_Clean": 3.414,
+        "Shared_Clean": 225.266,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 52512856,
+          "je_active": 62758912,
+          "je_resident": 87175168,
+          "je_retained": 104448000
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 98.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 12.01953125,
+          "drm-total-vram": 63.05078125
+        }
+      },
+      {
+        "label": "trim",
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 52534072,
+          "je_active": 62726144,
+          "je_resident": 87175168,
+          "je_retained": 104448000
+        }
+      },
+      {
+        "label": "after_trim",
+        "Rss": 394.863,
+        "Pss": 196.946,
+        "Private_Dirty": 166.18,
+        "Private_Clean": 3.414,
+        "Shared_Clean": 225.266,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 52534072,
+          "je_active": 62726144,
+          "je_resident": 87175168,
+          "je_retained": 104448000
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 98.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 12.01953125,
+          "drm-total-vram": 63.05078125
+        }
+      },
+      {
+        "label": "purge",
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 52519384,
+          "je_active": 62726144,
+          "je_resident": 73469952,
+          "je_retained": 118153216
+        }
+      },
+      {
+        "label": "after_purge",
+        "Rss": 382.508,
+        "Pss": 184.583,
+        "Private_Dirty": 153.824,
+        "Private_Clean": 3.414,
+        "Shared_Clean": 225.266,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 52519384,
+          "je_active": 62726144,
+          "je_resident": 73469952,
+          "je_retained": 118153216
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 76.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 12.01953125,
+          "drm-total-vram": 63.05078125
+        }
+      },
+      {
+        "label": "after_caches",
+        "Rss": 381.867,
+        "Pss": 183.941,
+        "Private_Dirty": 153.184,
+        "Private_Clean": 3.414,
+        "Shared_Clean": 225.266,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 51543800,
+          "je_active": 61648896,
+          "je_resident": 72855552,
+          "je_retained": 118767616
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 76.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 56.64453125
+        }
+      },
+      {
+        "label": "after_graphics",
+        "Rss": 381.879,
+        "Pss": 183.955,
+        "Private_Dirty": 153.195,
+        "Private_Clean": 3.414,
+        "Shared_Clean": 225.266,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 51282904,
+          "je_active": 61456384,
+          "je_resident": 72896512,
+          "je_retained": 118726656
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 76.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 56.64453125
+        }
+      },
+      {
+        "label": "after_graphics_purge",
+        "Rss": 381.242,
+        "Pss": 183.318,
+        "Private_Dirty": 152.559,
+        "Private_Clean": 3.414,
+        "Shared_Clean": 225.266,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 51323328,
+          "je_active": 61460480,
+          "je_resident": 72204288,
+          "je_retained": 119418880
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 76.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 56.64453125
+        }
+      }
+    ],
+    "no_keep": [
+      {
+        "label": "cycle0",
+        "Rss": 327.145,
+        "Pss": 141.651,
+        "Private_Dirty": 115.688,
+        "Private_Clean": 2.805,
+        "Shared_Clean": 208.648,
+        "Shared_Dirty": 0.004,
+        "objects": 348,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 45344816,
+          "je_active": 51388416,
+          "je_resident": 69365760,
+          "je_retained": 26734592
+        },
+        "lifecycle": {
+          "shell": false,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 12,
+          "QQuickLoader": 16,
+          "QQuickShape": 9
+        },
+        "AnonHugePages_MiB": 94.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 18.015625,
+          "drm-total-vram": 40.62109375
+        }
+      },
+      {
+        "label": "cycle1",
+        "Rss": 397.227,
+        "Pss": 198.641,
+        "Private_Dirty": 165.383,
+        "Private_Clean": 5.613,
+        "Shared_Clean": 226.227,
+        "Shared_Dirty": 0.004,
+        "objects": 348,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 54431432,
+          "je_active": 66568192,
+          "je_resident": 89919488,
+          "je_retained": 55590912
+        },
+        "lifecycle": {
+          "shell": false,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 12,
+          "QQuickLoader": 16,
+          "QQuickShape": 9
+        },
+        "AnonHugePages_MiB": 106.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 75.078125
+        }
+      },
+      {
+        "label": "cycle21",
+        "Rss": 435.277,
+        "Pss": 236.691,
+        "Private_Dirty": 203.434,
+        "Private_Clean": 5.613,
+        "Shared_Clean": 226.227,
+        "Shared_Dirty": 0.004,
+        "objects": 348,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 54604424,
+          "je_active": 70594560,
+          "je_resident": 97550336,
+          "je_retained": 139939840
+        },
+        "lifecycle": {
+          "shell": false,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 12,
+          "QQuickLoader": 16,
+          "QQuickShape": 9
+        },
+        "AnonHugePages_MiB": 118.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 76.71484375
+        }
+      },
+      {
+        "label": "after_gc",
+        "Rss": 425.574,
+        "Pss": 230.135,
+        "Private_Dirty": 198.18,
+        "Private_Clean": 5.625,
+        "Shared_Clean": 221.766,
+        "Shared_Dirty": 0.004,
+        "objects": 348,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 53610760,
+          "je_active": 69435392,
+          "je_resident": 92651520,
+          "je_retained": 144838656
+        },
+        "lifecycle": {
+          "shell": false,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 12,
+          "QQuickLoader": 16,
+          "QQuickShape": 9
+        },
+        "AnonHugePages_MiB": 114.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 76.71484375
+        }
+      },
+      {
+        "label": "trim",
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 53474440,
+          "je_active": 69246976,
+          "je_resident": 92651520,
+          "je_retained": 144838656
+        }
+      },
+      {
+        "label": "after_trim",
+        "Rss": 425.578,
+        "Pss": 230.139,
+        "Private_Dirty": 198.184,
+        "Private_Clean": 5.625,
+        "Shared_Clean": 221.766,
+        "Shared_Dirty": 0.004,
+        "objects": 348,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 53474440,
+          "je_active": 69246976,
+          "je_resident": 92651520,
+          "je_retained": 144838656
+        },
+        "lifecycle": {
+          "shell": false,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 12,
+          "QQuickLoader": 16,
+          "QQuickShape": 9
+        },
+        "AnonHugePages_MiB": 114.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 76.71484375
+        }
+      },
+      {
+        "label": "purge",
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 53379544,
+          "je_active": 69128192,
+          "je_resident": 81698816,
+          "je_retained": 155791360
+        }
+      },
+      {
+        "label": "after_purge",
+        "Rss": 415.516,
+        "Pss": 220.076,
+        "Private_Dirty": 188.504,
+        "Private_Clean": 5.242,
+        "Shared_Clean": 221.766,
+        "Shared_Dirty": 0.004,
+        "objects": 348,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 53203448,
+          "je_active": 68448256,
+          "je_resident": 81698816,
+          "je_retained": 155791360
+        },
+        "lifecycle": {
+          "shell": false,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 12,
+          "QQuickLoader": 16,
+          "QQuickShape": 9
+        },
+        "AnonHugePages_MiB": 98.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 76.71484375
+        }
+      },
+      {
+        "label": "after_caches",
+        "Rss": 414.969,
+        "Pss": 219.529,
+        "Private_Dirty": 187.957,
+        "Private_Clean": 5.242,
+        "Shared_Clean": 221.766,
+        "Shared_Dirty": 0.004,
+        "objects": 348,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 51322104,
+          "je_active": 67039232,
+          "je_resident": 81567744,
+          "je_retained": 155922432
+        },
+        "lifecycle": {
+          "shell": false,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 12,
+          "QQuickLoader": 16,
+          "QQuickShape": 9
+        },
+        "AnonHugePages_MiB": 98.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 76.71484375
+        }
+      },
+      {
+        "label": "after_graphics",
+        "Rss": 413.742,
+        "Pss": 218.301,
+        "Private_Dirty": 186.73,
+        "Private_Clean": 5.242,
+        "Shared_Clean": 221.766,
+        "Shared_Dirty": 0.004,
+        "objects": 348,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 49952944,
+          "je_active": 65433600,
+          "je_resident": 80273408,
+          "je_retained": 157216768
+        },
+        "lifecycle": {
+          "shell": false,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 12,
+          "QQuickLoader": 16,
+          "QQuickShape": 9
+        },
+        "AnonHugePages_MiB": 88.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 76.71484375
+        }
+      },
+      {
+        "label": "after_graphics_purge",
+        "Rss": 411.324,
+        "Pss": 215.877,
+        "Private_Dirty": 184.312,
+        "Private_Clean": 5.242,
+        "Shared_Clean": 221.766,
+        "Shared_Dirty": 0.004,
+        "objects": 348,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 49739920,
+          "je_active": 65138688,
+          "je_resident": 77709312,
+          "je_retained": 159780864
+        },
+        "lifecycle": {
+          "shell": false,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 12,
+          "QQuickLoader": 16,
+          "QQuickShape": 9
+        },
+        "AnonHugePages_MiB": 86.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 76.71484375
+        }
+      }
+    ],
+    "no_precompile": [
+      {
+        "label": "cycle0",
+        "Rss": 324.293,
+        "Pss": 138.995,
+        "Private_Dirty": 113.016,
+        "Private_Clean": 2.805,
+        "Shared_Clean": 208.469,
+        "Shared_Dirty": 0.004,
+        "objects": 348,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 45358488,
+          "je_active": 51154944,
+          "je_resident": 66678784,
+          "je_retained": 28872704
+        },
+        "lifecycle": {
+          "shell": false,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 12,
+          "QQuickLoader": 16,
+          "QQuickShape": 9
+        },
+        "AnonHugePages_MiB": 90.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 42.62109375
+        }
+      },
+      {
+        "label": "cycle1",
+        "Rss": 387.012,
+        "Pss": 188.695,
+        "Private_Dirty": 155.496,
+        "Private_Clean": 5.59,
+        "Shared_Clean": 225.922,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 56534584,
+          "je_active": 66400256,
+          "je_resident": 85966848,
+          "je_retained": 55730176
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 94.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 77.0859375
+        }
+      },
+      {
+        "label": "cycle21",
+        "Rss": 425.051,
+        "Pss": 228.622,
+        "Private_Dirty": 195.84,
+        "Private_Clean": 5.602,
+        "Shared_Clean": 223.605,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 56450160,
+          "je_active": 70201344,
+          "je_resident": 94986240,
+          "je_retained": 141434880
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 112.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 12.015625,
+          "drm-total-vram": 80.7109375
+        }
+      },
+      {
+        "label": "after_gc",
+        "Rss": 422.332,
+        "Pss": 225.782,
+        "Private_Dirty": 193.121,
+        "Private_Clean": 5.602,
+        "Shared_Clean": 223.605,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 55763760,
+          "je_active": 69836800,
+          "je_resident": 92528640,
+          "je_retained": 143892480
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 112.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 12.015625,
+          "drm-total-vram": 80.7109375
+        }
+      },
+      {
+        "label": "trim",
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 55694432,
+          "je_active": 69443584,
+          "je_resident": 92528640,
+          "je_retained": 143892480
+        }
+      },
+      {
+        "label": "after_trim",
+        "Rss": 420.328,
+        "Pss": 224.043,
+        "Private_Dirty": 191.805,
+        "Private_Clean": 5.219,
+        "Shared_Clean": 223.301,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 55344576,
+          "je_active": 69070848,
+          "je_resident": 91140096,
+          "je_retained": 145281024
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 112.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 12.015625,
+          "drm-total-vram": 80.7109375
+        }
+      },
+      {
+        "label": "purge",
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 55237016,
+          "je_active": 68947968,
+          "je_resident": 80449536,
+          "je_retained": 155971584
+        }
+      },
+      {
+        "label": "after_purge",
+        "Rss": 410.945,
+        "Pss": 214.594,
+        "Private_Dirty": 182.422,
+        "Private_Clean": 5.215,
+        "Shared_Clean": 223.305,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 55238808,
+          "je_active": 68947968,
+          "je_resident": 80449536,
+          "je_retained": 155971584
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 96.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 12.015625,
+          "drm-total-vram": 80.7109375
+        }
+      },
+      {
+        "label": "after_caches",
+        "Rss": 410.617,
+        "Pss": 214.266,
+        "Private_Dirty": 182.094,
+        "Private_Clean": 5.215,
+        "Shared_Clean": 223.305,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 54781208,
+          "je_active": 68747264,
+          "je_resident": 80330752,
+          "je_retained": 156090368
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 96.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 12.015625,
+          "drm-total-vram": 80.7109375
+        }
+      },
+      {
+        "label": "after_graphics",
+        "Rss": 410.406,
+        "Pss": 213.822,
+        "Private_Dirty": 181.621,
+        "Private_Clean": 5.215,
+        "Shared_Clean": 223.566,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 50802696,
+          "je_active": 64126976,
+          "je_resident": 79876096,
+          "je_retained": 156545024
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 86.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 64.6484375
+        }
+      },
+      {
+        "label": "after_graphics_purge",
+        "Rss": 406.48,
+        "Pss": 209.896,
+        "Private_Dirty": 177.695,
+        "Private_Clean": 5.215,
+        "Shared_Clean": 223.566,
+        "Shared_Dirty": 0.004,
+        "objects": 1859,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 50758920,
+          "je_active": 63807488,
+          "je_resident": 75309056,
+          "je_retained": 161112064
+        },
+        "lifecycle": {
+          "shell": true,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 32,
+          "QQuickLoader": 23,
+          "QQuickShape": 49
+        },
+        "AnonHugePages_MiB": 86.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 14.015625,
+          "drm-total-vram": 64.6484375
+        }
+      }
+    ],
+    "verify_curve56": [
+      {
+        "label": "cycle0",
+        "Rss": 324.32,
+        "Pss": 137.065,
+        "Private_Dirty": 112.789,
+        "Private_Clean": 2.664,
+        "Shared_Clean": 208.863,
+        "Shared_Dirty": 0.004,
+        "objects": 348,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 45366160,
+          "je_active": 51183616,
+          "je_resident": 67125248,
+          "je_retained": 23707648
+        },
+        "lifecycle": {
+          "shell": false,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 12,
+          "QQuickLoader": 16,
+          "QQuickShape": 9
+        },
+        "AnonHugePages_MiB": 88.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 42.62109375
+        }
+      },
+      {
+        "label": "media56_33",
+        "cpu": 5.533264697979743
+      },
+      {
+        "label": "media56_50",
+        "cpu": 4.366599183932961
+      },
+      {
+        "label": "media56_66",
+        "cpu": 3.1999531888448325
+      }
+    ],
+    "verify_geometry56": [
+      {
+        "label": "cycle0",
+        "Rss": 320.023,
+        "Pss": 132.361,
+        "Private_Dirty": 108.578,
+        "Private_Clean": 2.707,
+        "Shared_Clean": 208.734,
+        "Shared_Dirty": 0.004,
+        "objects": 348,
+        "alloc": {
+          "arena": 0,
+          "used": 0,
+          "free": 0,
+          "mmap": 0,
+          "trimmed": 0,
+          "je_allocated": 43554920,
+          "je_active": 49098752,
+          "je_resident": 64888832,
+          "je_retained": 23728128
+        },
+        "lifecycle": {
+          "shell": false,
+          "retained": false,
+          "roomA": false,
+          "roomB": false,
+          "satelliteCount": 0
+        },
+        "object_counts": {
+          "QQmlConnections": 12,
+          "QQuickLoader": 16,
+          "QQuickShape": 9
+        },
+        "AnonHugePages_MiB": 84.0,
+        "driver_total_MiB": {
+          "drm-total-gtt": 16.015625,
+          "drm-total-vram": 42.62109375
+        }
+      },
+      {
+        "label": "media56_33",
+        "cpu": 5.499836889504333
+      }
+    ]
+  }
+}
