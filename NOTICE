@@ -81,3 +81,15 @@ The neutral menu tree replaces raw menu handles in the view. The full MIT
 notice is in licenses/DUX-SHELL-MIT.
 
 S8 palette catalogue: adapters/common/palette_sources.py reads installed Serpantinum and DMS JSON at runtime; no theme files or upstream implementation are bundled. The Amoled Black fallback repeats the DMS colour values already used by view/ui/Design.qml (DMS MIT notice above). The ten AMOLED studies and palette picker implementation are original ZÆTHERION work.
+
+FLUID Phase 2 (13 November 2026)
+-------------------------------
+- view/rooms/AngularMedia.qml and MediaSession.qml are extracted from the
+  seeded view/rooms/Media.qml (GPL-3.0 lineage above). Angular's visual tree
+  is retained; the session owns shared state, actions and leases.
+- view/fluid/FluidMedia.qml is an original Confluence presentation of that
+  session. It reuses assets/caelestia/bongocat.gif under the existing GPL-3.0
+  attribution in licenses/FART-NOTICE; no new third-party assets are added.
+- docs/captures/fluid-phase2/ contains nested Hyprland fixture captures of
+  these presentations and FART Settings, including an Angular baseline from
+  e6c86ea. All content is synthetic; no host media or notification data is used.

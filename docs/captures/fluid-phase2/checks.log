@@ -1,0 +1,63 @@
+ DEBUG qml: FLUID_PASS Angular starts with the persistent session
+ DEBUG qml: FLUID_PASS Fluid retains session identity and lyrics choice
+ DEBUG qml: FLUID_PASS Style switch preserves the active palette preview
+ DEBUG qml: FLUID_PASS Style switch does not churn leases
+ DEBUG qml: FLUID_PASS Settings and command draft survive
+ DEBUG qml: FLUID_PASS Closing settings still cancels preview exactly once
+ DEBUG qml: FLUID_PASS Focus follows the corresponding Angular control
+ DEBUG qml: FLUID_PASS Focus follows the corresponding Fluid control
+ DEBUG qml: FLUID_PASS Switching does not steal focus from outside the room
+ DEBUG qml: FLUID_PASS Rapid requests commit only the final view
+ DEBUG qml: FLUID_PASS Rejected style command keeps the current design
+ DEBUG qml: FLUID_PASS Both views use capability checked shared actions
+ DEBUG qml: FLUID_PASS Unavailable actions do not reach the adapter
+ DEBUG qml: FLUID_PASS Playing owns exactly one of each subscription
+ DEBUG qml: FLUID_PASS Forty alternating switches preserve leases and controller identity
+ DEBUG qml: FLUID_PASS Folding releases all subscriptions
+ DEBUG qml: FLUID_PASS Delayed command serializes requests
+ DEBUG qml: FLUID_PASS Latest queued intent returns to the original form
+ DEBUG qml: FLUID_PASS Delayed style replies preserve final intent
+ DEBUG qml: FLUID_PASS Superseded failure cannot overwrite the newer request
+ DEBUG qml: FLUID_PASS Disconnect clears queued work and ignores stale replies
+ DEBUG qml: FLUID_PASS Player choice focus transfers to Angular
+ DEBUG qml: FLUID_PASS Player choice focus transfers to Fluid
+ DEBUG qml: FLUID_PASS media.player stays inside Media
+ DEBUG qml: FLUID_PASS media.cover stays inside Media
+ DEBUG qml: FLUID_PASS media.lyricBody stays inside Media
+ DEBUG qml: FLUID_PASS media.seek stays inside Media
+ DEBUG qml: FLUID_PASS media.play stays inside Media
+ DEBUG qml: FLUID_PASS media.loop stays inside Media
+ DEBUG qml: FLUID_PASS Long player catalogue retains selection
+ DEBUG qml: FLUID_PASS Fluid choice dispatches through the shared session
+ DEBUG qml: FLUID_PASS Overdrive settings content fits its panel
+ DEBUG qml: FLUID_DONE
+ DEBUG qml: CUE_PASS voice.media
+ DEBUG qml: CUE_PASS arch.first
+ DEBUG qml: CUE_PASS groove.cut
+ DEBUG qml: CUE_PASS type.sections
+ DEBUG qml: CUE_PASS arch.cut
+ DEBUG qml: CUE_PASS arch.inert
+ DEBUG qml: CUE_PASS arch.silence
+ DEBUG qml: CUE_PASS arch.release
+ DEBUG qml: CUE_PASS type.release
+ DEBUG qml: CUE_ACTIVE 0 []
+ DEBUG qml: CUE_DONE
+ DEBUG qml: FART_SMOKE home home
+ DEBUG qml: FART_SMOKE_SLOW media 150
+ DEBUG qml: FART_SMOKE media media
+ DEBUG qml: FART_SMOKE_SLOW performance 150
+ DEBUG qml: FART_SMOKE performance performance
+ DEBUG qml: FART_SMOKE workspaces workspaces
+ DEBUG qml: FART_SMOKE devices devices
+ DEBUG qml: FART_SMOKE tasks tasks
+ DEBUG qml: FART_SMOKE_SLOW timers 150
+ DEBUG qml: FART_SMOKE timers timers
+ DEBUG qml: FART_SMOKE clipboard clipboard
+ DEBUG qml: FART_SMOKE notifications notifications
+ DEBUG qml: FART_SMOKE codex codex
+ DEBUG qml: FART_SMOKE_DONE
+Focused Python regressions: 59 passed
+Qt 6 qmllint: 0 syntax diagnostics
+Nested hyprctl configerrors: empty
+Nested ZTEST: 1920x1080 at nominal 60 Hz; sustained FPS unmeasured
+Native Shell capture assertions: style, active page, controller identity, Settings visibility, palette preview and cancellation passed
