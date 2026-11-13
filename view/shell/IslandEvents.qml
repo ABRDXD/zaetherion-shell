@@ -3,6 +3,7 @@ import Quickshell
 import qs.view.contract
 import qs.core.client
 import qs.view.satellites
+import qs.view.ui
 
 Scope {
     id: root
@@ -69,8 +70,10 @@ Scope {
         target: root.host.osd
         function onEventChanged() {
             const value = root.host.osd.event;
-            if (value && root.host.osd.available)
+            if (value && root.host.osd.available) {
                 root.queue.offer("osd", "osd", root.priority.osd, value, 1200);
+                Feedback.play("osd.tick");
+            }
         }
     }
 
@@ -100,11 +103,25 @@ Scope {
         if (!ready || !previous?.available || !battery?.available) return;
         if (battery.charging && !previous.charging)
             queue.offer("charging", "charging", priority.charging, { label: "> POWER · CHARGING" }, durations.charging);
+        if (battery.pluggedIn !== previous.pluggedIn)
+            Feedback.play(battery.pluggedIn ? "power.plug" : "power.unplug");
         if (battery.pluggedIn) return;
         const threshold = [0.05, 0.1, 0.2].find(level => battery.level <= level && previous.level > level);
         if (threshold === undefined || (host.notifications.dnd && threshold > 0.05)) return;
         queue.offer("low-battery", "low-battery", threshold === 0.05 ? priority.critical : priority.notification,
             { label: "> BATTERY · " + Math.round(battery.level * 100) + "%" }, durations.lowBattery);
+        Feedback.play("battery.low");
+    }
+
+    // The network coming and going is heard, not shown (the island's glyph already says it). Not at start, and not
+    // while the source is away (DMS restarting is not the network going down): only a known state that changes.
+    readonly property var online: host.network.available ? host.network.connected === true : null
+    property var lastOnline: null
+    onOnlineChanged: {
+        if (online === null) return;
+        if (ready && lastOnline !== null && online !== lastOnline)
+            Feedback.play(online ? "net.up" : "net.down");
+        lastOnline = online;
     }
 
     function syncStartupNotice(): void {

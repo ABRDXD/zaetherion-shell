@@ -50,6 +50,7 @@ class Inbox:
         self.on_change = lambda: None
         self.close_remote = lambda item: False  # the mirror's: True when the host will close the item itself
         self.on_sound = lambda urgency: None  # a notification that should be heard arrived at our server
+        self.on_dnd = lambda on: None  # do-not-disturb was switched (the core plays dnd.on / dnd.off)
         self.mirroring = False
         self.server = None  # the client whose view runs our notification server
         self.holder_pid = 0  # the process that owns the notification name on the bus; 0 while unknown
@@ -135,6 +136,7 @@ class Inbox:
             write_json(self.config_path, config)
             self.dnd = on
             self.on_change()
+            self.on_dnd(on)
         return {"dnd": self.dnd}
 
     # Feeding (the mirror and our server both end here)

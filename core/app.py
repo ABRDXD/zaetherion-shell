@@ -89,6 +89,7 @@ class Core:
         server.on_disconnect.append(self.hostcalls.disconnected)
         server.on_disconnect.append(self.inbox.disconnected)
         self.inbox.on_sound = lambda urgency: self.sfx.emit(f"notify.{urgency}")
+        self.inbox.on_dnd = lambda on: self.sfx.emit("dnd.on" if on else "dnd.off")
         server.on_disconnect.append(self.palette.cancel)
         self.view.on_closed.append(self.palette.cancel)
         self.overdrive.on_release = self.view.check_idle_reap

@@ -158,6 +158,7 @@ Item {
             interval: root.holdMs
             onTriggered: {
                 act.keyHeld = false;
+                Feedback.play("hold.confirm");
                 root.sessionAction(act.verb);
             }
         }
