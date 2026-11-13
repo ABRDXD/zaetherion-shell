@@ -1,3 +1,10 @@
+# 13 November 2026 · Fable: s8-palette merged into s0-seed, with three rule fixes
+
+- **Merged.** `s8-palette` (Astra: palette picker inside FART, shared palette state, AMOLED studies; Z162–Z165) into `s0-seed` with the owner's OK. Not pushed.
+- **Review.** Astra's own tests passed. Three project laws failed on the branch and are fixed in the commit after the merge, not on Astra's branch: `core/palette_catalog.py` named a host (`catalogue()`'s parameters are now `presets`, `themes`, `generated`); `PreferencesPane.qml` animated with a raw `Behavior` (now a `Tween` gated by the panel); `view/shell/qmldir` and `view/ui/qmldir` were not in the generator's order.
+- **Checks.** Palette, architecture, layout, contract, command, verbs, island, daemon and cue tests: 88 OK; `make_qmldirs.py --check` clean. The pane's grow animation was not looked at after the `Tween` change. The full suite has not been run on the merged tree.
+- **Numbers.** S4 (branch `s4-notifications`) also used Z163–Z167; it renumbers to Z166–Z170 when it is brought up to date with this branch.
+
 # 13 November 2026 · Astra: S8 palette picker complete on `s8-palette`
 
 - **Built.** One stored palette and published topic; `zaetherion palette <name>` / `palette list`; settings section inside FART with hover/arrow preview, click/Enter save, and rollback on close, fold or disconnect. Installed palette readers live in the read-only common adapter. Missing/invalid sources are silently omitted; Amoled Black remains the default. Z162–Z165 record the choices.

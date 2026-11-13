@@ -21,7 +21,8 @@ Item {
     visible: reveal > 0
     clip: true
     z: 10
-    Behavior on reveal { NumberAnimation { duration: root.expanded ? Motion.unfold : Motion.fold; easing.type: Easing.OutCubic } }
+    // Gated by the panel, not this pane: the pane is invisible when it starts to grow.
+    Tween on reveal { scope: root.parent; NumberAnimation { duration: root.expanded ? Motion.unfold : Motion.fold; easing.type: Easing.OutCubic } }
     Rectangle {
         anchors.fill: parent
         color: Design.surface

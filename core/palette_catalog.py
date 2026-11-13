@@ -53,7 +53,8 @@ def normalize(colors: dict) -> dict:
     return result
 
 
-def catalogue(serpantinum: Path | None = None, dms: Path | None = None, matugen: Path | None = None) -> dict:
+def catalogue(presets: Path | None = None, themes: Path | None = None, generated: Path | None = None) -> dict:
+    """The folders are the hosts' own (adapters/common/palette_sources.py knows which); tests pass private ones."""
     from adapters.common.palette_sources import installed_palettes
     entries = {}
 
@@ -61,7 +62,7 @@ def catalogue(serpantinum: Path | None = None, dms: Path | None = None, matugen:
         entries[key] = dict(id=key, name=name, source=source, study=study, colors=normalize(colors))
 
     add(DEFAULT, "Amoled Black", "DMS", DEFAULT_COLORS)
-    for entry in installed_palettes(serpantinum, dms, matugen):
+    for entry in installed_palettes(presets, themes, generated):
         add(entry["id"], entry["name"], entry["source"], entry["colors"])
     for name, accent in STUDIES.items():
         add("amoled:" + name.lower(), name, "AMOLED studies", dict(DEFAULT_COLORS, accent=accent,
