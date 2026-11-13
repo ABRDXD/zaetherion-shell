@@ -1,3 +1,10 @@
+# 13 November 2026 · Opus: live switch to our notification server; the empty strip under the island
+
+- **Live.** Main checkout on `s0-seed` (Astra's island docs committed as `842d054`, merged `d91937b`). Core started with `FART_VIEW_ENTRY=shell-dms.qml`, `FART_RESIDENT_VIEW=1`, `FART_NOTIFICATION_SERVER=1`, `FART_RESIDENT_DIR=~/.local/state/zaetherion/dms-quiet`; our view holds `org.freedesktop.Notifications`; DMS's volume/mic/brightness OSDs off (backup `~/.config/dms/settings.json.bak-2026-11-13-osd`). A test notification showed ~5 s (measured by screen grabs, pointer away).
+- **`zaetherion restart` race.** The new core started while the old one was still stopping DMS ("another core is already running"): no core for ~30 s until a plain `start`. A fix (wait for core.lock, 12 s bound) is committed on `s5-restart-race` (`4832e4b`), not yet verified or merged. Until then: `stop`, wait, `start`.
+- **Empty strip.** The screen reserved 70 px: our island's 36 plus 34 from DMS's hidden island-style Main Bar, which DMS reserves even when `visible` is false. `tools/dms_quiet.py` now patches that expression too (Z171); rebuilt live, `dms restart`: reserved 36.
+- **Owner asked, not started:** right-click to dismiss a notification and a much shorter showing time.
+
 # 13 November 2026 · Opus: S5 step 2, caps and num lock; the DMS link keeps early feeds (owner away)
 
 - **Caps and num lock.** `adapters/dms/DmsKeybinds.qml`: `HyprlandKeybinds` plus DMS's `evdev` service (`{available, capsLock, numLock}`), held while the domain exists; null until the first snapshot. The island's hover view already shows caps lock when it is on (`IslandRest.hoverStatus`). Live probe: caps true (it was on), num false, 94 binds read.

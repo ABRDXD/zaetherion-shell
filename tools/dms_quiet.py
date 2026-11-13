@@ -24,6 +24,12 @@ import subprocess
 import sys
 
 SERVICE = Path("Services/NotificationService.qml")
+BAR = Path("Modules/DBar/DBarBody.qml")
+# DMS reserves an island-style bar's strip even while the bar is hidden (`visible` is checked only for ordinary
+# bars), so with ours on top the windows sat ~34 px lower than needed (owner, 13 November 2026). A hidden bar reserves
+# nothing; a shown one is unchanged.
+BAR_FROM = "readonly property real surfaceExclusiveZone: isIsland ? ((islandFree || "
+BAR_TO = "readonly property real surfaceExclusiveZone: isIsland ? (!(barConfig?.visible ?? true) ? -1 : (islandFree || "
 MARKER = ".zaetherion-quiet"
 OPENING = re.compile(r"^(?P<indent>[ \t]*)NotificationServer\s*\{", re.M)
 
@@ -71,6 +77,13 @@ def quiet(text: str) -> str:
     return text[:match.start()] + note + text[end:]
 
 
+def hidden_bar_reserves_nothing(text: str) -> str:
+    """DBarBody.qml with the hidden-island-bar reservation removed. Refuses a file it doesn't recognise."""
+    if text.count(BAR_FROM) != 1:
+        raise ValueError(f"{BAR}: the island bar's exclusive zone is not the expression this patch knows")
+    return text.replace(BAR_FROM, BAR_TO)
+
+
 def running_source() -> Path:
     """The UI folder the running DMS's Quickshell was started with (`qs -p <dir>`)."""
     out = subprocess.run(["pgrep", "-a", "-x", "qs"], capture_output=True, text=True).stdout
@@ -93,6 +106,7 @@ def build(source: Path, out: Path) -> Path:
         raise SystemExit(f"dms_quiet: {source} is a quiet copy; build from DMS's stock UI")
     text = (source / SERVICE).read_text()
     patched = quiet(text)  # before any copying: a DMS we don't understand leaves nothing behind
+    bar = hidden_bar_reserves_nothing((source / BAR).read_text())
     if out.exists():
         if not (out / MARKER).is_file():
             raise SystemExit(f"dms_quiet: {out} exists and is not a quiet copy; not touching it")
@@ -102,6 +116,7 @@ def build(source: Path, out: Path) -> Path:
         if not path.is_symlink():
             path.chmod(path.stat().st_mode | 0o200)
     (out / SERVICE).write_text(patched)
+    (out / BAR).write_text(bar)
     (out / MARKER).write_text(revision(source) + "\n")
     return out
 
@@ -115,6 +130,9 @@ def check(directory: Path) -> list[str]:
         problems.append(f"no {SERVICE}")
     elif OPENING.search(service.read_text()):
         problems.append("still declares a NotificationServer")
+    bar = directory / BAR
+    if not bar.is_file() or BAR_TO not in bar.read_text():
+        problems.append("a hidden island bar still reserves its strip")
     for path in directory.rglob("*.qml"):
         if path != service and OPENING.search(path.read_text(errors="replace")):
             problems.append(f"{path.relative_to(directory)} declares a NotificationServer")
