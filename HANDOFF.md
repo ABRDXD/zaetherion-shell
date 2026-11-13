@@ -1,3 +1,12 @@
+# 13 November 2026 · Sonnet: notifications leave the island sooner (branch `s5-notif-dismiss`, Z175)
+
+- **Owner asked** to dismiss notifications by right-click or shorten the stay; both done.
+- **Right-click.** `IslandSurface` has a right-button-only `MouseArea` (`objectName: "noticeRightClick"`) over the island while a notification or critical one is shown; it calls `dismissNotice()`: `queue.remove` plus `host.notifications.dismiss(id)` (the Inbox's own dismiss). Left-click is unchanged; the right button is consumed, no menu, nothing reaches the window below. Not for the FART-docked critical drop (`FartAlertDrop`), which has its own path.
+- **Time.** `NotificationTiming` low/normal 5000 -> 3000; `IslandEvents.durations.notification` 3000. A sender's timeout is honoured, but `IslandEvents.notificationCap` (6000) caps a non-critical one on the island; the Inbox keeps the item. Critical with no timeout now stays until dismissed on the mirror path too (it used to take `durations.notification`).
+- **Hover.** Separable, so no 10 s cap: `IslandExpansion` has a `HoverHandler` on the notification card (`noticeHovered`), `IslandSurface.noticeHovered` follows it, and `queue.hovered` is that while a notice is shown (island `pointerInside` otherwise). The pointer on the island's padding no longer pauses.
+- **Tests.** New `tests/fixtures/island/DismissTest.qml` (right-click via the area's `clicked`, 3 s default, hover rule); `NoticeTest.qml` gained the cap, 3 s and critical checks; `test_notification_server.py` expects 3000. Z175 in DECISIONS, SURFACES row updated.
+- **Not done / doubts.** A reply being typed does not pause the countdown with the pointer away (as before). The right-click is injected as a signal in tests, not a real pointer event. Not tried on the live session (never touched).
+
 # 13 November 2026 · Opus: live switch to our notification server; the empty strip under the island
 
 - **Live.** Main checkout on `s0-seed` (Astra's island docs committed as `842d054`, merged `d91937b`). Core started with `FART_VIEW_ENTRY=shell-dms.qml`, `FART_RESIDENT_VIEW=1`, `FART_NOTIFICATION_SERVER=1`, `FART_RESIDENT_DIR=~/.local/state/zaetherion/dms-quiet`; our view holds `org.freedesktop.Notifications`; DMS's volume/mic/brightness OSDs off (backup `~/.config/dms/settings.json.bak-2026-11-13-osd`). A test notification showed ~5 s (measured by screen grabs, pointer away).

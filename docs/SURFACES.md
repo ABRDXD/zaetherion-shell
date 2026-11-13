@@ -44,7 +44,7 @@ The island morphs continuously (width and height, host motion profile with overs
 
 | Expansion | Content | Leaves |
 |---|---|---|
-| Notification (Z33, Z73) | App tag, summary, ≤ 2 body lines, actions, inline reply field, image | 5 s timeout (paused on hover), or swipe/scroll toward the edge. Click opens the app. Always kept in Inbox. |
+| Notification (Z33, Z73, Z175) | App tag, summary, ≤ 2 body lines, actions, inline reply field, image | 3 s timeout (6 s at most when the sender asks for more; paused while the pointer is on the card), or right-click, or swipe/scroll toward the edge. Click opens the app. Always kept in Inbox. |
 | OSD | −12° blade meter with level | 1.2 s after the last change |
 | Track change | Art, title, artist | ~3 s |
 | Timer/session | Countdown and current task; DONE inverts until clicked | On click (DONE) |

@@ -32,7 +32,17 @@ class IslandFrameTests(unittest.TestCase):
     def test_notices_follow_their_inbox_item(self):
         self.run_fixture("NoticeTest.qml", ("the sender's showing time", "a live item can be answered",
             "replace-id refreshes the card", "zero stays until dismissed", "a change that is not an arrival shows nothing",
-            "our own showing time", "a restored item cannot be answered", "closed elsewhere leaves the island"))
+            "our own showing time", "the adapter's default is 3 s and honours the sender",
+            "the island caps a sender's long time at 6 s", "a shorter sender time is kept", "critical is not capped",
+            "a restored item cannot be answered", "closed elsewhere leaves the island"))
+
+    def test_right_click_dismisses_and_card_hover_pauses(self):
+        self.run_fixture("DismissTest.qml", ("right-click is idle without a notification", "default showing time is 3 s",
+            "right-click takes only the right button", "right-click removes it from the island",
+            "right-click dismisses it in the Inbox", "critical stays until dismissed",
+            "right-click dismisses a critical notification", "pointer off the card",
+            "island hover does not pause a notification", "second notification shown", "card hover pauses a notification",
+            "leaving the card resumes the countdown"))
 
     def test_reply_draft_keeps_keyboard(self):
         self.run_fixture("ReplyTest.qml", ("rest takes no keyboard", "notice offers keyboard",

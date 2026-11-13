@@ -11,7 +11,9 @@ Scope {
     required property IslandQueue queue
     property CoreClient core: null
     property var startupNotice: null
-    readonly property var durations: ({ charging: 2000, lowBattery: 5000, backend: 5000, notification: 5000 })
+    readonly property var durations: ({ charging: 2000, lowBattery: 5000, backend: 5000, notification: 3000 })
+    // Z175: the island shows a non-critical notification for at most this long, whatever its sender asked for.
+    readonly property int notificationCap: 6000
     readonly property var recording: host.capture.available ? host.capture.recording : null
     readonly property var battery: host.power.battery
     property var previousBattery: null
@@ -44,9 +46,11 @@ Scope {
         const shown = item.live === false ? Object.assign({}, item, { actions: [], reply: "" }) : item;
         queue.offer("notification:" + item.id, kind, priority[kind], shown, showTime(item));
     }
-    // The item's own showing time (contract: 0 = until dismissed, absent or negative = ours).
+    // The item's own showing time (contract: 0 = until dismissed, absent or negative = ours). A sender's long time is
+    // honoured up to notificationCap (Z175); a critical one is not capped. The Inbox keeps the item either way.
     function showTime(item): var {
-        return item.timeout > 0 ? item.timeout : item.timeout === 0 ? null : durations.notification;
+        if (item.timeout > 0) return item.urgency === "critical" ? item.timeout : Math.min(item.timeout, notificationCap);
+        return item.timeout === 0 || item.urgency === "critical" ? null : durations.notification;   // critical stays until dismissed
     }
     function arrivals(): var {
         const times = {};
