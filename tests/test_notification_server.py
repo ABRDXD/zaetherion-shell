@@ -92,7 +92,8 @@ class MatrixTests(Base):
         self.bus.send("quiet", "Synthetic body")
         self.bus.send("-u", "critical", "loud", "Synthetic body")
         self.items(3)
-        self.assertEqual(self.played(), ["notify.critical"])
+        # Switching do-not-disturb has its own cue (dnd.on); of the three notifications only the critical one sounds.
+        self.assertEqual(self.played(), ["dnd.on", "notify.critical"])
 
     def test_expiry_the_senders_time_is_kept_and_a_transient_leaves_when_it_ends(self):
         self.serving()
