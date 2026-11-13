@@ -51,6 +51,7 @@ ShellRoot {
         islandRect: root.island?.islandRect ?? null
         islandHasKeyboard: root.island?.companionWindow?.wantsKeyboard ?? false
         islandAlert: root.island?.coveredEvent ?? null
+        islandOsd: root.island?.headerOsd ?? null
         onIslandAlertDismissed: id => root.island?.dismissCovered(id)
         onIslandAlertAction: (id, action, reply) => adapter.notifications.invoke(id, action, reply)
     }

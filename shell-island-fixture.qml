@@ -36,6 +36,7 @@ ShellRoot {
         islandRect: island.islandRect
         islandHasKeyboard: island.companionWindow?.wantsKeyboard ?? false
         islandAlert: island?.coveredEvent ?? null
+        islandOsd: island?.headerOsd ?? null
         onIslandAlertDismissed: id => island?.dismissCovered(id)
         onIslandAlertAction: (id, action, reply) => fixture.notifications.record("action", [id, action, reply])
     }

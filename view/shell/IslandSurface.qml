@@ -24,7 +24,10 @@ FocusScope {
     // The width the island had when the panel took over: it holds it while docked, so the growth starts from and
     // folds back into exactly that shape, then eases to its natural width.
     property real dockWidth: 0
-    onDockedChanged: if (docked) dockWidth = width
+    onDockedChanged: {
+        if (docked) dockWidth = width;
+        handOverOsd();
+    }
     property bool pointerInside: hover.hovered
     property bool keyboardMode: false
     property bool hoverOpen: false
@@ -64,6 +67,39 @@ FocusScope {
     // The critical event FART shows while it covers the island (Z161).
     readonly property var coveredEvent: docked ? queue.current : null
     function dismissCovered(id: string): void { queue.remove(id); }
+    // Z174 (owner, 13 November 2026; bends Z161 for the OSD only): while FART covers the island, a volume, mic or
+    // brightness change shows in FART's header (FartHeaderOsd, drawn by the Overlay) at once and is never banked
+    // in the queue, so the fold replays no stale level. It stays `osdDwell` after the last change.
+    readonly property int osdDwell: 1200
+    property var headerOsd: null
+    property double headerOsdUntil: 0
+    function showHeaderOsd(value: var, dwell: double): void {
+        queue.remove("osd");
+        headerOsd = value;
+        headerOsdUntil = queue.clock() + dwell;
+        headerOsdExpiry.interval = Math.max(1, dwell);
+        headerOsdExpiry.restart();
+    }
+    // The readout moves with the cover, its time intact: an OSD already on the island goes up into the header
+    // when FART docks, and one still in the header comes back to the island when FART has folded.
+    function handOverOsd(): void {
+        const now = queue.clock();
+        if (docked) {
+            const banked = queue.snapshot(now).find(event => event.id === "osd");
+            if (banked && banked.remaining > 0) showHeaderOsd(banked.data, banked.remaining);
+            else queue.remove("osd");
+        } else if (headerOsd) {
+            const left = headerOsdUntil - now;
+            const value = headerOsd;
+            headerOsdExpiry.stop();
+            headerOsd = null;
+            if (left > 0) queue.offer("osd", "osd", events.priority.osd, value, left);
+        }
+    }
+    Timer {
+        id: headerOsdExpiry
+        onTriggered: root.headerOsd = null
+    }
     // A critical event flashes the island red once (Z161).
     readonly property bool criticalShown: expansion?.priority === events.priority.critical
     onCriticalShownChanged: if (criticalShown) alarm.fire()
@@ -189,6 +225,9 @@ FocusScope {
         workspaceIds: root.workspaceIds
         core: root.core
         startupNotice: root.startupNotice
+        covered: root.docked
+        osdDwell: root.osdDwell
+        onCoveredOsd: value => root.showHeaderOsd(value, root.osdDwell)
     }
 
     onExpansionChanged: {
