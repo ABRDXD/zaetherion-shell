@@ -1,0 +1,317 @@
+{
+  "revision": "eb095012bc6b5f114bb409bdbf927fc7456ba9f8",
+  "date": "2026-11-12",
+  "scope": "Committed HEAD only; concurrent shared-checkout edits excluded.",
+  "units": {
+    "memory": "MiB",
+    "cpu": "percent of one core, process utime+stime / monotonic elapsed, CLK_TCK=100"
+  },
+  "isolation": {
+    "nested": "Private runtime, hidden special workspace, headless ZTEST output",
+    "view": "Private HOME/config/cache/state/data and DBus; inherited FART_*, Qt renderer overrides, DMS and audio variables removed",
+    "renderer": "Hardware OpenGL confirmed by Qt RHI log; no sustained FPS claim",
+    "allocator": "spawn_quickshell supplies the child default when absent; compositor explicitly uses empty MALLOC_CONF",
+    "live_services": "No live audio, playback, power or configuration actions"
+  },
+  "method": {
+    "memory": "100 home open/fold cycles via fixture IPC, 0.6 seconds per phase, assert opened and fully unretained each cycle, five-second settling at samples; no diagnostic QML changes in baseline",
+    "cpu": "Three consecutive 30-second windows per condition, five-second media warmup; sequential baseline, 20 Hz CAVA, 30 Hz CAVA; no affinity/frequency control",
+    "cava": "Fixture timer replaced by QuickshellMedia Process/SplitParser logic, with frame/nonzero-bin counters; separate PID accounting, 56 bins, raw ASCII range 1000",
+    "pcm": "Private FIFO, signed 16-bit stereo little-endian PCM, 44100 Hz; identical channels, 8-second deterministic loop, 441-frame writes paced every 10 ms. Random seed 9123. x=(0.18*sin(2*pi*(110*t+900*t*t))+0.18*uniform(-1,1))*(0.55+0.45*sin(2*pi*0.7*t)^2); int(32767*x).",
+    "combined": "view + CAVA only; nested compositor and artificial PCM feeder measured separately, not included",
+    "source_chain": [
+      "core/fartd.py:serve -> core/view.py:spawn_quickshell",
+      "shell-dms.qml -> adapters/dms/DmsAdapter.qml -> adapters/quickshell/QuickshellMedia.qml -> tools/cava.conf"
+    ]
+  },
+  "runs": [
+    {
+      "revision": "eb09501",
+      "label": "baseline",
+      "memory": [
+        {
+          "cycles": 0,
+          "Rss": 269.671875,
+          "Pss": 84.3212890625,
+          "Private_Dirty": 62.9140625,
+          "Shared_Clean": 205.984375,
+          "Shared_Dirty": 0.015625,
+          "AnonHugePages": 10.0
+        },
+        {
+          "cycles": 1,
+          "Rss": 329.09375,
+          "Pss": 126.5361328125,
+          "Private_Dirty": 99.87109375,
+          "Shared_Clean": 227.84375,
+          "Shared_Dirty": 0.02734375,
+          "AnonHugePages": 12.0
+        },
+        {
+          "cycles": 21,
+          "Rss": 328.7578125,
+          "Pss": 128.1591796875,
+          "Private_Dirty": 102.04296875,
+          "Shared_Clean": 225.65625,
+          "Shared_Dirty": 0.03125,
+          "AnonHugePages": 12.0
+        },
+        {
+          "cycles": 50,
+          "Rss": 329.97265625,
+          "Pss": 129.115234375,
+          "Private_Dirty": 103.05859375,
+          "Shared_Clean": 225.85546875,
+          "Shared_Dirty": 0.03125,
+          "AnonHugePages": 12.0
+        },
+        {
+          "cycles": 100,
+          "Rss": 328.14453125,
+          "Pss": 127.5458984375,
+          "Private_Dirty": 101.4296875,
+          "Shared_Clean": 225.65625,
+          "Shared_Dirty": 0.03125,
+          "AnonHugePages": 12.0
+        }
+      ],
+      "cpu": [
+        {
+          "mode": "rest",
+          "window": 0,
+          "seconds": 30.030730956998013,
+          "view": 0.06659844553448194
+        },
+        {
+          "mode": "rest",
+          "window": 1,
+          "seconds": 30.029637466999702,
+          "view": 0.0
+        },
+        {
+          "mode": "rest",
+          "window": 2,
+          "seconds": 30.0302735639998,
+          "view": 0.0
+        },
+        {
+          "mode": "media",
+          "window": 0,
+          "seconds": 30.021191599000304,
+          "view": 4.729992130116805,
+          "combined": 4.729992130116805
+        },
+        {
+          "mode": "media",
+          "window": 1,
+          "seconds": 30.002530894998927,
+          "view": 4.699603526564578,
+          "combined": 4.699603526564578
+        },
+        {
+          "mode": "media",
+          "window": 2,
+          "seconds": 30.02462780800124,
+          "view": 4.729450799791719,
+          "combined": 4.729450799791719
+        }
+      ],
+      "allocator": "thp:never,narenas:4,dirty_decay_ms:3000",
+      "gpu_mappings": true,
+      "final": {
+        "open": false,
+        "bars": 24,
+        "core": false,
+        "surfaces": 0,
+        "satellites": []
+      },
+      "final_memory": {
+        "Rss": 313.03125,
+        "Pss": 112.2470703125,
+        "Private_Dirty": 86.1171875,
+        "Shared_Clean": 225.85546875,
+        "Shared_Dirty": 0.03125,
+        "AnonHugePages": 12.0
+      }
+    },
+    {
+      "revision": "eb09501",
+      "label": "cava20",
+      "memory": [],
+      "cpu": [
+        {
+          "mode": "media",
+          "window": 0,
+          "seconds": 30.02980768099951,
+          "view": 4.795235504991657,
+          "producer": 1.3653101090601243,
+          "nested_compositor": 2.0313150403089635,
+          "pcm_feeder": 0.5994044381239567,
+          "combined": 6.160545614051782,
+          "source_hz": 20.046748430590117,
+          "active_bins": 56
+        },
+        {
+          "mode": "media",
+          "window": 1,
+          "seconds": 30.030582574996515,
+          "view": 5.261303193350332,
+          "producer": 1.5650712030852254,
+          "nested_compositor": 2.4641546601767446,
+          "pcm_feeder": 0.6992871332933984,
+          "combined": 6.826374396435558,
+          "source_hz": 20.012931767111073,
+          "active_bins": 56
+        },
+        {
+          "mode": "media",
+          "window": 2,
+          "seconds": 30.030016374003026,
+          "view": 4.628702104882374,
+          "producer": 1.4652006662937014,
+          "nested_compositor": 1.7982008177240854,
+          "pcm_feeder": 0.699300318003812,
+          "combined": 6.093902771176076,
+          "source_hz": 20.013309100966243,
+          "active_bins": 56
+        }
+      ],
+      "allocator": "thp:never,narenas:4,dirty_decay_ms:3000",
+      "gpu_mappings": true,
+      "producer_memory": {
+        "Rss": 11.7421875,
+        "Pss": 6.2001953125,
+        "Private_Dirty": 2.78125,
+        "Shared_Clean": 5.875,
+        "Shared_Dirty": 0.0,
+        "AnonHugePages": 0.0
+      },
+      "final": {
+        "open": false,
+        "bars": 56,
+        "core": false,
+        "surfaces": 0,
+        "satellites": []
+      },
+      "final_memory": {
+        "Rss": 260.68359375,
+        "Pss": 77.1533203125,
+        "Private_Dirty": 55.984375,
+        "Shared_Clean": 203.93359375,
+        "Shared_Dirty": 0.0078125,
+        "AnonHugePages": 10.0
+      }
+    },
+    {
+      "revision": "eb09501",
+      "label": "cava30",
+      "memory": [],
+      "cpu": [
+        {
+          "mode": "media",
+          "window": 0,
+          "seconds": 30.019805637006357,
+          "view": 7.428429174274896,
+          "producer": 2.0319918369092766,
+          "nested_compositor": 2.898086718214861,
+          "pcm_feeder": 0.7994721981282399,
+          "combined": 9.460421011184174,
+          "source_hz": 30.080141454575028,
+          "active_bins": 56
+        },
+        {
+          "mode": "media",
+          "window": 1,
+          "seconds": 30.0300231440051,
+          "view": 7.1595016417068775,
+          "producer": 2.0979004810582933,
+          "nested_compositor": 2.797200641411058,
+          "pcm_feeder": 0.6660001527169186,
+          "combined": 9.257402122765171,
+          "source_hz": 30.036606887533036,
+          "active_bins": 56
+        },
+        {
+          "mode": "media",
+          "window": 2,
+          "seconds": 30.030838213999232,
+          "view": 7.525597467161186,
+          "producer": 2.097843541730773,
+          "nested_compositor": 2.93032113765568,
+          "pcm_feeder": 0.7991784920879137,
+          "combined": 9.623441008891959,
+          "source_hz": 30.06909076480775,
+          "active_bins": 56
+        }
+      ],
+      "allocator": "thp:never,narenas:4,dirty_decay_ms:3000",
+      "gpu_mappings": true,
+      "producer_memory": {
+        "Rss": 11.65625,
+        "Pss": 6.1708984375,
+        "Private_Dirty": 2.7109375,
+        "Shared_Clean": 5.8359375,
+        "Shared_Dirty": 0.0,
+        "AnonHugePages": 0.0
+      },
+      "final": {
+        "open": false,
+        "bars": 56,
+        "core": false,
+        "surfaces": 0,
+        "satellites": []
+      },
+      "final_memory": {
+        "Rss": 261.84765625,
+        "Pss": 78.3095703125,
+        "Private_Dirty": 57.078125,
+        "Shared_Clean": 204.0,
+        "Shared_Dirty": 0.0078125,
+        "AnonHugePages": 10.0
+      }
+    }
+  ],
+  "verification": {
+    "core_view_tests": 28,
+    "island_offscreen_tests": 5,
+    "shell_dms_tests": 3,
+    "offscreen_smoke_rooms": 10,
+    "qt6_qmllint_syntax_diagnostics": 0,
+    "nested_configerrors": [],
+    "logs": {
+      "baseline": {
+        "warnings": {
+          "private_portal_registration": 1,
+          "nested_textinput_focus": 101,
+          "missing_private_avatar": 100,
+          "missing_private_font": 193
+        },
+        "qml_errors": 0
+      },
+      "cava20": {
+        "warnings": {},
+        "qml_errors": 0
+      },
+      "cava30": {
+        "warnings": {},
+        "qml_errors": 0
+      }
+    },
+    "initial_setup": "First nested launch exceeded Unix socket path limit; stopped and replaced with a shorter private runtime before measurements."
+  },
+  "limitations": [
+    "Synthetic FIFO bypasses real audio capture/backend cost. Full DMS adapter stack and real session unmeasured.",
+    "20 Hz combined CPU exceeds 5% in every measured window.",
+    "100-cycle memory sampling revalidates the plateau, not prior object/lease/allocator-internal ablations. No memory budget is established.",
+    "CAVA runs start fresh; their final view memory cannot be compared with the post-100-cycle baseline.",
+    "Three windows are consecutive samples, not independent process replicates; order/load/cache effects remain.",
+    "Concurrent uncommitted shared-checkout changes are outside this evidence."
+  ],
+  "cleanup": {
+    "owned_test_processes_remaining": 0,
+    "nested_stopped": true,
+    "worktree_removed": true,
+    "shared_runtime_code_changed_by_this_task": false,
+    "staged_committed_or_pushed": false
+  }
+}
