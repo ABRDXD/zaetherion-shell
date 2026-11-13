@@ -32,6 +32,7 @@ HostLease 1.0 HostLease.qml
 IslandFrame 1.0 IslandFrame.qml
 LineWaveform 1.0 LineWaveform.qml
 MaterialSymbol 1.0 MaterialSymbol.qml
+PaletteBinding 1.0 PaletteBinding.qml
 Palimpsest 1.0 Palimpsest.qml
 singleton Periodic 1.0 Periodic.qml
 Plane 1.0 Plane.qml

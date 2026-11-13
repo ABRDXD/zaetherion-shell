@@ -89,3 +89,5 @@ quickshell/Services/NotificationService.qml at commit
 7627111c3ebd402662283f5f4a93223cda9e0a9d (v2.1.0) of duxlabs-dev/dux-shell.
 Popups, grouping, history, rules and dedupe are not taken; the list is kept by
 our own core.
+
+S8 palette catalogue: adapters/common/palette_sources.py reads installed Serpantinum and DMS JSON at runtime; no theme files or upstream implementation are bundled. The Amoled Black fallback repeats the DMS colour values already used by view/ui/Design.qml (DMS MIT notice above). The ten AMOLED studies and palette picker implementation are original ZÆTHERION work.

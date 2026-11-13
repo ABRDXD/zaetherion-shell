@@ -1,3 +1,10 @@
+# 13 November 2026 · Fable: s8-palette merged into s0-seed, with three rule fixes
+
+- **Merged.** `s8-palette` (Astra: palette picker inside FART, shared palette state, AMOLED studies; Z162–Z165) into `s0-seed` with the owner's OK. Not pushed.
+- **Review.** Astra's own tests passed. Three project laws failed on the branch and are fixed in the commit after the merge, not on Astra's branch: `core/palette_catalog.py` named a host (`catalogue()`'s parameters are now `presets`, `themes`, `generated`); `PreferencesPane.qml` animated with a raw `Behavior` (now a `Tween` gated by the panel); `view/shell/qmldir` and `view/ui/qmldir` were not in the generator's order.
+- **Checks.** Palette, architecture, layout, contract, command, verbs, island, daemon and cue tests: 88 OK; `make_qmldirs.py --check` clean. The pane's grow animation was not looked at after the `Tween` change. The full suite has not been run on the merged tree.
+- **Numbers.** S4 (branch `s4-notifications`) also used Z163–Z167; it renumbers to Z166–Z170 when it is brought up to date with this branch.
+
 # 13 November 2026 · Fable: S4 steps 3 and 4, the island and FART's Inbox (owner OK'd the captures)
 
 - **Island.** `IslandEvents`: the showing time comes from the item (`timeout`: 0 stays until dismissed, absent means our 5 s), a replace-id (same id, new `time`) refreshes the card, an item that leaves the Inbox leaves the island, and only a `live` item offers actions or reply. `IslandExpansion.pictureShown` → `keepImage`. Both shells send the island's and FART's alert-card actions to `notifications.invoke`. No drawing changed: the card already had actions, reply and a picture slot.
@@ -25,6 +32,13 @@
 - **Not yet.** Raw-pixel pictures are shown from the view while live but not yet saved to disk (step 3, when a card draws them). The island and FART's Inbox do not use actions, reply, images or the showing time yet. No sound yet.
 - **Checks.** Notification, bus, adapter, contract, architecture and island tests: 97 OK. qmllint: no syntax diagnostics on the new files. Full suite on that commit (`41f56bf`): 865 of 866; the one failure was the inherited layout law "no QML claims the notification server", replaced in the next commit by a law that allows exactly our one gated file.
 - **Next.** Step 3, the island: showing time from the item, actions, reply, picture. Captures to the owner before that commit.
+
+# 13 November 2026 · Astra: S8 palette picker complete on `s8-palette`
+
+- **Built.** One stored palette and published topic; `zaetherion palette <name>` / `palette list`; settings section inside FART with hover/arrow preview, click/Enter save, and rollback on close, fold or disconnect. Installed palette readers live in the read-only common adapter. Missing/invalid sources are silently omitted; Amoled Black remains the default. Z162–Z165 record the choices.
+- **Checked.** 15 palette tests cover storage, topic, CLI process, missing entries, preview ownership/cancel, keyboard selection and Design colour changes. The 69 related core/view/island/layout/architecture checks pass after enabling `QT_LOGGING_RULES=qml.debug=true` for the architecture harness (its markers were otherwise suppressed). Ten offscreen smoke rooms pass with that logging enabled; no binding/type/reference errors. Qt 6 qmllint: zero `syntax*` diagnostics. Nested captures were shown before the UI commits; the owned nested session is no longer running.
+- **Look/evidence.** Ten original true-black studies and five installed-palette readability checks are in `docs/captures/s8-palette/`; normal/muted/accent text meets 4.5:1 on those five. `tools/palette_capture.py` reproduces the comparison in nested Hyprland using inert fixtures. The local install supplied 94 static presets plus Matugen's existing generated colours; its empty Nightfox file was omitted without error. No host files copied or changed, live controls actuated, installs, push or merge.
+- **Left / next.** The owner chooses which AMOLED studies to retain; none was chosen as a new default. Opus reviews and merges `s8-palette`. Catalogue changes are picked up on core restart; DMS themes currently use their declared dark default flavour/accent. Existing unrelated island-diagnosis files remain uncommitted.
 
 # 12 November 2026 · Fable: S4 step 1, the Inbox in the core
 

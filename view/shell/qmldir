@@ -23,7 +23,9 @@ LiveTitle 1.0 LiveTitle.qml
 OrbitSystem 1.0 OrbitSystem.qml
 OrbitTile 1.0 OrbitTile.qml
 Overlay 1.0 Overlay.qml
+PalettePicker 1.0 PalettePicker.qml
 PanelBody 1.0 PanelBody.qml
+PreferencesPane 1.0 PreferencesPane.qml
 RoomPrecompiler 1.0 RoomPrecompiler.qml
 RoomSheet 1.0 RoomSheet.qml
 RoomSlot 1.0 RoomSlot.qml

@@ -24,7 +24,9 @@ Singleton {
     property PaletteDomain source: null
     // A copy, refreshed on change, so tokens never re-evaluate against a palette being destroyed.
     property var theme: ({ colors: {} })
-    readonly property var palette: theme.colors
+    // The core selection overrides host colours; fixtures without a core retain their source.
+    property var selection: null
+    readonly property var palette: selection ?? theme.colors
     function refresh() {
         if (source) theme = { colors: source.colors ?? {}, opacity: source.opacity, radius: source.radius, blur: source.blur, mono: source.monoFamily };
     }
@@ -61,7 +63,7 @@ Singleton {
     readonly property color portraitText: palette.text ?? "#ffffff"
     readonly property color portraitDetail: palette.textMuted ?? "#999999"
     readonly property color success: palette.success ?? accent
-    readonly property color islandFill: darkestIslandRole(palette)
+    readonly property color islandFill: palette.islandBackground ?? darkestIslandRole(palette)
 
     function linearChannel(value: real): real {
         return value <= 0.04045 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
