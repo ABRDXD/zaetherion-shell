@@ -12,6 +12,9 @@ ColumnLayout {
     property string selectedApp: ""
     readonly property var inbox: host.notifications
     readonly property var appNames: [...new Set(inbox.items.map(n => n.appName))]
+    // While the items are only mirrored from the host's server, its centre still holds their actions and history.
+    readonly property bool mirrored: inbox.source === "mirror"
+    readonly property int pictureSide: 40
     readonly property var messages: inbox.items.filter(n => selectedApp === "" || n.appName === selectedApp).slice().reverse()
     function timestamp(time) {
         return Qt.formatTime(new Date(time > 1e12 ? time : time * 1000), "HH:mm");
@@ -92,24 +95,38 @@ ColumnLayout {
                         onClicked: root.inbox.dismiss(message.modelData.id)
                     }
                 }
-                FText {
+                RowLayout {
                     Layout.fillWidth: true
-                    visible: text !== ""
-                    text: message.modelData.body.replace(/<[^>]*>/g, "").slice(0, 2000)
-                    wrapMode: Text.Wrap
-                    maximumLineCount: 5
-                    color: Design.muted
-                    font.pixelSize: Design.body
-                }
-                Flow {
-                    Layout.fillWidth: true
-                    spacing: 6
-                    // Actions are invoked in the host centre, which owns the notification.
-                    FButton {
-                        visible: message.modelData.hasActions
-                        label: "Actions in host center"
-                        onClicked: root.shell.openHost("notifications")
+                    spacing: 12
+                    FText {
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignTop
+                        visible: text !== ""
+                        text: message.modelData.body.replace(/<[^>]*>/g, "").slice(0, 2000)
+                        wrapMode: Text.Wrap
+                        maximumLineCount: 5
+                        color: Design.muted
+                        font.pixelSize: Design.body
                     }
+                    Image {
+                        id: picture
+                        visible: status === Image.Ready
+                        Layout.preferredWidth: root.pictureSide
+                        Layout.preferredHeight: root.pictureSide
+                        Layout.alignment: Qt.AlignTop
+                        source: message.modelData.image ?? ""
+                        sourceSize.width: root.pictureSide
+                        sourceSize.height: root.pictureSide
+                        fillMode: Image.PreserveAspectFit
+                        asynchronous: true
+                        onStatusChanged: if (status === Image.Ready) root.inbox.keepImage(message.modelData.id, picture)
+                    }
+                }
+                InboxAnswer {
+                    Layout.fillWidth: true
+                    item: message.modelData
+                    inbox: root.inbox
+                    onOpenHost: root.shell.openHost("notifications")
                 }
             }
         }
@@ -131,6 +148,7 @@ ColumnLayout {
             }
             FText {
                 aside: true
+                visible: root.mirrored
                 text: "Earlier messages and actions are in the host center."
                 font.pixelSize: Design.caption
                 color: Design.faint
@@ -152,6 +170,7 @@ ColumnLayout {
             Layout.fillWidth: true
         }
         FButton {
+            visible: root.mirrored
             label: "Open notification center"
             symbol: "open_in_new"
             onClicked: root.shell.openHost("notifications")

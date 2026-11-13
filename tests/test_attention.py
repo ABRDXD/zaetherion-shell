@@ -69,5 +69,21 @@ class InboxBand(unittest.TestCase):
         self.assertFalse([e for e in ("ReferenceError:", "TypeError:", "Cannot assign") if e in output], output[-2000:])
 
 
+class InboxAnswers(unittest.TestCase):
+    """Answering from the Inbox (tools/cuetest/InboxAnswerTest.qml, S4)."""
+
+    def test_actions_reply_picture_and_the_mirrored_fallback(self):
+        import sys
+        sys.path.insert(0, str(ROOT / "tools"))
+        import cuetest
+        output = cuetest.run("InboxAnswerTest.qml", timeout=60)
+        self.assertIn("CUE_DONE", output, output[-2000:])
+        self.assertEqual([line for line in output.splitlines() if "CUE_FAIL" in line], [])
+        for name in ("inbox.live.offers", "inbox.server.no-host-links", "inbox.live.answers", "inbox.picture.kept",
+                     "inbox.mirror.points-at-host"):
+            self.assertIn(f"CUE_PASS {name}", output)
+        self.assertFalse([e for e in ("ReferenceError:", "TypeError:", "Cannot assign") if e in output], output[-2000:])
+
+
 if __name__ == "__main__":
     unittest.main()

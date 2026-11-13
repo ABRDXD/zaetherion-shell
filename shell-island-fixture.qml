@@ -90,7 +90,7 @@ ShellRoot {
     IpcHandler {
         target: "island-fixture"
         function state(): string {
-            const calls = fixture.notifications.calls;
+            const calls = fixture.notifications.calls.filter(call => call.method === "action");
             const args = calls[calls.length - 1]?.args ?? [];
             return JSON.stringify({ panelOpen: panel.opened, panelRetained: panel.retained,
                 island: island.islandRect, overdrive: root.overdrive, notificationActions: calls.length,
@@ -143,6 +143,18 @@ ShellRoot {
             ]);
             fixture.notifications.unread += 1;
         }
+        // An S4 item as our own server gives it: a picture, two actions, and its own showing time (0 = stays).
+        function pictureNotification(timeoutMs: int): void {
+            const id = "sample-" + (++root.sampleId);
+            fixture.notifications.items = fixture.notifications.items.concat([
+                { id, appName: "DEMO APP", summary: "Fixture picture", body: "Synthetic notice with a picture.",
+                  urgency: "normal", time: Date.now(), live: true, timeout: timeoutMs,
+                  image: Qt.resolvedUrl("docs/ui/island-s3-layout-review.png"),
+                  actions: [{ id: "view", label: "View" }, { id: "later", label: "Later" }], reply: "" }
+            ]);
+            fixture.notifications.unread += 1;
+        }
+        function closeNotifications(): void { fixture.notifications.items = []; }
         function memory(stallPercent: real): void {
             fixture.system.memory = Object.assign({}, fixture.system.memory,
                 { pressureSomeAvg10: stallPercent, processes: [

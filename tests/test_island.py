@@ -29,6 +29,11 @@ class IslandFrameTests(unittest.TestCase):
         self.run_fixture("EventTest.qml", ("recording status", "charging notice", "DND suppresses ordinary battery warning",
             "critical battery passes DND", "backend comeback", "resident restart", "timer status", "timer done", "session debrief"))
 
+    def test_notices_follow_their_inbox_item(self):
+        self.run_fixture("NoticeTest.qml", ("the sender's showing time", "a live item can be answered",
+            "replace-id refreshes the card", "zero stays until dismissed", "a change that is not an arrival shows nothing",
+            "our own showing time", "a restored item cannot be answered", "closed elsewhere leaves the island"))
+
     def test_reply_draft_keeps_keyboard(self):
         self.run_fixture("ReplyTest.qml", ("rest takes no keyboard", "notice offers keyboard",
             "OSD over a notice without a draft releases keyboard", "notice resumes", "draft holds keyboard through OSD",

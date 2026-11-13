@@ -10,6 +10,8 @@ Item {
     readonly property var payload: event?.data ?? ({})
     readonly property string kind: event?.kind ?? ""
     signal notificationAction(string id, string action, string reply)
+    // A notification's picture is on screen: the adapter may want to keep it (NotificationsDomain.keepImage).
+    signal pictureShown(string id, Item picture)
     signal replyEdited(string text)
     signal replyFocused(bool focused)
     property bool restoreReplyFocus: false
@@ -310,6 +312,7 @@ Item {
                         sourceSize.height: height
                         fillMode: Image.PreserveAspectFit
                         asynchronous: true
+                        onStatusChanged: if (status === Image.Ready) root.pictureShown(String(root.payload.id), illustration)
                     }
                 }
                 // The sheet's notched rule in Angular; a plain hairline in Fluid.

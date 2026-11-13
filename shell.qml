@@ -43,6 +43,7 @@ ShellRoot {
         islandHasKeyboard: root.island?.companionWindow?.wantsKeyboard ?? false
         islandAlert: root.island?.coveredEvent ?? null
         onIslandAlertDismissed: id => root.island?.dismissCovered(id)
+        onIslandAlertAction: (id, action, reply) => adapter.notifications.invoke(id, action, reply)
     }
     function showPanel(room: string): void {
         panel.openPage(room, { screen: root.islandScreen?.name ?? "", from: root.island?.islandRect ?? null });
@@ -74,8 +75,7 @@ ShellRoot {
             // A long press ignites, or cuts a running Overdrive, as the panel's plate does. FART is folded here, so
             // the Overdrive asked for outlasts it ("sticky") instead of the panel's own "panel" mode.
             onIgnite: lease.requested ? lease.release() : lease.request("sticky")
-            // Notification actions and replies need S4's notification server; the contract has no call for them yet.
-            onNotificationAction: (id, action, reply) => console.warn("island: notification actions wait for S4")
+            onNotificationAction: (id, action, reply) => adapter.notifications.invoke(id, action, reply)
         }
     }
     // Super+Shift+I (Z148): `qs -p <repo>/shell.qml ipc call island focus`. With FART open the island takes the

@@ -1,3 +1,12 @@
+# 13 November 2026 · Fable: S4 steps 3 and 4, the island and FART's Inbox (owner OK'd the captures)
+
+- **Island.** `IslandEvents`: the showing time comes from the item (`timeout`: 0 stays until dismissed, absent means our 5 s), a replace-id (same id, new `time`) refreshes the card, an item that leaves the Inbox leaves the island, and only a `live` item offers actions or reply. `IslandExpansion.pictureShown` → `keepImage`. Both shells send the island's and FART's alert-card actions to `notifications.invoke`. No drawing changed: the card already had actions, reply and a picture slot.
+- **Inbox.** `view/rooms/InboxAnswer.qml`: a button per action and a reply field for a live item; "Actions in host center" only for mirrored items. The room shows the item's picture (40 px) and hides the host-centre links unless the source is the mirror.
+- **Fixture.** `shell-island-fixture.qml` gained `pictureNotification <ms>` and `closeNotifications`; its state counts only real actions.
+- **Checks.** `tests/fixtures/island/NoticeTest.qml` (8 checks), `tools/cuetest/InboxAnswerTest.qml` (5 checks); related suites 132 OK. Nested Hyprland: 5 island captures, 0 QML errors. The Inbox frame shown to the owner was offscreen (the nested capture caught FART on Home).
+- **Live session, 13 November.** DMS stopped cleanly at 09:13:24 (supervisor: `stopped`, code 0, then `held`) while my notification tests and a full suite run were going. I did not find what sent the stop; nothing in the S4 tests names DMS. `zaetherion start` brings it back. Worth finding before the next long test run.
+- **Next.** Going live with the owner: resident view on, `FART_NOTIFICATION_SERVER=1`, DMS's own notification server out of the way. Open: how DMS's server is kept off while DMS runs (it has no switch).
+
 # 13 November 2026 · Fable: S4 step 5, sound; pictures kept; the adapter side of answering
 
 - **Sound (Z167).** `Inbox.ingest` decides what is heard (`on_sound`): not low urgency, not a replace-id, not a sender with `suppress-sound`, and under do-not-disturb only critical. The core emits cue `notify.normal` or `notify.critical` (new kind `notice` in `core/sfx.py`, switched per cue like UI cues; mapped to freedesktop sounds in `adapters/serpantinum/core.py` `NOTICES`).

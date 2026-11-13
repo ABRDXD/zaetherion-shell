@@ -10,7 +10,7 @@ Scope {
     required property IslandQueue queue
     property CoreClient core: null
     property var startupNotice: null
-    readonly property var durations: ({ charging: 2000, lowBattery: 5000, backend: 5000 })
+    readonly property var durations: ({ charging: 2000, lowBattery: 5000, backend: 5000, notification: 5000 })
     readonly property var recording: host.capture.available ? host.capture.recording : null
     readonly property var battery: host.power.battery
     property var previousBattery: null
@@ -19,7 +19,8 @@ Scope {
     readonly property var memory: host.system.memory
     readonly property bool pressureHigh: (memory?.pressureSomeAvg10 ?? 0) >= 1
     readonly property var notificationItems: host.notifications.items
-    property var seenNotifications: []
+    // id → arrival time. A replace-id keeps the id and moves the time.
+    property var seenNotifications: ({})
     property bool ready: false
     readonly property var player: host.media.active
     readonly property string track: player ? JSON.stringify([player.id, player.artist, player.title]) : ""
@@ -38,15 +39,30 @@ Scope {
         const critical = item.urgency === "critical";
         if (host.notifications.dnd && !critical) return;
         const kind = critical ? "critical" : "notification";
-        queue.offer("notification:" + item.id, kind, priority[kind], item, 5000);
+        // Only a live notification can be answered from here (a mirrored or restored one cannot).
+        const shown = item.live === false ? Object.assign({}, item, { actions: [], reply: "" }) : item;
+        queue.offer("notification:" + item.id, kind, priority[kind], shown, showTime(item));
+    }
+    // The item's own showing time (contract: 0 = until dismissed, absent or negative = ours).
+    function showTime(item): var {
+        return item.timeout > 0 ? item.timeout : item.timeout === 0 ? null : durations.notification;
+    }
+    function arrivals(): var {
+        const times = {};
+        for (const item of notificationItems) times[item.id] = item.time;
+        return times;
     }
 
     onNotificationItemsChanged: {
         if (!ready) return;
+        const now = arrivals();
         for (const item of notificationItems) {
-            if (!seenNotifications.includes(item.id)) notice(item);
+            if (!(item.id in seenNotifications) || seenNotifications[item.id] !== item.time) notice(item);   // new or replaced
         }
-        seenNotifications = notificationItems.map(item => item.id);
+        for (const id of Object.keys(seenNotifications)) {
+            if (!(id in now)) queue.remove("notification:" + id);   // closed by its sender, or dismissed elsewhere
+        }
+        seenNotifications = now;
     }
 
     Connections {
@@ -158,7 +174,7 @@ Scope {
     }
 
     Component.onCompleted: {
-        seenNotifications = notificationItems.map(item => item.id);
+        seenNotifications = arrivals();
         previousTrack = track;
         previousWorkspace = workspace;
         previousBattery = battery;

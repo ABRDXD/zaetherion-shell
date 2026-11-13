@@ -341,6 +341,7 @@ FocusScope {
             }
             onOpenLog: url => root.openLog(url)
             onNotificationAction: (id, action, reply) => root.notificationAction(id, action, reply)
+            onPictureShown: (id, picture) => root.host.notifications.keepImage(id, picture)
         }
     }
     clip: true

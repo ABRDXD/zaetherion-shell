@@ -25,6 +25,7 @@ HarmonicType 1.0 HarmonicType.qml
 Home 1.0 Home.qml
 HomeSky 1.0 HomeSky.qml
 Inbox 1.0 Inbox.qml
+InboxAnswer 1.0 InboxAnswer.qml
 InterruptRain 1.0 InterruptRain.qml
 KindMark 1.0 KindMark.qml
 KineticStage 1.0 KineticStage.qml
