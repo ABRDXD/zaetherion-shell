@@ -1,3 +1,10 @@
+# 13 November 2026 · Opus: quiet DMS, so our notification server can hold the name (owner away; not live)
+
+- **Problem.** DMS has no switch for its notification server, and Quickshell won't take the name from a running owner (Z169), so ours could never go live beside DMS.
+- **Quiet DMS (Z171).** `tools/dms_quiet.py build` copies the UI the running DMS uses and removes its one `NotificationServer` object; everything else in DMS is unchanged. It refuses a DMS it doesn't recognise, never builds from a quiet copy, never writes over a folder it didn't make. Output: `~/.local/state/zaetherion/dms-quiet` (not checked in). The supervisor already passes `FART_RESIDENT_DIR` to DMS as `DMS_SHELL_DIR`.
+- **Checks.** `tests/test_dms_quiet.py` (4). `tools/dms_quiet_check.py` in the nested Hyprland on a private bus: 12/12 (stock DMS takes the name as a control; quiet DMS comes up, stays up 8 s, leaves the name free, no NotificationService errors in its log; a Quickshell server then takes the name and receives a notify-send; the session's own server untouched). Full suite: 897 OK.
+- **Not done.** Nothing on the live session changed. `docs/S4_GO_LIVE.md` has the steps for when the owner is present: main checkout to `s0-seed` (Astra's uncommitted docs there first), build the copy, restart the core with three settings, the `notify-send` matrix, and how to go back.
+
 # 13 November 2026 · Opus: S4 merged into s0-seed; test tools can no longer stop the owner's DMS
 
 - **Merged.** `s4-notifications` (renumbered to Z166–Z170, then brought up to date with the palette work) fast-forwarded into `s0-seed` at `373cc63`. Full suite on it: 889 OK. Not pushed.
