@@ -33,6 +33,8 @@ Scope {
     property var islandAlert: null
     signal islandAlertDismissed(string id)
     signal islandAlertAction(string id, string action, string reply)
+    // Z174: the volume, mic or brightness change that arrived while FART covers the island; it shows in the header.
+    property var islandOsd: null
     // The island's rect when this open began: the growth starts here and the fold returns here.
     property var islandFrom: null
     readonly property bool islandMorph: adjacentIslandGap >= 0 && !surface.full
@@ -399,6 +401,17 @@ Scope {
             event: visible ? root.islandAlert : null
             onDismissed: id => root.islandAlertDismissed(id)
             onNotificationAction: (id, action, reply) => root.islandAlertAction(id, action, reply)
+        }
+        FartHeaderOsd {
+            x: body.x
+            width: body.width
+            height: surface.height
+            headerTop: body.shell?.headerTop ?? 0
+            headerHeight: body.shell?.headerHeight ?? 32
+            slotX: body.shell?.headerSlotX ?? 0
+            slotWidth: body.shell?.headerSlotWidth ?? width
+            visible: root.opened && surface.growP >= 1 && !!body.shell
+            event: visible ? root.islandOsd : null
         }
     }
 }

@@ -11,6 +11,10 @@ Scope {
     required property IslandQueue queue
     property CoreClient core: null
     property var startupNotice: null
+    // Z174: FART covers the island; an OSD change is handed out through `coveredOsd` instead of being queued.
+    property bool covered: false
+    property int osdDwell: 1200
+    signal coveredOsd(var value)
     readonly property var durations: ({ charging: 2000, lowBattery: 5000, backend: 5000, notification: 3000 })
     // Z175: the island shows a non-critical notification for at most this long, whatever its sender asked for.
     readonly property int notificationCap: 6000
@@ -75,7 +79,9 @@ Scope {
         function onEventChanged() {
             const value = root.host.osd.event;
             if (value && root.host.osd.available) {
-                root.queue.offer("osd", "osd", root.priority.osd, value, 1200);
+                // Z174: covered by FART, the OSD goes to FART's header, not into the queue.
+                if (root.covered) root.coveredOsd(value);
+                else root.queue.offer("osd", "osd", root.priority.osd, value, root.osdDwell);
                 Feedback.play("osd.tick");
             }
         }

@@ -25,6 +25,12 @@ class IslandFrameTests(unittest.TestCase):
             "track face", "workspace flash", "memory face", "osd face", "notification face", "offscreen capture",
             "docked hands critical to FART", "docked holds ordinary", "events resume after fold"))
 
+    def test_osd_shows_in_fart_header_while_covered(self):
+        """Z174: covered by FART, the OSD goes to the header at once and is never banked for the fold."""
+        self.run_fixture("HeaderOsdTest.qml", ("covered osd shows in header", "repeat updates in place",
+            "readout sits on the header row", "muted reads MUTED", "dwell follows the last change", "leaves after 1.2 s", "header readout gone",
+            "fold replays no stale osd", "uncovered osd on island", "dock lifts osd into header", "fold hands it back"))
+
     def test_status_faces(self):
         self.run_fixture("EventTest.qml", ("recording status", "charging notice", "DND suppresses ordinary battery warning",
             "critical battery passes DND", "backend comeback", "resident restart", "timer status", "timer done", "session debrief"))
