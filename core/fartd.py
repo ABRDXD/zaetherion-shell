@@ -68,10 +68,28 @@ def listening_socket(path: Path) -> tuple[socket.socket, bool]:
     return sock, True
 
 
+def supervise_allowed(environ) -> bool:
+    """A test core (fixture host) never takes charge of DMS by accident: an inherited FART_SUPERVISE once let a
+    smoke run stop the owner's real DMS. Tests that mean it set FART_SUPERVISE_FIXTURE=1 (tools/supervisor_check.py)."""
+    return environ.get("FART_HOST") != "fixture" or environ.get("FART_SUPERVISE_FIXTURE") == "1"
+
+
+def view_env(environ, **extra) -> dict:
+    """The view's environment. Supervision settings stay with the core, so apps launched from the shell don't
+    inherit them and start a core that supervises DMS."""
+    env = dict(environ, **extra)
+    for name in ("FART_SUPERVISE", "FART_SUPERVISE_FIXTURE"):
+        env.pop(name, None)
+    return env
+
+
 def supervise(core: Core, scheduler, env: dict, runtime: Path) -> SessionWatch | None:
     """FART_SUPERVISE=dms: the core starts `dms run`, restarts it and ends with the compositor
     (docs/SUPERVISOR.md). Off unless asked for, until the session is switched over from tools/session-start."""
     if os.environ.get("FART_SUPERVISE") != "dms":
+        return None
+    if not supervise_allowed(os.environ):
+        log.warning("FART_SUPERVISE=dms ignored: fixture host (set FART_SUPERVISE_FIXTURE=1 to opt in)")
         return None
     watch = None
     signature = os.environ.get("HYPRLAND_INSTANCE_SIGNATURE")
@@ -95,7 +113,7 @@ async def serve(runtime: Path, state_dir: Path):
     host = Host(load_profile(os.environ["FART_HOST"]))
     sock_path = runtime / "core.sock"
     entry = Path(os.environ.get("FART_VIEW_ENTRY") or ROOT / "shell.qml")
-    env = dict(os.environ, FART_CORE_SOCKET=str(sock_path), FART_STATE_DIR=str(state_dir))
+    env = view_env(os.environ, FART_CORE_SOCKET=str(sock_path), FART_STATE_DIR=str(state_dir))
     # FART_RESIDENT_VIEW=1 (interim, docs/DECISIONS.md Z159): the view carries the island and stays up with the
     # core; DMS's own bar is hidden while it is up. Off unless asked for.
     resident = os.environ.get("FART_RESIDENT_VIEW") == "1"

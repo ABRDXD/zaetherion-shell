@@ -169,7 +169,8 @@ def real_core(source: Path, extra_env: dict, bundle_dir: Path | None = None):
         (state / "sfx.json").write_text(json.dumps({"version": 1, "cues": {n: False for n, c in CUES.items() if c.kind == "ui"}}))
         runtime = base / "run"
         runtime.mkdir(mode=0o700)
-        env = dict(os.environ, FART_RUNTIME_DIR=str(runtime), FART_STATE_DIR=str(state), FART_CACHE_DIR=str(base / "cache"),
+        # No inherited FART_* (a shell under the live core carries FART_SUPERVISE): this core must not take DMS.
+        env = dict({k: v for k, v in os.environ.items() if not k.startswith("FART_")}, FART_RUNTIME_DIR=str(runtime), FART_STATE_DIR=str(state), FART_CACHE_DIR=str(base / "cache"),
                    FART_HOST="serpantinum", FART_MIRROR="0", FART_VIEW_ENTRY=str(bundle / "shell.qml"),
                    FART_VIEW_STDOUT=str(base / "view.log"))
         env.pop("FART_CORE_SOCKET", None)

@@ -1,3 +1,11 @@
+# 13 November 2026 · Opus: S4 merged into s0-seed; test tools can no longer stop the owner's DMS
+
+- **Merged.** `s4-notifications` (renumbered to Z166–Z170, then brought up to date with the palette work) fast-forwarded into `s0-seed` at `373cc63`. Full suite on it: 889 OK. Not pushed.
+- **What stopped DMS at 09:13.** A `tools/smoke.py` run from the main checkout by the other agent there: its session log shows the run starting at 09:13:16, DMS logged "received terminated" at 09:13:24, and `e6c86ea` followed at 09:14:54. Its shell had inherited the live core's `FART_SUPERVISE=dms`; `smoke.py` built its env from `os.environ`, so the private test core supervised the real DMS and stopped it on exit.
+- **Guard (branch `s4-dms-guard`).** (1) `smoke.inherited_env()` drops every inherited `FART_*`; `prepare()` uses it, so every tool built on it (keytest, faces, shots, demo_frames, dms_smoke, overdrive) is covered, and `measure/cold_breakdown.py` strips them inline. (2) `fartd.supervise_allowed`: a fixture-host core ignores `FART_SUPERVISE=dms` (logged) unless `FART_SUPERVISE_FIXTURE=1`; `supervisor_check.py` opts in. (3) `fartd.view_env`: the view, and so apps launched from the shell, no longer inherit `FART_SUPERVISE`.
+- **Checks.** `tests/test_supervise_guard.py` (4 tests, one end to end with a fake `dms` that must not start); it fails with the guard turned off. Full suite: 893 OK.
+- **Next.** Going live with our notification server, with the owner present.
+
 # 13 November 2026 · Fable: s8-palette merged into s0-seed, with three rule fixes
 
 - **Merged.** `s8-palette` (Astra: palette picker inside FART, shared palette state, AMOLED studies; Z162–Z165) into `s0-seed` with the owner's OK. Not pushed.

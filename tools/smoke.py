@@ -32,6 +32,14 @@ def seed_tasks(state: Path, data: dict):
     (state / 'tasks.json').write_text(json.dumps({'version': 1, 'lists': data['lists'], 'tasks': tasks}))
 
 
+def inherited_env(**extra) -> dict:
+    """os.environ without inherited FART_* settings (a shell under the live core carries FART_SUPERVISE and its
+    socket), plus `extra`. Every tool that starts a private core builds on this."""
+    env = {k: v for k, v in os.environ.items() if not k.startswith("FART_")}
+    env.update(extra)
+    return env
+
+
 def prepare(base: Path, harness_text: str, theme: dict | None = None, source: Path = ROOT):
     """Copy the shell tree (from `source`, a checkout) under `base`, write the harness and stub commands;
     return (env, state, view_log)."""
@@ -58,7 +66,7 @@ def prepare(base: Path, harness_text: str, theme: dict | None = None, source: Pa
     runtime = base / 'run'
     view_log = base / 'view.log'
     # The core spawns the harness as its view, so the harness may say hello as one.
-    env = dict(os.environ, FART_STATE_DIR=str(state), FART_RUNTIME_DIR=str(runtime), FART_HOST='fixture',
+    env = inherited_env(FART_STATE_DIR=str(state), FART_RUNTIME_DIR=str(runtime), FART_HOST='fixture',
         FART_MIRROR='0', FART_FIXTURE_LOG=str(base / 'fixture.jsonl'), FART_VIEW_ENTRY=str(harness),
         FART_VIEW_STDOUT=str(view_log), QT_QPA_PLATFORM='offscreen', QT_QUICK_BACKEND='software',
         XDG_STATE_HOME=str(base / 'state'), XDG_CONFIG_HOME=str(base / 'config'),

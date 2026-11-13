@@ -49,7 +49,7 @@ class Bench:
             XDG_CACHE_HOME=str(base / "cache"), XDG_STATE_HOME=str(base / "state"),
             WAYLAND_DISPLAY=str(REAL / st["wayland"]), HYPRLAND_INSTANCE_SIGNATURE=st["sig"], QT_QPA_PLATFORM="wayland",
             FART_RUNTIME_DIR=str(self.run / "zaetherion"), FART_STATE_DIR=str(base / "state" / "zaetherion"),
-            FART_HOST="fixture", FART_MIRROR="0", FART_SUPERVISE="dms", FART_RESIDENT_DIR=str(self.ui))
+            FART_HOST="fixture", FART_MIRROR="0", FART_SUPERVISE="dms", FART_SUPERVISE_FIXTURE="1", FART_RESIDENT_DIR=str(self.ui))
         for name in ("DISPLAY", "FART_LOG", "DMS_SHELL_DIR", "DMS_LOG_FILE"):
             self.env.pop(name, None)
         self.sock = self.run / "zaetherion" / "core.sock"
