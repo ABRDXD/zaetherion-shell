@@ -24,13 +24,14 @@ Scope {
     property var discoveryData: null
     // The island's settings (Z155): form, edge, placement, screen.
     property var islandData: null
+    property var paletteData: null
     property var supervisorData: null  // children.dms.socket: where DMS listens now (null while it is down)
     readonly property CoreTimers timers: CoreTimers { core: root }
     readonly property CoreTasks tasks: CoreTasks { core: root }
     // The HostAdapter that core host calls act through (`vol` and friends). Null in harnesses without one.
     property var host: null
     readonly property CoreHostCalls hostCalls: CoreHostCalls { core: root; host: root.host }
-    readonly property var topics: ["timers", "tasks", "notifications", "overdrive", "session", "sfx", "ignite", "track", "journey", "discovery", "island", "supervisor"]
+    readonly property var topics: ["timers", "tasks", "notifications", "overdrive", "session", "sfx", "ignite", "track", "journey", "discovery", "island", "palette", "supervisor"]
     property int nextId: 1
     property var pending: ({})
     property int backoff: 250

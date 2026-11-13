@@ -16,6 +16,7 @@ Scope {
     id: root
     required property HostAdapter host
     required property CoreClient core
+    Fart.PaletteBinding { core: root.core }
     property string currentPage: "home"
     property bool opened: false
     property var companionWindows: []
@@ -102,6 +103,13 @@ Scope {
     }
     // Opening from fully folded picks the screen and the origin. A new rect while open or folding
     // moves nothing: it is stored for the next unfold (DAILY_DRIVER §3).
+    // A fixture or an in-panel action can open settings once the room exists.
+    function openPreferences() {
+        if (!opened || !body.shell) return false;
+        body.shell.preferencesOpen = true;
+        return true;
+    }
+
     function openPage(page, placement) {
         const screenName = placement?.screen || root.host.workspaces.focusedScreen;
         const from = placement?.from;

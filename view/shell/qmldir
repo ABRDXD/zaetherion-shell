@@ -37,3 +37,5 @@ SunFace 1.0 SunFace.qml
 Unfold 1.0 Unfold.qml
 singleton ViewState 1.0 ViewState.qml
 Whisper 1.0 Whisper.qml
+PalettePicker 1.0 PalettePicker.qml
+PreferencesPane 1.0 PreferencesPane.qml
