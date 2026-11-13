@@ -245,7 +245,7 @@ class Core:
         op("notif.clear", lambda peer: n.clear())
         op("notif.privateApps", lambda peer, apps=None: n.private_apps(apps))
         op("notif.dnd", lambda peer, on: n.set_dnd(on))
-        # Our own notification server, in the view (Z163).
+        # Our own notification server, in the view (Z166).
         op("notif.serve", lambda peer, ids=None: n.serve(peer, ids))
         op("notif.ingest", lambda peer, **fields: n.ingest(peer, **fields))
         op("notif.image", lambda peer, id: n.image(peer, id))

@@ -4,7 +4,7 @@ import qs.adapters.quickshell
 import qs.core.client
 import qs.view.contract
 
-// The view reads the core's Inbox, the one list of notifications (Z163). With FART_NOTIFICATION_SERVER=1 it also
+// The view reads the core's Inbox, the one list of notifications (Z166). With FART_NOTIFICATION_SERVER=1 it also
 // runs our own notification server and reports what that receives to the Inbox; until our server holds the bus
 // name the Inbox is filled by the core's mirror of the host's server (DMS's), whose centre stays the host's.
 NotificationsDomain {

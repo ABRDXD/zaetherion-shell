@@ -1,5 +1,5 @@
 """Read-only notification mirror from `busctl --user monitor` (docs/CORE.md §5), feeding the Inbox while another
-program (DMS) owns the notification name. It stands aside while our own server is attached (Z163).
+program (DMS) owns the notification name. It stands aside while our own server is attached (Z166).
 
 Never log notification contents. Image hints are dropped here: the mirror never sees a usable image.
 """

@@ -60,7 +60,7 @@ class LayoutTests(unittest.TestCase):
         self.assertFalse(any(p.is_symlink() for p in ROOT.rglob("*") if ".git" not in p.parts))
 
     def test_only_our_one_server_file_claims_the_notification_name_and_only_when_asked(self):
-        """Z163, Z166: Quickshell's NotificationServer in one file, off unless FART_NOTIFICATION_SERVER=1."""
+        """Z166, Z169: Quickshell's NotificationServer in one file, off unless FART_NOTIFICATION_SERVER=1."""
         claim = re.compile(r"(?<![A-Za-z])NotificationServer \{")
         claimers = [qml.relative_to(ROOT).as_posix() for qml in QML if claim.search(qml.read_text())]
         self.assertEqual(claimers, ["adapters/quickshell/QuickshellNotificationServer.qml"])

@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Services.Notifications
 
-// Our notification server (Z163): Quickshell's, behind the notification bus name. It holds the live notifications
+// Our notification server (Z166): Quickshell's, behind the notification bus name. It holds the live notifications
 // and says what arrives, changes and closes; the Inbox in the core is the list (adapters/dms/DmsNotifications.qml
 // joins the two). While another program holds the name Quickshell waits and takes it when that one leaves.
 // The arrival rules are from DMS's Services/NotificationService.qml (MIT, see NOTICE).

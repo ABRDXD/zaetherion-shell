@@ -1,4 +1,4 @@
-"""The Inbox: the one list of notifications (Z163). It is fed by our own notification server in the view
+"""The Inbox: the one list of notifications (Z166). It is fed by our own notification server in the view
 (`notif.serve`, `notif.ingest`, `notif.closed`) or, while another program owns the name, by the busctl mirror
 (core/notification_mirror.py). It keeps 24 hours, at most KEEP items, newest last.
 
@@ -229,7 +229,7 @@ class Inbox:
         return {"imagePath": str(self._image_path(id)) if writable else ""}
 
     def _heard(self, urgency: str) -> bool:
-        """Low urgency is silent; do-not-disturb lets only critical through (Z165, Z167)."""
+        """Low urgency is silent; do-not-disturb lets only critical through (Z168, Z170)."""
         return urgency == "critical" or (urgency == "normal" and not self.dnd)
 
     def image(self, client, id):
