@@ -10,6 +10,7 @@ from pathlib import Path
 from core.command import Commands
 from core.exhibit import Exhibit
 from core.discovery import Discovery
+from core.equalizer import Equalizer
 from core.errors import OpError
 from core.genealogy import Genealogy
 from core.guards import BatteryGuard, FullscreenGuard, Guards, SessionGuard, focused_fullscreen
@@ -70,6 +71,7 @@ class Core:
         self.sessions = Sessions(clock, scheduler, host, state_dir)
         self.island = Island(state_dir)
         self.palette = Palette(state_dir)
+        self.equalizer = Equalizer(state_dir)  # its chain only in a session that runs it (fartd attaches it)
         self.sessions.tasks_done = self.tasks.done_between
         self.sessions.music = self._session_music
         self.discovery = Discovery(state_dir, clock)
@@ -99,7 +101,7 @@ class Core:
 
         for name, owner in (("timers", self.timers), ("tasks", self.tasks), ("notifications", self.inbox),
                             ("overdrive", self.overdrive), ("session", self.sessions), ("island", self.island), ("palette", self.palette),
-                            ("view", self.view)):
+                            ("equalizer", self.equalizer), ("view", self.view)):
             server.topic(name, owner.snapshot)
             if name != "view":
                 owner.on_change = partial(server.publish, name)
@@ -218,6 +220,11 @@ class Core:
         op("palette.choose", lambda peer, name: self.palette.choose(name))
         op("palette.preview", lambda peer, name: self.palette.preview_name(name, peer))
         op("palette.cancel", lambda peer: self.palette.cancel(peer))
+        e = self.equalizer
+        op("eq.enable", lambda peer, on: e.set_on(on))
+        op("eq.band", lambda peer, index, gain: e.set_band(index, gain))
+        op("eq.preset", lambda peer, name: e.apply_preset(name))
+        op("eq.mono", lambda peer, on: e.set_mono(on))
         op("exhibit.prepare", lambda peer, reduced=True, metadata=None: self.exhibit.prepare(reduced, metadata))
         op("exhibit.start", lambda peer: self.exhibit.start())
         op("exhibit.stop", lambda peer: self.exhibit.stop())
@@ -448,6 +455,7 @@ class Core:
 
     async def close(self):
         self.exhibit.stop()
+        await self.equalizer.close()  # the owner's routing is back before anything else stops
         await self.view.stop()  # the view's end shows DMS's bar again (_view_changed), before DMS stops
         if self.supervisor:
             await self.supervisor.stop()  # after the panel: dms and its whole tree (docs/SUPERVISOR.md §6)
