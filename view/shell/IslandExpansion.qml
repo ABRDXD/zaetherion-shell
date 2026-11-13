@@ -153,11 +153,17 @@ Item {
             keyHeld = false;
         }
         onActiveFocusChanged: if (!activeFocus) keyHeld = false
+        // The rising charge sounds while the hold runs and is cut the moment it is released early.
+        onHoldingChanged: {
+            if (holding) Feedback.play("hold.charge");
+            else Feedback.stop("hold.charge");
+        }
         Timer {
             running: act.holding
             interval: root.holdMs
             onTriggered: {
                 act.keyHeld = false;
+                Feedback.stop("hold.charge");
                 Feedback.play("hold.confirm");
                 root.sessionAction(act.verb);
             }

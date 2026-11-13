@@ -60,6 +60,7 @@ CUES = {cue.name: cue for cue in (
     *(Cue(f"chord.{n}.{pan}", "ui", False, "a room's chord on arrival") for n in range(10) for pan in "lcr"),
     # System moments the island reports (S5, owner 13 November 2026), and do-not-disturb, which the core switches.
     Cue("hold.confirm", "ui", False, "a hold-to-confirm completed (session card)"),
+    Cue("hold.charge", "ui", False, "a hold-to-confirm is charging (session card); stops if released early"),
     Cue("osd.tick", "ui", False, "volume, mic or brightness changed (the island's OSD)"),
     Cue("power.plug", "ui", False, "the charger was plugged in"),
     Cue("power.unplug", "ui", False, "the charger was unplugged"),
@@ -72,7 +73,9 @@ CUES = {cue.name: cue for cue in (
 VIEW_CUES = ("ui.click", "ui.key", "ui.switch", "ui.error", "orbit.out", "orbit.land", "orbit.hover",
              "foley.pin", "foley.relay", "foley.paper", "foley.ruler", "foley.splice",
              *(f"chord.{n}.{pan}" for n in range(10) for pan in "lcr"),
-             "hold.confirm", "osd.tick", "power.plug", "power.unplug", "battery.low", "net.up", "net.down")
+             "hold.confirm", "hold.charge", "osd.tick", "power.plug", "power.unplug", "battery.low", "net.up", "net.down")
+# Cues that run long enough for the view to cut short (`sfx.stop`): the core keeps the player of the last one.
+STOPPABLE = frozenset({"hold.charge"})
 # cmd.run, the alerts, the notification sounds and dnd.on/off are the core's own.
 
 
@@ -138,10 +141,12 @@ class Sfx:
         if cue is None:
             raise bad_args(f"unknown cue {name!r}")
         audible, reason, gain = self.decide(cue, sound)
+        if name in STOPPABLE:
+            self.host.stop(name)  # a new charge supersedes the old one even when this one is gated off
         if audible:
             command = self.host.profile.play_command(cue.name, gain)
             if command:
-                self.host.run(command)
+                self.host.run(command, key=name if name in STOPPABLE else None)
             else:
                 audible, reason, gain = False, "no-sound", 0.0
         self.seq += 1
@@ -156,6 +161,13 @@ class Sfx:
         if cue not in VIEW_CUES:
             raise OpError("refused", f"the view reports only {', '.join(VIEW_CUES)}")
         return self.emit(cue)
+
+    def stop_from_view(self, cue):
+        """sfx.stop: the view cuts a stoppable cue short (a hold released early). Harmless when nothing plays."""
+        if cue not in VIEW_CUES or cue not in STOPPABLE:
+            raise OpError("refused", f"the view stops only {', '.join(sorted(STOPPABLE))}")
+        self.host.stop(cue)
+        return {"cue": cue}
 
     async def play_exhibit(self, path):
         """Temporary score audio shares the UI gate; caller owns termination and unlink."""

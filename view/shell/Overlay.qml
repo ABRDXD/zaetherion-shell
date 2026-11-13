@@ -100,6 +100,7 @@ Scope {
     Connections {
         target: Fart.Feedback
         function onCue(name) { root.core.notify("sfx.play", { cue: name }); }
+        function onStopped(name) { root.core.notify("sfx.stop", { cue: name }); }
     }
     // Opening from fully folded picks the screen and the origin. A new rect while open or folding
     // moves nothing: it is stored for the next unfold (DAILY_DRIVER §3).

@@ -9,4 +9,7 @@ Singleton {
     // ui.click, ui.key, ui.switch, ui.error, or the orbit's orbit.out, orbit.land and orbit.hover.
     signal cue(string name)
     function play(name: string) { cue(name); }
+    // Cuts a long cue short (only hold.charge, a hold released early); the core ends the player.
+    signal stopped(string name)
+    function stop(name: string) { stopped(name); }
 }
