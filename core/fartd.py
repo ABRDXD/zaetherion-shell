@@ -21,7 +21,7 @@ from core.app import Core  # noqa: E402
 from core.clock import SystemClock, TimerfdScheduler  # noqa: E402
 from core.dms_bar import DmsBar  # noqa: E402
 from core.host import Host, load_profile  # noqa: E402
-from core.notifications import BusctlSource  # noqa: E402
+from core.notification_mirror import BusctlSource  # noqa: E402
 from core.protocol import MAX_LINE  # noqa: E402
 from core.supervisor import Child, DmsPorts, SessionWatch, Supervisor  # noqa: E402
 from core.view import PressureTrigger, spawn_quickshell, stop_foreign_instance  # noqa: E402

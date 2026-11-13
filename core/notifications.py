@@ -1,157 +1,239 @@
-"""Read-only notification mirror from `busctl --user monitor` (docs/CORE.md §5). The host stays the authority.
+"""The Inbox: the one list of notifications (Z163). It is fed by our own notification server in the view
+(`notif.serve`, `notif.ingest`, `notif.closed`) or, while another program owns the name, by the busctl mirror
+(core/notification_mirror.py). It keeps 24 hours, at most KEEP items, newest last.
 
-Never log notification contents. Image hints are dropped before anything is kept. Private apps are mirrored in
-memory but never written to disk.
+Never log notification contents. Private apps and transient items are held in memory but never written to disk,
+and neither are their images.
 """
 from __future__ import annotations
 
 import asyncio
-from collections import OrderedDict
-import json
-import logging
+from hashlib import sha256
 from pathlib import Path
 
 from core.errors import OpError, bad_args
 from core.store import read_json, write_json
-from core.track import MATCHES as TRACK_MATCHES
 
-log = logging.getLogger("fart.notifications")
-SERVICE = "org.freedesktop.Notifications"
-BUS = "org.freedesktop.DBus"
-PATH = "/org/freedesktop/Notifications"
 KEEP = 100
-PENDING = 128
 TTL = 24 * 3600
-MAX_LINE = 4 << 20
 SAVE_AFTER = 1.0
-MATCHES = [f"type='method_call',interface='{SERVICE}',path='{PATH}',member='Notify'",
-           f"type='method_return',sender='{SERVICE}'",
-           f"type='signal',sender='{SERVICE}',interface='{SERVICE}',member='NotificationClosed'",
-           f"type='signal',sender='{BUS}',interface='{BUS}',member='NameOwnerChanged',arg0='{SERVICE}'"]
-CONTRACT_FIELDS = ("id", "appName", "summary", "body", "time", "urgency", "read", "hasActions")
+URGENCIES = ("low", "normal", "critical")
+MAX_ACTIONS = 8
+CAPS = {"id": 64, "appName": 256, "summary": 512, "body": 2000, "icon": 1024, "image": 1024, "reply": 64, "action": 128}
+NO_TIMEOUT = -1  # the sender left the showing time to us
+CONTRACT_FIELDS = ("id", "appName", "summary", "body", "time", "urgency", "read", "hasActions", "actions", "reply",
+                   "icon", "image", "timeout", "live")
+UNWRITTEN = ("private", "transient")  # item flags that keep it off the disk
+# What a row saved by an older core may lack.
+DEFAULTS = {"actions": [], "hasActions": False, "reply": "", "icon": "", "image": "", "timeout": NO_TIMEOUT,
+            "read": False, "private": False, "transient": False}
 
 
-def hint(hints: dict, name: str):
-    value = hints.get(name)
-    return value.get("data") if isinstance(value, dict) else value
+def text(value, cap: int) -> str:
+    return (value if isinstance(value, str) else "")[:cap]
 
 
-class Mirror:
-    def __init__(self, clock, scheduler, run, state_dir: Path):
+def clean_actions(actions) -> list[dict]:
+    rows = [a for a in actions if isinstance(a, dict)] if isinstance(actions, list) else []
+    return [{"id": text(a.get("id"), CAPS["action"]), "label": text(a.get("label"), CAPS["action"])}
+            for a in rows[:MAX_ACTIONS]]
+
+
+class Inbox:
+    def __init__(self, clock, scheduler, state_dir: Path):
         self.clock = clock
         self.scheduler = scheduler
-        self.run = run  # run(argv): fire-and-forget command
         self.path = state_dir / "notifications.json"
         self.config_path = state_dir / "core.json"
+        self.images = state_dir / "notification-images"
         self.on_change = lambda: None
-        self.available = False
-        self.owner = ""
-        self.pending: OrderedDict = OrderedDict()
-        self.items: list[dict] = []
+        self.close_remote = lambda item: False  # the mirror's: True when the host will close the item itself
+        self.mirroring = False
+        self.server = None  # the client whose view runs our notification server
         self.save_handle = None
-        self.private = self._load_private()
+        config = self._config()
+        self.private = {str(app).lower() for app in config.get("privateApps") or []}
+        self.dnd = config.get("dnd") is True
         try:
             saved = read_json(self.path, {}) or {}
         except ValueError:
             saved = {}
         self.saved_bus = saved.get("busId")
         self.saved_owner = saved.get("owner") or ""
-        self.items = [i for i in saved.get("items") or [] if isinstance(i, dict) and isinstance(i.get("id"), str)][-KEEP:]
+        rows = [i for i in saved.get("items") or [] if isinstance(i, dict) and isinstance(i.get("id"), str)]
+        self.items: list[dict] = [{**DEFAULTS, **i, "live": False} for i in rows[-KEEP:]]
         self._expire()
+        self._sweep_images()
+
+    # State
+
+    @property
+    def serving(self) -> bool:
+        return self.server is not None
+
+    @property
+    def listening(self) -> bool:
+        return self.serving or self.mirroring
+
+    def snapshot(self) -> dict:
+        items = [{k: i.get(k) for k in CONTRACT_FIELDS} for i in self.items] if self.listening else []
+        return {"available": self.listening, "source": "server" if self.serving else "mirror", "dnd": self.dnd,
+                "items": items, "unread": sum(not i["read"] for i in items)}
+
+    def summary(self) -> dict:
+        snap = self.snapshot()
+        return {"available": snap["available"], "source": snap["source"], "dnd": snap["dnd"],
+                "count": len(snap["items"]), "unread": snap["unread"]}
+
+    def find(self, id) -> dict:
+        item = next((i for i in self.items if i["id"] == str(id)), None)
+        if not item:
+            raise OpError("not-found", "no such notification")
+        return item
 
     # Configuration
 
-    def _load_private(self) -> set[str]:
+    def _config(self) -> dict:
         try:
-            config = read_json(self.config_path, {}) or {}
+            config = read_json(self.config_path, {})
         except ValueError:
             config = {}
-        return {str(app).lower() for app in config.get("privateApps") or []}
+        return config if isinstance(config, dict) else {}
+
+    def is_private(self, app: str) -> bool:
+        return app.lower() in self.private
 
     def private_apps(self, apps=None):
         if apps is not None:
             if not isinstance(apps, list) or not all(isinstance(a, str) and 0 < len(a) <= 256 for a in apps):
                 raise bad_args("apps must be a list of app names")
-            try:
-                config = read_json(self.config_path, {}) or {}
-            except ValueError:
-                config = {}
+            config = self._config()
             config["privateApps"] = sorted({a.strip() for a in apps if a.strip()})
             private = {a.lower() for a in config["privateApps"]}
-            for item in (*self.items, *self.pending.values()):
+            for item in self.items:
                 if item["appName"].lower() in private:
                     item["private"] = True
+                    item["image"] = "" if item["image"] == str(self._image_path(item["id"])) else item["image"]
             # Purge before publishing the new policy. A later opt-out only
             # changes the handling of future notifications.
             self.flush()
+            self._sweep_images()
             write_json(self.config_path, config)
             self.private = private
         return {"apps": sorted(self.private)}
 
-    # The busctl stream
+    def set_dnd(self, on):
+        if not isinstance(on, bool):
+            raise bad_args("on must be true or false")
+        if on != self.dnd:
+            config = self._config()
+            config["dnd"] = on
+            write_json(self.config_path, config)
+            self.dnd = on
+            self.on_change()
+        return {"dnd": self.dnd}
 
-    def started(self, owner: str, bus_id: str):
-        """Only restore IDs issued by this owner in this bus lifetime."""
-        self.owner = owner
+    # Feeding (the mirror and our server both end here)
+
+    def put(self, id: str, fields: dict, owner: str = "", live: bool = False, transient: bool = False) -> dict:
+        """Add an item, or replace the one with the same id (the sender's replace-id); newest last."""
+        app = text(fields.get("appName"), CAPS["appName"]) or "System"
+        timeout = fields.get("timeout")
+        actions = clean_actions(fields.get("actions"))
+        item = {"id": id, "appName": app, "summary": text(fields.get("summary"), CAPS["summary"]),
+                "body": text(fields.get("body"), CAPS["body"]),
+                "urgency": fields.get("urgency") if fields.get("urgency") in URGENCIES else "normal",
+                "actions": actions, "hasActions": bool(actions), "reply": text(fields.get("reply"), CAPS["reply"]),
+                "icon": text(fields.get("icon"), CAPS["icon"]), "image": text(fields.get("image"), CAPS["image"]),
+                "timeout": timeout if isinstance(timeout, int) and not isinstance(timeout, bool) and timeout >= 0 else NO_TIMEOUT,
+                "time": round(self.clock.now().real * 1000), "read": False, "live": live,
+                "private": bool(fields.get("private")) or self.is_private(app), "transient": transient}
+        if owner:
+            item["owner"] = owner
+        self.items = ([i for i in self.items if i["id"] != id] + [item])[-KEEP:]
+        self._changed()
+        return item
+
+    def remove(self, id: str, owner: str | None = None) -> bool:
+        kept = [i for i in self.items if i["id"] != id or (owner is not None and i.get("owner") != owner)]
+        return self._keep(kept)
+
+    def _keep(self, kept: list[dict]) -> bool:
+        if len(kept) == len(self.items):
+            return False
+        self.items = kept
+        self._changed()
+        return True
+
+    # The mirror's source
+
+    def mirror_started(self, bus_id: str, owner: str):
+        """Mirrored IDs only mean something to the owner that issued them, in that bus lifetime."""
+        self.mirroring = True
         if (bus_id, owner) != (self.saved_bus, self.saved_owner):
-            self.items = []
-            self.pending.clear()
             self.saved_bus, self.saved_owner = bus_id, owner
+            if not self._keep([i for i in self.items if not i.get("owner")]):
+                self._save()
+        self.on_change()
+
+    def mirror_owner(self, owner: str):
+        self.saved_owner = owner
+        if not self._keep([i for i in self.items if not i.get("owner")]):
             self._save()
-        self.available = True
-        self.on_change()
 
-    def stopped(self):
-        self.available = False
-        self.items, self.pending = [], OrderedDict()
-        self.on_change()
+    def mirror_stopped(self):
+        self.mirroring = False
+        if not self._keep([i for i in self.items if not i.get("owner")]):
+            self.on_change()
 
-    def feed(self, message: dict):
-        kind, member, sender = message.get("type"), message.get("member"), message.get("sender")
-        data = (message.get("payload") or {}).get("data") or []
-        if kind == "signal" and member == "NameOwnerChanged" and sender == BUS:
-            if len(data) == 3 and data[0] == SERVICE:
-                self.owner = self.saved_owner = data[2]
-                self.pending.clear()
-                self.items = []
-                self._changed()
-        elif kind == "signal" and member == "NotificationClosed" and sender == self.owner and data:
-            nid = str(data[0])
-            if any(i["id"] == nid for i in self.items):
-                self.items = [i for i in self.items if i["id"] != nid]
-                self._changed()
-        elif kind == "method_call" and member == "Notify" and message.get("destination") in (self.owner, SERVICE):
-            if len(data) != 8 or not isinstance(data[6], dict):
-                return
-            app, _, _, summary, body, actions, hints, _ = data
-            if hint(hints, "transient"):
-                return
-            app = str(app)[:256] or "System"
-            self.pending[(sender, message.get("cookie"))] = {
-                "appName": app, "private": app.lower() in self.private, "summary": str(summary)[:512], "body": str(body)[:2000],
-                "urgency": "critical" if hint(hints, "urgency") == 2 else "normal", "hasActions": bool(actions)}
-            if len(self.pending) > PENDING:
-                self.pending.popitem(last=False)
-        elif kind == "method_return" and sender == self.owner and self.owner:
-            row = self.pending.pop((message.get("destination"), message.get("reply_cookie")), None)
-            payload = message.get("payload") or {}
-            if row and payload.get("type") == "u" and data:
-                nid = str(data[0])
-                now = self.clock.now()
-                kept = [i for i in self.items if i["id"] != nid]
-                kept.append({"id": nid, "owner": self.owner, **row, "time": round(now.real * 1000), "read": False})
-                self.items = kept[-KEEP:]
-                self._changed()
+    # Our server's source (adapters/dms/NotificationServer.qml)
+
+    def serve(self, client, ids=None):
+        """The view's server took the notification name. `ids` are the items it still holds live."""
+        if ids is not None and not (isinstance(ids, list) and all(isinstance(i, str) for i in ids)):
+            raise bad_args("ids must be a list of notification ids")
+        self.server = client
+        held = set(ids or [])
+        self.items = [{**i, "live": i["id"] in held} for i in self.items if not i.get("owner")]
+        self._changed()
+        return self.snapshot()
+
+    def _served(self, client):
+        if client is not self.server:
+            raise OpError("not-serving", "only the notification server may do this")
+
+    def ingest(self, client, id=None, transient=False, **fields):
+        self._served(client)
+        if not isinstance(id, str) or not 0 < len(id) <= CAPS["id"]:
+            raise bad_args("id must be a short string")
+        item = self.put(id, fields, live=True, transient=transient is True)
+        writable = not any(item[flag] for flag in UNWRITTEN)
+        if writable:
+            self.images.mkdir(parents=True, exist_ok=True, mode=0o700)
+        return {"imagePath": str(self._image_path(id)) if writable else ""}
+
+    def image(self, client, id):
+        """The server wrote the item's picture to the path `ingest` gave it."""
+        self._served(client)
+        item = self.find(id)
+        path = self._image_path(item["id"])
+        if any(item[flag] for flag in UNWRITTEN) or not path.is_file():
+            path.unlink(missing_ok=True)
+            raise OpError("refused", "no image is kept for this notification")
+        item["image"] = str(path)
+        self._changed()
+
+    def closed(self, client, id):
+        self._served(client)
+        self.remove(str(id))
+
+    def disconnected(self, client):
+        if client is self.server:
+            self.server = None
+            self.items = [{**i, "live": False} for i in self.items if not i["transient"]]
+            self._changed()
 
     # Contract operations
-
-    def snapshot(self) -> dict:
-        items = [{k: i.get(k) for k in CONTRACT_FIELDS} for i in self.items] if self.available else []
-        return {"available": self.available, "items": items, "unread": sum(not i["read"] for i in items)}
-
-    def summary(self) -> dict:
-        snap = self.snapshot()
-        return {"available": snap["available"], "count": len(snap["items"]), "unread": snap["unread"]}
 
     def mark_all_read(self):
         if any(not i["read"] for i in self.items):
@@ -159,24 +241,31 @@ class Mirror:
             self._changed()
 
     def dismiss(self, id):
-        item = next((i for i in self.items if i["id"] == str(id)), None)
-        if not item:
-            raise OpError("not-found", "no such notification")
-        if item.get("owner") and item["owner"] == self.owner:
-            # The item leaves on the host's NotificationClosed, as before.
-            self.run(["busctl", "--user", "call", self.owner, PATH, SERVICE, "CloseNotification", "u", item["id"]])
-        else:
-            self.items = [i for i in self.items if i is not item]
-            self._changed()
+        item = self.find(id)
+        if not self.close_remote(item):
+            self.remove(item["id"])
 
     def clear(self):
         self.items = []
         self._changed()
 
-    # Persistence and expiry
+    # Persistence, images and expiry
+
+    def _image_path(self, id: str) -> Path:
+        return self.images / (sha256(id.encode()).hexdigest()[:32] + ".png")
+
+    def _sweep_images(self):
+        """Delete every kept picture whose item is gone."""
+        if not self.images.is_dir():
+            return
+        wanted = {i["image"] for i in self.items}
+        for file in self.images.iterdir():
+            if str(file) not in wanted:
+                file.unlink(missing_ok=True)
 
     def _changed(self):
         self._expire(schedule_only=True)
+        self._sweep_images()
         self._save()
         self.on_change()
 
@@ -192,7 +281,8 @@ class Mirror:
         if self.save_handle:
             self.save_handle.cancel()
             self.save_handle = None
-        kept = [{k: v for k, v in i.items() if k != "private"} for i in self.items if not i.get("private")]
+        kept = [{k: v for k, v in i.items() if k not in (*UNWRITTEN, "live")}
+                for i in self.items if not any(i.get(flag) for flag in UNWRITTEN)]
         write_json(self.path, {"busId": self.saved_bus, "owner": self.saved_owner, "items": kept})
 
     def _expire(self, schedule_only=False):
@@ -202,6 +292,7 @@ class Mirror:
             fresh = [i for i in self.items if isinstance(i.get("time"), (int, float)) and i["time"] > cutoff]
             if len(fresh) != len(self.items):
                 self.items = fresh
+                self._sweep_images()
                 self._save()
                 self.on_change()
         if self.items:
@@ -209,100 +300,3 @@ class Mirror:
             self.scheduler.at("notifications.expire", now.boot + oldest / 1000 + TTL - now.real, lambda _: self._expire())
         else:
             self.scheduler.cancel("notifications.expire")
-
-
-class BusctlSource:
-    """Runs busctl monitor for the mirror (and the MPRIS track watch, core/track.py) and restarts it with a backoff."""
-
-    def __init__(self, mirror: Mirror, track=None):
-        self.mirror = mirror
-        self.track = track
-        self.process = None
-        self.task = None
-
-    def start(self):
-        self.task = asyncio.get_running_loop().create_task(self._run())
-
-    async def stop(self):
-        if self.task:
-            self.task.cancel()
-        if self.process and self.process.returncode is None:
-            self.process.terminate()
-            await self.process.wait()
-
-    async def _bus_call(self, method, *args) -> str:
-        process = await asyncio.create_subprocess_exec(
-            "busctl", "--user", "--json=short", "call", BUS, "/org/freedesktop/DBus", BUS, method, *args,
-            stdin=asyncio.subprocess.DEVNULL, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL)
-        out, _ = await process.communicate()
-        try:
-            return json.loads(out)["data"][0] if process.returncode == 0 else ""
-        except (ValueError, KeyError, IndexError, TypeError):
-            return ""
-
-    async def _run(self):
-        delay = 1
-        while True:
-            try:
-                bus_id = await self._bus_call("GetId")
-                if not bus_id:
-                    raise OSError("session bus identity unavailable")
-                matches = MATCHES + (TRACK_MATCHES if self.track else [])
-                args = ["busctl", "--user", "monitor", "--json=short"] + [f"--match={m}" for m in matches]
-                self.process = await asyncio.create_subprocess_exec(
-                    *args, stdin=asyncio.subprocess.DEVNULL, stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.DEVNULL, limit=MAX_LINE)
-                owner = await self._bus_call("GetNameOwner", "s", SERVICE)
-                if await self._bus_call("GetId") != bus_id:
-                    # The independent busctl connections straddled a restart.
-                    if self.process.returncode is None:
-                        self.process.terminate()
-                    await self.process.wait()
-                    raise OSError("session bus changed while starting the mirror")
-                self.mirror.started(owner, bus_id)
-                if self.track:
-                    self.track.started(await self._mpris_owners())
-                started = asyncio.get_running_loop().time()
-                await self._read(self.process.stdout)
-                await self.process.wait()
-                if asyncio.get_running_loop().time() - started > 60:
-                    delay = 1
-                log.warning("busctl monitor exited (code %s)", self.process.returncode)
-            except OSError as error:
-                log.warning("cannot start bus monitor: %s", error)
-            self.mirror.stopped()
-            if self.track:
-                self.track.stopped()
-            await asyncio.sleep(delay)
-            delay = min(60, delay * 2)
-
-    async def _mpris_owners(self) -> dict[str, str]:
-        """Players already running when the monitor starts: unique name → well-known name."""
-        names = await self._bus_call("ListNames")
-        owners = {}
-        for name in names if isinstance(names, list) else []:
-            if isinstance(name, str) and name.startswith("org.mpris.MediaPlayer2."):
-                unique = await self._bus_call("GetNameOwner", "s", name)
-                if unique:
-                    owners[unique] = name
-        return owners
-
-    async def _read(self, stdout: asyncio.StreamReader):
-        dropped = 0
-        while True:
-            try:
-                line = await stdout.readline()
-            except ValueError:
-                dropped += 1
-                log.info("dropped an oversized bus message (%d so far)", dropped)
-                continue
-            if not line:
-                return
-            try:
-                message = json.loads(line)
-            except ValueError:
-                continue
-            if isinstance(message, dict):
-                self.mirror.feed(message)
-                if self.track:
-                    self.track.feed(message)

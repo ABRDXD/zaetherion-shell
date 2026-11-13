@@ -1,3 +1,12 @@
+# 12 November 2026 · Fable: S4 step 1, the Inbox in the core
+
+- **Plan agreed with the owner.** S4 in six steps: core store, server in the adapter, island, Inbox room, sound, the `notify-send` matrix. Decisions Z163–Z165. Work is on branch `s4-notifications` (worktree `zaetherion-shell-s4`, cut from `s0-seed` `e868b7d`).
+- **Built (step 1).** `core/notifications.py` is now the `Inbox`, the one list. The busctl `Mirror` and `BusctlSource` moved to `core/notification_mirror.py` and feed it; the mirror ignores calls while our server is attached. New operations: `notif.serve {ids}`, `notif.ingest {id, appName, summary, body, urgency, actions, reply, icon, image, timeout, transient}` (returns `imagePath`, empty when the item is never written), `notif.image {id}`, `notif.closed {id}`, `notif.dnd {on}`. Items gained `actions` [{id, label}], `reply`, `icon`, `image`, `timeout` (ms, -1 = ours), `live`, and urgency `low`. The snapshot gained `source` ("server" or "mirror") and `dnd`.
+- **Rules.** The view forms ids that are unique across its restarts; the core treats them as opaque. Only the serving client may ingest, close or attach an image. When that client disconnects, items stay but stop being live, and transient ones go.
+- **Checks.** `tests/test_core_notifications.py` 28 tests (11 mirror, 17 server) and `tests/test_core_busctl.py` pass. The full suite had not finished when this was committed; its result is in the next entry.
+- **Live session.** Untouched. DMS still owns the notification name, and it has no switch to give it up; going live is a later step with the owner present.
+- **Next.** Step 2: `adapters/dms/NotificationServer.qml` on a private bus (check how Quickshell treats replace-id and whether it can take the name from a running owner), then the island, the Inbox room, sound and the matrix.
+
 # 12 November 2026 · Astra: current-code plateau rechecked; CAVA-inclusive CPU still over budget
 
 - **Scope/source.** Measured detached `eb09501`, excluding concurrent shared edits. The allocator default and 20 Hz settings were already applied in `946feb7`. `DmsAdapter` uses `QuickshellMedia`, which launches `tools/cava.conf`; the resident view uses `spawn_quickshell`'s child-only allocator default.

@@ -9,7 +9,8 @@ import tempfile
 import unittest
 
 from core_fakes import fakes
-from core.notifications import BusctlSource, Mirror
+from core.notification_mirror import BusctlSource, Mirror
+from core.notifications import Inbox
 from core.track import Track
 
 SERVER = '''
@@ -84,7 +85,8 @@ class BusctlTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.server.stdout.readline().strip(), "ready")
         self.clock, self.scheduler, _, host = fakes()
         self.commands = []
-        self.mirror = Mirror(self.clock, self.scheduler, self.run_command, base)
+        self.inbox = Inbox(self.clock, self.scheduler, base)
+        self.mirror = Mirror(self.inbox, self.run_command)
         self.track = Track(self.clock)
         self.source = BusctlSource(self.mirror, self.track)
         (base / "player.py").write_text(PLAYER)
@@ -123,11 +125,11 @@ class BusctlTests(unittest.IsolatedAsyncioTestCase):
             "/org/freedesktop/Notifications", "--method", "org.freedesktop.Notifications.Notify", "Fixture", "0", "",
             "summary", "body", "[]", '{"urgency": <byte 1>, "image-data": <(1,1,4,true,8,4,[byte 1,2,3,4])>}', "5000"],
             capture_output=True, timeout=5)
-        self.assertTrue(await self.wait(lambda: self.mirror.snapshot()["items"]))
-        item = self.mirror.snapshot()["items"][0]
+        self.assertTrue(await self.wait(lambda: self.inbox.snapshot()["items"]))
+        item = self.inbox.snapshot()["items"][0]
         self.assertEqual((item["id"], item["appName"], item["summary"]), ("42", "Fixture", "summary"))
-        await asyncio.to_thread(self.mirror.dismiss, "42")
-        self.assertTrue(await self.wait(lambda: not self.mirror.snapshot()["items"]))
+        await asyncio.to_thread(self.inbox.dismiss, "42")
+        self.assertTrue(await self.wait(lambda: not self.inbox.snapshot()["items"]))
 
     async def test_a_running_players_track_change_reaches_the_track_watch(self):
         self.source.start()

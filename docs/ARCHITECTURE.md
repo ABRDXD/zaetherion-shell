@@ -14,7 +14,7 @@ SDDM ─► Hyprland, "Hyprland (ZÆTHERION)" session (its own entry file and re
 
 | Process | Lifetime | Holds |
 |---|---|---|
-| `fartd` | The whole session | Timers, tasks, sessions, leases and guards, notification mirror and 24 h history, command history, frecency, file index, sky ephemeris, trial log, supervision |
+| `fartd` | The whole session | Timers, tasks, sessions, leases and guards, the notification Inbox (24 h; fed by our server or the mirror, Z163), command history, frecency, file index, sky ephemeris, trial log, supervision |
 | `dms` | The whole session; restarted with backoff (Z11) | System backend (see the backend map below) |
 | resident `qs` | Child of `dms` (Z10) | Every surface that must never disappear |
 | panel `qs` | Spawned on demand; reaped after a delay chosen at S2 (Z142); never reaped while the settings window is open (Z91) | Rooms, settings window, overview |

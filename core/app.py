@@ -16,7 +16,8 @@ from core.guards import BatteryGuard, FullscreenGuard, Guards, SessionGuard, foc
 from core.hostcalls import HostCalls
 from core.island import Island
 from core.ignite import LOST, Ignite
-from core.notifications import Mirror
+from core.notification_mirror import Mirror
+from core.notifications import Inbox
 from core.journey import Journey
 from core.weather import Weather
 from core.telemetry import Telemetry
@@ -71,7 +72,8 @@ class Core:
         self.sessions.music = self._session_music
         self.discovery = Discovery(state_dir, clock)
         self.sky = SkyWatch(clock, scheduler, getattr(host.profile, "location", lambda: None), self.discovery)
-        self.mirror = Mirror(clock, scheduler, host.run, state_dir)
+        self.inbox = Inbox(clock, scheduler, state_dir)
+        self.mirror = Mirror(self.inbox, host.run)
         self.view = ViewManager(clock, scheduler, spawn, self._view_changed, pressure,
                                 may_reap=lambda: self.overdrive.state.mode == "off", before_spawn=before_spawn,
                                 resident=resident_view)
@@ -83,12 +85,13 @@ class Core:
         self.view.on_closed.append(self.overdrive.panel_closed)
         self.hostcalls = HostCalls(self.view)
         server.on_disconnect.append(self.hostcalls.disconnected)
+        server.on_disconnect.append(self.inbox.disconnected)
         self.overdrive.on_release = self.view.check_idle_reap
         session_guard = self.guards.by_name.get("session")
         if session_guard:
             self.sessions.on_guard = session_guard.changed
 
-        for name, owner in (("timers", self.timers), ("tasks", self.tasks), ("notifications", self.mirror),
+        for name, owner in (("timers", self.timers), ("tasks", self.tasks), ("notifications", self.inbox),
                             ("overdrive", self.overdrive), ("session", self.sessions), ("island", self.island),
                             ("view", self.view)):
             server.topic(name, owner.snapshot)
@@ -200,7 +203,7 @@ class Core:
         supervised = {"supervisor": self.supervisor.snapshot()} if self.supervisor else {}
         return {"core": {"pid": os.getpid(), "rssKiB": rss_kib(), "uptime": round(now.boot - self.started.boot), "host": self.host.name},
                 **supervised, "view": self.view.snapshot(), "timers": self.timers.summary(), "tasks": self.tasks.summary(),
-                "notifications": self.mirror.summary(), "overdrive": self.overdrive.snapshot(), "session": self.sessions.snapshot()}
+                "notifications": self.inbox.summary(), "overdrive": self.overdrive.snapshot(), "session": self.sessions.snapshot()}
 
     def _register(self):
         op = self.server.op
@@ -235,11 +238,17 @@ class Core:
         op("list.rename", lambda peer, id, name: k.list_rename(id, name))
         op("list.remove", lambda peer, id: k.list_remove(id))
 
-        m = self.mirror
-        op("notif.markAllRead", lambda peer: m.mark_all_read())
-        op("notif.dismiss", lambda peer, id: m.dismiss(id))
-        op("notif.clear", lambda peer: m.clear())
-        op("notif.privateApps", lambda peer, apps=None: m.private_apps(apps))
+        n = self.inbox
+        op("notif.markAllRead", lambda peer: n.mark_all_read())
+        op("notif.dismiss", lambda peer, id: n.dismiss(id))
+        op("notif.clear", lambda peer: n.clear())
+        op("notif.privateApps", lambda peer, apps=None: n.private_apps(apps))
+        op("notif.dnd", lambda peer, on: n.set_dnd(on))
+        # Our own notification server, in the view (Z163).
+        op("notif.serve", lambda peer, ids=None: n.serve(peer, ids))
+        op("notif.ingest", lambda peer, **fields: n.ingest(peer, **fields))
+        op("notif.image", lambda peer, id: n.image(peer, id))
+        op("notif.closed", lambda peer, id: n.closed(peer, id))
 
         op("overdrive.request", lambda peer, mode, seconds=None: self.overdrive.request(mode, seconds))
         op("overdrive.release", lambda peer: self.overdrive.release())
@@ -436,5 +445,5 @@ class Core:
         self.genealogy.stop()
         self.quiet.stop()
         self.journey.flush()
-        self.mirror.flush()
+        self.inbox.flush()
         self.discovery.flush()
