@@ -28,7 +28,7 @@ HostAdapter {
     }
     // audio, notifications, lyrics and clipboard: loadDeferred() below.
     workspaces: HyprlandWorkspaces {}
-    keybinds: HyprlandKeybinds {}
+    keybinds: DmsKeybinds { link: link }
     power: DmsPower {}
     tray: QuickshellTray {}
     system: LinuxSystem {}

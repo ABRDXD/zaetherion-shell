@@ -45,7 +45,10 @@ Scope {
     onSocketPathChanged: if (started) post({ type: "path", path: socketPath })
     property bool started: false
     Component.onCompleted: {
-        machine = Machine.initial(clientId);
+        // Keep feeds that registered first: QML completes objects in no fixed order, and a feed declared beside
+        // its link (or inside a domain declared beside it) can complete before the link does.
+        const early = machine.feeds;
+        machine = Object.assign(Machine.initial(clientId), { feeds: early });
         started = true;
         post({ type: "path", path: socketPath });
     }

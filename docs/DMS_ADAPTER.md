@@ -85,7 +85,7 @@ Invariants, each with a test:
 
 - DMS has no unsubscribe. Its own client changes the list by closing the event connection and dialling again; we do the same (S4, S5). Each new subscription starts with a `server` event and one snapshot per service, so nothing is missed: snapshots are whole states, not deltas.
 - A `DmsFeed` is the only way to be subscribed. It registers on creation, updates when `wanted` changes, and unregisters on destruction. `wanted` is a lease expression: `wanted: root.holds("brightness")`.
-- **The contract's un-leased properties need change events** (`network.connected` drives the island's glyph with no view lease, Z126). For those the feed is `wanted: true` for as long as the domain object exists. This is the only subscription without a view lease, and it is the minimum the existing contract allows. A deferred domain (`loadDeferred()`) holds nothing until it is created.
+- **The contract's un-leased properties need change events** (`network.connected` drives the island's glyph with no view lease, Z126). For those the feed is `wanted: true` for as long as the domain object exists. The subscriptions without a view lease are this one, `evdev` (caps and num lock for the island's hover view, S5; one small snapshot per lock key) and, in the island's process only, `brightness` for the OSD (Z172). A lease on hover would redial the event connection on every hover, since DMS has no unsubscribe. A deferred domain (`loadDeferred()`) holds nothing until it is created.
 - `feed.data` is the last snapshot, or null while the feed is unwanted or unusable. Domain properties are bindings on it, so they fall back to contract defaults by themselves.
 - A feed that becomes wanted for a service already subscribed gets the cached snapshot at once.
 - Release takes effect at once (collapsed per event-loop turn). No linger: F3 can add one if measurements show churn.
@@ -136,11 +136,14 @@ Limits: the contract has no kind for cellular or VPN, so a cellular-only machine
 | clipboard | `history` | `adapters/common/CliphistClipboard` (owner's choice, 11 Nov: cliphist records, DMS clipboard off) | — | — | — |
 | media, audio, equalizer, notifications | as today | quickshell (MPRIS, Pipewire, `NotificationServer`); the panel reads the core's notification mirror | — | — | — |
 | workspaces, keybinds | — | hyprland | — | — | — |
+| keybinds.capsLock, numLock | — | dms (S5) | `evdev` | — | none: held while the domain exists |
+| osd (volume, mic) | — | Pipewire (S5) | — | — | none: island process only |
+| osd (brightness) | — | dms (S5) | `brightness`, `brightness.update` (S9a) | — | none: island process only |
 | palette, sfx, motion | — | serpantinum_assets, static | — | — | — |
 | clockGeometry | — | the island (S3) | — | — | — |
 
 **Not in DMS's Go backend, owned by `adapters/quickshell`:** audio, notifications, lock, idle, polkit, MPRIS, UPower, tray.
-DMS services with no contract domain yet: `evdev` (caps and num lock for Z20/Z130), `wlroutput` (display settings), `wellbeing` (OPEN 1), `network.credentials`, `bluetooth.pairing`. Never subscribed: `theme.auto`, `wallpaper` (DMS theming costs ~350 MiB, DMS_OBSERVED.md).
+DMS services with no contract domain yet: `wlroutput` (display settings), `wellbeing` (OPEN 1), `network.credentials`, `bluetooth.pairing`. Never subscribed: `theme.auto`, `wallpaper` (DMS theming costs ~350 MiB, DMS_OBSERVED.md).
 
 ## 6. Capabilities and versions
 

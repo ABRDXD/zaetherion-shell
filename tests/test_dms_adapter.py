@@ -192,7 +192,7 @@ class Contract(Base):
     def test_a_newer_dms_works_and_is_marked_untested(self):
         stand, harness = self.with_version(39)
         state = self.ready(harness)
-        self.assertEqual((state["untested"], state["apiVersion"], state["subscribed"]), (True, 39, ["network"]))
+        self.assertEqual((state["untested"], state["apiVersion"], state["subscribed"]), (True, 39, ["evdev", "network"]))
 
 
 class Composition(Base):
@@ -204,7 +204,7 @@ class Composition(Base):
         got = json.loads(harness.ipc("domains"))
         expected = {"media": "QuickshellMedia", "audio": "QuickshellAudio", "network": "DmsNetwork",
                     "notifications": "DmsNotifications", "workspaces": "HyprlandWorkspaces", "power": "DmsPower",
-                    "tray": "QuickshellTray", "keybinds": "HyprlandKeybinds", "lyrics": "LyricsSource",
+                    "tray": "QuickshellTray", "keybinds": "DmsKeybinds", "lyrics": "LyricsSource",
                     "clipboard": "CliphistClipboard", "system": "LinuxSystem"}
         for domain, kind in expected.items():
             self.assertTrue(got[domain].startswith(kind), f"{domain}: {got[domain]}")
@@ -257,11 +257,12 @@ class SessionActions(Base):
 
 
 class Leases(Base):
-    def test_the_list_is_network_alone_with_no_view_lease(self):
+    def test_the_list_is_network_and_evdev_alone_with_no_view_lease(self):
+        # Both are held without a view lease (§3): network for the island's glyph, evdev for caps lock (Z24).
         stand, harness = self.start()
         state = self.ready(harness)
-        self.assertEqual(state["subscribed"], ["network"])
-        self.assertEqual(stand.subscriptions(), [["network"]])
+        self.assertEqual(state["subscribed"], ["evdev", "network"])
+        self.assertEqual(stand.subscriptions(), [["evdev", "network"]])
         self.assertNotIn(None, stand.subscriptions())
 
     def test_details_and_scan_gate_their_properties(self):
@@ -293,13 +294,13 @@ class Leases(Base):
         stand, harness = self.start()
         self.ready(harness)
         harness.ipc("extra", "true")
-        state = harness.wait_for(lambda s: s["subscribed"] == ["brightness", "network"] and s["extra"] and s["extra"]["hasData"])
-        self.assertEqual(state["subscribed"], ["brightness", "network"])
+        state = harness.wait_for(lambda s: s["subscribed"] == ["brightness", "evdev", "network"] and s["extra"] and s["extra"]["hasData"])
+        self.assertEqual(state["subscribed"], ["brightness", "evdev", "network"])
         self.assertTrue(state["extra"]["hasData"])
         harness.ipc("extra", "false")                                              # release by destruction
-        state = harness.wait_for(lambda s: s["subscribed"] == ["network"])
-        self.assertEqual(state["subscribed"], ["network"])
-        self.assertEqual(stand.subscriptions(), [["network"], ["brightness", "network"], ["network"]])
+        state = harness.wait_for(lambda s: s["subscribed"] == ["evdev", "network"])
+        self.assertEqual(state["subscribed"], ["evdev", "network"])
+        self.assertEqual(stand.subscriptions(), [["evdev", "network"], ["brightness", "evdev", "network"], ["evdev", "network"]])
 
     def test_a_feed_for_a_capability_the_dms_lacks_never_dials(self):
         fixture = json.loads(json.dumps(FIXTURE))
@@ -316,8 +317,8 @@ class Leases(Base):
         self.harness.ipc("extra", "true")
         self.settle(0.6)
         state = self.harness.state()
-        self.assertEqual((state["subscribed"], state["extra"]["usable"]), (["network"], False))
-        self.assertEqual(stand.subscriptions(), [["network"]])
+        self.assertEqual((state["subscribed"], state["extra"]["usable"]), (["evdev", "network"], False))
+        self.assertEqual(stand.subscriptions(), [["evdev", "network"]])
 
     def test_with_no_feeds_the_event_connection_is_closed(self):
         stand, harness = self.start(harness="LinkHarness.qml")
@@ -360,8 +361,8 @@ class Restart(Base):
         state = harness.wait_for(lambda s: s["available"] and s["networks"] != [], timeout=5)
         self.assertTrue(state["available"], harness.output()[-1500:])
         self.assertLess(time.time() - started, 5)
-        self.assertEqual(state["subscribed"], ["network"])
-        self.assertEqual(second.subscriptions(), [["network"]])
+        self.assertEqual(state["subscribed"], ["evdev", "network"])
+        self.assertEqual(second.subscriptions(), [["evdev", "network"]])
         self.assertEqual(self.wait_methods(second, SCAN, 1), 1)                    # the held scan is issued again
         self.assertEqual(first.methods().count(SCAN), 1)
 
@@ -376,7 +377,7 @@ class Restart(Base):
         state = harness.wait_for(lambda s: s["available"], timeout=5)
         self.assertTrue(state["available"], harness.output()[-1500:])
         self.assertLess(time.time() - started, 3)
-        self.assertEqual(again.subscriptions(), [["network"]])
+        self.assertEqual(again.subscriptions(), [["evdev", "network"]])
 
 
 if __name__ == "__main__":

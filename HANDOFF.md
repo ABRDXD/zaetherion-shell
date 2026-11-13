@@ -1,3 +1,11 @@
+# 13 November 2026 · Opus: S5 step 2, caps and num lock; the DMS link keeps early feeds (owner away)
+
+- **Caps and num lock.** `adapters/dms/DmsKeybinds.qml`: `HyprlandKeybinds` plus DMS's `evdev` service (`{available, capsLock, numLock}`), held while the domain exists; null until the first snapshot. The island's hover view already shows caps lock when it is on (`IslandRest.hoverStatus`). Live probe: caps true (it was on), num false, 94 binds read.
+- **DMS link fix.** `DmsLink` reset its machine in `Component.onCompleted`, dropping feeds that completed before it (seen when a feed sat beside its link). It now keeps them. Live probe: a sibling `evdev` feed subscribes and gets data.
+- **Airplane mode** has no DMS source (no rfkill field in `network`); still null in this session.
+- **Checks.** Full suite: 904 of 911; the 7 failures were `test_dms_adapter` asserting `network` is the only un-leased subscription and `HyprlandKeybinds` in the composition. §3 of DMS_ADAPTER.md now names `evdev` (and the OSD's `brightness`) as un-leased, the tests follow, and `test_dms_adapter` passes alone (20).
+- **EQ (Z50), not started: questions for the owner first.** Our own PipeWire filter-chain (10 biquads) replaces the host script, so: (1) keep balance, mono, channel swap, "dynamic EQ" and the night/balanced dynamics the contract inherited, or only the 10 bands and presets? (2) Which presets? (3) The chain becomes the default output while on; it is a PipeWire config drop-in, so it changes the owner's audio routing and needs them present to try. Plan once answered: a generator for the drop-in, gains changed live with `pw-cli set-param`, state in the core, and a check on a private PipeWire with a null sink so the live audio is never touched.
+
 # 13 November 2026 · Opus: S5 step 1, OSD levels for the island (branch `s5-osd`, owner away)
 
 - **Built (Z172).** `adapters/quickshell/OsdChange.js` (which change is an event), `QuickshellOsd.qml` (volume, mic from Pipewire), `adapters/dms/DmsOsd.qml` (adds brightness from DMS), `DmsBrightnessMap.js`. `DmsAdapter.osdWanted` (bound to `ZAETHERION_ISLAND` in `shell-dms.qml`) creates it at start; `QuickshellAudio.setVolume/setMuted` hush it for 2 s. The island's OSD face and queue entry were already there.
