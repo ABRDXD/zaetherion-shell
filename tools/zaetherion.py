@@ -261,7 +261,24 @@ def snapshot(connection: Connection, topic: str) -> dict:
     return data
 
 
+STOP_WAIT = 12.0  # seconds; a worst-case teardown is 9 s (docs/SUPERVISOR.md §12)
+
+
+def core_lock_free(folder: Path) -> bool:
+    """The core unlinks its socket first and drops core.lock only when it exits; a start in that gap
+    launches a core that finds the lock held and quits. Probe under launch.lock, so no start is mid-launch."""
+    with (folder / "launch.lock").open("a") as launch, (folder / "core.lock").open("a") as lock:
+        fcntl.flock(launch, fcntl.LOCK_EX)
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return False
+    return True
+
+
 def stop_core():
+    """Ask the core to shut down and wait until it has really exited (socket gone and core.lock free).
+    A core already mid-shutdown, with its socket gone, is waited for too."""
     connection = connect(start=False)
     if connection:
         try:
@@ -269,11 +286,13 @@ def stop_core():
         except (Unreachable, OSError):
             pass
         connection.close()
-        path = runtime() / "core.sock"
-        for _ in range(480):  # a worst-case teardown is 9 s (docs/SUPERVISOR.md §12)
-            if not path.exists():
-                break
-            time.sleep(0.025)
+    folder = runtime()
+    deadline = time.monotonic() + STOP_WAIT
+    while (folder / "core.sock").exists() or not core_lock_free(folder):
+        if time.monotonic() >= deadline:
+            raise Unreachable(f"the old core did not exit within {STOP_WAIT:g} s; not starting another; "
+                              f"see {folder / 'core.log'}")
+        time.sleep(0.025)
     stop_legacy_view()
 
 
