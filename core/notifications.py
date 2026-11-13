@@ -49,6 +49,7 @@ class Inbox:
         self.images = state_dir / "notification-images"
         self.on_change = lambda: None
         self.close_remote = lambda item: False  # the mirror's: True when the host will close the item itself
+        self.on_sound = lambda urgency: None  # a notification that should be heard arrived at our server
         self.mirroring = False
         self.server = None  # the client whose view runs our notification server
         self.holder_pid = 0  # the process that owns the notification name on the bus; 0 while unknown
@@ -213,15 +214,23 @@ class Inbox:
         if client is not self.server:
             raise OpError("not-serving", "only the notification server may do this")
 
-    def ingest(self, client, id=None, transient=False, **fields):
+    def ingest(self, client, id=None, transient=False, silent=False, **fields):
+        """`silent`: the sender plays its own sound (the suppress-sound hint)."""
         self._served(client)
         if not isinstance(id, str) or not SERVER_ID.fullmatch(id):
             raise bad_args("id must be 1 to 64 letters, digits, - or _")
+        arrival = all(i["id"] != id for i in self.items)  # not a replace-id
         item = self.put(id, fields, live=True, transient=transient is True)
+        if arrival and silent is not True and self._heard(item["urgency"]):
+            self.on_sound(item["urgency"])
         writable = not any(item[flag] for flag in UNWRITTEN)
         if writable:
             self.images.mkdir(parents=True, exist_ok=True, mode=0o700)
         return {"imagePath": str(self._image_path(id)) if writable else ""}
+
+    def _heard(self, urgency: str) -> bool:
+        """Low urgency is silent; do-not-disturb lets only critical through (Z165, Z167)."""
+        return urgency == "critical" or (urgency == "normal" and not self.dnd)
 
     def image(self, client, id):
         """The server wrote the item's picture to the path `ingest` gave it."""

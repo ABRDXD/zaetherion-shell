@@ -17,10 +17,13 @@ NotificationsDomain {
     dnd: inbox?.dnd ?? false
     unread: available ? inbox.unread : 0
     // A picture sent as raw pixels exists only in this process until it is saved: show it from here meanwhile.
+    // The contract's image is a URL: a kept or sender-given file, else the live picture.
     items: !available ? [] : inbox.items.map(item => {
-        const picture = item.image === "" ? (server.find(item.id)?.livePicture ?? "") : "";
-        return picture === "" ? item : Object.assign({}, item, { image: picture });
+        const image = item.image.startsWith("/") ? "file://" + item.image : item.image || (server.find(item.id)?.livePicture ?? "");
+        return image === item.image ? item : Object.assign({}, item, { image: image });
     })
+    // key → the file the core will keep that item's picture in ("" when the item is never written).
+    property var imagePaths: ({})
 
     function setDnd(on: bool) { core.request("notif.dnd", { on: on }); }
     function markAllRead() { core.request("notif.markAllRead"); }
@@ -35,7 +38,24 @@ NotificationsDomain {
     // The session's own bind (Super+Shift+N) runs the same command.
     function openHost() { Quickshell.execDetached(["dms", "ipc", "call", "notifications", "toggle"]); }
 
-    function ingest(item: QuickshellNotification) { core.request("notif.ingest", item.fields); }
+    function keepImage(id: string, picture: Item) {
+        const path = imagePaths[id] ?? "";
+        if (path === "" || !server.find(id)?.livePicture) return;
+        forgetPath(id);   // once is enough
+        picture.grabToImage(result => { if (result.saveToFile(path)) core.request("notif.image", { id: id }); });
+    }
+    function forgetPath(id: string) {
+        if (!(id in imagePaths)) return;
+        const rest = Object.assign({}, imagePaths);
+        delete rest[id];
+        imagePaths = rest;
+    }
+
+    function ingest(item: QuickshellNotification) {
+        core.request("notif.ingest", item.fields, (ok, result) => {
+            if (ok && item.livePicture) imagePaths = Object.assign({}, imagePaths, { [item.key]: result.imagePath });
+        });
+    }
     // Attach to the core, then hand over whatever arrived while it was away.
     function attach() {
         core.request("notif.serve", { ids: server.keys }, (ok, result) => {
@@ -55,6 +75,9 @@ NotificationsDomain {
         quiet: root.dnd
         onArrived: item => { if (root.attached) root.ingest(item); }
         onChanged: item => { if (root.attached) root.ingest(item); }
-        onClosed: key => { if (root.attached) root.core.request("notif.closed", { id: key }); }
+        onClosed: key => {
+            root.forgetPath(key);
+            if (root.attached) root.core.request("notif.closed", { id: key });
+        }
     }
 }

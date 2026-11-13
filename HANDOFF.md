@@ -1,3 +1,11 @@
+# 13 November 2026 · Fable: S4 step 5, sound; pictures kept; the adapter side of answering
+
+- **Sound (Z167).** `Inbox.ingest` decides what is heard (`on_sound`): not low urgency, not a replace-id, not a sender with `suppress-sound`, and under do-not-disturb only critical. The core emits cue `notify.normal` or `notify.critical` (new kind `notice` in `core/sfx.py`, switched per cue like UI cues; mapped to freedesktop sounds in `adapters/serpantinum/core.py` `NOTICES`).
+- **Pictures.** Contract call `keepImage(id, picture)`: a card that draws a notification's picture offers it; `DmsNotifications` saves raw-pixel pictures with `grabToImage` to the path `notif.ingest` returned, then `notif.image`. The contract's `image` is now a URL (`file://…` or the live `image://qsimage/…`). Ids must match `[A-Za-z0-9_-]{1,64}`: they are also the picture's file name (no hashlib: it cost the core 4 MiB and broke its memory budget).
+- **Layout law.** `tests/test_layout.py`: only `adapters/quickshell/QuickshellNotificationServer.qml` may hold a `NotificationServer`, it must be off by default, and only `DmsNotifications.qml` may use it, behind `FART_NOTIFICATION_SERVER=1`.
+- **Checks.** Matrix now 14 tests (sound for the three urgencies, `suppress-sound` and do-not-disturb, raw pixels kept across a view restart and deleted on dismiss, a private app's pixels never written). Core notification tests 31, sfx tests updated.
+- **Waiting for the owner's look.** Steps 3 (island) and 4 (FART's Inbox) are built and tested in the working tree but not committed: captures first.
+
 # 13 November 2026 · Fable: S4 step 2, our notification server; the notify-send matrix passes offscreen
 
 - **Built.** `adapters/quickshell/QuickshellNotificationServer.qml` (Quickshell's server, the live notifications, a flood guard), `QuickshellNotification.qml` (one live notification: its Inbox fields, actions, reply, dismiss, the transient timer) and `NotificationTiming.qml` (default showing times). `adapters/dms/DmsNotifications.qml` joins the server to the core: `notif.serve` on connect, `notif.ingest` on arrival and on replace-id, `notif.closed` on close. The contract gained `source` and `invoke(id, action, reply)`; do-not-disturb is real (`notif.dnd`).
@@ -6,7 +14,7 @@
 - **The matrix.** `tests/test_notification_server.py` (11 tests, about 6 s): a private dbus-daemon, a private core, the harness as that core's resident view (`tools/notiftest.py`, `tools/dmstest/NotificationHarness.qml`), senders `notify-send` and `gdbus`. Covered: three urgencies and their showing times, the sender's expiry time, transient leaving, two actions answered back to `notify-send`, inline reply (`NotificationReplied` seen on the bus), images as a file, an icon name and raw pixels, replace-id, close from either side, do-not-disturb, items outliving the view and the core, and waiting behind another server then taking over.
 - **Found.** The core accepts only the view it spawned, so the tests run the harness as the resident view. Quickshell uses the reply action's label as the reply placeholder. A replace-id changes the live notification's properties in place.
 - **Not yet.** Raw-pixel pictures are shown from the view while live but not yet saved to disk (step 3, when a card draws them). The island and FART's Inbox do not use actions, reply, images or the showing time yet. No sound yet.
-- **Checks.** Notification, bus, adapter, contract, architecture and island tests: 97 OK. qmllint: no syntax diagnostics on the new files. Full suite: see the commit message.
+- **Checks.** Notification, bus, adapter, contract, architecture and island tests: 97 OK. qmllint: no syntax diagnostics on the new files. Full suite on that commit (`41f56bf`): 865 of 866; the one failure was the inherited layout law "no QML claims the notification server", replaced in the next commit by a law that allows exactly our one gated file.
 - **Next.** Step 3, the island: showing time from the item, actions, reply, picture. Captures to the owner before that commit.
 
 # 12 November 2026 · Fable: S4 step 1, the Inbox in the core

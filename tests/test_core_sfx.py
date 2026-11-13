@@ -58,7 +58,8 @@ class GateTests(unittest.TestCase):
     def test_ui_cues_are_on_by_default_and_played_by_the_core(self):
         self.sound = False  # the timer sound setting does not gate UI cues
         snap = {c["name"]: c["enabled"] for c in self.sfx.snapshot()["cues"]}
-        self.assertEqual(snap, {"timer.done": False, "pomodoro.phase": False, "session.end": False, "ui.click": True,
+        self.assertEqual(snap, {"timer.done": False, "pomodoro.phase": False, "session.end": False,
+                                "notify.normal": True, "notify.critical": True, "ui.click": True,
                                 "ui.key": True, "ui.switch": True, "ui.error": True, "cmd.run": True,
                                 "orbit.out": True, "orbit.land": True, "orbit.hover": True, "ignite": True,
                                 "overdrive.off": True, **{f"foley.{n}": True for n in ("pin", "relay", "paper", "ruler", "splice")},
@@ -138,7 +139,8 @@ class SerpantinumProfileTests(unittest.TestCase):
         from core.host import load_profile
         self.profile = load_profile("serpantinum")
         tables = type(self.profile).__init__.__globals__  # the profile module is loaded from a path, not imported
-        self.module = types.SimpleNamespace(UI=tables["UI"], ALERTS=tables["ALERTS"], OWN=tables["OWN"], FART_SOUNDS=tables["FART_SOUNDS"])
+        self.module = types.SimpleNamespace(UI=tables["UI"], ALERTS=tables["ALERTS"], OWN=tables["OWN"], FART_SOUNDS=tables["FART_SOUNDS"],
+                                            NOTICES=tables["NOTICES"], SOUNDS=tables["SOUNDS"])
         for relative in set(self.module.UI.values()) - {"reusables/inputfield/error.wav"}:
             path = root / "src/assets/sounds" / relative
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -166,6 +168,15 @@ class SerpantinumProfileTests(unittest.TestCase):
         self.assertEqual(set(self.module.UI) | set(self.module.OWN), ui)
         self.assertFalse(set(self.module.UI) & set(self.module.OWN))
         self.assertEqual(set(self.module.ALERTS), {n for n, c in CUES.items() if c.kind == "alert"})
+
+    def test_notification_cues_are_mapped_to_freedesktop_sounds(self):
+        self.assertEqual(set(self.module.NOTICES), {n for n, c in CUES.items() if c.kind == "notice"})
+        for cue, file in self.module.NOTICES.items():
+            command = self.profile.play_command(cue, 1.0)
+            if (self.module.SOUNDS / file).is_file():   # the freedesktop sound theme is installed here
+                self.assertEqual(Path(command[-1]), self.module.SOUNDS / file)
+            else:
+                self.assertIsNone(command)
 
 
 class FakeClient:

@@ -23,7 +23,7 @@ QtObject {
         urgency: urgency, actions: notification.actions.map(a => ({ id: a.identifier, label: a.text })),
         reply: notification.hasInlineReply ? (notification.inlineReplyPlaceholder || "Reply") : "",
         icon: notification.appIcon || imageIcon || notification.desktopEntry, image: imageFile,
-        timeout: showMs, transient: notification.transient
+        timeout: showMs, transient: notification.transient, silent: !!notification.hints["suppress-sound"]
     })
     signal changed()   // a replace-id rewrote the fields
     signal closed()

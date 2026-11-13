@@ -19,5 +19,6 @@ NotificationsDomain {
     function dismiss(id: string) { core.request("notif.dismiss", { id: id }); }
     // Serpantinum owns its notifications: their actions are answered in its own centre.
     function invoke(id: string, action: string, reply: string) { openHost(); }
+    function keepImage(id: string, picture: Item) {}   // the mirror carries no pictures
     function openHost() { Quickshell.execDetached(["serpantinum", "msg", "open", "notifications"]); }
 }

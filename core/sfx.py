@@ -5,8 +5,8 @@ view reaped. Alerts (a timer, a pomodoro phase, a session) come from the core's 
 follow the host's own controls (DAILY_DRIVER Q9): the profile maps each to the file the host plays for
 the same moment. The view reports the moments only it sees (`sfx.play`); it never plays a sound itself.
 
-The gate, in order: the cue is on (FART's timer-sound setting for alerts, a per-cue switch for UI cues,
-each on until switched off), no session is quieting it, the host's sfx are not muted and the host is not
+The gate, in order: the cue is on (FART's timer-sound setting for alerts, a per-cue switch for UI and
+notification cues, each on until switched off), no session is quieting it, the host's sfx are not muted and the host is not
 in DND. A cue the host has no file for is not audible ("no-sound").
 """
 from __future__ import annotations
@@ -25,7 +25,7 @@ log = logging.getLogger("fart.sfx")
 @dataclass(frozen=True)
 class Cue:
     name: str
-    kind: str  # alert | ui
+    kind: str  # alert | ui | notice (a notification arrived; switched per cue, like a UI cue)
     session: bool  # still audible while a session runs (it belongs to the session)
     summary: str
 
@@ -34,6 +34,8 @@ CUES = {cue.name: cue for cue in (
     Cue("timer.done", "alert", False, "a countdown finished"),
     Cue("pomodoro.phase", "alert", True, "a pomodoro phase ended"),
     Cue("session.end", "alert", True, "a session completed"),
+    Cue("notify.normal", "notice", False, "a notification arrived"),
+    Cue("notify.critical", "notice", True, "a critical notification arrived"),
     Cue("ui.click", "ui", False, "a button or row was pressed"),
     Cue("ui.key", "ui", False, "a key was typed into the command line"),
     Cue("ui.switch", "ui", False, "a switch or tab changed"),
@@ -72,7 +74,7 @@ class Sfx:
         self.on_cue = lambda event: None
         self.on_change = lambda: None
         self.seq = 0
-        self.enabled = {name: True for name, cue in CUES.items() if cue.kind == "ui"}
+        self.enabled = {name: True for name, cue in CUES.items() if cue.kind != "alert"}
         self._load()
 
     def _load(self):
@@ -98,7 +100,7 @@ class Sfx:
             raise bad_args("cues must map cue names to true or false")
         unknown = [name for name in cues if name not in self.enabled]
         if unknown:
-            raise bad_args(f"only UI cues are switched here ({', '.join(self.enabled)}); alerts follow the timer sound setting")
+            raise bad_args(f"only UI and notification cues are switched here ({', '.join(self.enabled)}); alerts follow the timer sound setting")
         self.enabled.update(cues)
         if self.path:
             write_json(self.path, {"version": 1, "cues": self.enabled})

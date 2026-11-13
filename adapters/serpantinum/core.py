@@ -9,6 +9,8 @@ from pathlib import Path
 
 SOUNDS = Path("/usr/share/sounds/freedesktop/stereo")
 ALERTS = {cue: "alarm-clock-elapsed.oga" for cue in ("timer.done", "pomodoro.phase", "session.end")}
+# A notification arriving at our own server (S4), also from the freedesktop set.
+NOTICES = {"notify.normal": "message.oga", "notify.critical": "dialog-warning.oga"}
 # FART's UI cues, mapped to the defaults of the host control that plays a sound at the same moment
 # (quickshell/reusables/, read-only survey, 6 Nov 2026). Paths are under the host's assets/sounds/.
 UI = {
@@ -115,7 +117,8 @@ class HostProfile:
 
     def sound_file(self, cue: str) -> Path | None:
         """The file for a cue, or None when there is none (the host plays nothing for it either)."""
-        path = (SOUNDS / ALERTS[cue] if cue in ALERTS else self.host_sounds / UI[cue] if cue in UI
+        path = (SOUNDS / ALERTS[cue] if cue in ALERTS else SOUNDS / NOTICES[cue] if cue in NOTICES
+                else self.host_sounds / UI[cue] if cue in UI
                 else FART_SOUNDS / OWN[cue] if cue in OWN else None)
         return path if path is not None and path.is_file() else None
 

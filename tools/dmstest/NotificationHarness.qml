@@ -9,6 +9,17 @@ import qs.core.client
 ShellRoot {
     CoreClient { id: client }
     DmsNotifications { id: notifications; core: client }
+    // Stands for a card drawing the newest notification's picture, so keepImage has something to save.
+    FloatingWindow {
+        implicitWidth: 64
+        implicitHeight: 64
+        Image {
+            id: picture
+            width: 40
+            height: 40
+            source: notifications.items.length > 0 ? notifications.items[notifications.items.length - 1].image : ""
+        }
+    }
 
     IpcHandler {
         target: "t"
@@ -22,5 +33,6 @@ ShellRoot {
         function invoke(id: string, action: string, reply: string): void { notifications.invoke(id, action, reply); }
         function dnd(on: string): void { notifications.setDnd(on === "true"); }
         function markAllRead(): void { notifications.markAllRead(); }
+        function keepImage(id: string): void { notifications.keepImage(id, picture); }
     }
 }

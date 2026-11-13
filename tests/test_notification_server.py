@@ -52,6 +52,12 @@ class Base(unittest.TestCase):
         self.assertTrue(check(state["items"]), state)
         return state["items"]
 
+    def played(self):
+        """The cues the core asked the (fixture) host to play, in order."""
+        log = self.dir / "fixture.jsonl"
+        lines = [json.loads(line) for line in log.read_text().splitlines()] if log.exists() else []
+        return [line[1] for line in lines if isinstance(line, list) and line[:1] == ["play"]]
+
     def background(self, process):
         """A sender or monitor left running: stopped and reaped with the test."""
         def end():
@@ -76,6 +82,17 @@ class MatrixTests(Base):
                          [("low", "low", 5000), ("normal", "normal", 5000), ("critical", "critical", 0)])
         self.assertEqual({(i["appName"], i["body"], i["read"], i["live"]) for i in items},
                          {("Fixture", "Synthetic body", False, True)})
+        self.assertEqual(self.played(), ["notify.normal", "notify.critical"])   # low is silent
+
+    def test_sound_is_left_to_a_sender_that_plays_its_own_and_to_do_not_disturb(self):
+        view = self.serving()
+        self.bus.send("-h", "boolean:suppress-sound:true", "own sound", "Synthetic body")
+        view.ipc("dnd", "true")
+        self.assertTrue(view.wait_for(lambda s: s["dnd"])["dnd"])
+        self.bus.send("quiet", "Synthetic body")
+        self.bus.send("-u", "critical", "loud", "Synthetic body")
+        self.items(3)
+        self.assertEqual(self.played(), ["notify.critical"])
 
     def test_expiry_the_senders_time_is_kept_and_a_transient_leaves_when_it_ends(self):
         self.serving()
@@ -119,8 +136,34 @@ class MatrixTests(Base):
         self.bus.send("-i", "dialog-information", "icon", "Synthetic body")
         self.notify("pixels", hints=PIXEL)
         file, icon, pixels = self.items(3)
-        self.assertEqual((file["image"], icon["icon"], icon["image"]), (str(picture), "dialog-information", ""))
+        self.assertEqual((file["image"], icon["icon"], icon["image"]), (f"file://{picture}", "dialog-information", ""))
         self.assertTrue(pixels["image"].startswith("image://qsimage/"), pixels)   # shown from the view until saved
+
+    def test_raw_pixels_are_kept_once_drawn_and_outlive_the_view(self):
+        view = self.serving()
+        self.notify("pixels", hints=PIXEL)
+        item = self.items(1)[0]
+        view.ipc("keepImage", item["id"])
+        kept = self.items(1, lambda items: items[0]["image"].startswith("file://"))[0]["image"]
+        path = Path(kept.removeprefix("file://"))
+        self.assertEqual((path.parent, path.read_bytes()[:4]), (self.dir / "cs/notification-images", b"\x89PNG"))
+        gone = view.process.pid
+        view.kill()
+        view.attach(self.core, after=gone)
+        self.assertEqual(self.items(1)[0]["image"], kept)
+        view.ipc("dismiss", item["id"])
+        self.items(0)
+        self.assertFalse(path.exists())
+
+    def test_a_private_apps_pixels_are_not_kept(self):
+        view = self.serving()
+        self.core.request("notif.privateApps", apps=["Fixture"])
+        self.notify("pixels", hints=PIXEL)
+        item = self.items(1)[0]
+        view.ipc("keepImage", item["id"])
+        time.sleep(0.5)
+        self.assertTrue(self.view.state()["items"][0]["image"].startswith("image://qsimage/"))
+        self.assertFalse((self.dir / "cs/notification-images").exists())
 
     def test_replace_id_updates_the_same_item(self):
         self.serving()

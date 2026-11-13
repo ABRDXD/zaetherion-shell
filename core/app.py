@@ -86,6 +86,7 @@ class Core:
         self.hostcalls = HostCalls(self.view)
         server.on_disconnect.append(self.hostcalls.disconnected)
         server.on_disconnect.append(self.inbox.disconnected)
+        self.inbox.on_sound = lambda urgency: self.sfx.emit(f"notify.{urgency}")
         self.overdrive.on_release = self.view.check_idle_reap
         session_guard = self.guards.by_name.get("session")
         if session_guard:

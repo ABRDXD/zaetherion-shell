@@ -51,10 +51,23 @@ class LayoutTests(unittest.TestCase):
             self.assertNotIn("FHeading", (ROOT / "view/rooms" / target).read_text(), target)
 
     def test_view_cannot_claim_host_services_or_reach_the_archive(self):
-        forbidden = ("NotificationServer {", "ConflictKiller", "GlobalShortcut {", "host/Shell.qml",
+        forbidden = ("ConflictKiller", "GlobalShortcut {", "host/Shell.qml",
                      "serpantinumd", "FART_SOURCE", "fart/source", "end4-pC", "illogical-impulse")
         for qml in QML:
             data = qml.read_text()
             for symbol in forbidden:
                 self.assertNotIn(symbol, data, str(qml))
         self.assertFalse(any(p.is_symlink() for p in ROOT.rglob("*") if ".git" not in p.parts))
+
+    def test_only_our_one_server_file_claims_the_notification_name_and_only_when_asked(self):
+        """Z163, Z166: Quickshell's NotificationServer in one file, off unless FART_NOTIFICATION_SERVER=1."""
+        claim = re.compile(r"(?<![A-Za-z])NotificationServer \{")
+        claimers = [qml.relative_to(ROOT).as_posix() for qml in QML if claim.search(qml.read_text())]
+        self.assertEqual(claimers, ["adapters/quickshell/QuickshellNotificationServer.qml"])
+        server = (ROOT / claimers[0]).read_text()
+        self.assertIn("property bool enabled: false", server)
+        self.assertIn("active: root.enabled", server)
+        users = [qml.relative_to(ROOT).as_posix() for qml in QML if "QuickshellNotificationServer {" in qml.read_text()]
+        self.assertEqual(users, ["adapters/dms/DmsNotifications.qml"])
+        self.assertIn('serverEnabled: Quickshell.env("FART_NOTIFICATION_SERVER") === "1"',
+                      (ROOT / users[0]).read_text())

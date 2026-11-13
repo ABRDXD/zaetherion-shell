@@ -356,6 +356,22 @@ class ServerTests(InboxCase):
         self.mirror()
         self.assertEqual((path.exists(), stray.exists()), (True, False))
 
+    def test_what_is_heard(self):
+        heard = []
+        self.inbox.on_sound = heard.append
+        self.ingest("s1-1", urgency="low")
+        self.ingest("s1-2")
+        self.ingest("s1-2", summary="Replaced")          # a replace-id is not a new arrival
+        self.ingest("s1-3", silent=True)                 # the sender plays its own
+        self.ingest("s1-4", urgency="critical")
+        self.assertEqual(heard, ["normal", "critical"])
+        self.inbox.set_dnd(True)
+        self.ingest("s1-5")
+        self.ingest("s1-6", urgency="critical")
+        self.assertEqual(heard, ["normal", "critical", "critical"])
+        self.send(Mirror(self.inbox, self.commands.append), 1, 1)   # the host's own server sounds for itself
+        self.assertEqual(len(heard), 3)
+
     def test_do_not_disturb_is_kept_and_published(self):
         changes = []
         self.inbox.on_change = lambda: changes.append(self.inbox.dnd)
