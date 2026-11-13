@@ -8,8 +8,8 @@ and neither are their images.
 from __future__ import annotations
 
 import asyncio
-from hashlib import sha256
 from pathlib import Path
+import re
 
 from core.errors import OpError, bad_args
 from core.store import read_json, write_json
@@ -19,7 +19,8 @@ TTL = 24 * 3600
 SAVE_AFTER = 1.0
 URGENCIES = ("low", "normal", "critical")
 MAX_ACTIONS = 8
-CAPS = {"id": 64, "appName": 256, "summary": 512, "body": 2000, "icon": 1024, "image": 1024, "reply": 64, "action": 128}
+CAPS = {"appName": 256, "summary": 512, "body": 2000, "icon": 1024, "image": 1024, "reply": 64, "action": 128}
+SERVER_ID = re.compile(r"[A-Za-z0-9_-]{1,64}")  # also a safe file name for the item's picture
 NO_TIMEOUT = -1  # the sender left the showing time to us
 CONTRACT_FIELDS = ("id", "appName", "summary", "body", "time", "urgency", "read", "hasActions", "actions", "reply",
                    "icon", "image", "timeout", "live")
@@ -50,6 +51,7 @@ class Inbox:
         self.close_remote = lambda item: False  # the mirror's: True when the host will close the item itself
         self.mirroring = False
         self.server = None  # the client whose view runs our notification server
+        self.holder_pid = 0  # the process that owns the notification name on the bus; 0 while unknown
         self.save_handle = None
         config = self._config()
         self.private = {str(app).lower() for app in config.get("privateApps") or []}
@@ -69,7 +71,8 @@ class Inbox:
 
     @property
     def serving(self) -> bool:
-        return self.server is not None
+        """Our server is attached and it is the one the bus delivers to (another program may still hold the name)."""
+        return self.server is not None and self.server.pid == self.holder_pid
 
     @property
     def listening(self) -> bool:
@@ -178,8 +181,16 @@ class Inbox:
 
     def mirror_owner(self, owner: str):
         self.saved_owner = owner
+        self.holder_pid = 0
         if not self._keep([i for i in self.items if not i.get("owner")]):
             self._save()
+            self.on_change()
+
+    def name_holder(self, pid: int):
+        """The mirror found which process owns the name. If it is our server, anything mirrored from it is a double."""
+        self.holder_pid = pid
+        if not (self.serving and self._keep([i for i in self.items if not i.get("owner")])):
+            self.on_change()
 
     def mirror_stopped(self):
         self.mirroring = False
@@ -189,12 +200,12 @@ class Inbox:
     # Our server's source (adapters/dms/NotificationServer.qml)
 
     def serve(self, client, ids=None):
-        """The view's server took the notification name. `ids` are the items it still holds live."""
+        """The view started our server. `ids` are the items it still holds live."""
         if ids is not None and not (isinstance(ids, list) and all(isinstance(i, str) for i in ids)):
             raise bad_args("ids must be a list of notification ids")
         self.server = client
         held = set(ids or [])
-        self.items = [{**i, "live": i["id"] in held} for i in self.items if not i.get("owner")]
+        self.items = [{**i, "live": i["id"] in held} for i in self.items]
         self._changed()
         return self.snapshot()
 
@@ -204,8 +215,8 @@ class Inbox:
 
     def ingest(self, client, id=None, transient=False, **fields):
         self._served(client)
-        if not isinstance(id, str) or not 0 < len(id) <= CAPS["id"]:
-            raise bad_args("id must be a short string")
+        if not isinstance(id, str) or not SERVER_ID.fullmatch(id):
+            raise bad_args("id must be 1 to 64 letters, digits, - or _")
         item = self.put(id, fields, live=True, transient=transient is True)
         writable = not any(item[flag] for flag in UNWRITTEN)
         if writable:
@@ -252,7 +263,7 @@ class Inbox:
     # Persistence, images and expiry
 
     def _image_path(self, id: str) -> Path:
-        return self.images / (sha256(id.encode()).hexdigest()[:32] + ".png")
+        return self.images / (id + ".png")
 
     def _sweep_images(self):
         """Delete every kept picture whose item is gone."""

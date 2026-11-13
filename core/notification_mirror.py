@@ -104,6 +104,7 @@ class BusctlSource:
         self.track = track
         self.process = None
         self.task = None
+        self.holder_task = None  # kept so the lookup is not collected mid-flight
 
     def start(self):
         self.task = asyncio.get_running_loop().create_task(self._run())
@@ -145,6 +146,7 @@ class BusctlSource:
                     await self.process.wait()
                     raise OSError("session bus changed while starting the mirror")
                 self.mirror.started(owner, bus_id)
+                await self._find_holder()
                 if self.track:
                     self.track.started(await self._mpris_owners())
                 started = asyncio.get_running_loop().time()
@@ -160,6 +162,13 @@ class BusctlSource:
                 self.track.stopped()
             await asyncio.sleep(delay)
             delay = min(60, delay * 2)
+
+    async def _find_holder(self):
+        """Tell the Inbox which process owns the notification name, so it knows when that is our own server."""
+        owner = self.mirror.owner
+        pid = await self._bus_call("GetConnectionUnixProcessID", "s", owner) if owner else 0
+        if owner == self.mirror.owner:
+            self.mirror.inbox.name_holder(pid if isinstance(pid, int) else 0)
 
     async def _mpris_owners(self) -> dict[str, str]:
         """Players already running when the monitor starts: unique name → well-known name."""
@@ -188,6 +197,9 @@ class BusctlSource:
             except ValueError:
                 continue
             if isinstance(message, dict):
+                owner = self.mirror.owner
                 self.mirror.feed(message)
+                if self.mirror.owner != owner:
+                    self.holder_task = asyncio.get_running_loop().create_task(self._find_holder())
                 if self.track:
                     self.track.feed(message)

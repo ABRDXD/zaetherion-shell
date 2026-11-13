@@ -120,6 +120,7 @@ class BusctlTests(unittest.IsolatedAsyncioTestCase):
         self.source.start()
         self.assertTrue(await self.wait(lambda: self.mirror.available))
         await asyncio.sleep(0.2)  # let busctl install its matches
+        self.assertTrue(await self.wait(lambda: self.inbox.holder_pid == self.server.pid))  # who owns the name
         await asyncio.to_thread(subprocess.run, [
             "gdbus", "call", "--session", "--dest", "org.freedesktop.Notifications", "--object-path",
             "/org/freedesktop/Notifications", "--method", "org.freedesktop.Notifications.Notify", "Fixture", "0", "",

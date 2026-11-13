@@ -2,6 +2,7 @@
 contents only."""
 import json
 from pathlib import Path
+from types import SimpleNamespace
 import tempfile
 import unittest
 
@@ -184,9 +185,10 @@ class ServerTests(InboxCase):
 
     def setUp(self):
         super().setUp()
-        self.view = object()
+        self.view = SimpleNamespace(pid=4242)
         self.mirror()
         self.inbox.serve(self.view)
+        self.inbox.name_holder(self.view.pid)
 
     def ingest(self, id="s1-1", **fields):
         return self.inbox.ingest(self.view, id=id, **{"appName": "Mail", "summary": "Hello", **fields})
@@ -204,11 +206,24 @@ class ServerTests(InboxCase):
         self.mirror(owner=":1.99", bus="bus-b")
         self.assertEqual((self.inbox.snapshot()["source"], self.ids()), ("mirror", ["s1-1"]))
 
-    def test_taking_the_name_drops_mirrored_items(self):
+    def test_while_another_program_holds_the_name_the_mirror_goes_on(self):
         mirror = self.mirror()
-        self.send(mirror, 1, 1)
         self.inbox.serve(self.view)
-        self.assertEqual(self.ids(), [])
+        self.inbox.name_holder(77)
+        self.send(mirror, 1, 1)
+        self.assertEqual((self.inbox.snapshot()["source"], self.ids()), ("mirror", ["1"]))
+
+    def test_taking_the_name_drops_mirrored_items_and_doubles(self):
+        mirror = self.mirror()
+        self.inbox.serve(self.view)
+        self.send(mirror, 1, 1)
+        mirror.feed(owner_changed(":1.50"))
+        self.assertEqual((self.ids(), self.inbox.snapshot()["source"]), ([], "mirror"))
+        self.ingest("s1-1")
+        self.send(mirror, 2, 1)  # seen by the monitor before the holder is known
+        self.assertEqual(self.ids(), ["s1-1", "1"])
+        self.inbox.name_holder(self.view.pid)
+        self.assertEqual((self.ids(), self.inbox.snapshot()["source"]), (["s1-1"], "server"))
 
     def test_item_carries_actions_reply_images_and_timeout(self):
         self.ingest(urgency="low", actions=[{"id": "default", "label": "Open"}, {"id": "x", "label": "Y" * 500}],
@@ -224,7 +239,7 @@ class ServerTests(InboxCase):
         item = self.inbox.snapshot()["items"][0]
         self.assertEqual((item["urgency"], item["actions"], item["hasActions"], item["timeout"], item["body"]),
                          ("normal", [], False, -1, ""))
-        for bad in (None, "", 7, "x" * 65):
+        for bad in (None, "", 7, "x" * 65, "../s1-1", "s1 1"):
             with self.assertRaises(OpError):
                 self.inbox.ingest(self.view, id=bad)
 
@@ -249,7 +264,7 @@ class ServerTests(InboxCase):
             self.inbox.dismiss("s1-2")
 
     def test_only_the_server_may_report(self):
-        stranger = object()
+        stranger = SimpleNamespace(pid=self.view.pid)
         for call in (lambda: self.inbox.ingest(stranger, id="s1-1"), lambda: self.inbox.closed(stranger, "s1-1"),
                      lambda: self.inbox.image(stranger, "s1-1")):
             with self.assertRaises(OpError) as raised:
@@ -259,7 +274,7 @@ class ServerTests(InboxCase):
     def test_a_lost_server_leaves_items_readable_but_not_live(self):
         self.ingest("s1-1", actions=[{"id": "default", "label": "Open"}])
         self.ingest("s1-2", transient=True)
-        self.inbox.disconnected(object())
+        self.inbox.disconnected(SimpleNamespace(pid=self.view.pid))
         self.assertEqual(len(self.ids()), 2)
         self.inbox.disconnected(self.view)
         snap = self.inbox.snapshot()

@@ -79,3 +79,13 @@ quickshell/Modules/DBar/Widgets/TrayMenuContent.qml at commit
 e09c2b06813d3205276167cb69e21d386c1f428f of duxlabs-dev/dux-shell.
 The neutral menu tree replaces raw menu handles in the view. The full MIT
 notice is in licenses/DUX-SHELL-MIT.
+
+adapters/quickshell/QuickshellNotificationServer.qml,
+adapters/quickshell/QuickshellNotification.qml and
+adapters/quickshell/NotificationTiming.qml adapt the notification server's
+arrival rules (flood guard, do-not-disturb, transient handling), the live
+notification wrapper and the default showing times from
+quickshell/Services/NotificationService.qml at commit
+7627111c3ebd402662283f5f4a93223cda9e0a9d (v2.1.0) of duxlabs-dev/dux-shell.
+Popups, grouping, history, rules and dedupe are not taken; the list is kept by
+our own core.

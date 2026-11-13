@@ -17,5 +17,7 @@ NotificationsDomain {
     function setDnd(on: bool) { if (on !== dnd) Quickshell.execDetached(["serpantinum", "set", "notifications", "dnd", "toggle"]); }
     function markAllRead() { core.request("notif.markAllRead"); }
     function dismiss(id: string) { core.request("notif.dismiss", { id: id }); }
+    // Serpantinum owns its notifications: their actions are answered in its own centre.
+    function invoke(id: string, action: string, reply: string) { openHost(); }
     function openHost() { Quickshell.execDetached(["serpantinum", "msg", "open", "notifications"]); }
 }

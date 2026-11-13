@@ -2,3 +2,4 @@
 module qs.tools.dmstest
 AdapterHarness 1.0 AdapterHarness.qml
 LinkHarness 1.0 LinkHarness.qml
+NotificationHarness 1.0 NotificationHarness.qml

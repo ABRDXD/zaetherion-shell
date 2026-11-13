@@ -64,6 +64,14 @@ class Stand:
 
 class Harness:
     def __init__(self, socket_path: str, directory: Path, harness: str = "AdapterHarness.qml", env_extra: dict | None = None):
+        self.prepare(socket_path, directory, harness, env_extra)
+        self.log = open(directory / "qs.log", "w")
+        self.process = subprocess.Popen([QS, "-n", "--no-color", "-p", str(self.entry)], env=self.env, stdin=subprocess.DEVNULL,
+                                        stdout=self.log, stderr=subprocess.STDOUT)
+        self.wait_for_ipc()
+
+    def prepare(self, socket_path: str, directory: Path, harness: str, env_extra: dict | None = None):
+        """The private bundle and environment of a run: self.entry and self.env. Starts nothing."""
         self.dir = directory
         bundle = directory / "bundle"
         bundle.mkdir()
@@ -82,10 +90,6 @@ class Harness:
                    DBUS_SESSION_BUS_ADDRESS="unix:path=/nonexistent/fart-fixture")
         env.update(env_extra or {})        # e.g. the nested compositor's WAYLAND_DISPLAY, HYPRLAND_INSTANCE_SIGNATURE, XDG_RUNTIME_DIR
         self.env = env
-        self.log = open(directory / "qs.log", "w")
-        self.process = subprocess.Popen([QS, "-n", "--no-color", "-p", str(self.entry)], env=env, stdin=subprocess.DEVNULL,
-                                        stdout=self.log, stderr=subprocess.STDOUT)
-        self.wait_for_ipc()
 
     def wait_for_ipc(self, timeout: float = 15):
         deadline = time.time() + timeout
