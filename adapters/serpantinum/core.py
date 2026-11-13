@@ -14,6 +14,7 @@ OWN = {"timer.done": "alert.wav", "pomodoro.phase": "alert.wav", "session.end": 
        "notify.normal": "notify-normal.wav", "notify.critical": "notify-critical.wav",
        "ui.click": "ui-click.wav", "ui.switch": "ui-switch.wav", "ui.error": "ui-error.wav",
        "cmd.run": "ui-confirm.wav", "orbit.hover": "ui-hover.wav", "hold.confirm": "ui-confirm.wav",
+       "hold.charge": "hold-charge.wav",
        "osd.tick": "osd-tick.wav", "power.plug": "power-plug.wav", "power.unplug": "power-unplug.wav",
        "battery.low": "battery-low.wav", "net.up": "net-up.wav", "net.down": "net-down.wav",
        "dnd.on": "dnd-on.wav", "dnd.off": "dnd-off.wav",

@@ -139,6 +139,7 @@ FloatingWindow {
     Connections {
         target: Fart.Feedback
         function onCue(name) { client.notify("sfx.play", { cue: name }); }
+        function onStopped(name) { client.notify("sfx.stop", { cue: name }); }
     }
     Connections {
         target: body.shell?.commandLine ?? null

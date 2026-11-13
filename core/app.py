@@ -280,6 +280,7 @@ class Core:
         op("bus.usb", lambda peer: self.buses.usb())
 
         op("sfx.play", lambda peer, cue: self.sfx.emit_from_view(cue) if peer is self.view.client else self._refuse("only the view reports UI cues"))
+        op("sfx.stop", lambda peer, cue: self.sfx.stop_from_view(cue) if peer is self.view.client else self._refuse("only the view stops UI cues"))
         op("sfx.configure", lambda peer, cues: self.sfx.configure(cues))
 
         c = self.commands
