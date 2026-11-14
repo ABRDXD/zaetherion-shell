@@ -85,7 +85,7 @@ Invariants, each with a test:
 
 - DMS has no unsubscribe. Its own client changes the list by closing the event connection and dialling again; we do the same (S4, S5). Each new subscription starts with a `server` event and one snapshot per service, so nothing is missed: snapshots are whole states, not deltas.
 - A `DmsFeed` is the only way to be subscribed. It registers on creation, updates when `wanted` changes, and unregisters on destruction. `wanted` is a lease expression: `wanted: root.holds("brightness")`.
-- **The contract's un-leased properties need change events** (`network.connected` drives the island's glyph with no view lease, Z126). For those the feed is `wanted: true` for as long as the domain object exists. The subscriptions without a view lease are this one, `evdev` (caps and num lock for the island's hover view, S5; one small snapshot per lock key) and, in the island's process only, `brightness` for the OSD (Z172). A lease on hover would redial the event connection on every hover, since DMS has no unsubscribe. A deferred domain (`loadDeferred()`) holds nothing until it is created.
+- **The contract's un-leased properties need change events** (`network.connected` drives the island's glyph with no view lease, Z126). For those the feed is `wanted: true` for as long as the domain object exists. The subscriptions without a view lease are this one, `network.credentials` and `bluetooth.pairing` (the agents' prompts, which must be heard while FART is closed, docs/NET_BT.md), `bluetooth` (the island's glyph), `loginctl` (resume, Z192), `evdev` (caps and num lock for the island's hover view, S5; one small snapshot per lock key) and, in the island's process only, `brightness` for the OSD (Z172). A lease on hover would redial the event connection on every hover, since DMS has no unsubscribe. A deferred domain (`loadDeferred()`) holds nothing until it is created.
 - `feed.data` is the last snapshot, or null while the feed is unwanted or unusable. Domain properties are bindings on it, so they fall back to contract defaults by themselves.
 - A feed that becomes wanted for a service already subscribed gets the cached snapshot at once.
 - Release takes effect at once (collapsed per event-loop turn). No linger: F3 can add one if measurements show churn.
@@ -110,10 +110,10 @@ Decide `kind` from the boolean flags, never from whether a string is empty: the 
 |---|---|
 | `setWifiEnabled(on)` | `network.wifi.toggle`, no params, answer `{enabled}`; the toggle pattern of §1. (`network.wifi.enable` exists but its meaning is unclear; no `disable` was seen) |
 | `connect(id)`, saved network | `network.wifi.connect {ssid: id, interactive: false}`. Saved = in `savedWifiNetworks`, or in `wifiNetworks` with `saved`. Nothing if already connected to it |
-| `connect(id)`, unknown network | No DMS call. `DmsNetwork` signals `unknownNetwork(id)`; the root calls `hostActions.open("wifi")` (Z95: passwords live in settings) |
+| `connect(id)`, unknown network | No DMS call. `DmsNetwork` signals `unknownNetwork(id)`; the view opens FART's own Wi-Fi settings (Z95, Z194) |
 | lease `scan` | `network.wifi.scan`, no params, once per rising edge of `held && available && wifiEnabled`, one in flight. Results arrive in snapshots |
 
-`network.credentials` (password prompts) is not subscribed by this domain. The settings surface holds that feed when it exists.
+Joining new networks, forget, auto-join, VPN and password prompts (`network.credentials`) are in docs/NET_BT.md (S10).
 
 Limits: the contract has no kind for cellular or VPN, so a cellular-only machine reads "none". The lease table in ADAPTER_CONTRACT.md says nothing holds `scan`; `view/rooms/Devices.qml` does, on its "nearby" page.
 
@@ -121,8 +121,8 @@ Limits: the contract has no kind for cellular or VPN, so a cellular-only machine
 
 | Domain | Lease | Module | DMS service (events) | DMS methods | Capability |
 |---|---|---|---|---|---|
-| network | un-leased state, `details`, `scan` | dms | `network` | §4 | network |
-| bluetooth | un-leased state | dms | `bluetooth` | `setPowered`, `connect`, `disconnect` | bluetooth |
+| network | un-leased state, `details`, `scan`, `saved` | dms | `network`, `network.credentials`, `loginctl` | §4 and docs/NET_BT.md (`connect` with a password or hidden, `disconnect`, `forget`, `setAutoconnect`, `preference.set`, `vpn.connect`/`disconnect`, `credentials.submit`/`cancel`, `getState`) | network |
+| bluetooth | un-leased state, `scan` | dms (battery: quickshell, Z190) | `bluetooth`, `bluetooth.pairing` | `setPowered`, `startDiscovery`, `stopDiscovery`, `pair`, `connect`, `disconnect`, `trust`, `untrust`, `remove`, `pairing.submit`, `pairing.cancel`, `getState` | bluetooth |
 | power.brightness | `brightness` | dms | `brightness` | `brightness.setBrightness` | brightness |
 | power.nightLight | un-leased | dms | `gamma` | `wayland.gamma.setEnabled` (Z15) | gamma |
 | power.idleInhibited | un-leased | quickshell, inhibit state from DMS | `freedesktop.screensaver` | — | freedesktop |
@@ -143,7 +143,7 @@ Limits: the contract has no kind for cellular or VPN, so a cellular-only machine
 | clockGeometry | — | the island (S3) | — | — | — |
 
 **Not in DMS's Go backend, owned by `adapters/quickshell`:** audio, notifications, lock, idle, polkit, MPRIS, UPower, tray.
-DMS services with no contract domain yet: `wlroutput` (display settings), `wellbeing` (OPEN 1), `network.credentials`, `bluetooth.pairing`. Never subscribed: `theme.auto`, `wallpaper` (DMS theming costs ~350 MiB, DMS_OBSERVED.md).
+DMS services with no contract domain yet: `wlroutput` (display settings), `wellbeing` (OPEN 1). Never subscribed: `theme.auto`, `wallpaper` (DMS theming costs ~350 MiB, DMS_OBSERVED.md).
 
 ## 6. Capabilities and versions
 

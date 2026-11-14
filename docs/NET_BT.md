@@ -1,7 +1,14 @@
 # Wi-Fi and Bluetooth in FART (S10, design, 14 November 2026)
 
-Status: **design, waiting for the owner's OK. No code yet.** Branch `s10-net-bt`, worktree `~/src/zaetherion-shell-net`.
-Decisions will be Z190 onward. Inputs: Z95, Z113, Z126, Z162, Z171, Z176; DMS_ADAPTER.md §1–§4; OPEN F2-3; DMS 2.1.0's
+Status: **plan OK'd by the owner (14 November 2026), with VPN on/off added and no enterprise form (the owner has
+none). Adapter, tests and the quiet-copy patch are built; the two settings sections are drawn and wait for the owner's
+look; nothing is live.** Branch `s10-net-bt`, worktree `~/src/zaetherion-shell-net`. Decisions Z190–Z194.
+
+What changed from this note while building: VPN gets Start/Stop (owner); Forget asks for a second click within 3 s
+instead of a hold (the hold lives inside the island's session card, being changed by another agent, and would have to be
+copied); the outcome line hides while a password prompt for the same network is open; `vpns` (not `vpn`) and
+`preference`/`setPreference` are on the contract; forget, auto-join and the preference re-read DMS's state after the
+answer (DMS sends no event for them). Calls not yet seen against a real DMS: OPEN F2-7. Inputs: Z95, Z113, Z126, Z162, Z171, Z176; DMS_ADAPTER.md §1–§4; OPEN F2-3; DMS 2.1.0's
 QML under `$XDG_RUNTIME_DIR/dms-shell/9483c24f0a364ed0/` and the JSON field names in `/usr/bin/dms`. The live DMS was not contacted.
 
 ## 1. What DMS offers (read, not guessed)
@@ -104,8 +111,8 @@ adapter get the new members as stand-ins.
 | Island hover (Z95) | Wi-Fi and Bluetooth glyphs as today, plus one word when something is happening: "joining", "wrong password", "pairing". Click opens FART on the right settings section |
 | Devices room, Wi-Fi tile and "nearby" page | On/off; nearby list with signal, lock, KNOWN/NEW; a known network joins in place. A **new** network's row says "join…" and opens FART's Wi-Fi settings with that name filled in (passwords live in settings). The "host dialog" verb goes |
 | Devices room, Bluetooth tile and "paired" page | On/off; connect/release; battery; device glyph; audio first |
-| FART settings → **Wi-Fi** | `Wi-Fi` on/off · network list (signal, band, lock, saved, enterprise tag) · Join (password field) · **Join hidden network…** (name + password) · per saved network: **Auto-join** toggle, **Forget** (hold to confirm) · **Prefer wired / Wi-Fi / automatic** (`network.preference.set`) · status lines for **Wired** and **VPN** · the live password prompt when NM asks |
-| FART settings → **Bluetooth** | `Bluetooth` on/off · **Scan** (lease `scan`) · nearby list with **Pair** · pairing prompt (compare passkey / type PIN or passkey / allow) · per paired device: **Connect/Disconnect**, **Trusted** toggle, **Forget** (hold to confirm), battery, glyph |
+| FART settings → **Wi-Fi** | `Wi-Fi` on/off · network list (signal, band, lock, saved, enterprise tag) · Join (password field) · **Join a hidden network…** (name + password) · per saved network: **Auto-join** toggle, **Forget** (click twice) · **Prefer auto / Wi-Fi / wired** (`network.preference.set`) · **Wired** status · **VPN Start/Stop** per profile · the live password prompt when NM asks |
+| FART settings → **Bluetooth** | `Bluetooth` on/off · **Scan** (lease `scan`) · nearby list with **Pair** · pairing prompt (compare passkey / type PIN or passkey / allow) · per paired device: **Connect/Disconnect**, **Trusted** toggle, **Forget** (click twice), battery, glyph |
 | FART settings, both | "DMS may also show its own window" note until Z191's copy is live |
 
 New FART-stored settings: **none**. Every control above is a system setting held by NetworkManager or BlueZ, so it
