@@ -3,6 +3,9 @@ import QtQuick.Controls
 import Quickshell
 import qs.view.cues
 import qs.view.ui
+import qs.core.client
+import qs.view.contract
+import "LauncherLayout.js" as LauncherLayout
 
 Item {
     id: root
@@ -33,6 +36,11 @@ Item {
     signal sessionAction(string action)
     readonly property int holdMs: 1000
     readonly property int deepest: 160
+    // The launcher (S6): the core that ranks, the apps it starts, and how many rows it shows.
+    property CoreClient core: null
+    property AppsDomain apps: null
+    property int launcherRows: 6
+    signal launcherClose()
 
     function voice(line: string): string {
         if (systemVoice) return line;
@@ -48,6 +56,7 @@ Item {
         case "memory": return Qt.size(448, 140);
         case "osd": return Qt.size(444, 56);
         case "track": return Qt.size(420, 72);
+        case "launcher": return Qt.size(LauncherLayout.contentWidth + 2 * launcherInset, LauncherLayout.depth(launcherRows, edgePad));
         case "session": return Qt.size(5 * 88 + 2 * 16 + (Design.fluid ? 0 : 2 * Math.ceil(12 + 76 / Math.tan(84 * Math.PI / 180))), 76);
         default: return Qt.size(420, 56);
         }
@@ -58,9 +67,11 @@ Item {
     // Content keeps clear of the 84° shoulders at the deepest row. The frame is matte, with no facet to clear.
     readonly property real shoulderSlope: 1 / Math.tan(84 * Math.PI / 180)
     // A notice is sized by its text, so its inset uses the deepest notice, not its own depth.
-    readonly property real sideInset: Design.fluid ? 16
+    // The launcher's inset is its own depth's, worked out without shape() (which needs the inset for its width).
+    readonly property real launcherInset: Design.fluid ? 16 : Math.ceil(12 + LauncherLayout.depth(launcherRows, edgePad) * shoulderSlope)
+    readonly property real sideInset: Design.fluid ? 16 : kind === "launcher" ? launcherInset
         : Math.ceil(12 + (noticeKind ? 140 : shape(kind).height) * shoulderSlope)
-    readonly property int edgePad: 10
+    readonly property int edgePad: LauncherLayout.edgePad
     readonly property int facet: 0
     readonly property real noticeContent: noticeKind && face.item ? face.item.implicitHeight : 0
     implicitWidth: trayKind ? 248 + 2 * sideInset : shape(kind).width
@@ -87,6 +98,7 @@ Item {
             case "recording": return recording;
             case "tray": return tray;
             case "session": return session;
+            case "launcher": return launcher;
             default: return status;
             }
         }
@@ -214,6 +226,16 @@ Item {
                 width: parent.width * fill.value
                 color: Design.danger
             }
+        }
+    }
+
+    Component {
+        id: launcher
+        LauncherFace {
+            core: root.core
+            apps: root.apps
+            rows: root.launcherRows
+            onClose: root.launcherClose()
         }
     }
 

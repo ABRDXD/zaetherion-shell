@@ -34,6 +34,7 @@ Scope {
     function focusIsland(): void { companionWindow?.focusIsland(); }
     function openTray(itemId: string): void { companionWindow?.openTray(itemId); }
     function openSession(): void { companionWindow?.openSession(); }
+    function toggleLauncher(): void { companionWindow?.toggleLauncher(); }
     required property ShellScreen output
     required property bool bottomEdge
     required property int edgeGap
@@ -66,6 +67,7 @@ Scope {
             })
             function focusIsland(): void { frame.enterKeyboard(); }
             function openSession(): void { frame.openSession(); }
+            function toggleLauncher(): void { frame.toggleLauncher(); }
             function openTray(itemId: string): void {
                 trayItem = itemId;
                 root.host.tray.menu(itemId);
@@ -77,7 +79,7 @@ Scope {
             // click-to-panel jitter). It spans the output and the deepest face; the island morphs inside it, the
             // mask keeps input to the island, and the transparent gap is inside it (a layer-shell margin would add
             // to the reserved zone).
-            readonly property int deepest: 160
+            readonly property int deepest: frame.deepest
             implicitWidth: root.output?.width ?? frame.width
             implicitHeight: deepest + root.edgeGap
             exclusiveZone: frame.restHeight
@@ -134,12 +136,15 @@ Scope {
                 onTriggered: panel.grabArmed = true
             }
             HyprlandFocusGrab {
-                active: panel.heldFace && panel.grabArmed
+                // The launcher opens from a key, with no click to focus the island: Hyprland does not hand the
+                // keyboard to a mapped layer that turns Exclusive, so the grab takes it at once (Z117).
+                active: panel.heldFace && (panel.grabArmed || frame.launcherOpen)
                 windows: [panel]
                 onCleared: {
                     if (!panel.grabArmed) return;
                     panel.trayItem = "";
                     frame.closeSession();
+                    frame.closeLauncher();
                 }
             }
         }

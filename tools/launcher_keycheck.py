@@ -15,6 +15,8 @@ line's focus (FART_CMDFOCUS) and every change of its text (FART_CMDTEXT).
        sends view.command open)
     B  prototype: SUPER+grave → hl.dsp.global("zaetherion:launcher"), a GlobalShortcut in the view
        (FART_LAUNCHER_SHORTCUT=1) opens the command line itself
+    C  the launcher (S6): SUPER+grave → hl.dsp.global("zaetherion:apps"); the launcher grows inside the island's
+       window, which is already mapped, so only its keyboard focus changes (the same markers, from LauncherFace)
 
 Cases: `resident` (view up, panel closed: the owner's case) and `first` (the first open after the view starts;
 the core is restarted for every trial).
@@ -47,6 +49,7 @@ WORD = "upholstering"  # 12 letters, none repeated, so each one is traced to whe
 SENTINEL = "0"
 NOWHERE = "unix:path=/nonexistent/fart-keycheck"
 APPID, NAME = "zaetherion", "launcher"
+SHORTCUT = {"B": "launcher", "C": "apps"}  # the global shortcut each path binds
 
 HOLDER = """import QtQuick
 import Quickshell
@@ -149,7 +152,8 @@ class Bench:
             raise RuntimeError("the core did not start")
         if not wait(lambda: (self.status() or {}).get("core"), 30, 0.2):
             raise RuntimeError("the view did not come up: " + self.view_log.read_text(errors="replace")[-1500:])
-        if shortcut and not wait(lambda: f"{APPID}:{NAME}" in self.hypr("globalshortcuts").stdout, 10):
+        if shortcut and not wait(lambda: all(f"{APPID}:{name}" in self.hypr("globalshortcuts").stdout
+                                             for name in SHORTCUT.values()), 10):
             raise RuntimeError("the view's global shortcut was not registered")
 
     def stop_core(self):
@@ -218,16 +222,30 @@ class Bench:
             self.lua(f'hl.bind("SUPER + grave", hl.dsp.exec_cmd({json.dumps(prefix + " key down")}))')
             self.lua(f'hl.bind("SUPER + grave", hl.dsp.exec_cmd({json.dumps(prefix + " key up")}), {{ release = true }})')
         else:
-            self.lua(f'hl.bind("SUPER + grave", hl.dsp.global("{APPID}:{NAME}"))')
+            self.lua(f'hl.bind("SUPER + grave", hl.dsp.global("{APPID}:{SHORTCUT[path]}"))')
 
     def close_panel(self):
         """Fold the panel and wait until it is gone from the screen (the holder has the keyboard back)."""
+        if self.launcher_open():
+            subprocess.run(["qs", "-p", str(self.entry), "ipc", "call", "launcher", "toggle"], env=self.env,
+                           capture_output=True, timeout=10)
+            if not wait(lambda: not self.launcher_open(), 10, 0.1):
+                raise RuntimeError("the launcher did not fold")
         status = self.status() or {}
         if status.get("open"):
             self.request("view.close")
         if not wait(lambda: (s := self.status()) and not s.get("open") and s.get("surfaces", 0) == 0, 10, 0.1):
             raise RuntimeError("the panel did not fold")
         time.sleep(0.3)
+
+
+    def launcher_open(self) -> bool:
+        """The launcher's last word in the view log (FART_LAUNCHER open|closed, probe only)."""
+        lines = self.view_log.read_text(errors="replace").splitlines() if self.view_log.exists() else []
+        starts = [i for i, line in enumerate(lines) if "FART_COLD created" in line]  # only this view's marks count
+        marks = [line.split("FART_LAUNCHER", 1)[1].split()[0] for line in lines[starts[-1] if starts else 0:]
+                 if "FART_LAUNCHER " in line]
+        return bool(marks) and marks[-1] == "open"
 
 
 def tail(path: Path, offset: int) -> list[str]:
@@ -297,13 +315,13 @@ def trial(bench: Bench, delay: int, hold: int = 60) -> dict:
 def run_case(bench: Bench, path: str, case: str, delays, trials, hold) -> list[dict]:
     results = []
     if case == "resident":
-        bench.start_core(shortcut=path == "B")
+        bench.start_core(shortcut=path in SHORTCUT)
         time.sleep(1.0)
     try:
         for delay in delays:
             for n in range(trials):
                 if case == "first":
-                    bench.start_core(shortcut=path == "B")
+                    bench.start_core(shortcut=path in SHORTCUT)
                     time.sleep(1.0)  # loaded and idle, as after a login
                 else:
                     bench.close_panel()
