@@ -258,6 +258,23 @@ ColumnLayout {
                 color: Design.muted
                 elide: Text.ElideMiddle
             }
+            // Z179: off by default. On, the highlighted image also previews a palette made from it; setting saves both.
+            FButton {
+                objectName: "wallpaperColours"
+                Layout.fillWidth: true
+                label: root.wall.colours === true ? "Colours from this wallpaper: on" : "Colours from this wallpaper: off"
+                selected: root.wall.colours === true
+                onClicked: root.send("wallpaper.colours", { on: root.wall.colours !== true })
+            }
+            FText {
+                Layout.fillWidth: true
+                visible: text !== ""
+                text: root.wall.coloursError ? "No colours: " + root.wall.coloursError
+                    : root.wall.colours === true && root.shown?.kind === "video" ? "Videos keep the current colours" : ""
+                color: root.wall.coloursError ? Design.danger : Design.muted
+                font.pixelSize: Design.caption
+                wrapMode: Text.Wrap
+            }
             Item { Layout.fillHeight: true }
         }
     }

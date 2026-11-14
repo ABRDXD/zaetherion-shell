@@ -41,7 +41,8 @@ ShellRoot {
             } else if (op === "wallpaper.folder") {
                 root.listing = { folder: args.folder, exists: false, entries: [] };
                 update({ folder: args.folder, exists: false });
-            } else if (op === "palette.list") result = [];
+            } else if (op === "wallpaper.colours") update({ colours: args.on });
+            else if (op === "palette.list") result = [];
             else if (op.startsWith("palette.")) result = {};
             else { if (callback) callback(false, { message: "Not used by this fixture" }); return; }
             if (callback) callback(true, result);
@@ -84,6 +85,12 @@ ShellRoot {
         }
         function close(): void { Host.close(); }
         function preview(index: int): void { client.update({ preview: root.listing.entries[index]?.path ?? null }); }
+        function colours(on: bool): void { client.update({ colours: on }); }
+        // What the core does with colours on: a made palette (its JSON) previewed with the wallpaper.
+        function tint(colorsJson: string): void {
+            const colors = JSON.parse(colorsJson);
+            client.paletteData = { name: "dms:amoledBlack", effective: "wall:x", preview: true, colors: colors, savedColors: colors };
+        }
         function host(available: bool, error: string): void { client.update({ available: available, error: error }); }
         function empty(folder: string): void {
             root.listing = { folder: folder, exists: false, entries: [] };

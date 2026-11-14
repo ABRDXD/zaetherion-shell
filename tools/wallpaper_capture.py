@@ -18,6 +18,14 @@ import nested_hypr
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from core.wallpaper import Wallpaper  # noqa: E402
+from core.palette_catalog import normalize  # noqa: E402
+from adapters.common.wallpaper_colors import argv, roles  # noqa: E402
+
+
+def made_palette(path: str, env: dict) -> dict:
+    """matugen's dry run in the private home: reads the image, writes nothing."""
+    out = subprocess.run(argv(path), env=env, capture_output=True, text=True, timeout=30, check=True).stdout
+    return normalize(roles(json.loads(out)))
 
 ERRORS = ("ReferenceError", "TypeError", "Binding loop", "Unable to assign", "is not defined")
 
@@ -67,6 +75,10 @@ def capture(output: Path, folder: str):
             if len(images) > 5:
                 ipc("preview", str(listing["entries"].index(images[5]))); time.sleep(1.5)
                 shot("2-wallpaper-preview")
+                ipc("colours", "true")
+                ipc("tint", json.dumps(made_palette(images[5]["path"], env))); time.sleep(1.2)
+                shot("2b-preview-with-colours")
+                ipc("colours", "false")
             ipc("host", "false", "DMS is not running"); time.sleep(.5)
             shot("3-host-unavailable")
             ipc("host", "true", "")

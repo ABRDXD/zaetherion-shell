@@ -16,8 +16,8 @@ from core.genealogy import Genealogy
 from core.guards import BatteryGuard, FullscreenGuard, Guards, SessionGuard, focused_fullscreen
 from core.hostcalls import HostCalls
 from core.island import Island
-from core.palette import Palette
-from core.wallpaper import Wallpaper
+from core.palette import MADE as MADE_PALETTE, Palette
+from core.wallpaper import Wallpaper, kind_of
 from core.ignite import LOST, Ignite
 from core.notification_mirror import Mirror
 from core.notifications import Inbox
@@ -227,8 +227,9 @@ class Core:
         op("palette.cancel", lambda peer: self.palette.cancel(peer))
         w = self.wallpaper
         op("wallpaper.list", lambda peer: w.listing())
-        op("wallpaper.preview", lambda peer, name: w.preview_name(name, peer))
-        op("wallpaper.cancel", lambda peer: w.cancel(peer))
+        op("wallpaper.preview", self.wallpaper_preview)
+        op("wallpaper.cancel", self.wallpaper_cancel)
+        op("wallpaper.colours", self.wallpaper_colours)
         op("wallpaper.folder", lambda peer, folder: w.set_folder(folder))
         op("wallpaper.choose", lambda peer, name: self.wallpaper_choose(w.resolve(name)))
         op("wallpaper.report", self.wallpaper_report)
@@ -415,7 +416,46 @@ class Core:
         """Through the view's adapter; the host stays the authority for what is applied (Z178)."""
         self.wallpaper.can_apply()
         await self.hostcalls.call("wallpaper", "set", [path], ready="available", hold=0)
-        return self.wallpaper.applied(path)
+        self.wallpaper.applied(path)
+        await self._wallpaper_palette(path)
+        return self.wallpaper.snapshot()
+
+    async def wallpaper_preview(self, peer, name):
+        path = self.wallpaper.resolve(name)
+        self.wallpaper.preview_name(path, peer)
+        await self._wallpaper_palette(path, peer)
+        return self.wallpaper.snapshot()
+
+    def wallpaper_cancel(self, peer):
+        if (self.palette.preview or "").startswith(MADE_PALETTE):
+            self.palette.cancel(peer)
+        return self.wallpaper.cancel(peer)
+
+    def wallpaper_colours(self, peer, on):
+        result = self.wallpaper.set_colours(on)
+        if not on and (self.palette.preview or "").startswith(MADE_PALETTE):
+            self.palette.cancel()
+        return result
+
+    async def _wallpaper_palette(self, path: str, peer=None):
+        """With colours on: a palette from the image, previewed with it (peer) or saved with it (Z179)."""
+        w = self.wallpaper
+        if not w.colours or kind_of(Path(path)) != "image":
+            return
+        key = MADE_PALETTE + path
+        if key not in self.palette.entries:
+            from adapters.common import wallpaper_colors  # matugen is known only there, like palette_sources
+            try:
+                colours = await wallpaper_colors.colors_for(path)
+            except RuntimeError as error:
+                w.colours_result(str(error))
+                return
+            self.palette.add_made(key, Path(path).stem, colours)
+        w.colours_result("")
+        if peer is None:
+            self.palette.choose(key)
+        elif w.preview == path and w.owner is peer:  # a later hover won meanwhile: leave its preview
+            self.palette.preview_name(key, peer)
 
     def wallpaper_report(self, peer, available=False, current="", perScreen=False, error=""):
         if peer is not self.view.client:

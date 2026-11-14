@@ -198,3 +198,123 @@ class WallpaperCoreTests(unittest.IsolatedAsyncioTestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class WallpaperColourTests(unittest.IsolatedAsyncioTestCase):
+    """Colours from the wallpaper (Z179): previewed with it, saved with it, never run for video, races resolved."""
+
+    async def asyncSetUp(self):
+        from unittest.mock import patch
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        self.base = Path(temp.name)
+        self.folder = make_folder(self.base)
+        clock, scheduler, _, host = core_fakes.fakes()
+
+        async def no_spawn():
+            raise OSError("no view in this test")
+        from core.palette_catalog import catalogue
+        with patch("core.palette.catalogue", return_value=catalogue(self.base / "x", self.base / "y")):
+            self.core = Core(clock, scheduler, host, self.base / "state", spawn=no_spawn, guard_types=[SessionGuard])
+        self.core.wallpaper.home = self.base / "home"
+        self.core.wallpaper.report(True, "")
+
+        async def fake_call(*args, **options):
+            return None
+        self.core.hostcalls.call = fake_call
+        self.runs = []
+        self.gate = {}
+
+        async def colors_for(path):
+            self.runs.append(path)
+            if path in self.gate:
+                await self.gate[path].wait()
+            if "Snow" in path:
+                raise RuntimeError("matugen could not read this image")
+            return {"background": "#101418", "accent": "#a0c8ff"}
+        patcher = patch("adapters.common.wallpaper_colors.colors_for", colors_for)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.ops = self.core.server.ops
+
+    async def test_off_by_default_and_persisted(self):
+        self.assertFalse(self.core.wallpaper.snapshot()["colours"])
+        await self.ops["wallpaper.preview"](object(), name="water")
+        self.assertEqual(self.runs, [])
+        self.ops["wallpaper.colours"](object(), on=True)
+        self.assertTrue(Wallpaper(self.base / "state").colours)
+
+    async def test_preview_previews_the_palette_and_cancel_restores(self):
+        peer = object()
+        self.ops["wallpaper.colours"](peer, on=True)
+        await self.ops["wallpaper.preview"](peer, name="water")
+        palette = self.core.palette.snapshot()
+        self.assertTrue(palette["preview"])
+        self.assertEqual(palette["effective"], "wall:" + str(self.folder / "rain_on_water.jpg"))
+        self.assertEqual(palette["colors"]["accent"], "#a0c8ff")
+        self.ops["wallpaper.cancel"](peer)
+        self.assertFalse(self.core.palette.snapshot()["preview"])
+        await self.ops["wallpaper.preview"](peer, name="water")
+        self.assertEqual(len(self.runs), 1)  # made once, then reused
+
+    async def test_choose_saves_the_made_palette_and_it_survives_a_restart(self):
+        from core.palette import Palette
+        self.ops["wallpaper.colours"](object(), on=True)
+        await self.ops["wallpaper.choose"](object(), name="water")
+        key = "wall:" + str(self.folder / "rain_on_water.jpg")
+        self.assertEqual(self.core.palette.name, key)
+        again = Palette(self.base / "state", {k: v for k, v in self.core.palette.entries.items() if not k.startswith("wall:")})
+        self.assertEqual(again.name, key)
+        self.assertEqual(again.entries[key]["colors"]["accent"], "#a0c8ff")
+        self.assertIn(key, [e["id"] for e in again.listing()])
+
+    async def test_video_is_skipped_and_failure_is_reported_without_changing_the_palette(self):
+        self.ops["wallpaper.colours"](object(), on=True)
+        before = self.core.palette.name
+        await self.ops["wallpaper.choose"](object(), name="loop")
+        self.assertEqual(self.runs, [])
+        await self.ops["wallpaper.choose"](object(), name="snow")
+        self.assertEqual(self.core.palette.name, before)
+        self.assertIn("could not read", self.core.wallpaper.snapshot()["coloursError"])
+        self.assertEqual(self.core.wallpaper.snapshot()["current"], str(self.folder / "Snow Range.png"))
+
+    async def test_a_slow_earlier_hover_does_not_override_a_later_one(self):
+        peer = object()
+        self.ops["wallpaper.colours"](peer, on=True)
+        water = str(self.folder / "rain_on_water.jpg")
+        self.gate[water] = asyncio.Event()
+        slow = asyncio.create_task(self.ops["wallpaper.preview"](peer, name="water"))
+        await asyncio.sleep(0)
+        await self.ops["wallpaper.preview"](peer, name="city")
+        self.gate[water].set()
+        await slow
+        self.assertEqual(self.core.palette.snapshot()["effective"], "wall:" + str(self.folder / "rain_city.webp"))
+
+    async def test_turning_colours_off_ends_a_made_preview(self):
+        peer = object()
+        self.ops["wallpaper.colours"](peer, on=True)
+        await self.ops["wallpaper.preview"](peer, name="water")
+        self.ops["wallpaper.colours"](peer, on=False)
+        self.assertFalse(self.core.palette.snapshot()["preview"])
+
+    async def test_made_palettes_are_bounded_and_unlisted(self):
+        from core.palette import MADE_KEPT
+        for i in range(MADE_KEPT + 5):
+            self.core.palette.add_made(f"wall:/x/{i}.jpg", str(i), {"background": "#000000"})
+        self.assertLessEqual(sum(k.startswith("wall:") for k in self.core.palette.entries), MADE_KEPT + 1)
+        self.assertFalse(any(e["id"].startswith("wall:") for e in self.core.palette.listing()))
+
+
+class MatugenRolesTests(unittest.TestCase):
+    def test_matugen_4_json_maps_to_palette_roles(self):
+        from adapters.common.wallpaper_colors import MATERIAL_ROLES, argv, roles
+        data = json.loads((Path(__file__).parent / "fixtures/matugen/v4.2.0-dark.json").read_text())
+        result = roles(data)
+        self.assertEqual(set(result), set(MATERIAL_ROLES))
+        self.assertEqual(result["background"], data["colors"]["background"]["dark"]["color"])
+        self.assertEqual(result["accent"], data["colors"]["primary"]["dark"]["color"])
+        self.assertEqual(roles({}), {})
+        self.assertEqual(roles({"colors": {"primary": "nope", "background": {"dark": {"color": "#zzzzzz"}}}}), {})
+        command = argv("/a b/c.jpg")
+        self.assertIn("--dry-run", command)
+        self.assertEqual(command[2], "/a b/c.jpg")

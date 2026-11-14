@@ -39,6 +39,9 @@ class Wallpaper:
         self.folder = folder if isinstance(folder, str) and folder.strip() else DEFAULT_FOLDER
         recent = saved.get("recent")
         self.recent = [p for p in recent if isinstance(p, str)][:RECENT] if isinstance(recent, list) else []
+        # Colours from the wallpaper (Z179): off unless asked for.
+        self.colours = saved.get("colours") is True
+        self.colours_error = ""
 
     # The folder
 
@@ -110,11 +113,25 @@ class Wallpaper:
             self.on_change()
         return self.snapshot()
 
+    def set_colours(self, on) -> dict:
+        if not isinstance(on, bool):
+            raise bad_args("colours takes true or false")
+        if on != self.colours:
+            self.colours, self.colours_error = on, ""
+            self._save()
+            self.on_change()
+        return self.snapshot()
+
+    def colours_result(self, error: str):
+        if error != self.colours_error:
+            self.colours_error = error
+            self.on_change()
+
     # State
 
     def snapshot(self) -> dict:
         return dict(folder=self.folder, exists=self.folder_path().is_dir(), recent=list(self.recent),
-                    preview=self.preview, **self.host)
+                    preview=self.preview, colours=self.colours, coloursError=self.colours_error, **self.host)
 
     def report(self, available=False, current="", perScreen=False, error="") -> dict:
         """What the view's adapter sees; the host stays the authority for the applied wallpaper."""
@@ -154,4 +171,4 @@ class Wallpaper:
         return self.snapshot()
 
     def _save(self):
-        write_json(self.path, {"folder": self.folder, "recent": self.recent})
+        write_json(self.path, {"folder": self.folder, "recent": self.recent, "colours": self.colours})
