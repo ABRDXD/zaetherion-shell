@@ -46,7 +46,9 @@ class Fixture(unittest.TestCase):
             if n["ssid"] and not n["outOfRange"] and n["ssid"] not in seen:
                 seen.add(n["ssid"])
                 expected.append({"id": n["ssid"], "ssid": n["ssid"], "strength": min(1, max(0, n["signal"] / 100)),
-                                 "secured": n["secured"], "known": n["saved"], "connected": n["connected"]})
+                                 "secured": n["secured"], "known": n["saved"], "connected": n["connected"],
+                                 "enterprise": n["enterprise"], "hidden": n["hidden"], "autoconnect": n["autoconnect"],
+                                 "band": run(["DmsNetworkMap.js"], f"band({n.get('frequency', 0)})")})
         self.assertEqual(got["networks"], expected)
         self.assertGreater(len(expected), 0)
 

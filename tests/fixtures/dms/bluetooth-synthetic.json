@@ -1,0 +1,18 @@
+{
+  "_note": "SYNTHETIC, not recorded. A DMS `bluetooth` snapshot with the radio on, written by hand from the field names in the dms 2.1.0 binary (docs/NET_BT.md §1) because the recorded fixture has Bluetooth off and no devices. Names and addresses are obviously fake placeholders (Z113). Replace with a scrubbed recording when one exists (docs/NET_BT.md §7).",
+  "state": {
+    "powered": true,
+    "discovering": false,
+    "adapters": [{"path": "<path-a1>", "name": "<name-a1>", "address": "<address-a1>", "powered": true, "discovering": false}],
+    "devices": [
+      {"path": "<path-d1>", "address": "<address-d1>", "name": "Fake Keyboard", "alias": "Fake Keyboard", "paired": true, "trusted": true, "blocked": false, "connected": false, "class": 1344, "icon": "input-keyboard", "rssi": 0, "legacyPairing": false},
+      {"path": "<path-d2>", "address": "<address-d2>", "name": "Fake Headset", "alias": "Fake Headset", "paired": true, "trusted": true, "blocked": false, "connected": false, "class": 2360344, "icon": "audio-headset", "rssi": 0, "legacyPairing": false},
+      {"path": "<path-d3>", "address": "<address-d3>", "name": "Fake Mouse", "alias": "Fake Mouse", "paired": true, "trusted": false, "blocked": false, "connected": true, "class": 1408, "icon": "input-mouse", "rssi": -50, "legacyPairing": false},
+      {"path": "<path-d4>", "address": "<address-d4>", "name": "Fake Speaker", "alias": "Fake Speaker", "paired": false, "trusted": false, "blocked": false, "connected": false, "class": 2360340, "icon": "audio-card", "rssi": -80, "legacyPairing": false},
+      {"path": "<path-d5>", "address": "<address-d5>", "name": "Fake Phone", "alias": "Fake Phone", "paired": false, "trusted": false, "blocked": false, "connected": false, "class": 5898764, "icon": "phone", "rssi": -60, "legacyPairing": false},
+      {"path": "<path-d6>", "address": "<address-d6>", "name": "<address-d6>", "alias": "", "paired": false, "trusted": false, "blocked": false, "connected": false, "class": 0, "icon": "", "rssi": -45, "legacyPairing": false}
+    ],
+    "pairedDevices": null,
+    "connectedDevices": null
+  }
+}
