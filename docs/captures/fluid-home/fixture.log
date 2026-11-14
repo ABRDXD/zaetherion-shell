@@ -1,0 +1,9 @@
+  INFO: Launching config: "/tmp/fluid-fixture-q16l11n_/bundle/shell.qml"
+  INFO: Shell ID: "aa98a387a42331aee13fe4316357cec6" Path ID "aa98a387a42331aee13fe4316357cec6"
+  INFO: Saving logs to "/tmp/fluid-fixture-q16l11n_/runtime/quickshell/by-id/pjj6bzbhot/log.qslog"
+ DEBUG qml: FLUID_READY
+  INFO: Configuration Loaded
+  WARN scene: QML QQuickImage at @view/rooms/AngularHome.qml[69:25]: Cannot open: file:///tmp/fluid-fixture-q16l11n_/home/.face
+  WARN qt.qpa.wayland.textinput: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Trying to disable 0x7f2b46a7fea0 but 0x0 is focused
+  WARN: Context2D: The font families specified are invalid: JetBrains Mono Nerd Font
+  WARN qt.qpa.wayland.textinput: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Trying to disable 0x7f2b46a7fea0 but 0x0 is focused

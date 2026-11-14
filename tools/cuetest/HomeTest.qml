@@ -33,9 +33,9 @@ Scope {
         if (!shots) { fn(); return; }
         stage.grabToImage(r => { r.saveToFile(shots + "/" + name + ".png"); fn(); });
     }
-    CoreClient { id: core }
+    CoreClient { id: client }
     FixtureAdapter { id: fixture }
-    ShellContext { id: context; panelOpen: true; core: core }
+    ShellContext { id: context; panelOpen: true; core: client }
     FloatingWindow {
         id: window
         implicitWidth: 1100; implicitHeight: 700; visible: true
@@ -44,7 +44,7 @@ Scope {
             id: stage
             anchors.fill: parent
             Rectangle { anchors.fill: parent; color: "#0d1218" }
-            Home { id: room; anchors.fill: parent; anchors.margins: 24; host: fixture; shell: context; core: core }
+            Home { id: room; anchors.fill: parent; anchors.margins: 24; host: fixture; shell: context; core: client }
         }
     }
     function iso(h) { const d = new Date(); d.setHours(Math.floor(h), Math.round(h % 1 * 60), 0, 0); return d.toISOString(); }
@@ -52,7 +52,7 @@ Scope {
     Component.onCompleted: after(400, () => {
         const ruler = find(room, i => i.lineY !== undefined && i.siderealTicks === undefined && i.misregistered !== undefined);
         const sky = find(room, i => i.lapse !== undefined && i.traced !== undefined);
-        sky.sky = { at: new Date().toISOString(), sidereal: 52.5, sun: { rise: iso(6.5), set: iso(18.25) }, bodies: {}, moon: { illumination: 0.4 } };
+        room.session.sky = { at: new Date().toISOString(), sidereal: 52.5, sun: { rise: iso(6.5), set: iso(18.25) }, bodies: {}, moon: { illumination: 0.4 } };
         ruler.misregistered = false;
         after(100, () => {
             const day = find(ruler, i => i instanceof Rectangle && i.height === 3 && Math.abs(i.opacity - 0.7) < 0.01);

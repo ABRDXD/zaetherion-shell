@@ -1685,7 +1685,9 @@ Item {
         width: panelContent.width
         height: 60
         sourceComponent: Wanderer {
-            room: root.shownSlot.item
+            // Style swaps retain the room controller but destroy its old controls.
+            // Follow the actual presentation so the surveyor rescans before those controls go away.
+            room: root.shownSlot.item?.presentation?.item ?? root.shownSlot.item
             viewport: pageViewport
             roomId: root.shownPageId
             journey: root.core.journeyData

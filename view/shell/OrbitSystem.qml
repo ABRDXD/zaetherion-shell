@@ -723,7 +723,7 @@ FocusScope {
     }
 
     // Overdrive's deep space behind everything: parallax stars that follow the camera and twinkle (a GPU stratum).
-    IdleLoop { id: twinkle; scope: root; name: "orbit.twinkle"; period: 9000 }
+    IdleLoop { id: starTwinkle; scope: root; name: "orbit.twinkle"; period: 9000 }
     Stratum {
         name: "starfield"
         scope: root
@@ -734,7 +734,7 @@ FocusScope {
             camX: root.camX
             camY: root.camY
             camS: root.camS
-            twinklePhase: twinkle.phase
+            twinklePhase: starTwinkle.phase
         }
     }
     // Comets (docs/OVERDRIVE.md §8): a new notification, while Overdrive drives and the orbit is shown, crosses

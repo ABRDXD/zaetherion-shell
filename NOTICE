@@ -93,3 +93,15 @@ FLUID Phase 2 (13 November 2026)
 - docs/captures/fluid-phase2/ contains nested Hyprland fixture captures of
   these presentations and FART Settings, including an Angular baseline from
   e6c86ea. All content is synthetic; no host media or notification data is used.
+
+FLUID Home (14 November 2026)
+-----------------------------
+- view/rooms/AngularHome.qml and HomeSession.qml derive from the seeded
+  view/rooms/Home.qml and HomeSky.qml (GPL-3.0 lineage above). The Angular
+  visual tree remains; shared state, sky requests and lease ownership move
+  to the persistent session.
+- view/fluid/FluidHome.qml, FluidCalendar.qml and FluidActionRow.qml are
+  original Confluence components. No new third-party assets are bundled.
+- docs/captures/fluid-home/ contains nested Hyprland captures of these
+  presentations and Settings, plus the Angular Home baseline from e6c86ea.
+  All displayed tasks, identity, media and service data are synthetic.

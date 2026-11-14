@@ -14,6 +14,8 @@ Singleton {
     readonly property int body: 14
     readonly property int caption: 12
     readonly property int title: 32
+    readonly property int clock: 88
+    readonly property int heading: 22
     readonly property int lyric: 24
     readonly property int lyricEmphasis: 30
     readonly property string sans: "Inter"

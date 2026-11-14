@@ -2,7 +2,8 @@
 """Run inert Fluid integration fixtures only inside an already running nested Hyprland.
 
 Usage: python tools/fluid_fixture.py [--capture DIRECTORY] [--baseline]
-The baseline option renders the original Angular Media from this branch's parent revision.
+Use --fixture tests/fixtures/fluid/HomeSwitch.qml for Home. The baseline option
+restores the original Angular room from e6c86ea in the private bundle.
 """
 import argparse
 import json
@@ -20,7 +21,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def run(capture=None, baseline=False, fixture="tests/fixtures/fluid/MediaSwitch.qml", integrated=False):
+    room = "home" if Path(fixture).name in ("HomeSwitch.qml", "HomeTest.qml", "HomeFoldTest.qml") else "media"
     nested = nested_hypr.state()
+    # FloatingWindow regressions need frames too: the hidden Wayland output can
+    # leave their layouts unpolished. This dispatch targets only the nested compositor.
+    focused = nested_hypr.hypr(nested["sig"], "dispatch", 'hl.dsp.focus({ monitor = "ZTEST" })')
+    if focused.returncode or focused.stdout.strip() != "ok":
+        raise RuntimeError("Could not target nested ZTEST: " + focused.stdout + focused.stderr)
     with tempfile.TemporaryDirectory(prefix="fluid-fixture-") as directory:
         base = Path(directory)
         for name in ("home", "runtime", "config", "state", "cache", "data", "bundle"):
@@ -32,9 +39,14 @@ def run(capture=None, baseline=False, fixture="tests/fixtures/fluid/MediaSwitch.
             import shutil
             (bundle / "view").unlink()
             shutil.copytree(ROOT / "view", bundle / "view")
-            original = subprocess.check_output(["git", "show", "e6c86ea:view/rooms/Media.qml"], cwd=ROOT)
-            (bundle / "view/rooms/Media.qml").write_bytes(original)
-        (bundle / "shell.qml").write_text((ROOT / fixture).read_text())
+            original = subprocess.check_output(["git", "show", "e6c86ea:view/rooms/" + ("Home.qml" if room == "home" else "Media.qml")], cwd=ROOT)
+            (bundle / ("view/rooms/Home.qml" if room == "home" else "view/rooms/Media.qml")).write_bytes(original)
+            if room == "home":
+                (bundle / "view/rooms/HomeSky.qml").write_bytes(subprocess.check_output(["git", "show", "e6c86ea:view/rooms/HomeSky.qml"], cwd=ROOT))
+        fixture_text = (ROOT / fixture).read_text()
+        if baseline and fixture.startswith("tools/cuetest/"):
+            fixture_text = subprocess.check_output(["git", "show", "e6c86ea:" + fixture], cwd=ROOT, text=True)
+        (bundle / "shell.qml").write_text(fixture_text)
         env = {k:v for k,v in nested_hypr.env_for(nested).items()
                if not k.startswith(("FART_", "DMS_", "MALLOC_", "QT_QUICK", "QSG_", "ZAETHERION_"))}
         socket = Path(env["XDG_RUNTIME_DIR"]) / nested["wayland"]
@@ -69,17 +81,20 @@ def run(capture=None, baseline=False, fixture="tests/fixtures/fluid/MediaSwitch.
                     shot("angular-baseline" if baseline else "angular")
                     if not baseline:
                         initial = json.loads(ipc("state"))
-                        ipc("style","fluid"); shot("fluid-media")
+                        ipc("style","fluid"); shot("fluid-" + room)
                         switched = json.loads(ipc("state"))
-                        assert switched["form"] == "fluid" and switched["page"] == initial["page"] == "media"
+                        assert switched["form"] == "fluid" and switched["page"] == initial["page"] == room
                         assert switched["controller"] == initial["controller"]
                         ipc("settings","true"); ipc("preview"); shot("fluid-settings-preview")
                         preview = json.loads(ipc("state"))
                         assert preview["settings"] and preview["palette"]["preview"]
                         ipc("settings","false"); ipc("playing","true"); ipc("overdrive","true")
-                        shot("fluid-media-overdrive")
+                        shot("fluid-" + room + "-overdrive")
                         assert not json.loads(ipc("state"))["palette"]["preview"]
-                        ipc("catalogue"); shot("fluid-player-catalogue")
+                        if room == "home":
+                            ipc("month", "1"); shot("fluid-home-calendar")
+                        else:
+                            ipc("catalogue"); shot("fluid-player-catalogue")
                         ipc("settings","true"); shot("fluid-settings-overdrive")
                         (capture / "state.json").write_text(ipc("state")+"\n")
                 else:
@@ -107,6 +122,6 @@ if __name__ == "__main__":
     output=run(args.capture,args.baseline,args.fixture,args.integrated)
     print(output)
     if not args.capture:
-        prefix = "FLUID" if args.fixture.endswith("MediaSwitch.qml") else "CUE"
+        prefix = "FLUID" if args.fixture.endswith(("MediaSwitch.qml", "HomeSwitch.qml")) else "CUE"
         if prefix + "_DONE" not in output or prefix + "_FAIL" in output: sys.exit(1)
     if any(e in output for e in ("ReferenceError", "TypeError", "Binding loop", "Unable to assign", "Cannot assign", "Failed to load configuration")): sys.exit(1)
