@@ -51,13 +51,26 @@ class LayoutTests(unittest.TestCase):
             self.assertNotIn("FHeading", (ROOT / "view/rooms" / target).read_text(), target)
 
     def test_view_cannot_claim_host_services_or_reach_the_archive(self):
-        forbidden = ("ConflictKiller", "GlobalShortcut {", "host/Shell.qml",
+        forbidden = ("ConflictKiller", "host/Shell.qml",
                      "serpantinumd", "FART_SOURCE", "fart/source", "end4-pC", "illogical-impulse")
         for qml in QML:
             data = qml.read_text()
             for symbol in forbidden:
                 self.assertNotIn(symbol, data, str(qml))
         self.assertFalse(any(p.is_symlink() for p in ROOT.rglob("*") if ".git" not in p.parts))
+
+    def test_only_the_launcher_shortcut_file_holds_a_global_shortcut_and_only_when_asked(self):
+        """S6 (docs/S6_LAUNCHER.md §2): one GlobalShortcut, in the Hyprland adapter, off unless FART_LAUNCHER_SHORTCUT=1."""
+        claim = re.compile(r"(?<![A-Za-z])GlobalShortcut \{")
+        holders = [qml.relative_to(ROOT).as_posix() for qml in QML if claim.search(qml.read_text())]
+        self.assertEqual(holders, ["adapters/hyprland/HyprlandLauncherShortcut.qml"])
+        holder = (ROOT / holders[0]).read_text()
+        self.assertIn("property bool enabled: false", holder)
+        self.assertIn("active: root.enabled", holder)
+        users = sorted(qml.relative_to(ROOT).as_posix() for qml in QML if "HyprlandLauncherShortcut {" in qml.read_text())
+        self.assertEqual(users, ["adapters/fixture/FixtureAdapter.qml", "adapters/hyprland/HyprlandKeybinds.qml"])
+        for user in users:
+            self.assertIn('enabled: Quickshell.env("FART_LAUNCHER_SHORTCUT") === "1"', (ROOT / user).read_text())
 
     def test_only_our_one_server_file_claims_the_notification_name_and_only_when_asked(self):
         """Z166, Z169: Quickshell's NotificationServer in one file, off unless FART_NOTIFICATION_SERVER=1."""

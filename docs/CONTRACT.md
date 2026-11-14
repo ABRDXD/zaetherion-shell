@@ -45,5 +45,6 @@ The island uses the existing adapter for media, audio, network, Bluetooth, notif
 
 - `tray.menuEntries` carries plain rows `{id, label, enabled?, children?}` under the `menus` lease. The adapter receives `triggerMenuItem(itemId, entryId)` when the user chooses a row. Service handles stay inside the adapter.
 - `keybinds.capsLock`, `keybinds.numLock` and `network.airplaneMode` are optional status values. `null` means the fixture has no reading. `audio.privacy` carries visible mic/camera uses as `{kind, app}`.
+- `keybinds.launcherPressed()` / `launcherReleased()` are the launcher key's edges when the host delivers it to the view itself (S6, Hyprland's global shortcut, only with `FART_LAUNCHER_SHORTCUT=1`). Hosts that don't never emit them; the key then arrives through the core as before.
 - `system.memory.pressureSomeAvg10` is a percentage, and `processes` contains `{name, pss}` rows with PSS in KiB. The island uses Z23 and OPEN 14 for the queue and recovery.
 - The fixture gives the island an inert core client for timer and session snapshots, plus a synthetic startup notice. The live producer of backend status is still F2-2. Notification actions and panel, power, log and ignition requests leave the island as signals.

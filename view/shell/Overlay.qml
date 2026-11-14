@@ -147,10 +147,9 @@ Scope {
         target: coldProbe.enabled ? coldProbe : null
         function onInputFocusedChanged() { console.log("FART_CMDFOCUS", Date.now(), "input", coldProbe.inputFocused); }
     }
-    // Prototype (Z139 key capture), FART_LAUNCHER_SHORTCUT=1 only: Super+` as a Hyprland global shortcut
-    // (`hl.dsp.global("zaetherion:launcher")`) handled in this process, so the press opens the command line without a
-    // CLI spawn or a core round trip. The core still gets the edges for hold-to-ignite (key.down with panel: true
-    // starts the hold without asking for another open). Not created otherwise.
+    // The launcher key delivered by the host (keybinds.launcherPressed; Hyprland's global shortcut, only with
+    // FART_LAUNCHER_SHORTCUT=1): the press opens the command line without a CLI spawn or a core round trip. The core
+    // still gets the edges for hold-to-ignite (key.down with panel: true starts the hold without another open).
     function launcherPressed() {
         coldProbe.mark("command");
         if (root.opened && (body.shell?.commandLine.idle ?? false)) {
@@ -160,15 +159,10 @@ Scope {
         root.openPage(root.currentPage || "home", null);
         root.core.request("key.down", { panel: true });
     }
-    LazyLoader {
-        active: Quickshell.env("FART_LAUNCHER_SHORTCUT") === "1"
-        GlobalShortcut {
-            appid: "zaetherion"
-            name: "launcher"
-            description: "ZÆTHERION: command line (hold to ignite)"
-            onPressed: root.launcherPressed()
-            onReleased: root.core.request("key.up", {})
-        }
+    Connections {
+        target: root.host.keybinds
+        function onLauncherPressed() { root.launcherPressed(); }
+        function onLauncherReleased() { root.core.request("key.up", {}); }
     }
     Connections {
         target: Host

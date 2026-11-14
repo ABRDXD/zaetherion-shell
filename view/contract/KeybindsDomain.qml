@@ -5,4 +5,7 @@ HostDomain {
     property var numLock: null
     property var binds: []
     function refresh() { record("refresh", []); }
+    // The launcher key's edges, when the host delivers it to this process (docs/S6_LAUNCHER.md §2, option B).
+    signal launcherPressed()
+    signal launcherReleased()
 }
