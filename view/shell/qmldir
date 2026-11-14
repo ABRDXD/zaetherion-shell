@@ -39,4 +39,5 @@ SpaceSystem 1.0 SpaceSystem.qml
 SunFace 1.0 SunFace.qml
 Unfold 1.0 Unfold.qml
 singleton ViewState 1.0 ViewState.qml
+WallpaperPicker 1.0 WallpaperPicker.qml
 Whisper 1.0 Whisper.qml

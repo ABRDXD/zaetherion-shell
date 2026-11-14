@@ -47,7 +47,7 @@ class Context:
         return Result("→ the orbit" + (f" · {target}" if target else ""), "info", {"fly": target})
 
     async def settings(self, section: str) -> Result:
-        """FART's own settings at one section; nothing opens outside FART (Z162, Z176)."""
+        """FART's own settings at one section; nothing opens outside FART (Z162, Z177)."""
         view = self.core.view
         if not (view.state == "ready" and view.open):
             self.core._before_open()

@@ -1,4 +1,4 @@
-"""adapters/dms/DmsWallpaperMap.js: DMS's session.json to the wallpaper domain, and the set command, under Node (Z177)."""
+"""adapters/dms/DmsWallpaperMap.js: DMS's session.json to the wallpaper domain, and the set command, under Node (Z178)."""
 import json
 from pathlib import Path
 import shutil

@@ -1,6 +1,6 @@
 .pragma library
 
-// DMS's session.json (~/.local/state/dms) → the wallpaper domain's state (Z177). Pure.
+// DMS's session.json (~/.local/state/dms) → the wallpaper domain's state (Z178). Pure.
 // DMS keeps wallpaperPath on the current mode's wallpaper when perModeWallpaper is on, so it is the one applied.
 // A plain colour ("#rrggbb", DMS's setWallpaperColor) is not a file: current "".
 // Returns { current, perScreen }; text that isn't a JSON object gives { current: "", perScreen: false }.

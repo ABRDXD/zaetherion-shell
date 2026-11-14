@@ -412,7 +412,7 @@ class Core:
         return await self.view.command("open", page or self.view.page or "home", extra.get("from"), screen=screen or None)
 
     async def wallpaper_choose(self, path: str) -> dict:
-        """Through the view's adapter; the host stays the authority for what is applied (Z177)."""
+        """Through the view's adapter; the host stays the authority for what is applied (Z178)."""
         self.wallpaper.can_apply()
         await self.hostcalls.call("wallpaper", "set", [path], ready="available", hold=0)
         return self.wallpaper.applied(path)

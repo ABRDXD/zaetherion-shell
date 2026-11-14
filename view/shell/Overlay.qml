@@ -73,7 +73,7 @@ Scope {
     Binding { target: root.host.media; property: "preferredPlayer"; value: Config.options.bar.media.preferredPlayer }
     Binding { target: root.host.system; property: "sampleInterval"; value: Math.max(500, Config.options.resources.updateInterval) }
     ShellContext { id: context; panelOpen: root.opened; core: root.core }
-    // The host's wallpaper, for the core's `wallpaper` topic and verb (Z177): the host stays the authority.
+    // The host's wallpaper, for the core's `wallpaper` topic and verb (Z178): the host stays the authority.
     readonly property var hostWallpaper: ({ available: host.wallpaper.available, current: host.wallpaper.current,
                                             perScreen: host.wallpaper.perScreen, error: host.wallpaper.error })
     onHostWallpaperChanged: if (core.connected) core.notify("wallpaper.report", hostWallpaper)
@@ -98,6 +98,7 @@ Scope {
             const placement = { from: from, screen: extra?.screen ?? "" };
             if (action === "open" || action === "page") root.openPage(page || root.currentPage, placement);
             // go <moon>: the orbit opens over the room and keys that moon (docs/ORBIT.md, "type to fly").
+            if (action === "open" && extra?.settings) Host.openSettings(extra.settings);
             if (action === "open" && extra?.fly !== undefined) body.shell?.flyTo(extra.fly);
             else if (action === "close") Host.close();
             else if (action === "toggle") { if (root.opened) Host.close(); else root.openPage(page || root.currentPage, placement); }

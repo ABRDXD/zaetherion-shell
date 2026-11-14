@@ -1,6 +1,6 @@
 # Wallpaper and preset selectors inside FART (design draft, S9)
 
-Status: **draft for the owner. Nothing is built.** Branch `s9-wall-presets` from `s0-seed` 39719a2. New decisions start at Z176.
+Status: **draft for the owner. Nothing is built.** Branch `s9-wall-presets` from `s0-seed` 39719a2. New decisions start at Z177.
 
 ## 1. What exists
 
@@ -57,12 +57,12 @@ A preset is one saved look: `{name, wallpaper, palette, islandForm, dmsTheme}`. 
 - **Core.** `core/presets.py`: `presets.json` (list of looks), topic `presets`, ops `presets.list/save/rename/delete/preview/cancel/apply`; verb `zaetherion look <name>` / `look list` / `look save <name>`.
 - **Missing parts.** If a preset's wallpaper file is gone, its palette is no longer installed, or DMS is down, the card marks that part "missing". Apply does the rest and says what it skipped.
 
-## 5. Decisions to record (next free: Z176)
+## 5. Decisions to record (next free: Z177)
 
-- Z176: wallpaper picker inside FART's settings, previewed in a large plane in FART, applied through the host. `wall`/`theme` and Home's items open FART's section instead of DMS.
-- Z177: the `wallpaper` contract domain; the host is the authority for the current wallpaper; the core keeps folder, recent and preview.
-- Z178: colours from a wallpaper, optional and off by default, via `matugen --dry-run`.
-- Z179: presets bundle wallpaper, palette, island form and DMS theme; the DMS theme switch edits DMS's settings file (owner's OK required).
+- Z177: wallpaper picker inside FART's settings, previewed in a large plane in FART, applied through the host. `wall`/`theme` and Home's items open FART's section instead of DMS.
+- Z178: the `wallpaper` contract domain; the host is the authority for the current wallpaper; the core keeps folder, recent and preview.
+- Z179: colours from a wallpaper, optional and off by default, via `matugen --dry-run`.
+- Z180: presets bundle wallpaper, palette, island form and DMS theme; the DMS theme switch edits DMS's settings file (owner's OK required).
 
 ## 6. Build order (after the owner's OK)
 

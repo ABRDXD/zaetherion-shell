@@ -1,4 +1,4 @@
-"""Wallpaper folder scan, resolve, recent, preview ownership, the host's report and the wall verb (Z176, Z177)."""
+"""Wallpaper folder scan, resolve, recent, preview ownership, the host's report and the wall verb (Z177, Z178)."""
 import asyncio
 import json
 import tempfile

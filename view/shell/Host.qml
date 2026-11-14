@@ -13,6 +13,11 @@ Singleton {
     function toggleLayout() { Config.options.bar.dynamicIsland.layoutStyle = wide ? "clock" : "wide"; }
     signal openRequested(string page)
     signal closeRequested()
+    // FART's own settings at a section (palette, wallpaper, presets): Z162, Z177. Kept until a Shell takes it,
+    // so a request that arrives while the panel is still being made is not lost.
+    property string pendingSettings: ""
+    signal settingsRequested(string section)
+    function openSettings(section) { pendingSettings = section || "palette"; settingsRequested(pendingSettings); }
 
     function open(page) { openRequested(page || "home"); }
     function close() { closeRequested(); }

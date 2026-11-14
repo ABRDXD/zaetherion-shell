@@ -1,6 +1,6 @@
 """Host verbs: settings, update, lock. The panel folds first: host popups open under FART's layer.
 
-`wall` and `theme` used to open the host's pickers; they open FART's own settings now (core/verbs/wallpaper.py, Z176).
+`wall` and `theme` used to open the host's pickers; they open FART's own settings now (core/verbs/wallpaper.py, Z177).
 """
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""wall and theme: FART's own wallpaper and palette sections, and the wallpaper choice from the command line (Z176)."""
+"""wall and theme: FART's own wallpaper and palette sections, and the wallpaper choice from the command line (Z177)."""
 from pathlib import Path
 
 from core.verbs.base import Result, Usage, Verb

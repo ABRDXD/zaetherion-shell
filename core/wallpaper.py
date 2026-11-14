@@ -1,4 +1,4 @@
-"""The wallpaper folder, recent choices and a connection-owned preview (Z176, Z177).
+"""The wallpaper folder, recent choices and a connection-owned preview (Z177, Z178).
 
 The host owns the applied wallpaper: the view reports what its adapter sees (`wallpaper.report`), and choosing goes
 through a host call. The core only scans a plain folder of files, so it knows nothing about any desktop shell.

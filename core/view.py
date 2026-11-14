@@ -190,7 +190,7 @@ class ViewManager:
         if focus:
             command["focus"] = focus
         if settings:
-            command["settings"] = settings  # wall, theme: FART's settings open at that section (Z176)
+            command["settings"] = settings  # wall, theme: FART's settings open at that section (Z177)
         if fly is not None:
             command["fly"] = fly  # go <moon>: the view opens the orbit and keys that moon ("" the orbit alone)
         if self.client and not self.client.closed:
