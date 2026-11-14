@@ -19,6 +19,7 @@ ShellRoot {
         core: client
         role: "shell"
         osdWanted: root.islandWanted
+        clipsWanted: root.islandWanted
         // With a core, DMS's socket follows the supervisor (it changes with every DMS restart, and is null while
         // DMS is down); without one, DMS_SOCKET.
         socketPath: client.connected ? (client.supervisorData?.children?.dms?.socket ?? "") : (Quickshell.env("DMS_SOCKET") ?? "")
