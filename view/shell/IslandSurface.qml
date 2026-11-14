@@ -5,6 +5,7 @@ import qs.core.client
 import qs.view.cues
 import qs.view.ui
 import "../ui/FocusMap.js" as FocusMap
+import "LauncherLayout.js" as LauncherLayout
 
 FocusScope {
     id: root
@@ -47,8 +48,23 @@ FocusScope {
         queue.offer("session", "session", events.priority.held, {}, null);
     }
     function closeSession(): void { queue.remove("session"); }
+    // The launcher (S6) grows from the island like the session card and holds the keyboard while open (Z117).
+    readonly property int launcherRows: core?.launcherData?.settings?.rows ?? 6
+    readonly property bool launcherOpen: expansion?.kind === "launcher"
+    function openLauncher(): void {
+        keyboardMode = false;
+        queue.offer("launcher", "launcher", events.priority.held, {}, null);
+    }
+    function closeLauncher(): void { queue.remove("launcher"); }
+    function toggleLauncher(): void {
+        if (queue.entries.some(event => event.id === "launcher")) closeLauncher();
+        else openLauncher();
+    }
+    // The deepest face: the island's window is this deep, so it never resizes while a face grows.
+    readonly property int deepest: Math.max(160, LauncherLayout.depth(launcherRows, LauncherLayout.edgePad))
+    AppsIndex { core: root.core; apps: root.host.apps; }
     // Faces the owner opened and holds: the keyboard goes to them, and a click outside closes them.
-    readonly property bool heldFace: expansion?.kind === "tray" || expansion?.kind === "session"
+    readonly property bool heldFace: expansion?.kind === "tray" || expansion?.kind === "session" || expansion?.kind === "launcher"
     function runSession(action: string): void {
         closeSession();
         Feedback.play("ui.click");
@@ -350,6 +366,9 @@ FocusScope {
         enabled: false
         sourceComponent: IslandExpansion {
             event: root.outgoingEvent
+            core: root.core
+            apps: root.host.apps
+            launcherRows: root.launcherRows
             bottomEdge: root.bottomEdge
             lift: root.lift
             systemVoice: root.systemVoice
@@ -374,6 +393,10 @@ FocusScope {
             onTrayClose: root.closeTray()
             onTrayChoose: entryId => root.chooseTray(entryId)
             onSessionAction: action => root.runSession(action)
+            core: root.core
+            apps: root.host.apps
+            launcherRows: root.launcherRows
+            onLauncherClose: root.closeLauncher()
             restoreReplyFocus: !!event && root.replyFocusId === event.id
             onReplyFocused: focused => root.replyFocus(String(event?.id ?? ""), focused)
             onReplyEdited: text => {

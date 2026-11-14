@@ -6,6 +6,27 @@
 - **Tests.** `test_net_bt_logic` (51, Node), `test_net_bt_adapter` (28, offscreen against the replay stand-in: every flow incl. wrong password, timeouts, DMS killed mid-join and mid-pair, double clicks, the fake password absent from the view's output), `test_net_bt_secrets` (4), `test_net_words` (3), `test_dms_quiet` (+4). `test_dms_adapter` now names the un-leased list once (`UNLEASED`).
 - **Coordination.** Settings sections are their own files; they join `PreferencesPane.qml` through Claude B's tab list (`sections`, `section`, `sectionPicked`, Shell's `openSettings`) once `s9-wall-presets` is merged: two entries, `["wifi", "WI-FI"]` and `["bluetooth", "BLUETOOTH"]`, and two `visible: root.section === …` blocks taking `host.network` / `host.bluetooth`. Claude C has uncommitted island edits (`IslandRest.qml`), so the island hover's "joining / wrong password / pairing" word waits for C. Claude A was told about the nested Hyprland mix-up (it wasn't mine).
 - **Not done.** Devices room: a new network's verb "host dialog" → "password…" opening FART's Wi-Fi settings with the name filled in (needs B's `openSettings`); the island hover word; an island event for a prompt that arrives while FART is closed (`promptArrived`, `pairingArrived` exist). Nested-Hyprland captures after the pane hookup. Every new DMS call is unchecked against a real DMS (OPEN F2-7, NET_BT.md §7: phone hotspot, the phone over Bluetooth, the owner present). Rebuild the quiet copy with the owner present to drop DMS's own windows.
+# 14 November 2026 · Opus (Claude A): S6 launcher, apps and ranking committed; the surface waits for the owner's look
+
+- **Committed (`aba742a`, branch `s6-launcher`).** Apps list in the adapter (`AppsDomain`, `QuickshellApps`), ranking,
+  frecency, the one-time import and the Session blocklist in the core (`core/matching.py`, `core/launcher.py`), apps
+  started through Hyprland's exec (clean environment checked in nested Hyprland). Z185–Z189. Full suite 971 OK (whole
+  tree, including the uncommitted surface); the commit's export: 91 OK in the affected modules.
+- **Built, not committed (owner's look first).** The surface grown from the island: `view/shell/LauncherFace.qml`,
+  `LauncherRow.qml`, `LauncherLayout.js`, `AppsIndex.qml`, `LauncherRoutes.qml`; edits in `IslandSurface/Expansion/
+  Window.qml`, `shell.qml`, `shell-dms.qml`, `CoreClient.qml`; `tests/test_launcher_view.py` + `tools/launchertest/`
+  (15 checks, real core); path C in `tools/launcher_keycheck.py`; `docs/S6_LAUNCHER.md` §2.1 and §8. Offscreen captures
+  were shown to the owner (scratch files, not kept).
+- **Measured (path C).** Keyboard 10 ms median (worst 13) with the view up, 13 ms (worst 19) on a first open; 0 letters
+  lost or sent to the app in 120 trials. Path B in the same run: ~60 ms, 7 letters to the app in one trial. Found on
+  the way: Hyprland 0.57 does not give the keyboard to a mapped layer that turns Exclusive; the island's focus grab
+  now starts at once for the launcher. The island's `focus` IPC (Z148) has the same problem in nested Hyprland; ask
+  the owner whether it works live.
+- **Incident.** An earlier probe used `tools/nested_hypr.py start/stop` with the shared state file and stopped another
+  agent's nested Hyprland twice (not D's; probably B's or C's). Use a private state file (as `launcher_keycheck.py`
+  does); a per-agent default for `nested_hypr.py` was proposed to the owner.
+- **Next.** The owner's look → commit the surface. Then the FART settings controls (Z189), verbs/calc/`>cmd`/`?term`
+  inline, windows (Z77), Emoji, Clips (with C), Files. The binds (§6) need the owner's OK and a rollback each time.
 
 # 14 November 2026 · Opus (Claude A): S6 started; the first open keeps every key
 

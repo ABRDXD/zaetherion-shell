@@ -27,4 +27,5 @@ Scope {
     property OsdDomain osd: OsdDomain {}
     property CaptureDomain capture: CaptureDomain {}
     property KeybindsDomain keybinds: KeybindsDomain {}
+    property AppsDomain apps: AppsDomain {}
 }

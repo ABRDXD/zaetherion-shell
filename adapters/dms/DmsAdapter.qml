@@ -30,6 +30,8 @@ HostAdapter {
     keybinds: DmsKeybinds { link: link }
     power: DmsPower {}
     tray: QuickshellTray {}
+    // The launcher's apps (S6): ready at start, since the launcher opens straight from the island (Z139).
+    apps: QuickshellApps { spawner: HyprlandSpawner {} }
     system: LinuxSystem {}
 
     // Nothing on the panel's first frame shows these four, so they load when the view asks, after the first open

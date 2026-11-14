@@ -102,6 +102,16 @@ v2.1.0 of duxlabs-dev/dux-shell; no code is copied. tools/dms_quiet.py writes a
 local, unpublished copy of the installed DMS UI with its notification server
 removed.
 
+S6 launcher: core/matching.py and the ranking in core/launcher.py port the app
+search of quickshell/Services/AppSearchService.qml (tokenize, word-boundary
+match, Levenshtein fuzzy match with its typo budget, the match order and
+weights, calculateFrecency's time buckets and sample size, the recency bonus)
+at v2.1.0 of duxlabs-dev/dux-shell from QML/JavaScript to Python. History per
+day, the one-time import and the session blocklist are ours.
+adapters/quickshell/QuickshellApps.qml follows getVisibleApplications (hidden
+entries out, one row per id) and launchDesktopEntry's terminal handling of
+quickshell/Services/SessionService.qml at the same commit; no code is copied.
+
 S5 equaliser: core/eq_chain.py writes a PipeWire filter-chain config whose shape
 (builtin bq_peaking nodes, capture.props/playback.props) follows the example
 /usr/share/pipewire/filter-chain/sink-eq6.conf shipped with PipeWire (MIT); the

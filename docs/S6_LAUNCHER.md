@@ -64,7 +64,12 @@ What it showed:
 3. **Z139:** B meets it with the view up (median ~60 ms, worst 85); A doesn't reliably (worst 128). About 30 ms of A is
    the spawn and round trip; the rest is mapping the panel and Hyprland's focus. B's first open (~87) is under budget
    but still sends the first letters to the app if typed within ~15 ms.
-4. Not measured yet: option C (no new surface to map). It removes most of what B still pays, which is what decides
+4. Option C, measured 14 November 2026 once built (same tool, path C: `hl.dsp.global("zaetherion:apps")`, the
+   launcher grown in the island's window with its focus grab): keyboard in **10 ms** median (8–13) with the view up and
+   **13 ms** (11–19) on the first open after the view starts; **0 letters lost or sent to the app in 80 trials**
+   at 0/5/15/40 ms. The command reaches the view in ~4 ms; the rest is Hyprland moving focus. That closes F4: no
+   new surface, no lost keys.
+5. (Superseded) Not measured yet: option C (no new surface to map). It removes most of what B still pays, which is what decides
    the first letters typed straight after the press.
 
 Caveats: fixture adapter, nested compositor's output (not the owner's monitors); `wtype` needs
@@ -105,3 +110,31 @@ commented, so rolling back is restoring them and `hyprctl reload`.
 1. **DMS's spotlight stays reachable on another key during the trial**; ours takes Super tap and Super+Space. Which
    key keeps the spotlight is the owner's pick when the binds change (and a setting, Z176).
 2. **Brave stays the browser for `?term`** (Z28); the engine and browser are settings (§5).
+
+## 8. Built so far (14 November 2026, branch `s6-launcher`)
+
+- **Apps list** (Z185): `view/contract/AppsDomain.qml`; `adapters/quickshell/QuickshellApps.qml` over DesktopEntries in the
+  DMS adapter (ready at start); sample apps in the fixture adapter. The legacy Serpantinum adapter has none.
+- **Ranking and history in the core** (Z185, Z186): `core/matching.py` (DMS's match order and weights),
+  `core/launcher.py` (frecency per day, the one-time import of `launch_stats.json` through the host profile, hidden apps,
+  the Session blocklist, Z188). Ops: `apps.index` (view only), `launcher.query {text, limit}` → `{rows: [{kind: "app", id,
+  name, description, icon, score, match, blocked}], total}`, `launcher.launch {id}` → `{id, terminal}` or the error
+  `blocked`, `launcher.configure`, `launcher.forget`; topic `launcher` (settings and counts).
+- **Starting an app** (Z187): through Hyprland's exec with the compositor's environment; terminal apps in the terminal setting.
+- **Settings** (Z189): rows, terminal, hidden, blocklist in `launcher.json`; their FART controls come with the surface.
+- **Surface (option C, Z185).** The launcher is a face of the island (`view/shell/LauncherFace.qml`, rows in
+  `LauncherRow.qml`, sizes in `LauncherLayout.js`): kind `launcher` in the island queue at the `held` priority, like the
+  session card, so only a critical event interrupts it. A line to type in (the island's resting height), a refusal
+  line, then `rows` montage rows. Every key asks the core; stale replies are dropped. ↑/↓ (Ctrl+J/K, Ctrl+N/P) move,
+  Enter launches, Esc or the key again folds it, a click outside folds it, hover selects, a click launches. The face
+  keeps its full depth while typing, so the island never jumps. The island's window is as deep as the launcher
+  (`IslandSurface.deepest`) and never resizes. `view/shell/AppsIndex.qml` hands the app list to the core whenever it
+  changes or the core reconnects.
+- **Ways in.** `view/shell/LauncherRoutes.qml`, in every shell entry: the host's apps key
+  (`KeybindsDomain.appsPressed`, the global shortcut `zaetherion:apps` with `FART_LAUNCHER_SHORTCUT=1`) and
+  `qs -p <entry> ipc call launcher toggle`. An open FART folds first.
+- **Keyboard (Z117).** Hyprland 0.57 doesn't move the keyboard to a mapped layer that turns Exclusive, so a key-opened
+  launcher got nothing (every letter stayed in the app; the island's own `focus` route behaves the same in nested
+  Hyprland). The island's focus grab now starts at once for the launcher. The window then has the keyboard 6 ms after the open.
+- **Not yet**: verbs, calc, `>cmd`, `?term`, windows, Emoji, Clips, Files; the settings controls in FART; the
+  binds (§6); the owner's look.

@@ -8,4 +8,6 @@ HostDomain {
     // The launcher key's edges, when the host delivers it to this process (docs/S6_LAUNCHER.md §2, option B).
     signal launcherPressed()
     signal launcherReleased()
+    // The apps launcher key (Super tap, Super+Space; Z26), the same way, when the host delivers it.
+    signal appsPressed()
 }

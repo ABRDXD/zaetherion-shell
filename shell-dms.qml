@@ -58,6 +58,7 @@ ShellRoot {
     function showPanel(room: string): void {
         panel.openPage(room, { screen: root.islandScreen?.name ?? "", from: root.island?.islandRect ?? null });
     }
+    LauncherRoutes { keybinds: adapter.keybinds; island: root.island; panelOpen: panel.opened }
     function togglePanel(room: string): void {
         if (panel.opened) Host.close();
         else showPanel(room);

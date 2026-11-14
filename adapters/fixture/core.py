@@ -18,6 +18,7 @@ class HostProfile:
         self.silent = set()  # cues the fixture host has no file for
         self.place = {"lat": 51.4769, "lon": 0.0, "name": "Greenwich"}  # None: a host without a location
         self.log = os.environ.get("FART_FIXTURE_LOG")
+        self.launch_stats = None  # {app name: {date: launches}}: the old launcher's counts, or None
         self.focus_spans = None  # [[app class, seconds]]: what the host's focus tracker would say, or None
 
     def sfx(self):
@@ -45,6 +46,9 @@ class HostProfile:
 
     def location(self):
         return self.place
+
+    def launch_history(self):
+        return self.launch_stats
 
     def before_open_command(self):
         return None

@@ -158,3 +158,13 @@ class HostProfile:
             return {"lat": float(place["latitude"]), "lon": float(place["longitude"]), "name": str(place.get("city") or "")}
         except (KeyError, TypeError, ValueError):
             return None
+
+    def launch_history(self) -> dict | None:
+        """The old Quickshell launcher's counts, {app name: {date: launches}}, read once by the core (Z136). A copy is
+        taken; the file is never written."""
+        state = Path(os.environ.get("XDG_STATE_HOME") or Path.home() / ".local/state")
+        try:
+            value = json.loads((state / "quickshell/applauncher/launch_stats.json").read_text())
+        except (OSError, ValueError):
+            return None
+        return value if isinstance(value, dict) else None
