@@ -26,6 +26,7 @@ Scope {
     property var islandData: null
     property var paletteData: null
     property var wallpaperData: null
+    property var presetsData: null
     property var equalizerData: null  // the equaliser the core runs (Z173)
     property var supervisorData: null  // children.dms.socket: where DMS listens now (null while it is down)
     readonly property CoreTimers timers: CoreTimers { core: root }
@@ -33,7 +34,7 @@ Scope {
     // The HostAdapter that core host calls act through (`vol` and friends). Null in harnesses without one.
     property var host: null
     readonly property CoreHostCalls hostCalls: CoreHostCalls { core: root; host: root.host }
-    readonly property var topics: ["timers", "tasks", "notifications", "overdrive", "session", "sfx", "ignite", "track", "journey", "discovery", "island", "palette", "wallpaper", "equalizer", "supervisor"]
+    readonly property var topics: ["timers", "tasks", "notifications", "overdrive", "session", "sfx", "ignite", "track", "journey", "discovery", "island", "palette", "wallpaper", "presets", "equalizer", "supervisor"]
     property int nextId: 1
     property var pending: ({})
     property int backoff: 250

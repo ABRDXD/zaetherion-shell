@@ -28,4 +28,5 @@ Scope {
     property CaptureDomain capture: CaptureDomain {}
     property KeybindsDomain keybinds: KeybindsDomain {}
     property WallpaperDomain wallpaper: WallpaperDomain {}
+    property HostThemeDomain hostTheme: HostThemeDomain {}
 }

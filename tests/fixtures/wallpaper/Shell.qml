@@ -42,6 +42,16 @@ ShellRoot {
                 root.listing = { folder: args.folder, exists: false, entries: [] };
                 update({ folder: args.folder, exists: false });
             } else if (op === "wallpaper.colours") update({ colours: args.on });
+            else if (op === "presets.preview") {
+                const look = (presetsData?.looks ?? []).find(l => l.name === args.name);
+                presetsData = Object.assign({ looks: [] }, presetsData, { preview: args.name });
+                if (look?.colors) client.paletteData = { name: "dms:amoledBlack", effective: look.palette, preview: true, colors: look.colors, savedColors: look.colors };
+                Design.form = look?.islandForm === "fluid" ? "fluid" : "angular";
+            } else if (op === "presets.cancel") presetsData = Object.assign({ looks: [] }, presetsData, { preview: null });
+            else if (op === "presets.apply") {
+                fixture.wallpaper.set(presetsData.looks.find(l => l.name === args.name)?.wallpaper ?? "");
+                result = { name: args.name, applied: [], skipped: [] };
+            }
             else if (op === "palette.list") result = [];
             else if (op.startsWith("palette.")) result = {};
             else { if (callback) callback(false, { message: "Not used by this fixture" }); return; }
@@ -88,16 +98,20 @@ ShellRoot {
         function colours(on: bool): void { client.update({ colours: on }); }
         // What the core does with colours on: a made palette (its JSON) previewed with the wallpaper.
         function tint(colorsJson: string): void {
-            const colors = JSON.parse(colorsJson);
+            const colors = JSON.parse(Qt.atob(colorsJson));  // base64: qs ipc splits arguments at spaces
             client.paletteData = { name: "dms:amoledBlack", effective: "wall:x", preview: true, colors: colors, savedColors: colors };
         }
+        // Sample looks (with their palettes' colours, which the real core keeps in the catalogue).
+        function presets(looksJson: string): void { client.presetsData = { looks: JSON.parse(Qt.atob(looksJson)), preview: null }; }
+        function previewPreset(index: int): void { client.request("presets.preview", { name: client.presetsData.looks[index].name }, null); }
         function host(available: bool, error: string): void { client.update({ available: available, error: error }); }
         function empty(folder: string): void {
             root.listing = { folder: folder, exists: false, entries: [] };
             client.update({ folder: folder, exists: false });
         }
         function state(): string {
-            return JSON.stringify({ open: panel.opened, wallpaper: client.wallpaperData, calls: fixture.wallpaper.calls });
+            return JSON.stringify({ open: panel.opened, wallpaper: client.wallpaperData, calls: fixture.wallpaper.calls,
+                                    looks: (client.presetsData?.looks ?? []).length });
         }
     }
 }

@@ -27,6 +27,7 @@ Overlay 1.0 Overlay.qml
 PalettePicker 1.0 PalettePicker.qml
 PanelBody 1.0 PanelBody.qml
 PreferencesPane 1.0 PreferencesPane.qml
+PresetPicker 1.0 PresetPicker.qml
 RoomPrecompiler 1.0 RoomPrecompiler.qml
 RoomSheet 1.0 RoomSheet.qml
 RoomSlot 1.0 RoomSlot.qml

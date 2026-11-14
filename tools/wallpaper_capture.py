@@ -5,6 +5,7 @@
 
 FOLDER (default ~/Pictures/Wallpapers) is only listed and its images only read; nothing is set anywhere.
 """
+import base64
 import json
 from pathlib import Path
 import signal
@@ -20,6 +21,10 @@ sys.path.insert(0, str(ROOT))
 from core.wallpaper import Wallpaper  # noqa: E402
 from core.palette_catalog import normalize  # noqa: E402
 from adapters.common.wallpaper_colors import argv, roles  # noqa: E402
+
+
+def b64(value) -> str:
+    return base64.b64encode(json.dumps(value).encode()).decode()
 
 
 def made_palette(path: str, env: dict) -> dict:
@@ -58,8 +63,10 @@ def capture(output: Path, folder: str):
                                        env=env, stdout=log, stderr=subprocess.STDOUT)
 
         def ipc(*args):
-            return subprocess.check_output(["qs", "ipc", "--pid", str(process.pid), "call", "wallpaper-fixture", *args],
-                                           env=env, text=True, stderr=subprocess.STDOUT).strip()
+            out = subprocess.check_output(["qs", "ipc", "--pid", str(process.pid), "call", "wallpaper-fixture", *args],
+                                          env=env, text=True, stderr=subprocess.STDOUT).strip()
+            assert not out.startswith(("Too many", "Not enough", "No ")), (args[0], out)
+            return out
 
         def shot(label):
             path = output / (label + ".png")
@@ -76,7 +83,7 @@ def capture(output: Path, folder: str):
                 ipc("preview", str(listing["entries"].index(images[5]))); time.sleep(1.5)
                 shot("2-wallpaper-preview")
                 ipc("colours", "true")
-                ipc("tint", json.dumps(made_palette(images[5]["path"], env))); time.sleep(1.2)
+                ipc("tint", b64(made_palette(images[5]["path"], env))); time.sleep(1.2)
                 shot("2b-preview-with-colours")
                 ipc("colours", "false")
             ipc("host", "false", "DMS is not running"); time.sleep(.5)
@@ -84,6 +91,25 @@ def capture(output: Path, folder: str):
             ipc("host", "true", "")
             ipc("open", "palette"); time.sleep(1.2)
             shot("4-palette-tab")
+            if len(images) > 12:
+                looks = []
+                for (name, index, form, theme) in (("Mountain Morning", 5, "fluid", "amoledBlack"),
+                                                   ("Red Signal", 1, "angular", "oxeoDeep"), ("Forest", 2, "fluid", "")):
+                    colors = made_palette(images[index]["path"], env)
+                    looks.append(dict(name=name, wallpaper=images[index]["path"], palette="wall:" + images[index]["path"],
+                                      paletteName=Path(images[index]["path"]).stem[:24], islandForm=form, hostTheme=theme,
+                                      swatch=[colors[r] for r in ("background", "surface", "accent", "highlight")],
+                                      colors=colors, missing=[]))
+                looks.append(dict(name="Old Look", wallpaper="/gone/old.jpg", palette="", paletteName="", islandForm="angular",
+                                  hostTheme="purple", swatch=[], missing=["wallpaper", "hostTheme"]))
+                ipc("presets", b64(looks))
+                assert json.loads(ipc("state"))["looks"] == len(looks)
+                ipc("open", "presets"); time.sleep(1.5)
+                shot("6-presets")
+                ipc("previewPreset", "0"); time.sleep(1.5)
+                shot("7-preset-preview")
+                ipc("previewPreset", "1"); time.sleep(1.5)
+                shot("8-preset-preview-red")
             ipc("empty", "~/Pictures/Gone")
             ipc("open", "wallpaper"); time.sleep(1.2)
             shot("5-no-folder")

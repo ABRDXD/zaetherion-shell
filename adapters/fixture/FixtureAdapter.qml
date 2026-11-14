@@ -62,6 +62,12 @@ HostAdapter {
     osd: OsdDomain { available: true }
     capture: CaptureDomain { available: true }
     // Sample paths only; set() is logged and taken as applied, nothing real is touched.
+    hostTheme: HostThemeDomain {
+        recordCalls: true
+        available: true
+        current: "amoledBlack"
+        function set(id: string) { record("set", [id]); current = id; }
+    }
     wallpaper: WallpaperDomain {
         recordCalls: true
         available: true

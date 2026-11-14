@@ -2,6 +2,7 @@
 module qs.adapters.dms
 DmsAdapter 1.0 DmsAdapter.qml
 DmsFeed 1.0 DmsFeed.qml
+DmsHostTheme 1.0 DmsHostTheme.qml
 DmsKeybinds 1.0 DmsKeybinds.qml
 DmsLink 1.0 DmsLink.qml
 DmsNetwork 1.0 DmsNetwork.qml

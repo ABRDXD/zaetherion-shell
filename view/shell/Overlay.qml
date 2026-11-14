@@ -77,6 +77,9 @@ Scope {
     readonly property var hostWallpaper: ({ available: host.wallpaper.available, current: host.wallpaper.current,
                                             perScreen: host.wallpaper.perScreen, error: host.wallpaper.error })
     onHostWallpaperChanged: if (core.connected) core.notify("wallpaper.report", hostWallpaper)
+    // The host's own theme, for presets (Z180).
+    readonly property var hostTheme: ({ available: host.hostTheme.available, current: host.hostTheme.current, error: host.hostTheme.error })
+    onHostThemeChanged: if (core.connected) core.notify("hosttheme.report", hostTheme)
     onOpenedChanged: { Host.panelOpen = opened; reportState(); }
     // The core reaps a closed view, ends panel leases and decides Super+` folds (Q7) from these reports.
     function reportState() {
@@ -92,6 +95,7 @@ Scope {
             if (!root.core.connected) return;
             root.reportState();
             root.core.notify("wallpaper.report", root.hostWallpaper);
+            root.core.notify("hosttheme.report", root.hostTheme);
         }
         function onCommand(action, page, from, extra) {
             coldProbe.mark("command");

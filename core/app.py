@@ -18,6 +18,7 @@ from core.hostcalls import HostCalls
 from core.island import Island
 from core.palette import MADE as MADE_PALETTE, Palette
 from core.wallpaper import Wallpaper, kind_of
+from core.presets import Presets
 from core.ignite import LOST, Ignite
 from core.notification_mirror import Mirror
 from core.notifications import Inbox
@@ -73,6 +74,9 @@ class Core:
         self.island = Island(state_dir)
         self.palette = Palette(state_dir)
         self.wallpaper = Wallpaper(state_dir)
+        self.presets = Presets(state_dir)
+        # The host's own theme as the view's adapter reports it (Z180); only presets use it.
+        self.host_theme = dict(available=False, current="", error="")
         self.equalizer = Equalizer(state_dir)  # its chain only in a session that runs it (fartd attaches it)
         self.sessions.tasks_done = self.tasks.done_between
         self.sessions.music = self._session_music
@@ -98,6 +102,8 @@ class Core:
         self.view.on_closed.append(self.palette.cancel)
         server.on_disconnect.append(self.wallpaper.cancel)
         self.view.on_closed.append(self.wallpaper.cancel)
+        server.on_disconnect.append(self.presets_cancel_for)
+        self.view.on_closed.append(self.presets_cancel_for)
         self.overdrive.on_release = self.view.check_idle_reap
         session_guard = self.guards.by_name.get("session")
         if session_guard:
@@ -110,6 +116,8 @@ class Core:
             server.topic(name, owner.snapshot)
             if name != "view":
                 owner.on_change = partial(server.publish, name)
+        server.topic("presets", self.presets_snapshot)
+        self.presets.on_change = partial(server.publish, "presets")
         server.topic("core", self.core_snapshot)
         # Always offered, so a view can subscribe whether or not this core supervises DMS: it reads DMS's socket
         # here (children.dms.socket, docs/SUPERVISOR.md §13), which changes with every DMS restart.
@@ -233,6 +241,14 @@ class Core:
         op("wallpaper.folder", lambda peer, folder: w.set_folder(folder))
         op("wallpaper.choose", lambda peer, name: self.wallpaper_choose(w.resolve(name)))
         op("wallpaper.report", self.wallpaper_report)
+        op("hosttheme.report", self.host_theme_report)
+        p = self.presets
+        op("presets.save", lambda peer, name: (p.save(name, self.current_look()), self.presets_snapshot())[1])
+        op("presets.rename", lambda peer, name, new: (p.rename(name, new), self.presets_snapshot())[1])
+        op("presets.delete", lambda peer, name: (p.delete(name), self.presets_snapshot())[1])
+        op("presets.preview", self.presets_preview)
+        op("presets.cancel", lambda peer: (self.presets_cancel_for(peer), self.presets_snapshot())[1])
+        op("presets.apply", lambda peer, name: self.presets_apply(name))
         e = self.equalizer
         op("eq.enable", lambda peer, on: e.set_on(on))
         op("eq.band", lambda peer, index, gain: e.set_band(index, gain))
@@ -436,6 +452,92 @@ class Core:
         if not on and (self.palette.preview or "").startswith(MADE_PALETTE):
             self.palette.cancel()
         return result
+
+    def host_theme_report(self, peer, available=False, current="", error=""):
+        if peer is not self.view.client:
+            raise OpError("refused", "only the view reports the host's theme")
+        state = dict(available=bool(available), current=current if isinstance(current, str) else "",
+                     error=error if isinstance(error, str) else "")
+        if state != self.host_theme:
+            self.host_theme = state
+            self.server.publish("presets")
+        return state
+
+    # Presets (Z180): a look is stored by core/presets.py and previewed or applied through its parts' owners.
+
+    def current_look(self) -> dict:
+        return dict(wallpaper=self.wallpaper.host["current"], palette=self.palette.name,
+                    islandForm=self.island.state["form"], hostTheme=self.host_theme["current"])
+
+    def _missing(self, look: dict) -> list:
+        missing = []
+        if look["wallpaper"] and not Path(look["wallpaper"]).is_file():
+            missing.append("wallpaper")
+        if look["palette"] and look["palette"] not in self.palette.entries:
+            missing.append("palette")
+        if look["hostTheme"] and not self.host_theme["available"]:
+            missing.append("hostTheme")
+        return missing
+
+    def presets_snapshot(self) -> dict:
+        looks = []
+        for look in self.presets.looks:
+            entry = self.palette.entries.get(look["palette"])
+            looks.append(dict(look, missing=self._missing(look), paletteName=entry["name"] if entry else "",
+                              swatch=[entry["colors"][r] for r in ("background", "surface", "accent", "highlight")] if entry else []))
+        return dict(looks=looks, preview=self.presets.preview, current=self.current_look(), hostTheme=dict(self.host_theme))
+
+    def presets_preview(self, peer, name):
+        look = self.presets.resolve(name)
+        if look["palette"] in self.palette.entries:
+            self.palette.preview_name(look["palette"], peer)
+        elif self.palette.owner is peer:
+            self.palette.cancel(peer)
+        if look["islandForm"]:
+            self.island.preview_form(look["islandForm"], peer)
+        else:
+            self.island.cancel(peer)
+        self.presets.mark_preview(look["name"], peer)
+        return self.presets_snapshot()
+
+    def presets_cancel_for(self, owner=None):
+        """Disconnect (owner) or fold (no owner): a preset's preview ends with all its parts."""
+        if self.presets.cancel(owner):
+            self.palette.cancel(owner)
+            self.island.cancel(owner)
+        elif owner is None:
+            self.island.cancel()
+
+    async def presets_apply(self, name) -> dict:
+        look = dict(self.presets.resolve(name))
+        applied, skipped = [], []
+        self.presets.cancel()
+        self.island.cancel()
+        if look["palette"]:
+            if look["palette"] in self.palette.entries:
+                self.palette.choose(look["palette"])
+                applied.append("palette")
+            else:
+                skipped.append("palette")
+        if look["islandForm"]:
+            self.island.set(form=look["islandForm"])
+            applied.append("islandForm")
+        if look["wallpaper"]:
+            w = self.wallpaper
+            if Path(look["wallpaper"]).is_file() and w.host["available"] and not w.host["perScreen"]:
+                await self.hostcalls.call("wallpaper", "set", [look["wallpaper"]], ready="available", hold=0)
+                w.applied(look["wallpaper"])  # the preset's palette wins over colours from the wallpaper
+                applied.append("wallpaper")
+            else:
+                skipped.append("wallpaper")
+        if look["hostTheme"]:
+            if self.host_theme["available"]:
+                await self.hostcalls.call("hostTheme", "set", [look["hostTheme"]], ready="available", hold=0)
+                applied.append("hostTheme")
+            else:
+                skipped.append("hostTheme")
+        self.server.publish("presets")
+        return dict(name=look["name"], applied=applied, skipped=skipped)
 
     async def _wallpaper_palette(self, path: str, peer=None):
         """With colours on: a palette from the image, previewed with it (peer) or saved with it (Z179)."""

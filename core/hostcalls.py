@@ -33,6 +33,7 @@ CALLS = {
     "media": {None, "togglePlaying", "next", "previous"},
     "hostActions": {None, "open", "openLauncher"},
     "wallpaper": {None, "set"},
+    "hostTheme": {None, "set"},
 }
 LEASES = {"audio": {"mixer"}, "power": {"brightness"}}
 PATH = re.compile(r"^[A-Za-z][A-Za-z0-9]*(\.[A-Za-z][A-Za-z0-9]*){0,3}$")

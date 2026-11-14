@@ -37,8 +37,29 @@ class Island:
             return isinstance(value, str) and len(value) <= 64
         return key in CHOICES and value in CHOICES[key]
 
+    # A preset previews its form (Z180) the way the palette previews colours: owned, never written.
+    preview = None
+    owner = None
+
     def snapshot(self) -> dict:
-        return dict(self.state)
+        snapshot = dict(self.state)
+        if self.preview:
+            snapshot.update(form=self.preview, savedForm=self.state["form"])
+        return snapshot
+
+    def preview_form(self, form, owner) -> dict:
+        if not self._valid("form", form):
+            raise bad_args(f"island form: {form!r} is not one of " + ", ".join(CHOICES["form"]))
+        if form != self.preview or owner is not self.owner:
+            self.preview, self.owner = form, owner
+            self.on_change()
+        return self.snapshot()
+
+    def cancel(self, owner=None) -> dict:
+        if self.preview is not None and (owner is None or owner is self.owner):
+            self.preview, self.owner = None, None
+            self.on_change()
+        return self.snapshot()
 
     def set(self, **changes) -> dict:
         for key, value in changes.items():

@@ -32,6 +32,7 @@ HostAdapter {
     keybinds: DmsKeybinds { link: link }
     power: DmsPower {}
     wallpaper: DmsWallpaper { link: link }
+    hostTheme: DmsHostTheme { link: link }
     tray: QuickshellTray {}
     system: LinuxSystem {}
 

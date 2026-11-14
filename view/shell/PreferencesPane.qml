@@ -116,13 +116,13 @@ Item {
                 active: root.expanded && visible
                 onCloseRequested: root.closed()
             }
-            ColumnLayout {
+            PresetPicker {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 visible: root.section === "presets"
-                FText { text: "PRESETS"; technical: true; color: Design.accent }
-                FText { Layout.fillWidth: true; aside: true; text: "Saved looks come next."; color: Design.muted }
-                Item { Layout.fillHeight: true }
+                core: root.core
+                active: root.expanded && visible
+                onCloseRequested: root.closed()
             }
         }
     }
