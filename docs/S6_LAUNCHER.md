@@ -100,7 +100,8 @@ folders.
 Super tap and Super+Space move from DMS's spotlight to ours (option B's `global` dispatcher). The old lines are kept
 commented, so rolling back is restoring them and `hyprctl reload`.
 
-## 7. Open questions for the owner
+## 7. The owner's answers (14 November 2026)
 
-1. Keep DMS's spotlight reachable on another key during the trial, or replace it outright?
-2. Brave for `?term` (Z28) still right?
+1. **DMS's spotlight stays reachable on another key during the trial**; ours takes Super tap and Super+Space. Which
+   key keeps the spotlight is the owner's pick when the binds change (and a setting, Z176).
+2. **Brave stays the browser for `?term`** (Z28); the engine and browser are settings (§5).
