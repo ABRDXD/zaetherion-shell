@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.adapters.common
 import qs.adapters.hyprland
 import qs.adapters.quickshell
@@ -46,12 +47,24 @@ HostAdapter {
             // Our own equaliser (Z173), run by the core. If it cannot be made, audio keeps the placeholder's.
             create("../common/CoreEqualizer.qml", { core: root.core }, equalizer => domain.equalizer = equalizer);
         });
-        create("DmsNotifications.qml", { core: root.core }, domain => root.notifications = domain);
+        if (!serverAtStart)
+            createNotifications();
         create("../common/LyricsSource.qml", { media: root.media }, domain => root.lyrics = domain);
         create("../common/CliphistClipboard.qml", {}, domain => root.clipboard = domain);
     }
+    // With our notification server on (Z169), the notifications domain runs it, so it loads at start: until it
+    // does, nobody holds the bus name and notifications sent meanwhile are lost.
+    readonly property bool serverAtStart: Quickshell.env("FART_NOTIFICATION_SERVER") === "1"
+    function createNotifications() {
+        create("DmsNotifications.qml", { core: root.core }, domain => root.notifications = domain);
+    }
     // The OSD is at rest with the island (Z138), so it does not wait for the panel's first open.
-    Component.onCompleted: if (osdWanted) create("DmsOsd.qml", { link: link }, domain => root.osd = domain)
+    Component.onCompleted: {
+        if (osdWanted)
+            create("DmsOsd.qml", { link: link }, domain => root.osd = domain);
+        if (serverAtStart)
+            createNotifications();
+    }
     function create(file, properties, done) {
         DeferredCreate.create(root, Qt.resolvedUrl(file), properties, done, "dms:");
     }

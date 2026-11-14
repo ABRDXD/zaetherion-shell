@@ -23,13 +23,15 @@ PIXEL = '{"image-data": <(1,1,4,true,8,4,[byte 255,0,0,255])>}'
 
 @unittest.skipIf(notiftest.missing(), "needs " + ", ".join(notiftest.missing()))
 class Base(unittest.TestCase):
+    harness = notiftest.HARNESS
+
     def setUp(self):
         self.tmp = dmstest.private_dir()
         self.addCleanup(self.tmp.cleanup)
         self.dir = Path(self.tmp.name)
         self.bus = notiftest.Bus()
         self.addCleanup(self.bus.stop)
-        self.view = notiftest.View(self.dir)
+        self.view = notiftest.View(self.dir, self.harness)
         self.addCleanup(self.view.stop)
         self.core = None
 
@@ -244,6 +246,17 @@ class LifetimeTests(Base):
         self.assertEqual((state["source"], state["items"]), ("server", []))   # the other server's items went with it
         self.bus.send("to ours", "Synthetic body")
         self.assertEqual([(i["summary"], i["live"]) for i in self.items(1)], [("to ours", True)])
+
+
+class AtStartTests(Base):
+    """Through the whole DMS adapter, with the panel never opened (go-live, 14 November 2026)."""
+    harness = "AdapterNotificationHarness.qml"
+
+    def test_the_server_holds_the_name_before_the_panel_ever_opens(self):
+        view = self.serving()
+        self.assertFalse(view.state()["deferred"])
+        self.bus.send("before any open", "Synthetic body")
+        self.assertEqual([(i["summary"], i["live"]) for i in self.items(1)], [("before any open", True)])
 
 
 if __name__ == "__main__":

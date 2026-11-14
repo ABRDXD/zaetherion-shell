@@ -123,8 +123,8 @@ class SpawnedView:
 class View(dmstest.Harness):
     """The harness as the core's resident view: prepared here, started and restarted by the core."""
 
-    def __init__(self, directory: Path):
-        self.prepare("", directory, HARNESS)
+    def __init__(self, directory: Path, harness: str = HARNESS):
+        self.prepare("", directory, harness)
         self.log = open(directory / "qs.log", "a")   # the core appends the view's console here
         self.process = None
 
