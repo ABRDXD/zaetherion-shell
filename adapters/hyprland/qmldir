@@ -2,4 +2,5 @@
 module qs.adapters.hyprland
 HyprlandKeybinds 1.0 HyprlandKeybinds.qml
 HyprlandLauncherShortcut 1.0 HyprlandLauncherShortcut.qml
+HyprlandSpawner 1.0 HyprlandSpawner.qml
 HyprlandWorkspaces 1.0 HyprlandWorkspaces.qml

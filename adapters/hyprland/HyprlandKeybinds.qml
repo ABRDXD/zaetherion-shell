@@ -13,6 +13,7 @@ KeybindsDomain {
         enabled: Quickshell.env("FART_LAUNCHER_SHORTCUT") === "1"
         onPressed: root.launcherPressed()
         onReleased: root.launcherReleased()
+        onAppsPressed: root.appsPressed()
     }
     readonly property var masks: [[64, "SUPER"], [1, "SHIFT"], [4, "CTRL"], [8, "ALT"]]
     function parse(text) {

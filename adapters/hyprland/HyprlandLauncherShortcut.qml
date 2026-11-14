@@ -9,6 +9,7 @@ Scope {
     property bool enabled: false
     signal pressed()
     signal released()
+    signal appsPressed()
     LazyLoader {
         active: root.enabled
         GlobalShortcut {
@@ -17,6 +18,15 @@ Scope {
             description: "ZÆTHERION: command line (hold to ignite)"
             onPressed: root.pressed()
             onReleased: root.released()
+        }
+    }
+    LazyLoader {
+        active: root.enabled
+        GlobalShortcut {
+            appid: "zaetherion"
+            name: "apps"
+            description: "ZÆTHERION: launcher"
+            onPressed: root.appsPressed()
         }
     }
 }

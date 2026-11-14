@@ -62,6 +62,18 @@ HostAdapter {
         current: ({ icon: "cloud", tempC: 24 })
     }
     osd: OsdDomain { available: true }
+    // Neutral sample apps for the launcher; launches are only recorded.
+    apps: AppsDomain {
+        available: true
+        recordCalls: true
+        entries: [{ id: "sample-browser", name: "Sample Browser", genericName: "Web Browser", comment: "Browse the web", icon: "", keywords: ["internet"], terminal: false },
+                  { id: "sample-editor", name: "Sample Editor", genericName: "Text Editor", comment: "Edit text", icon: "", keywords: [], terminal: false },
+                  { id: "sample-files", name: "Sample Files", genericName: "File Manager", comment: "Browse files", icon: "", keywords: ["folder"], terminal: false },
+                  { id: "sample-monitor", name: "Sample Monitor", genericName: "", comment: "Process viewer", icon: "", keywords: [], terminal: true },
+                  { id: "sample-music", name: "Sample Music", genericName: "Music Player", comment: "Play music", icon: "", keywords: ["audio"], terminal: false },
+                  { id: "sample-terminal", name: "Sample Terminal", genericName: "Terminal Emulator", comment: "A terminal", icon: "", keywords: ["shell"], terminal: false },
+                  { id: "sample-game", name: "Sample Steam", genericName: "Game Store", comment: "Games", icon: "", keywords: [], terminal: false }]
+    }
     capture: CaptureDomain { available: true }
     keybinds: KeybindsDomain {
         id: fixtureKeybinds
@@ -71,6 +83,7 @@ HostAdapter {
             enabled: Quickshell.env("FART_LAUNCHER_SHORTCUT") === "1"
             onPressed: fixtureKeybinds.launcherPressed()
             onReleased: fixtureKeybinds.launcherReleased()
+            onAppsPressed: fixtureKeybinds.appsPressed()
         }
         capsLock: true
         numLock: true

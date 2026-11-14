@@ -16,6 +16,7 @@ from core.genealogy import Genealogy
 from core.guards import BatteryGuard, FullscreenGuard, Guards, SessionGuard, focused_fullscreen
 from core.hostcalls import HostCalls
 from core.island import Island
+from core.launcher import Launcher
 from core.palette import Palette
 from core.ignite import LOST, Ignite
 from core.notification_mirror import Mirror
@@ -71,6 +72,9 @@ class Core:
         self.sessions = Sessions(clock, scheduler, host, state_dir)
         self.island = Island(state_dir)
         self.palette = Palette(state_dir)
+        # The launcher's apps (S6): the old launcher's counts come from the host profile, once (Z136).
+        self.launcher = Launcher(clock, state_dir, imported=getattr(host.profile, "launch_history", lambda: None),
+                                 session_active=self.sessions.active)
         self.equalizer = Equalizer(state_dir)  # its chain only in a session that runs it (fartd attaches it)
         self.sessions.tasks_done = self.tasks.done_between
         self.sessions.music = self._session_music
@@ -101,7 +105,7 @@ class Core:
 
         for name, owner in (("timers", self.timers), ("tasks", self.tasks), ("notifications", self.inbox),
                             ("overdrive", self.overdrive), ("session", self.sessions), ("island", self.island), ("palette", self.palette),
-                            ("equalizer", self.equalizer), ("view", self.view)):
+                            ("equalizer", self.equalizer), ("launcher", self.launcher), ("view", self.view)):
             server.topic(name, owner.snapshot)
             if name != "view":
                 owner.on_change = partial(server.publish, name)
@@ -289,6 +293,13 @@ class Core:
         op("sfx.play", lambda peer, cue: self.sfx.emit_from_view(cue) if peer is self.view.client else self._refuse("only the view reports UI cues"))
         op("sfx.stop", lambda peer, cue: self.sfx.stop_from_view(cue) if peer is self.view.client else self._refuse("only the view stops UI cues"))
         op("sfx.configure", lambda peer, cues: self.sfx.configure(cues))
+
+        a = self.launcher
+        op("apps.index", lambda peer, entries: a.index(entries) if peer.kind == "view" else self._refuse("only the view indexes apps"))
+        op("launcher.query", lambda peer, text="", limit=None: a.query(text, limit))
+        op("launcher.launch", lambda peer, id: a.launch(id))
+        op("launcher.configure", lambda peer, **changes: a.configure(**changes))
+        op("launcher.forget", lambda peer: a.forget())
 
         c = self.commands
         op("cmd.run", lambda peer, line, fallthrough=None, record=None: c.run(line, peer.kind, fallthrough, record))
