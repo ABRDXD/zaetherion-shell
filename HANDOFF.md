@@ -1,3 +1,12 @@
+# 14 November 2026 · Opus (Claude A): S6 started; the first open keeps every key
+
+- **Design.** `docs/S6_LAUNCHER.md` (F4 draft): where keys go when the launcher opens, measured with `tools/launcher_keycheck.py` (nested Hyprland, fixture adapter, a focused app logging its keys, `wtype`). Today's path (bind → `zaetherion key` → core → view) takes 85–89 ms median with the view up, worst 128, and drops ~3 in 10 presses whose press and release arrive together. A Hyprland global shortcut handled in the view (option B) takes ~60 ms, worst 85, and never dropped one. Plan: B now, the launcher grown out of the island (C) to close the rest. Owner: keep DMS's spotlight on another key during the trial; Brave for `?term`.
+- **Bug fixed (live).** The first open after the view starts lost every key: Hyprland moved the keyboard from the panel to the island named after it in the focus grab. Panel last in `HyprlandFocusGrab.windows` (`bb511d1`): 0 lost in 160 trials; the owner confirmed on the live desktop after a restart.
+- **Shortcut.** `adapters/hyprland/HyprlandLauncherShortcut.qml` is the one file that may hold a `GlobalShortcut`, off unless `FART_LAUNCHER_SHORTCUT=1`; `KeybindsDomain.launcherPressed/Released` carry it to the view. The layout law says exactly that. Not bound on the live session.
+- **Checks.** Full suite 954 OK on `2d04d4f`. Main checkout fast-forwarded; core restarted with the S4 settings.
+- **Prompts written** for Claude B (wallpaper/presets, Z177+), C (clipboard from the island, calmer island rest, Z180+), D (Wi-Fi and Bluetooth in FART, Z190+). Launcher decisions: Z185+.
+- **Next.** The launcher itself: apps domain in the adapter, frecency in the core (import `launch_stats.json`, Z136), matching in the core, the surface grown from the island.
+
 # 14 November 2026 · Opus (Claude A): S4 live; our notification server starts with the desktop
 
 - **Live (owner present).** S5 (`s5-sfx`) merged into `s0-seed` (`39719a2`, 948 OK); main checkout fast-forwarded. Core started with `FART_VIEW_ENTRY=<repo>/shell-dms.qml`, `FART_RESIDENT_VIEW=1`, `FART_NOTIFICATION_SERVER=1`, `FART_RESIDENT_DIR=~/.local/state/zaetherion/dms-quiet`. Quiet copy matched the running DMS (`9483c24f0a364ed0`); `dms_quiet_check.py` 12/12. The owner watched the matrix pass: normal, low, critical (stays), an action (`ok` returned), a picture, a replace-id, expiry, DND on (normal held, critical through) and off; all listed in FART's Inbox. Wi-Fi, tray, media, audio, battery, logout card and lock work.
