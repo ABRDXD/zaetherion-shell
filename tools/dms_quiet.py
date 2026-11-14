@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Build DMS's own UI without its notification server ("quiet DMS"), so ours can hold the bus name.
+"""Build DMS's own UI without its notification server ("quiet DMS"), so ours can hold the bus name; it also leaves
+NetworkManager's password prompts and BlueZ's pairing prompts to FART (Z191).
 
 DMS has no switch for its notification server: `Services/NotificationService.qml` declares one
 `NotificationServer`, and Quickshell claims `org.freedesktop.Notifications` when that object is made.
@@ -35,6 +36,15 @@ BAR = Path("Modules/DBar/DBarBody.qml")
 # nothing; a shown one is unchanged.
 BAR_FROM = "readonly property real surfaceExclusiveZone: isIsland ? ((islandFree || "
 BAR_TO = "readonly property real surfaceExclusiveZone: isIsland ? (!(barConfig?.visible ?? true) ? -1 : (islandFree || "
+# DMS's own password and pairing windows (docs/NET_BT.md §1, Z191). DMS's backend is NetworkManager's secret agent and
+# BlueZ's pairing agent, and broadcasts each prompt to every subscriber; DMS's UI would open its own window beside
+# FART's and cancel our token. Each handler gets an early return, so the prompt is left to FART; the rest of DMS's
+# Wi-Fi and Bluetooth UI is unchanged.
+PROMPTS = (
+    (Path("DMSShell.qml"), "function onCredentialsNeeded(token, ssid, setting, fields, hints, reason, connType, connName, vpnService, fieldsInfo) {"),
+    (Path("Modules/ControlCenter/Details/BluetoothDetail.qml"), "function onBluetoothPairingRequest(data) {"),
+)
+PROMPT_NOTE = "return; // ZÆTHERION tools/dms_quiet.py: FART answers this prompt (docs/NET_BT.md, Z191)"
 MARKER = ".zaetherion-quiet"
 PROGRAM = ".zaetherion-dms"
 OPENING = re.compile(r"^(?P<indent>[ \t]*)NotificationServer\s*\{", re.M)
@@ -90,6 +100,18 @@ def hidden_bar_reserves_nothing(text: str) -> str:
     return text.replace(BAR_FROM, BAR_TO)
 
 
+def prompt_left_to_fart(text: str, path: Path, opening: str) -> str:
+    """The file with one prompt handler returning at once. Refuses a file without exactly one such handler."""
+    lines = text.split("\n")
+    found = [i for i, line in enumerate(lines) if line.strip() == opening]
+    if len(found) != 1:
+        raise ValueError(f"{path}: expected one '{opening}', found {len(found)}")
+    i = found[0]
+    indent = lines[i][: len(lines[i]) - len(lines[i].lstrip())]
+    lines.insert(i + 1, indent + "    " + PROMPT_NOTE)
+    return "\n".join(lines)
+
+
 def running_source() -> Path:
     """The UI folder the running DMS's Quickshell was started with (`qs -p <dir>`)."""
     out = subprocess.run(["pgrep", "-a", "-x", "qs"], capture_output=True, text=True).stdout
@@ -137,6 +159,7 @@ def build(source: Path, out: Path) -> Path:
     text = (source / SERVICE).read_text()
     patched = quiet(text)  # before any copying: a DMS we don't understand leaves nothing behind
     bar = hidden_bar_reserves_nothing((source / BAR).read_text())
+    prompts = {path: prompt_left_to_fart((source / path).read_text(), path, opening) for path, opening in PROMPTS}
     if out.exists():
         if not (out / MARKER).is_file():
             raise SystemExit(f"dms_quiet: {out} exists and is not a quiet copy; not touching it")
@@ -147,6 +170,8 @@ def build(source: Path, out: Path) -> Path:
             path.chmod(path.stat().st_mode | 0o200)
     (out / SERVICE).write_text(patched)
     (out / BAR).write_text(bar)
+    for path, text in prompts.items():
+        (out / path).write_text(text)
     (out / MARKER).write_text(revision(source) + "\n")
     (out / PROGRAM).write_text(program_stamp() + "\n")
     return out
@@ -168,6 +193,13 @@ def check(directory: Path) -> list[str]:
         if path != service and OPENING.search(path.read_text(errors="replace")):
             problems.append(f"{path.relative_to(directory)} declares a NotificationServer")
     return problems
+
+
+def prompt_problems(directory: Path) -> list[str]:
+    """Which of DMS's own prompt windows a copy still opens (Z191). Not part of check(): a copy made before Z191 still
+    runs our notification server at login; DMS's window then shows beside FART's until the copy is rebuilt."""
+    return [f"{path} still opens DMS's own window" for path, _ in PROMPTS
+            if not (directory / path).is_file() or PROMPT_NOTE not in (directory / path).read_text()]
 
 
 def default_out() -> Path:
@@ -194,6 +226,8 @@ def main(argv=None) -> int:
     problems = check(args.directory) if args.command == "check" else fits(args.directory)
     for problem in problems:
         print("dms_quiet:", problem, file=sys.stderr)
+    for warning in prompt_problems(args.directory):
+        print("dms_quiet: warning:", warning, "(rebuild the copy to leave it to FART)", file=sys.stderr)
     return 1 if problems else 0
 
 

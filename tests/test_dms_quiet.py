@@ -36,6 +36,69 @@ BAR_LINE = ("    readonly property real surfaceExclusiveZone: isIsland ? ((islan
             "(barWindow.effectiveBarThickness + effectiveSpacing)\n")
 
 
+PROMPT_FILES = {
+    "DMSShell.qml": """Item {
+    Connections {
+        target: NetworkService
+
+        function onCredentialsNeeded(token, ssid, setting, fields, hints, reason, connType, connName, vpnService, fieldsInfo) {
+            wifiPasswordModalLoader.active = true;
+        }
+    }
+}
+""",
+    "Modules/ControlCenter/Details/BluetoothDetail.qml": """Item {
+    Connections {
+        target: DMSService
+
+        function onBluetoothPairingRequest(data) {
+            modal.show(data);
+        }
+    }
+}
+""",
+}
+
+
+def write_prompts(base, patched=False):
+    for name, text in PROMPT_FILES.items():
+        path = Path(base) / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        opening = next(o for f, o in dms_quiet.PROMPTS if str(f) == name)
+        path.write_text(dms_quiet.prompt_left_to_fart(text, Path(name), opening) if patched else text)
+
+
+class PromptTest(unittest.TestCase):
+    """DMS's own password and pairing windows are left out, so FART's answer the prompts (Z191)."""
+
+    def test_each_handler_returns_at_once_and_nothing_else_changes(self):
+        for name, text in PROMPT_FILES.items():
+            opening = next(o for f, o in dms_quiet.PROMPTS if str(f) == name)
+            out = dms_quiet.prompt_left_to_fart(text, Path(name), opening)
+            lines = out.split("\n")
+            i = next(n for n, l in enumerate(lines) if l.strip() == opening)
+            self.assertEqual(lines[i + 1].strip(), dms_quiet.PROMPT_NOTE)
+            self.assertEqual(lines[i + 1].index("return"), lines[i].index("function") + 4)
+            self.assertEqual(out.replace(lines[i + 1] + "\n", ""), text)
+
+    def test_refuses_a_file_without_exactly_one_handler(self):
+        path, opening = dms_quiet.PROMPTS[0]
+        with self.assertRaises(ValueError):
+            dms_quiet.prompt_left_to_fart("Item {}", path, opening)
+        with self.assertRaises(ValueError):
+            dms_quiet.prompt_left_to_fart(f"{opening}\n}}\n{opening}\n}}", path, opening)
+
+    def test_the_installed_dms_has_exactly_the_handlers_it_patches(self):
+        import os
+        runtime = Path(os.environ.get("XDG_RUNTIME_DIR", "/nonexistent")) / "dms-shell"
+        sources = [d for d in (runtime.iterdir() if runtime.is_dir() else []) if (d / "DMSShell.qml").is_file()]
+        if not sources:
+            self.skipTest("no DMS UI extracted on this machine")
+        for source in sources:      # read only
+            for path, opening in dms_quiet.PROMPTS:
+                dms_quiet.prompt_left_to_fart((source / path).read_text(), path, opening)
+
+
 class QuietTest(unittest.TestCase):
     def test_a_hidden_island_bar_reserves_nothing(self):
         out = dms_quiet.hidden_bar_reserves_nothing(BAR_LINE)
@@ -75,10 +138,14 @@ class QuietTest(unittest.TestCase):
             (source / ".dankrev").write_text("abc\n")
             (source / "Modules/DBar").mkdir(parents=True)
             (source / "Modules/DBar/DBarBody.qml").write_text(BAR_LINE)
+            write_prompts(source)
             self.assertEqual(dms_quiet.check(source)[0], "not made by dms_quiet (no marker)")
+            self.assertIn("DMSShell.qml still opens DMS's own window", dms_quiet.prompt_problems(source))
             dms_quiet.build(source, out)
             self.assertEqual(dms_quiet.check(out), [])
+            self.assertEqual(dms_quiet.prompt_problems(out), [])
             self.assertEqual((out / dms_quiet.MARKER).read_text().strip(), "abc")
+            self.assertNotIn(dms_quiet.PROMPT_NOTE, (source / "DMSShell.qml").read_text())      # the source is untouched
             self.assertIn("NotificationServer {", (source / "Services/NotificationService.qml").read_text())
             dms_quiet.build(source, out)  # rebuilds over its own copy
             other = Path(d) / "other"
@@ -103,6 +170,7 @@ class FitsTest(unittest.TestCase):
         (self.copy / dms_quiet.SERVICE).write_text(dms_quiet.quiet(SERVICE))
         (self.copy / dms_quiet.BAR).parent.mkdir(parents=True)
         (self.copy / dms_quiet.BAR).write_text(dms_quiet.hidden_bar_reserves_nothing(BAR_LINE))
+        write_prompts(self.copy, patched=True)
         (self.copy / dms_quiet.MARKER).write_text("rev\n")
 
     def stamp(self):
@@ -119,6 +187,13 @@ class FitsTest(unittest.TestCase):
 
     def test_a_copy_with_no_record_does_not_fit(self):
         self.assertIn("records no dms program", " ".join(dms_quiet.fits(self.copy, str(self.program))))
+
+    def test_a_copy_made_before_z191_still_fits_with_a_warning(self):
+        self.stamp()
+        for path, _ in dms_quiet.PROMPTS:
+            (self.copy / path).unlink()
+        self.assertEqual(dms_quiet.fits(self.copy, str(self.program)), [])
+        self.assertEqual(len(dms_quiet.prompt_problems(self.copy)), 2)
 
     def test_a_copy_that_is_not_quiet_does_not_fit(self):
         self.stamp()
