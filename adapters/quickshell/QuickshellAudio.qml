@@ -6,7 +6,8 @@ import qs.view.contract
 
 AudioDomain {
     id: root
-    readonly property var nodes: Pipewire.nodes.values
+    // Our equaliser's two nodes (core/eq_chain.py NODE_NAME) are neither a device to pick nor an app's stream.
+    readonly property var nodes: Pipewire.nodes.values.filter(n => !(n.name ?? "").startsWith("zaetherion_eq"))
     readonly property var sinkNode: Pipewire.defaultAudioSink
     readonly property var sourceNode: Pipewire.defaultAudioSource
     readonly property var deviceNodes: nodes.filter(n => n.audio && !n.isStream)

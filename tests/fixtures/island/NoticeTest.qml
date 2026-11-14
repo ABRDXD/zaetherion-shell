@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import qs.adapters.fixture
+import qs.adapters.quickshell
 import qs.core.client
 import qs.view.shell
 import qs.view.ui
@@ -64,7 +65,16 @@ ShellRoot {
                 break;
             case 3:
                 root.check(root.entry("a") === null, "a change that is not an arrival shows nothing");
-                root.check(root.entry("b")?.remaining === events.durations.notification, "our own showing time");
+                root.check(root.entry("b")?.remaining === events.durations.notification && events.durations.notification === 3000, "our own showing time");
+                root.check(NotificationTiming.showMs(-1, "normal") === 3000 && NotificationTiming.showMs(-1, "low") === 3000
+                    && NotificationTiming.showMs(-1, "critical") === 0 && NotificationTiming.showMs(8000, "normal") === 8000,
+                    "the adapter's default is 3 s and honours the sender");
+                root.check(events.showTime({ timeout: 10000, urgency: "normal" }) === 6000
+                    && events.showTime({ timeout: 6000, urgency: "low" }) === 6000, "the island caps a sender's long time at 6 s");
+                root.check(events.showTime({ timeout: 4000, urgency: "normal" }) === 4000, "a shorter sender time is kept");
+                root.check(events.showTime({ timeout: 10000, urgency: "critical" }) === 10000
+                    && events.showTime({ timeout: 0, urgency: "critical" }) === null
+                    && events.showTime({ timeout: -1, urgency: "critical" }) === null, "critical is not capped");
                 root.check(root.entry("b").data.actions.length === 0 && root.entry("b").data.reply === "", "a restored item cannot be answered");
                 fixture.notifications.items = [root.item("a", 2, { live: true, timeout: 0, read: true })];
                 break;

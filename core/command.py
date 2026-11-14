@@ -14,11 +14,11 @@ from pathlib import Path
 
 from core.errors import OpError
 from core.store import read_json, write_json
-from core.verbs import clips, exhibit, hostactions, island, palette, media, modes, rooms, system, tasks, timers
+from core.verbs import clips, equalizer, exhibit, hostactions, island, palette, media, modes, rooms, system, tasks, timers
 from core.verbs.base import Result, Usage, Verb
 
 log = logging.getLogger("fart.command")
-DOMAINS = (rooms, timers, tasks, modes, island, palette, exhibit, media, system, clips, hostactions)
+DOMAINS = (rooms, timers, tasks, modes, island, palette, equalizer, exhibit, media, system, clips, hostactions)
 MAX_LINE = 1000
 HISTORY = 100
 ROOM_LABELS = {"home": "Home", "media": "Media", "performance": "Performance", "workspaces": "Workspaces",

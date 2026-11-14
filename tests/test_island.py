@@ -25,6 +25,12 @@ class IslandFrameTests(unittest.TestCase):
             "track face", "workspace flash", "memory face", "osd face", "notification face", "offscreen capture",
             "docked hands critical to FART", "docked holds ordinary", "events resume after fold"))
 
+    def test_osd_shows_in_fart_header_while_covered(self):
+        """Z174: covered by FART, the OSD goes to the header at once and is never banked for the fold."""
+        self.run_fixture("HeaderOsdTest.qml", ("covered osd shows in header", "repeat updates in place",
+            "readout sits on the header row", "muted reads MUTED", "dwell follows the last change", "leaves after 1.2 s", "header readout gone",
+            "fold replays no stale osd", "uncovered osd on island", "dock lifts osd into header", "fold hands it back"))
+
     def test_status_faces(self):
         self.run_fixture("EventTest.qml", ("recording status", "charging notice", "DND suppresses ordinary battery warning",
             "critical battery passes DND", "backend comeback", "resident restart", "timer status", "timer done", "session debrief"))
@@ -32,7 +38,17 @@ class IslandFrameTests(unittest.TestCase):
     def test_notices_follow_their_inbox_item(self):
         self.run_fixture("NoticeTest.qml", ("the sender's showing time", "a live item can be answered",
             "replace-id refreshes the card", "zero stays until dismissed", "a change that is not an arrival shows nothing",
-            "our own showing time", "a restored item cannot be answered", "closed elsewhere leaves the island"))
+            "our own showing time", "the adapter's default is 3 s and honours the sender",
+            "the island caps a sender's long time at 6 s", "a shorter sender time is kept", "critical is not capped",
+            "a restored item cannot be answered", "closed elsewhere leaves the island"))
+
+    def test_right_click_dismisses_and_card_hover_pauses(self):
+        self.run_fixture("DismissTest.qml", ("right-click is idle without a notification", "default showing time is 3 s",
+            "right-click takes only the right button", "right-click removes it from the island",
+            "right-click dismisses it in the Inbox", "critical stays until dismissed",
+            "right-click dismisses a critical notification", "pointer off the card",
+            "island hover does not pause a notification", "second notification shown", "card hover pauses a notification",
+            "leaving the card resumes the countdown"))
 
     def test_reply_draft_keeps_keyboard(self):
         self.run_fixture("ReplyTest.qml", ("rest takes no keyboard", "notice offers keyboard",

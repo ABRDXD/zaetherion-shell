@@ -29,10 +29,11 @@ SERPANTINUM = {
     "ClipboardDomain": "common/CliphistClipboard.qml",
 }
 # The same for the DMS adapter (docs/DMS_ADAPTER.md §5). Weather, osd, capture, palette, motion, sfx, clockGeometry, hostActions,
-# equalizer, bluetooth and the DMS-backed power controls are not built yet; they read "unavailable".
+# bluetooth and the DMS-backed power controls are not built yet; they read "unavailable". The equaliser is the core's (Z173).
 DMS = {
     "MediaDomain": "quickshell/QuickshellMedia.qml",
     "AudioDomain": "quickshell/QuickshellAudio.qml",
+    "EqualizerDomain": "common/CoreEqualizer.qml",
     "NetworkDomain": "dms/DmsNetwork.qml",
     "WorkspacesDomain": "hyprland/HyprlandWorkspaces.qml",
     "KeybindsDomain": "hyprland/HyprlandKeybinds.qml",

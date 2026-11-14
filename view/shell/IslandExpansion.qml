@@ -53,6 +53,8 @@ Item {
         }
     }
     readonly property bool noticeKind: kind === "notification" || kind === "critical"
+    // The pointer is over the notification card itself (Z175); the island pauses a notification's countdown only then.
+    readonly property bool noticeHovered: noticeKind && (face.item?.cardHovered ?? false)
     // Content keeps clear of the 84° shoulders at the deepest row. The frame is matte, with no facet to clear.
     readonly property real shoulderSlope: 1 / Math.tan(84 * Math.PI / 180)
     // A notice is sized by its text, so its inset uses the deepest notice, not its own depth.
@@ -153,11 +155,18 @@ Item {
             keyHeld = false;
         }
         onActiveFocusChanged: if (!activeFocus) keyHeld = false
+        // The rising charge sounds while the hold runs and is cut the moment it is released early.
+        onHoldingChanged: {
+            if (holding) Feedback.play("hold.charge");
+            else Feedback.stop("hold.charge");
+        }
         Timer {
             running: act.holding
             interval: root.holdMs
             onTriggered: {
                 act.keyHeld = false;
+                Feedback.stop("hold.charge");
+                Feedback.play("hold.confirm");
                 root.sessionAction(act.verb);
             }
         }
@@ -243,6 +252,8 @@ Item {
             readonly property var actions: root.payload.actions ?? []
             readonly property bool replies: !!root.payload.reply
             implicitHeight: column.implicitHeight
+            readonly property bool cardHovered: cardHover.hovered
+            HoverHandler { id: cardHover }
 
             MouseArea {
                 anchors.fill: parent

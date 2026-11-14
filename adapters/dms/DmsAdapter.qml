@@ -26,7 +26,7 @@ HostAdapter {
         // Passwords live in settings (Z95).
         onUnknownNetwork: root.hostActions.open("wifi")
     }
-    // audio, notifications, lyrics and clipboard: loadDeferred() below.
+    // audio (with the equaliser), notifications, lyrics and clipboard: loadDeferred() below.
     workspaces: HyprlandWorkspaces {}
     keybinds: DmsKeybinds { link: link }
     power: DmsPower {}
@@ -43,6 +43,8 @@ HostAdapter {
         create("../quickshell/QuickshellAudio.qml", {}, domain => {
             domain.osd = Qt.binding(() => root.osd.hush ? root.osd : null);
             root.audio = domain;
+            // Our own equaliser (Z173), run by the core. If it cannot be made, audio keeps the placeholder's.
+            create("../common/CoreEqualizer.qml", { core: root.core }, equalizer => domain.equalizer = equalizer);
         });
         create("DmsNotifications.qml", { core: root.core }, domain => root.notifications = domain);
         create("../common/LyricsSource.qml", { media: root.media }, domain => root.lyrics = domain);

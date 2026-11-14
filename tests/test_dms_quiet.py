@@ -30,7 +30,20 @@ Singleton {
 """
 
 
+BAR_LINE = ("    readonly property real surfaceExclusiveZone: isIsland ? ((islandFree || (islandHost?.floating ?? "
+            "SettingsData.islandSetting(barConfig, \"islandFloating\"))) ? 0 : SettingsData.islandReserveThickness(barConfig)) : "
+            "(!(barConfig?.visible ?? true) || ((barConfig?.autoHide ?? false) && !barWindow.reserveExclusiveWhenAutoHidden)) ? -1 : "
+            "(barWindow.effectiveBarThickness + effectiveSpacing)\n")
+
+
 class QuietTest(unittest.TestCase):
+    def test_a_hidden_island_bar_reserves_nothing(self):
+        out = dms_quiet.hidden_bar_reserves_nothing(BAR_LINE)
+        self.assertIn("isIsland ? (!(barConfig?.visible ?? true) ? -1 : (islandFree || ", out)
+        self.assertEqual(out.count("(") - out.count(")"), BAR_LINE.count("(") - BAR_LINE.count(")"))
+        with self.assertRaises(ValueError):
+            dms_quiet.hidden_bar_reserves_nothing("readonly property real surfaceExclusiveZone: 0\n")
+
     def test_removes_only_the_server(self):
         out = dms_quiet.quiet(SERVICE)
         self.assertNotIn("NotificationServer {", out)
@@ -60,6 +73,8 @@ class QuietTest(unittest.TestCase):
             (source / "Services/NotificationService.qml").write_text(SERVICE)
             (source / "Services/NotificationService.qml").chmod(0o444)
             (source / ".dankrev").write_text("abc\n")
+            (source / "Modules/DBar").mkdir(parents=True)
+            (source / "Modules/DBar/DBarBody.qml").write_text(BAR_LINE)
             self.assertEqual(dms_quiet.check(source)[0], "not made by dms_quiet (no marker)")
             dms_quiet.build(source, out)
             self.assertEqual(dms_quiet.check(out), [])

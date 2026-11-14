@@ -31,6 +31,7 @@ You decided DAILY_DRIVER Q5 for the core registry built here (§11 there, 6 Nove
 | `cmd.history` | `{prefix?, limit?}` | `{lines}`, newest last |
 | `host.done` | `{token, ok, result?: {read}, error?}` | **View only.** Answers a `view.host` event (§3). |
 | `sfx.play` | `{cue}` | **View only:** `ui.click`, `ui.key`, `ui.switch` or `ui.error`. Reports a moment only the view sees. The core gates it and plays it. Returns the event. |
+| `sfx.stop` | `{cue}` | **View only:** `hold.charge`, the one cue the view may cut short (a hold released early). SIGTERM to the player of the last emit; harmless when nothing plays. Returns `{cue}`. |
 | `sfx.configure` | `{cues: {name: bool}}` | Switches UI cues (`sfx.json`, 0600). Alerts follow `timer.configure {sound}`. |
 | `view.open`, `view.toggle` | gain `screen` (string, ≤ 64 printable characters; empty means the focused screen). `view.toggle` also takes `from`. | as before |
 | `view.state` | gains `cmdlineIdle` (bool, default false): the command line has focus and no text | as before |

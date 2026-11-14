@@ -20,6 +20,8 @@ Scope {
     // Z161: the critical event FART shows while it covers the island.
     readonly property var coveredEvent: companionWindow?.coveredEvent ?? null
     function dismissCovered(id: string): void { companionWindow?.dismissCovered(id); }
+    // Z174: the OSD that FART's header shows while it covers the island.
+    readonly property var headerOsd: companionWindow?.headerOsd ?? null
     signal ignite()
     signal notificationAction(string id, string action, string reply)
     property var workspaceIds: []
@@ -53,6 +55,7 @@ Scope {
             property string trayItem: ""
             readonly property int draftLength: frame.draftLength
             readonly property var coveredEvent: frame.coveredEvent
+            readonly property var headerOsd: frame.headerOsd
             function dismissCovered(id: string): void { frame.dismissCovered(id); }
             readonly property string keyboardRequest: frame.keyboardRequest
             readonly property bool wantsKeyboard: frame.wantsKeyboard

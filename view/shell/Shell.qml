@@ -560,6 +560,12 @@ Item {
     signal headerEmptyClicked()
     // Where the header strip ends: the empty-header fold target and the critical drop (Z161) both start here.
     readonly property real headerBottom: panelContent.y + header.y + header.height + panelContent.spacing / 2
+    // The header row and its command line's span: the OSD readout (Z174) sits there while FART covers the island,
+    // over the command line so it never hides a button.
+    readonly property real headerTop: panelContent.y + header.y
+    readonly property real headerHeight: header.height
+    readonly property real headerSlotX: panelContent.x + header.x + cmdline.x
+    readonly property real headerSlotWidth: cmdline.width
     MouseArea {
         id: headerEmpty
         objectName: "headerEmpty"

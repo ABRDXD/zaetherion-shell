@@ -8,6 +8,7 @@ CriticalFlash 1.0 CriticalFlash.qml
 singleton Directories 1.0 Directories.qml
 FartAlertDrop 1.0 FartAlertDrop.qml
 singleton FartCommands 1.0 FartCommands.qml
+FartHeaderOsd 1.0 FartHeaderOsd.qml
 HeavyLayer 1.0 HeavyLayer.qml
 singleton Host 1.0 Host.qml
 IndexBand 1.0 IndexBand.qml

@@ -3,6 +3,7 @@ import Quickshell
 import qs.view.contract
 import qs.core.client
 import qs.view.satellites
+import qs.view.ui
 
 Scope {
     id: root
@@ -10,7 +11,13 @@ Scope {
     required property IslandQueue queue
     property CoreClient core: null
     property var startupNotice: null
-    readonly property var durations: ({ charging: 2000, lowBattery: 5000, backend: 5000, notification: 5000 })
+    // Z174: FART covers the island; an OSD change is handed out through `coveredOsd` instead of being queued.
+    property bool covered: false
+    property int osdDwell: 1200
+    signal coveredOsd(var value)
+    readonly property var durations: ({ charging: 2000, lowBattery: 5000, backend: 5000, notification: 3000 })
+    // Z175: the island shows a non-critical notification for at most this long, whatever its sender asked for.
+    readonly property int notificationCap: 6000
     readonly property var recording: host.capture.available ? host.capture.recording : null
     readonly property var battery: host.power.battery
     property var previousBattery: null
@@ -43,9 +50,11 @@ Scope {
         const shown = item.live === false ? Object.assign({}, item, { actions: [], reply: "" }) : item;
         queue.offer("notification:" + item.id, kind, priority[kind], shown, showTime(item));
     }
-    // The item's own showing time (contract: 0 = until dismissed, absent or negative = ours).
+    // The item's own showing time (contract: 0 = until dismissed, absent or negative = ours). A sender's long time is
+    // honoured up to notificationCap (Z175); a critical one is not capped. The Inbox keeps the item either way.
     function showTime(item): var {
-        return item.timeout > 0 ? item.timeout : item.timeout === 0 ? null : durations.notification;
+        if (item.timeout > 0) return item.urgency === "critical" ? item.timeout : Math.min(item.timeout, notificationCap);
+        return item.timeout === 0 || item.urgency === "critical" ? null : durations.notification;   // critical stays until dismissed
     }
     function arrivals(): var {
         const times = {};
@@ -69,8 +78,12 @@ Scope {
         target: root.host.osd
         function onEventChanged() {
             const value = root.host.osd.event;
-            if (value && root.host.osd.available)
-                root.queue.offer("osd", "osd", root.priority.osd, value, 1200);
+            if (value && root.host.osd.available) {
+                // Z174: covered by FART, the OSD goes to FART's header, not into the queue.
+                if (root.covered) root.coveredOsd(value);
+                else root.queue.offer("osd", "osd", root.priority.osd, value, root.osdDwell);
+                Feedback.play("osd.tick");
+            }
         }
     }
 
@@ -100,11 +113,25 @@ Scope {
         if (!ready || !previous?.available || !battery?.available) return;
         if (battery.charging && !previous.charging)
             queue.offer("charging", "charging", priority.charging, { label: "> POWER · CHARGING" }, durations.charging);
+        if (battery.pluggedIn !== previous.pluggedIn)
+            Feedback.play(battery.pluggedIn ? "power.plug" : "power.unplug");
         if (battery.pluggedIn) return;
         const threshold = [0.05, 0.1, 0.2].find(level => battery.level <= level && previous.level > level);
         if (threshold === undefined || (host.notifications.dnd && threshold > 0.05)) return;
         queue.offer("low-battery", "low-battery", threshold === 0.05 ? priority.critical : priority.notification,
             { label: "> BATTERY · " + Math.round(battery.level * 100) + "%" }, durations.lowBattery);
+        Feedback.play("battery.low");
+    }
+
+    // The network coming and going is heard, not shown (the island's glyph already says it). Not at start, and not
+    // while the source is away (DMS restarting is not the network going down): only a known state that changes.
+    readonly property var online: host.network.available ? host.network.connected === true : null
+    property var lastOnline: null
+    onOnlineChanged: {
+        if (online === null) return;
+        if (ready && lastOnline !== null && online !== lastOnline)
+            Feedback.play(online ? "net.up" : "net.down");
+        lastOnline = online;
     }
 
     function syncStartupNotice(): void {

@@ -98,4 +98,27 @@ v2.1.0 of duxlabs-dev/dux-shell; no code is copied. tools/dms_quiet.py writes a
 local, unpublished copy of the installed DMS UI with its notification server
 removed.
 
+S5 equaliser: core/eq_chain.py writes a PipeWire filter-chain config whose shape
+(builtin bq_peaking nodes, capture.props/playback.props) follows the example
+/usr/share/pipewire/filter-chain/sink-eq6.conf shipped with PipeWire (MIT); the
+graph, the mono mixers and every value are ours and no file is copied. The
+response and headroom use the RBJ "Audio EQ Cookbook" peaking formulas (Robert
+Bristow-Johnson; formulas, not code). The five presets are ZÆTHERION's own values.
+
 S8 palette catalogue: adapters/common/palette_sources.py reads installed Serpantinum and DMS JSON at runtime; no theme files or upstream implementation are bundled. The Amoled Black fallback repeats the DMS colour values already used by view/ui/Design.qml (DMS MIT notice above). The ten AMOLED studies and palette picker implementation are original ZÆTHERION work.
+
+Sounds
+------
+assets/sounds: alert, notify-critical, osd-tick, hold-charge, power-plug, power-unplug, battery-low, net-up, net-down,
+lock, unlock, screenshot, dnd-on and dnd-off are synthesized by tools/sounds/make_ui.py (ZÆTHERION's own). These are
+CC0 samples (public domain dedication), converted to 48 kHz stereo and level-matched, otherwise unchanged:
+- ui-click.wav: "Granular Synthesis BTN Sound", Button SFX Pack II (Granular Synthesis Styled),
+  https://opengameart.org/content/button-sfx-pack-ii-granular-synthesis-styled
+- ui-hover.wav: "Text rollover", Button SFX Pack III (Hi-Tech),
+  https://opengameart.org/content/button-sfx-pack-iii-assortment-ot-hi-tech
+- ui-confirm.wav: "Warm Digital Accept Button", Hi-Tech Button Sound Pack I,
+  https://opengameart.org/content/hi-tech-button-sound-pack-i-non-themed
+- ui-key-004/009/015/021.wav: keypress 004, 009, 015, 021, Keyboard Soundpack 1 (Inconsequentialist; Cherry KC 1000),
+  https://opengameart.org/content/keyboard-soundpack-1-typing-and-single-keystrokes
+- ui-switch.wav (toggle_002), ui-error.wav (error_004), notify-normal.wav (glass_002): Interface Sounds 1.0 by Kenney
+  (www.kenney.nl), https://opengameart.org/content/interface-sounds
