@@ -12,6 +12,11 @@ supervisor at it with FART_RESIDENT_DIR, which reaches `dms run` as DMS_SHELL_DI
 
     tools/dms_quiet.py build [--source DIR] [--out DIR]   # default source: the running DMS's UI
     tools/dms_quiet.py check DIR                           # exit 0 if DIR is a quiet copy
+    tools/dms_quiet.py fits DIR                            # exit 0 if DIR was made for the installed `dms`
+
+`dms version` names no UI revision, and the UI is extracted only when DMS runs, so at login (before DMS) an upgrade
+can't be seen by revision. `build` therefore also records the installed `dms` program (path, size, mtime);
+`fits` compares it, so tools/session-start turns ours on only for the DMS the copy was made from.
 """
 from __future__ import annotations
 
@@ -31,6 +36,7 @@ BAR = Path("Modules/DBar/DBarBody.qml")
 BAR_FROM = "readonly property real surfaceExclusiveZone: isIsland ? ((islandFree || "
 BAR_TO = "readonly property real surfaceExclusiveZone: isIsland ? (!(barConfig?.visible ?? true) ? -1 : (islandFree || "
 MARKER = ".zaetherion-quiet"
+PROGRAM = ".zaetherion-dms"
 OPENING = re.compile(r"^(?P<indent>[ \t]*)NotificationServer\s*\{", re.M)
 
 
@@ -101,6 +107,30 @@ def revision(source: Path) -> str:
     return rev.read_text().strip() if rev.is_file() else "unknown"
 
 
+def program_stamp(program: str | None = None) -> str:
+    """The installed `dms` program as path, size and mtime; "" when there is none."""
+    found = program or shutil.which("dms")
+    if not found:
+        return ""
+    path = Path(found).resolve()
+    st = path.stat()
+    return f"{path} {st.st_size} {st.st_mtime_ns}"
+
+
+def fits(directory: Path, program: str | None = None) -> list[str]:
+    """Why the quiet copy in `directory` shouldn't run with the installed DMS; [] when it should."""
+    problems = check(directory)
+    stamp = directory / PROGRAM
+    now = program_stamp(program)
+    if not now:
+        problems.append("no dms program installed")
+    elif not stamp.is_file():
+        problems.append("the copy records no dms program; rebuild it with the stock UI running")
+    elif stamp.read_text().strip() != now:
+        problems.append("dms changed since the copy was made (an upgrade?); rebuild it with the stock UI running")
+    return problems
+
+
 def build(source: Path, out: Path) -> Path:
     if (source / MARKER).exists() or source.resolve() == out.resolve():
         raise SystemExit(f"dms_quiet: {source} is a quiet copy; build from DMS's stock UI")
@@ -118,6 +148,7 @@ def build(source: Path, out: Path) -> Path:
     (out / SERVICE).write_text(patched)
     (out / BAR).write_text(bar)
     (out / MARKER).write_text(revision(source) + "\n")
+    (out / PROGRAM).write_text(program_stamp() + "\n")
     return out
 
 
@@ -152,13 +183,15 @@ def main(argv=None) -> int:
     b.add_argument("--out", type=Path)
     c = sub.add_parser("check")
     c.add_argument("directory", type=Path)
+    f = sub.add_parser("fits")
+    f.add_argument("directory", type=Path)
     args = parser.parse_args(argv)
     if args.command == "build":
         source = args.source or running_source()
         out = build(source, args.out or default_out())
         print(f"quiet DMS UI (revision {revision(source)}): {out}")
         return 0
-    problems = check(args.directory)
+    problems = check(args.directory) if args.command == "check" else fits(args.directory)
     for problem in problems:
         print("dms_quiet:", problem, file=sys.stderr)
     return 1 if problems else 0

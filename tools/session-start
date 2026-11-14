@@ -16,6 +16,21 @@ exec 9>"$LOG_DIR/session.lock"
 flock -n 9 || { say "another session starter is running; leaving"; exit 0; }
 
 say "session start (Hyprland $HYPRLAND_INSTANCE_SIGNATURE)"
+
+# Our notification server (S4, docs/S4_GO_LIVE.md): DMS runs its quiet copy and our view holds the name. Only
+# when the copy was made for the installed dms (an upgrade needs a rebuild), and not when the owner has left
+# the stock-notifications file, which brings DMS's own back.
+STATE=${XDG_STATE_HOME:-$HOME/.local/state}/zaetherion
+QUIET=$STATE/dms-quiet
+if [ -e "$STATE/stock-notifications" ]; then
+    say "notifications: DMS's own ($STATE/stock-notifications is there)"
+elif why=$(python3 -I "$ROOT/tools/dms_quiet.py" fits "$QUIET" 2>&1); then
+    export FART_VIEW_ENTRY="$ROOT/shell-dms.qml" FART_RESIDENT_VIEW=1 FART_NOTIFICATION_SERVER=1 FART_RESIDENT_DIR="$QUIET"
+    say "notifications: ours (quiet DMS $QUIET)"
+else
+    say "notifications: DMS's own, the quiet copy doesn't fit: $why"
+fi
+
 "$ROOT/zaetherion" start >>"$LOG" 2>&1 || say "core did not start"
 
 # The core (fartd) supervises DMS itself (FART_SUPERVISE=dms, set by `zaetherion start`): it starts it,

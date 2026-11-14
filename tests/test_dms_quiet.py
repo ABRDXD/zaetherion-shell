@@ -89,5 +89,42 @@ class QuietTest(unittest.TestCase):
                 dms_quiet.build(out, Path(d) / "again")  # never from a quiet copy
 
 
+class FitsTest(unittest.TestCase):
+    """The copy runs at login only with the `dms` program it was made from."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        base = Path(self.tmp.name)
+        self.program = base / "dms"
+        self.program.write_text("#!/bin/sh\n")
+        self.copy = base / "copy"
+        (self.copy / dms_quiet.SERVICE).parent.mkdir(parents=True)
+        (self.copy / dms_quiet.SERVICE).write_text(dms_quiet.quiet(SERVICE))
+        (self.copy / dms_quiet.BAR).parent.mkdir(parents=True)
+        (self.copy / dms_quiet.BAR).write_text(dms_quiet.hidden_bar_reserves_nothing(BAR_LINE))
+        (self.copy / dms_quiet.MARKER).write_text("rev\n")
+
+    def stamp(self):
+        (self.copy / dms_quiet.PROGRAM).write_text(dms_quiet.program_stamp(str(self.program)) + "\n")
+
+    def test_the_program_it_was_made_for_fits(self):
+        self.stamp()
+        self.assertEqual(dms_quiet.fits(self.copy, str(self.program)), [])
+
+    def test_a_changed_program_does_not_fit(self):
+        self.stamp()
+        self.program.write_text("#!/bin/sh\n# upgraded\n")
+        self.assertIn("dms changed", " ".join(dms_quiet.fits(self.copy, str(self.program))))
+
+    def test_a_copy_with_no_record_does_not_fit(self):
+        self.assertIn("records no dms program", " ".join(dms_quiet.fits(self.copy, str(self.program))))
+
+    def test_a_copy_that_is_not_quiet_does_not_fit(self):
+        self.stamp()
+        (self.copy / dms_quiet.SERVICE).write_text(SERVICE)
+        self.assertIn("still declares", " ".join(dms_quiet.fits(self.copy, str(self.program))))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -38,5 +38,5 @@ Live with all four settings, from the main checkout on `s0-seed` with S5 merged 
 
 ## Open
 
-- **After a reboot.** The settings above live only in the shell that ran the restart; `tools/session-start` doesn't set them. Making them stick is a one-line change there, after the owner has lived with it.
-- **DMS upgrades.** The copy is tied to the DMS revision it was made from (`.zaetherion-quiet`). After an upgrade, rebuild it with the stock UI running; until then DMS would run the old UI. Not yet automated: the core could compare it with the running DMS's revision and fall back to stock.
+- **After a reboot.** Done (14 November): `tools/session-start` turns ours on at login when `dms_quiet.py fits` says the copy was made for the installed `dms`; else DMS's own, with the reason in `session.log`. Leaving a file `~/.local/state/zaetherion/stock-notifications` brings DMS's own back at the next login.
+- **DMS upgrades.** The copy records the `dms` program it was made from (`.zaetherion-dms`: path, size, mtime). After an upgrade the next login falls back to DMS's own notifications; rebuild with the stock UI running (`dms_quiet.py build`) to get ours back. Not automated.
