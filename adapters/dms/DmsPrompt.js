@@ -25,14 +25,14 @@ function credentialKind(data) {
     return "unsupported";
 }
 
-// The event → a prompt, or null if it carries no token. `seq` makes our id.
-function credential(data, now, seq) {
+// The event → a prompt, or null if it carries no token. `seq` makes our id; `timeoutMs` defaults to TIMEOUT.
+function credential(data, now, seq, timeoutMs) {
     if (!data || typeof data.token !== "string" || data.token === "") return null;
     const fields = Array.isArray(data.fields) && data.fields.length ? data.fields : ["psk"];
     const info = Array.isArray(data.fieldsInfo) ? data.fieldsInfo : [];
     const secretField = info.find(f => f && f.isSecret === true)?.name ?? fields[0];
     return {
-        id: "net-" + seq, token: data.token, receivedAt: now,
+        id: "net-" + seq, token: data.token, deadline: now + (timeoutMs || TIMEOUT),
         ssid: String(data.ssid ?? ""), name: String(data.name ?? data.connectionId ?? data.ssid ?? ""),
         reason: String(data.reason ?? ""), kind: credentialKind(data), field: String(secretField)
     };
@@ -44,13 +44,13 @@ function credentialParams(prompt, secret) {
     return { token: prompt.token, secrets: secrets, save: true };
 }
 
-function pairing(data, now, seq) {
+function pairing(data, now, seq, timeoutMs) {
     if (!data || typeof data.token !== "string" || data.token === "") return null;
     const kind = PAIRING_KINDS.indexOf(data.requestType) >= 0 ? data.requestType : "unsupported";
     const shows = kind === "confirm" || kind === "display-passkey";
     const passkey = Number(data.passkey);
     return {
-        id: "bt-" + seq, token: data.token, receivedAt: now, kind: kind,
+        id: "bt-" + seq, token: data.token, deadline: now + (timeoutMs || TIMEOUT), kind: kind,
         deviceName: String(data.deviceName ?? ""), device: String(data.deviceAddr ?? ""),
         // A number to compare on both screens, not a secret: six digits, zero-padded, as BlueZ shows it.
         passkey: shows && Number.isFinite(passkey) ? String(Math.trunc(passkey)).padStart(6, "0") : ""
@@ -66,17 +66,17 @@ function pairingParams(prompt, code) {
 }
 
 function expired(prompt, now) {
-    return !!prompt && now >= prompt.receivedAt + TIMEOUT;
+    return !!prompt && now >= prompt.deadline;
 }
 
 function deadline(prompt) {
-    return prompt ? prompt.receivedAt + TIMEOUT : -1;
+    return prompt ? prompt.deadline : -1;
 }
 
 // The contract's value: everything but the token and our clock.
 function view(prompt) {
     if (!prompt) return null;
     const out = {};
-    for (const key in prompt) if (key !== "token" && key !== "receivedAt" && key !== "field") out[key] = prompt[key];
+    for (const key in prompt) if (key !== "token" && key !== "deadline" && key !== "field") out[key] = prompt[key];
     return out;
 }

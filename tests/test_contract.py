@@ -29,12 +29,13 @@ SERPANTINUM = {
     "ClipboardDomain": "common/CliphistClipboard.qml",
 }
 # The same for the DMS adapter (docs/DMS_ADAPTER.md §5). Weather, osd, capture, palette, motion, sfx, clockGeometry, hostActions,
-# bluetooth and the DMS-backed power controls are not built yet; they read "unavailable". The equaliser is the core's (Z173).
+# and the DMS-backed power controls are not built yet; they read "unavailable". The equaliser is the core's (Z173).
 DMS = {
     "MediaDomain": "quickshell/QuickshellMedia.qml",
     "AudioDomain": "quickshell/QuickshellAudio.qml",
     "EqualizerDomain": "common/CoreEqualizer.qml",
     "NetworkDomain": "dms/DmsNetwork.qml",
+    "BluetoothDomain": "dms/DmsBluetooth.qml",
     "WorkspacesDomain": "hyprland/HyprlandWorkspaces.qml",
     "KeybindsDomain": "hyprland/HyprlandKeybinds.qml",
     "NotificationsDomain": "dms/DmsNotifications.qml",
@@ -45,7 +46,7 @@ DMS = {
     "ClipboardDomain": "common/CliphistClipboard.qml",
 }
 # Domains the DMS adapter leaves on their contract placeholders for now.
-DMS_UNBUILT = {"weather", "osd", "capture", "palette", "motion", "sfx", "clockGeometry", "hostActions", "bluetooth"}
+DMS_UNBUILT = {"weather", "osd", "capture", "palette", "motion", "sfx", "clockGeometry", "hostActions"}
 # Host-facing modules and commands. Overlay keeps the Hyprland focus grab (a compositor feature, not a host one).
 FORBIDDEN_IMPORTS = re.compile(r"^import (qs\.adapters\b|Quickshell\.Services\b|Quickshell\.Bluetooth\b|Quickshell\.Networking\b|Quickshell\.Hyprland\b)", re.M)
 # Focus grabs only: the panel's, and the island's for its tray menu (Z157), which replaced a grabbing popup.

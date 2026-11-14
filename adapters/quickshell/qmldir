@@ -2,6 +2,7 @@
 module qs.adapters.quickshell
 singleton NotificationTiming 1.0 NotificationTiming.qml
 QuickshellAudio 1.0 QuickshellAudio.qml
+QuickshellBluetoothBattery 1.0 QuickshellBluetoothBattery.qml
 QuickshellMedia 1.0 QuickshellMedia.qml
 QuickshellMenuNode 1.0 QuickshellMenuNode.qml
 QuickshellNotification 1.0 QuickshellNotification.qml

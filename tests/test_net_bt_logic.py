@@ -80,6 +80,8 @@ class Attempt(unittest.TestCase):
         self.assertEqual(self.phases([begin(), f"observe(s, {j(GOING)}, 1)", f"observe(s, {j(stopped('user-canceled'))}, 2)"])[-1], "cancelled")
         self.assertEqual(self.phases([begin(), f"observe(s, {j(GOING)}, 1)", f"observe(s, {j(stopped())}, 2)"])[-1], "failed")
         self.assertEqual(self.phases([begin(), "cancel(s, 5)"])[-1], "cancelled")
+        self.assertEqual(attempt([begin(), "cancel(s, 5, 'prompt-timeout')"])[-1]["reason"], "prompt-timeout")
+        self.assertEqual(run(["DmsAttempt.js"], "[timeout('wifi'), timeout('bt-pair'), timeout('odd')]"), [40000, 60000, 10000])
 
     def test_every_action_ends_with_a_timeout_at_the_latest(self):
         got = attempt([begin(now=0, timeout=40000), "tick(s, 39999)", "tick(s, 40000)"])
@@ -111,7 +113,7 @@ class Attempt(unittest.TestCase):
         self.assertEqual((got["phase"], got["reason"]), ("failed", "offline"))
 
     def test_time_asleep_does_not_count(self):
-        got = attempt([begin(now=0, timeout=40000), "resumed(s, 900000)", "tick(s, 900001)"])
+        got = attempt([begin(now=0, timeout=40000), "rearm(s, 900000)", "tick(s, 900001)"])
         self.assertEqual((got[-1]["phase"], got[-1]["deadline"]), ("working", 940000))
 
     def test_a_late_success_after_a_timeout_is_shown_as_it_is(self):
@@ -186,8 +188,8 @@ class Prompts(unittest.TestCase):
             ["unsupported", "", {"decision": "yes"}]])
 
     def test_an_unanswered_prompt_expires_after_90_s(self):
-        got = run(["DmsPrompt.js"], "(() => { const p = credential({token: 't'}, 1000, 1); return [expired(p, 90999), expired(p, 91000), deadline(p)]; })()")
-        self.assertEqual(got, [False, True, 91000])
+        got = run(["DmsPrompt.js"], "(() => { const p = credential({token: 't'}, 1000, 1); return [expired(p, 90999), expired(p, 91000), deadline(p), credential({token: 't'}, 0, 1, 50).deadline]; })()")
+        self.assertEqual(got, [False, True, 91000, 50])
 
 
 @unittest.skipUnless(shutil.which("node"), "needs Node")

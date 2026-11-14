@@ -12,9 +12,10 @@ DOMAINS = {
     "NetworkDomain": "DmsNetwork.qml",
     "PowerDomain": "DmsPower.qml",
     "NotificationsDomain": "DmsNotifications.qml",
+    "BluetoothDomain": "DmsBluetooth.qml",
 }
 # Leases the DMS-backed domains serve, per file.
-LEASES = {"DmsNetwork.qml": {"details", "scan"}}
+LEASES = {"DmsNetwork.qml": {"details", "scan", "saved"}, "DmsBluetooth.qml": {"scan"}}
 
 
 def functions(text):

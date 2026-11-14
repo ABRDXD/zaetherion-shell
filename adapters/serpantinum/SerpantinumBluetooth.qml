@@ -17,4 +17,11 @@ BluetoothDomain {
     function setEnabled(on: bool) { if (adapter) adapter.enabled = on; }
     function connect(id: string) { const d = find(id); if (d?.paired && !d.connected) d.connect(); }
     function disconnect(id: string) { const d = find(id); if (d?.connected) d.disconnect(); }
+    // Legacy panel: Quickshell has no pairing agent, so only devices that need no code pair here.
+    function pair(id: string) { const d = Bluetooth.devices.values.find(x => x.address === id); if (d && !d.paired) d.pair(); }
+    function trust(id: string, on: bool) { const d = find(id); if (d) d.trusted = on; }
+    function forget(id: string) { const d = find(id); if (d) d.forget(); }
+    function answerPairing(pairingId: string, code: string) {}
+    function cancelPairing(pairingId: string) {}
+    function dismissAttempt(id: string) {}
 }

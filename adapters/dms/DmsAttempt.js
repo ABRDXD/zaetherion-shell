@@ -12,6 +12,12 @@
 const SETTLED = ["done", "wrong-secret", "timeout", "failed", "cancelled"];
 // How long a settled attempt stays readable before it goes back to null.
 const LINGER = { done: 5000, other: 60000 };
+// How long each kind of action may take before it is a timeout (Z192). A prompt has its own (DmsPrompt.js).
+const TIMEOUTS = { wifi: 40000, vpn: 30000, "bt-connect": 20000, "bt-pair": 60000, "bt-other": 10000 };
+
+function timeout(kind) {
+    return TIMEOUTS[kind] ?? TIMEOUTS["bt-other"];
+}
 
 function busy(state) {
     return !!state && (state.phase === "working" || state.phase === "lost");
@@ -90,13 +96,13 @@ function linkDown(state) {
     return state && state.phase === "working" ? Object.assign({}, state, { phase: "lost", reason: "offline" }) : state;
 }
 
-// After a resume the time asleep does not count against the deadline.
-function resumed(state, now) {
+// The clock starts again: after a resume (time asleep does not count) and when a prompt waits for the person.
+function rearm(state, now) {
     return busy(state) ? Object.assign({}, state, { deadline: now + state.timeoutMs }) : state;
 }
 
-function cancel(state, now) {
-    return state && (busy(state) || state.phase === "wrong-secret") ? settle(state, "cancelled", "user-canceled", now) : state;
+function cancel(state, now, reason) {
+    return state && (busy(state) || state.phase === "wrong-secret") ? settle(state, "cancelled", reason || "user-canceled", now) : state;
 }
 
 // The next time tick() can change something, or -1.

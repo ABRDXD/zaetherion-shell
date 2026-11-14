@@ -46,4 +46,14 @@ NetworkDomain {
             }
         }
     }
+    // Legacy panel: none of S10's settings flows (docs/NET_BT.md); they read as nothing happening.
+    function join(ssid: string, secret: string, hidden: bool) {}
+    function disconnect() {}
+    function forget(networkId: string) {}
+    function setAutoconnect(networkId: string, on: bool) {}
+    function setPreference(value: string) {}
+    function setVpn(vpnId: string, on: bool) {}
+    function answerPrompt(promptId: string, secret: string) {}
+    function cancelPrompt(promptId: string) {}
+    function dismissAttempt() {}
 }

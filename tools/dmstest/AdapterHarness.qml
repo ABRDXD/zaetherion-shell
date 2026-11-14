@@ -14,6 +14,16 @@ ShellRoot {
     property var results: []
     property var extraFeed: null
     property var unknown: []
+    property var prompts: []
+    property var pairings: []
+    Connections {
+        target: adapter.network
+        function onPromptArrived(id) { root.prompts = root.prompts.concat([id]); }
+    }
+    Connections {
+        target: adapter.bluetooth
+        function onPairingArrived(id) { root.pairings = root.pairings.concat([id]); }
+    }
     Connections {
         target: adapter.network
         function onUnknownNetwork(id) { root.unknown = root.unknown.concat([id]); }
@@ -79,6 +89,47 @@ ShellRoot {
         }
         function switchTo(id: string): void { adapter.workspaces.switchTo(id); }
         function refreshBinds(): void { adapter.keybinds.refresh(); }
+        // S10 (docs/NET_BT.md): Wi-Fi, VPN and Bluetooth through the contract. Secrets here are fake test values.
+        function net(): string {
+            const n = adapter.network;
+            return JSON.stringify({ available: n.available, connecting: n.connecting, wired: n.wired, vpns: n.vpns,
+                preference: n.preference, attempt: n.attempt, vpnAttempt: n.vpnAttempt, prompt: n.prompt, saved: n.saved,
+                prompts: root.prompts, pairings: root.pairings });
+        }
+        function timeouts(ms: string): void {
+            const t = Number(ms);
+            adapter.network.wifiTimeout = t; adapter.network.vpnTimeout = t; adapter.network.promptTimeout = t;
+            adapter.bluetooth.connectTimeout = t; adapter.bluetooth.pairTimeout = t; adapter.bluetooth.otherTimeout = t;
+            adapter.bluetooth.pairingTimeout = t;
+        }
+        function join(ssid: string, secret: string, hidden: string): void { adapter.network.join(ssid, secret, hidden === "true"); }
+        function forget(id: string): void { adapter.network.forget(id); }
+        function autoconnect(id: string, on: string): void { adapter.network.setAutoconnect(id, on === "true"); }
+        function preference(value: string): void { adapter.network.setPreference(value); }
+        function vpn(id: string, on: string): void { adapter.network.setVpn(id, on === "true"); }
+        function disconnectWifi(): void { adapter.network.disconnect(); }
+        function answer(id: string, secret: string): void { adapter.network.answerPrompt(id, secret); }
+        function cancelPrompt(id: string): void { adapter.network.cancelPrompt(id); }
+        function dismiss(): void { adapter.network.dismissAttempt(); }
+        function bt(): string {
+            const b = adapter.bluetooth;
+            return JSON.stringify({ available: b.available, enabled: b.enabled, discovering: b.discovering, devices: b.devices,
+                nearby: b.nearby, primary: b.primary, attempts: b.attempts, pairing: b.pairing });
+        }
+        function btPower(on: string): void { adapter.bluetooth.setEnabled(on === "true"); }
+        function btDo(action: string, id: string): void {
+            const b = adapter.bluetooth;
+            if (action === "connect") b.connect(id);
+            else if (action === "disconnect") b.disconnect(id);
+            else if (action === "pair") b.pair(id);
+            else if (action === "forget") b.forget(id);
+            else if (action === "trust") b.trust(id, true);
+            else if (action === "untrust") b.trust(id, false);
+        }
+        function btAnswer(id: string, code: string): void { adapter.bluetooth.answerPairing(id, code); }
+        function btCancel(id: string): void { adapter.bluetooth.cancelPairing(id); }
+        function btAcquire(feature: string): void { adapter.bluetooth.acquire(feature, "t"); }
+        function btRelease(feature: string): void { adapter.bluetooth.release(feature, "t"); }
         function results(): string { return JSON.stringify(root.results); }
         function quit(): void { Qt.quit(); }
     }

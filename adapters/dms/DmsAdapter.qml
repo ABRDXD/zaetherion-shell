@@ -22,11 +22,9 @@ HostAdapter {
     readonly property DmsLink dms: DmsLink { id: link; clientId: "zaetherion-" + root.role }
     name: "dms"
     media: QuickshellMedia {}
-    network: DmsNetwork {
-        link: link
-        // Passwords live in settings (Z95).
-        onUnknownNetwork: root.hostActions.open("wifi")
-    }
+    // A new network's password is typed in FART's own settings (Z95, Z176): the view opens them, nothing here does.
+    network: DmsNetwork { link: link }
+    bluetooth: DmsBluetooth { link: link }
     // audio (with the equaliser), notifications, lyrics and clipboard: loadDeferred() below.
     workspaces: HyprlandWorkspaces {}
     keybinds: DmsKeybinds { link: link }
