@@ -249,7 +249,10 @@ Scope {
     }
     HyprlandFocusGrab {
         active: root.opened && root.surfaceDrawn && !body.shell?.externalDialogOpen && root.grabResumed
-        windows: [surface].concat(root.companionWindows)
+        // The panel goes last: a grab committed before the keyboard has reached the panel hands it to the last
+        // surface listed (Hyprland 0.57), and on the first open after the view starts that was the island, which
+        // swallowed every key (tools/launcher_keycheck.py, case `first`).
+        windows: root.companionWindows.concat([surface])
         onCleared: if (!body.shell?.externalDialogOpen && root.grabResumed) Host.close()
     }
     // Diagnostics only: open, page, close and toggle arrive from the core.
