@@ -14,6 +14,7 @@ from core.errors import OpError
 
 log = logging.getLogger("fart.view")
 PAGES = ("home", "media", "performance", "workspaces", "devices", "tasks", "timers", "clipboard", "notifications", "codex")
+SETTINGS_SECTIONS = ("palette", "wallpaper", "presets")
 READY_TIMEOUT = 12.0
 # Most opens find the view warm (docs/COLDSTART.md, approved 7 Nov 2026); PSI pressure still reaps sooner.
 REAP_AFTER = 3600.0
@@ -165,7 +166,8 @@ class ViewManager:
     # Commands
 
     async def command(self, action: str, page: str | None = None, from_=None, query: str | None = None,
-                      screen: str | None = None, focus: str | None = None, fly: str | None = None):
+                      screen: str | None = None, focus: str | None = None, fly: str | None = None,
+                      settings: str | None = None):
         if page is not None and page not in PAGES:
             raise OpError("bad-args", f"page must be one of {', '.join(PAGES)}")
         if from_ is not None and not (isinstance(from_, dict) and all(isinstance(from_.get(k), (int, float)) for k in ("x", "y", "width", "height"))):
@@ -178,6 +180,8 @@ class ViewManager:
             raise OpError("bad-args", "focus must be cmdline")
         if fly is not None and not (isinstance(fly, str) and len(fly) <= 64 and fly.isprintable()):
             raise OpError("bad-args", "fly must be a moon's name of at most 64 printable characters")
+        if settings not in (None, *SETTINGS_SECTIONS):
+            raise OpError("bad-args", f"settings must be one of {', '.join(SETTINGS_SECTIONS)}")
         command = {"action": action, "page": page, "from": from_}
         if query is not None:
             command["query"] = query  # the room's filter (clip <words>); M5's view half reads it
@@ -185,6 +189,8 @@ class ViewManager:
             command["screen"] = screen  # the hook's output; the panel opens there (DAILY_DRIVER §2)
         if focus:
             command["focus"] = focus
+        if settings:
+            command["settings"] = settings  # wall, theme: FART's settings open at that section (Z176)
         if fly is not None:
             command["fly"] = fly  # go <moon>: the view opens the orbit and keys that moon ("" the orbit alone)
         if self.client and not self.client.closed:

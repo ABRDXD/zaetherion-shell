@@ -1,10 +1,12 @@
-"""Host verbs: wall, theme, settings, update, lock. The panel folds first: host popups open under FART's layer."""
+"""Host verbs: settings, update, lock. The panel folds first: host popups open under FART's layer.
+
+`wall` and `theme` used to open the host's pickers; they open FART's own settings now (core/verbs/wallpaper.py, Z176).
+"""
 from __future__ import annotations
 
 from core.verbs.base import Result, Usage, Verb
 
-TARGETS = (("wall", "wallpapers", "the host's wallpaper picker"), ("theme", "themes", "the host's themes"),
-           ("settings", "settings", "the host's settings"), ("update", "updates", "the host's update page"))
+TARGETS = (("settings", "settings", "the host's settings"), ("update", "updates", "the host's update page"))
 
 
 def opener(target: str):

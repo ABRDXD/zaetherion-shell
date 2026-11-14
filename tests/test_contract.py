@@ -39,6 +39,7 @@ DMS = {
     "KeybindsDomain": "hyprland/HyprlandKeybinds.qml",
     "NotificationsDomain": "dms/DmsNotifications.qml",
     "PowerDomain": "dms/DmsPower.qml",
+    "WallpaperDomain": "dms/DmsWallpaper.qml",
     "TrayDomain": "quickshell/QuickshellTray.qml",
     "LyricsDomain": "common/LyricsSource.qml",
     "SystemDomain": "common/LinuxSystem.qml",
@@ -141,8 +142,8 @@ class ContractTests(unittest.TestCase):
 
     def test_adapters_fill_every_domain(self):
         domains = re.findall(r"^    property (\w+Domain) (\w+):", (CONTRACT / "HostAdapter.qml").read_text(), re.M)
-        self.assertEqual(len(domains), 20)
-        resident_only = {"tray", "weather", "osd", "capture"}
+        self.assertEqual(len(domains), 21)
+        resident_only = {"tray", "weather", "osd", "capture", "wallpaper"}
         for adapter in ("serpantinum/SerpantinumAdapter.qml", "dms/DmsAdapter.qml", "fixture/FixtureAdapter.qml"):
             text = (ROOT / "adapters" / adapter).read_text()
             for _, name in domains:

@@ -8,3 +8,4 @@ DmsNetwork 1.0 DmsNetwork.qml
 DmsNotifications 1.0 DmsNotifications.qml
 DmsOsd 1.0 DmsOsd.qml
 DmsPower 1.0 DmsPower.qml
+DmsWallpaper 1.0 DmsWallpaper.qml

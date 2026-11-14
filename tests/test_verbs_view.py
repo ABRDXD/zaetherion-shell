@@ -111,7 +111,7 @@ class VerbViewTests(unittest.TestCase):
             ("play",): ("media", {"method": "togglePlaying", "args": []}, "play/pause · Fixture Signal — Test Pattern"),
             ("next",): ("media", {"method": "next", "args": []}, "next track"),
             ("out", "fixture"): ("audio", {"method": "setDefault", "args": ["output", "1"]}, "output → Fixture Speakers"),
-            ("wall",): ("hostActions", {"method": "open", "args": ["wallpapers"]}, "opened wallpapers"),
+            ("settings",): ("hostActions", {"method": "open", "args": ["settings"]}, "opened settings"),
             ("lock",): ("power", {"method": "lock", "args": []}, "locked"),
         }
         for words, (domain, call, line) in expected.items():

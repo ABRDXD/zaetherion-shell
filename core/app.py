@@ -17,6 +17,7 @@ from core.guards import BatteryGuard, FullscreenGuard, Guards, SessionGuard, foc
 from core.hostcalls import HostCalls
 from core.island import Island
 from core.palette import Palette
+from core.wallpaper import Wallpaper
 from core.ignite import LOST, Ignite
 from core.notification_mirror import Mirror
 from core.notifications import Inbox
@@ -71,6 +72,7 @@ class Core:
         self.sessions = Sessions(clock, scheduler, host, state_dir)
         self.island = Island(state_dir)
         self.palette = Palette(state_dir)
+        self.wallpaper = Wallpaper(state_dir)
         self.equalizer = Equalizer(state_dir)  # its chain only in a session that runs it (fartd attaches it)
         self.sessions.tasks_done = self.tasks.done_between
         self.sessions.music = self._session_music
@@ -94,6 +96,8 @@ class Core:
         self.inbox.on_dnd = lambda on: self.sfx.emit("dnd.on" if on else "dnd.off")
         server.on_disconnect.append(self.palette.cancel)
         self.view.on_closed.append(self.palette.cancel)
+        server.on_disconnect.append(self.wallpaper.cancel)
+        self.view.on_closed.append(self.wallpaper.cancel)
         self.overdrive.on_release = self.view.check_idle_reap
         session_guard = self.guards.by_name.get("session")
         if session_guard:
@@ -101,6 +105,7 @@ class Core:
 
         for name, owner in (("timers", self.timers), ("tasks", self.tasks), ("notifications", self.inbox),
                             ("overdrive", self.overdrive), ("session", self.sessions), ("island", self.island), ("palette", self.palette),
+                            ("wallpaper", self.wallpaper),
                             ("equalizer", self.equalizer), ("view", self.view)):
             server.topic(name, owner.snapshot)
             if name != "view":
@@ -220,6 +225,13 @@ class Core:
         op("palette.choose", lambda peer, name: self.palette.choose(name))
         op("palette.preview", lambda peer, name: self.palette.preview_name(name, peer))
         op("palette.cancel", lambda peer: self.palette.cancel(peer))
+        w = self.wallpaper
+        op("wallpaper.list", lambda peer: w.listing())
+        op("wallpaper.preview", lambda peer, name: w.preview_name(name, peer))
+        op("wallpaper.cancel", lambda peer: w.cancel(peer))
+        op("wallpaper.folder", lambda peer, folder: w.set_folder(folder))
+        op("wallpaper.choose", lambda peer, name: self.wallpaper_choose(w.resolve(name)))
+        op("wallpaper.report", self.wallpaper_report)
         e = self.equalizer
         op("eq.enable", lambda peer, on: e.set_on(on))
         op("eq.band", lambda peer, index, gain: e.set_band(index, gain))
@@ -398,6 +410,17 @@ class Core:
             return await self.view.command("close")
         self._before_open()
         return await self.view.command("open", page or self.view.page or "home", extra.get("from"), screen=screen or None)
+
+    async def wallpaper_choose(self, path: str) -> dict:
+        """Through the view's adapter; the host stays the authority for what is applied (Z177)."""
+        self.wallpaper.can_apply()
+        await self.hostcalls.call("wallpaper", "set", [path], ready="available", hold=0)
+        return self.wallpaper.applied(path)
+
+    def wallpaper_report(self, peer, available=False, current="", perScreen=False, error=""):
+        if peer is not self.view.client:
+            raise OpError("refused", "only the view reports the host's wallpaper")
+        return self.wallpaper.report(available, current, perScreen, error)
 
     @staticmethod
     def _refuse(message: str):

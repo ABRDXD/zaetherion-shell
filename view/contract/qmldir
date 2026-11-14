@@ -21,5 +21,6 @@ PowerDomain 1.0 PowerDomain.qml
 SfxDomain 1.0 SfxDomain.qml
 SystemDomain 1.0 SystemDomain.qml
 TrayDomain 1.0 TrayDomain.qml
+WallpaperDomain 1.0 WallpaperDomain.qml
 WeatherDomain 1.0 WeatherDomain.qml
 WorkspacesDomain 1.0 WorkspacesDomain.qml

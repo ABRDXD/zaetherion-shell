@@ -61,6 +61,13 @@ HostAdapter {
     }
     osd: OsdDomain { available: true }
     capture: CaptureDomain { available: true }
+    // Sample paths only; set() is logged and taken as applied, nothing real is touched.
+    wallpaper: WallpaperDomain {
+        recordCalls: true
+        available: true
+        current: "/fixture/Wallpapers/rain_on_water.jpg"
+        function set(path: string) { record("set", [path]); current = path; }
+    }
     keybinds: KeybindsDomain {
         available: true
         capsLock: true

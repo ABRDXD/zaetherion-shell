@@ -31,6 +31,7 @@ HostAdapter {
     workspaces: HyprlandWorkspaces {}
     keybinds: DmsKeybinds { link: link }
     power: DmsPower {}
+    wallpaper: DmsWallpaper { link: link }
     tray: QuickshellTray {}
     system: LinuxSystem {}
 

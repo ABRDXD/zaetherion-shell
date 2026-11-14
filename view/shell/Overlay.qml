@@ -73,6 +73,10 @@ Scope {
     Binding { target: root.host.media; property: "preferredPlayer"; value: Config.options.bar.media.preferredPlayer }
     Binding { target: root.host.system; property: "sampleInterval"; value: Math.max(500, Config.options.resources.updateInterval) }
     ShellContext { id: context; panelOpen: root.opened; core: root.core }
+    // The host's wallpaper, for the core's `wallpaper` topic and verb (Z177): the host stays the authority.
+    readonly property var hostWallpaper: ({ available: host.wallpaper.available, current: host.wallpaper.current,
+                                            perScreen: host.wallpaper.perScreen, error: host.wallpaper.error })
+    onHostWallpaperChanged: if (core.connected) core.notify("wallpaper.report", hostWallpaper)
     onOpenedChanged: { Host.panelOpen = opened; reportState(); }
     // The core reaps a closed view, ends panel leases and decides Super+` folds (Q7) from these reports.
     function reportState() {
@@ -84,7 +88,11 @@ Scope {
     }
     Connections {
         target: root.core
-        function onConnectedChanged() { if (root.core.connected) root.reportState(); }
+        function onConnectedChanged() {
+            if (!root.core.connected) return;
+            root.reportState();
+            root.core.notify("wallpaper.report", root.hostWallpaper);
+        }
         function onCommand(action, page, from, extra) {
             coldProbe.mark("command");
             const placement = { from: from, screen: extra?.screen ?? "" };
