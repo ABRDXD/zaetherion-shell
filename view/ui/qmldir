@@ -8,6 +8,7 @@ singleton Design 1.0 Design.qml
 FBlades 1.0 FBlades.qml
 FButton 1.0 FButton.qml
 FChoice 1.0 FChoice.qml
+FConfirmButton 1.0 FConfirmButton.qml
 FCreature 1.0 FCreature.qml
 singleton Feedback 1.0 Feedback.qml
 FField 1.0 FField.qml
