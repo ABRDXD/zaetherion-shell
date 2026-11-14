@@ -1,5 +1,6 @@
 // Derived from adapters/serpantinum/SerpantinumKeybinds.qml (this repository; it uses only Quickshell primitives). See NOTICE.
 import QtQuick
+import Quickshell
 import Quickshell.Io
 import qs.view.contract
 
@@ -7,6 +8,12 @@ import qs.view.contract
 KeybindsDomain {
     id: root
     available: true
+    // The launcher key, only with FART_LAUNCHER_SHORTCUT=1 (S6 trial).
+    readonly property HyprlandLauncherShortcut launcherShortcut: HyprlandLauncherShortcut {
+        enabled: Quickshell.env("FART_LAUNCHER_SHORTCUT") === "1"
+        onPressed: root.launcherPressed()
+        onReleased: root.launcherReleased()
+    }
     readonly property var masks: [[64, "SUPER"], [1, "SHIFT"], [4, "CTRL"], [8, "ALT"]]
     function parse(text) {
         let list = [];

@@ -133,6 +133,37 @@ Scope {
         body.focusCommandLine();
         coldProbe.handled();
     }
+    // tools/launcher_keycheck.py (FART_COLD_PROBE=1 only), wall-clock ms: every change of the command line's text,
+    // of the panel window's activation (the keyboard entering it) and of the line's own focus, at any time.
+    Connections {
+        target: coldProbe.enabled ? (body.shell?.commandLine ?? null) : null
+        function onTextChanged() { console.log("FART_CMDTEXT", Date.now(), JSON.stringify(body.shell.commandLine.text)); }
+    }
+    Connections {
+        target: coldProbe.enabled ? body.Window.window : null
+        function onActiveChanged() { console.log("FART_CMDFOCUS", Date.now(), "window", body.Window.window.active); }
+    }
+    Connections {
+        target: coldProbe.enabled ? coldProbe : null
+        function onInputFocusedChanged() { console.log("FART_CMDFOCUS", Date.now(), "input", coldProbe.inputFocused); }
+    }
+    // The launcher key delivered by the host (keybinds.launcherPressed; Hyprland's global shortcut, only with
+    // FART_LAUNCHER_SHORTCUT=1): the press opens the command line without a CLI spawn or a core round trip. The core
+    // still gets the edges for hold-to-ignite (key.down with panel: true starts the hold without another open).
+    function launcherPressed() {
+        coldProbe.mark("command");
+        if (root.opened && (body.shell?.commandLine.idle ?? false)) {
+            Host.close();  // Q7: Super+` on a focused, empty command line folds
+            return;
+        }
+        root.openPage(root.currentPage || "home", null);
+        root.core.request("key.down", { panel: true });
+    }
+    Connections {
+        target: root.host.keybinds
+        function onLauncherPressed() { root.launcherPressed(); }
+        function onLauncherReleased() { root.core.request("key.up", {}); }
+    }
     Connections {
         target: Host
         function onOpenRequested(page) { root.openPage(page, null); }
@@ -249,7 +280,10 @@ Scope {
     }
     HyprlandFocusGrab {
         active: root.opened && root.surfaceDrawn && !body.shell?.externalDialogOpen && root.grabResumed
-        windows: [surface].concat(root.companionWindows)
+        // The panel goes last: a grab committed before the keyboard has reached the panel hands it to the last
+        // surface listed (Hyprland 0.57), and on the first open after the view starts that was the island, which
+        // swallowed every key (tools/launcher_keycheck.py, case `first`).
+        windows: root.companionWindows.concat([surface])
         onCleared: if (!body.shell?.externalDialogOpen && root.grabResumed) Host.close()
     }
     // Diagnostics only: open, page, close and toggle arrive from the core.

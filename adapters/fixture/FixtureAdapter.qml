@@ -1,3 +1,5 @@
+import Quickshell
+import qs.adapters.hyprland
 import qs.view.contract
 
 // Inert host for offscreen tests: contract defaults plus fixed sample data. Methods only log calls.
@@ -62,7 +64,14 @@ HostAdapter {
     osd: OsdDomain { available: true }
     capture: CaptureDomain { available: true }
     keybinds: KeybindsDomain {
+        id: fixtureKeybinds
         available: true
+        // tools/launcher_keycheck.py drives the launcher key through the real shortcut (FART_LAUNCHER_SHORTCUT=1 only).
+        readonly property HyprlandLauncherShortcut launcherShortcut: HyprlandLauncherShortcut {
+            enabled: Quickshell.env("FART_LAUNCHER_SHORTCUT") === "1"
+            onPressed: fixtureKeybinds.launcherPressed()
+            onReleased: fixtureKeybinds.launcherReleased()
+        }
         capsLock: true
         numLock: true
         binds: [{ mods: ["SUPER"], key: "V", section: "Utilities", description: "Clipboard history" },
