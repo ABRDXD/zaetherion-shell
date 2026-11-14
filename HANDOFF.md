@@ -1,3 +1,25 @@
+# 14 November 2026 · Opus (Claude A): S6 launcher, apps and ranking committed; the surface waits for the owner's look
+
+- **Committed (`aba742a`, branch `s6-launcher`).** Apps list in the adapter (`AppsDomain`, `QuickshellApps`), ranking,
+  frecency, the one-time import and the Session blocklist in the core (`core/matching.py`, `core/launcher.py`), apps
+  started through Hyprland's exec (clean environment checked in nested Hyprland). Z185–Z189. Full suite 971 OK (whole
+  tree, including the uncommitted surface); the commit's export: 91 OK in the affected modules.
+- **Built, not committed (owner's look first).** The surface grown from the island: `view/shell/LauncherFace.qml`,
+  `LauncherRow.qml`, `LauncherLayout.js`, `AppsIndex.qml`, `LauncherRoutes.qml`; edits in `IslandSurface/Expansion/
+  Window.qml`, `shell.qml`, `shell-dms.qml`, `CoreClient.qml`; `tests/test_launcher_view.py` + `tools/launchertest/`
+  (15 checks, real core); path C in `tools/launcher_keycheck.py`; `docs/S6_LAUNCHER.md` §2.1 and §8. Offscreen captures
+  were shown to the owner (scratch files, not kept).
+- **Measured (path C).** Keyboard 10 ms median (worst 13) with the view up, 13 ms (worst 19) on a first open; 0 letters
+  lost or sent to the app in 120 trials. Path B in the same run: ~60 ms, 7 letters to the app in one trial. Found on
+  the way: Hyprland 0.57 does not give the keyboard to a mapped layer that turns Exclusive; the island's focus grab
+  now starts at once for the launcher. The island's `focus` IPC (Z148) has the same problem in nested Hyprland; ask
+  the owner whether it works live.
+- **Incident.** An earlier probe used `tools/nested_hypr.py start/stop` with the shared state file and stopped another
+  agent's nested Hyprland twice (not D's; probably B's or C's). Use a private state file (as `launcher_keycheck.py`
+  does); a per-agent default for `nested_hypr.py` was proposed to the owner.
+- **Next.** The owner's look → commit the surface. Then the FART settings controls (Z189), verbs/calc/`>cmd`/`?term`
+  inline, windows (Z77), Emoji, Clips (with C), Files. The binds (§6) need the owner's OK and a rollback each time.
+
 # 14 November 2026 · Opus (Claude A): S6 started; the first open keeps every key
 
 - **Design.** `docs/S6_LAUNCHER.md` (F4 draft): where keys go when the launcher opens, measured with `tools/launcher_keycheck.py` (nested Hyprland, fixture adapter, a focused app logging its keys, `wtype`). Today's path (bind → `zaetherion key` → core → view) takes 85–89 ms median with the view up, worst 128, and drops ~3 in 10 presses whose press and release arrive together. A Hyprland global shortcut handled in the view (option B) takes ~60 ms, worst 85, and never dropped one. Plan: B now, the launcher grown out of the island (C) to close the rest. Owner: keep DMS's spotlight on another key during the trial; Brave for `?term`.
