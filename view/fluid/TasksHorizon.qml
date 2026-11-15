@@ -17,7 +17,7 @@ Item {
     readonly property real cx: width / 2
     readonly property real cy: limbY + planetR
     property color air: late ? Design.warm : Design.atmosphere
-    Behavior on air { ColorAnimation { duration: Motion.scaled(1200) } }
+    Tween on air { scope: root; ColorAnimation { duration: Motion.scaled(1200) } }
     property real shown: progress
     Tween on shown { scope: root; NumberAnimation { duration: Motion.scaled(1100); easing.type: Easing.OutCubic } }
 
