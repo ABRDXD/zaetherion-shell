@@ -105,6 +105,10 @@ folders.
 Super tap and Super+Space move from DMS's spotlight to ours (option B's `global` dispatcher). The old lines are kept
 commented, so rolling back is restoring them and `hyprctl reload`.
 
+**Done 15 November 2026 (owner's yes):** Super tap (`SUPER_L`/`SUPER_R` on release) and Super+Space send the global
+`zaetherion:apps`; DMS's spotlight moved to Super+Ctrl+Space. `tools/session-start` exports `FART_LAUNCHER_SHORTCUT=1`.
+Backup: `~/.config/hypr/zaetherion/keybinds.lua.bak-2026-11-15-starchart`.
+
 ## 7. The owner's answers (14 November 2026)
 
 1. **DMS's spotlight stays reachable on another key during the trial**; ours takes Super tap and Super+Space. Which

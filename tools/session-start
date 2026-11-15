@@ -31,6 +31,8 @@ else
     say "notifications: DMS's own, the quiet copy doesn't fit: $why"
 fi
 
+# The launcher's keys (S6, Z196): Super tap and Super+Space reach the view through Hyprland's global shortcut.
+export FART_LAUNCHER_SHORTCUT=1
 "$ROOT/zaetherion" start >>"$LOG" 2>&1 || say "core did not start"
 
 # The core (fartd) supervises DMS itself (FART_SUPERVISE=dms, set by `zaetherion start`): it starts it,

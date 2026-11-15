@@ -14,6 +14,10 @@
   with the login's four settings (quiet copy fits); DMS and our notification server back. Opened once with
   `qs -p shell-dms.qml ipc call launcher toggle`: real apps and icons on the orbit, closed cleanly. The island layer is
   1920×546 but its input mask is the island's frame, so the empty area passes clicks. Binds unchanged.
+- **Keys live (owner's yes).** Super tap and Super+Space → `zaetherion:apps` (the star chart); DMS's spotlight on
+  Super+Ctrl+Space. `session-start` exports `FART_LAUNCHER_SHORTCUT=1`; core restarted with it, shortcut registered
+  (`hyprctl globalshortcuts`), a dispatched `global` opened and closed it. Rollback: the `.bak-2026-11-15-starchart`
+  bind file + `hyprctl reload`. The repo's `session/hypr` copy already differs from the live file (owner's edits); not synced.
 - **Not done.** Not yet in nested Hyprland. The island window is now 546 px deep (was
   324) while the launcher exists; check input region and cost live. The starfield-lensing idea behind the ring is
   not built (Overdrive). Labels of the far side can overlap at 9+ results (rows setting up to 12).
