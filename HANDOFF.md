@@ -1,3 +1,10 @@
+# Next Codex session
+
+Use [the continuation prompt](docs/NEXT_CHAT_PROMPT.md). The owner requests preparation
+for a fresh chat and explicitly prioritises creative implementation over context gathering:
+read only what a concrete implementation decision requires. Next: Confluence Performance
+in a fresh worktree from current main. This preparation adds no UI or runtime changes.
+
 # 15 November 2026 · UI creative handoff for Claude A and other UI contributors
 
 - Owner reaffirmed that slop, mediocrity and sameness are unacceptable across FART's UI.
