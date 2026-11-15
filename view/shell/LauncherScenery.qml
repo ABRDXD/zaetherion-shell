@@ -50,7 +50,12 @@ Item {
                     border.color: Qt.alpha(Design.ink, 0.5)
                 }
                 FText {
-                    anchors.horizontalCenter: parent.horizontalCenter
+                    // A long sum would run across the chart: a fixed width, shortened in the middle.
+                    objectName: "binaryLabel"
+                    x: -width / 2
+                    width: Layout.sceneryLabel
+                    horizontalAlignment: Text.AlignHCenter
+                    elide: Text.ElideMiddle
                     y: Layout.binaryStar
                     headline: true
                     font.capitalization: Font.MixedCase

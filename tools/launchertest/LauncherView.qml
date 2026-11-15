@@ -221,6 +221,20 @@ ShellRoot {
                 const last = fixture.clipboard.calls[fixture.clipboard.calls.length - 1];
                 return last?.method === "copyText" && last.args[0] === "42";
             }, "05-calc"),
+            // A long sum (owner's, 15 Nov 2026): answered, and its labels stay within their width.
+            () => {
+                island.openLauncher();
+                const sum = "((17^3-29*41+7^4)/(13^2+5*11))*((2^10+3^8+5^6)/(17^2-19))+((97^2-89^2)*(61^2+43^2))/(2^9+7^3)-((123^3-456^2)/(29^2+31^2))";
+                until(() => !!root.input, 2000, () => type(sum + "+" + sum, () => {
+                    check("long.sum", root.face.results[0].kind === "calc" && root.face.results[0].name.endsWith("= 22254.0566996"), root.face.results[0]);
+                    const labels = [];
+                    const walk = node => { if (!node) return; if (node.objectName === "binaryLabel" && node.visible) labels.push(node); for (const c of node.children) walk(c); };
+                    walk(island);
+                    check("long.sum.labels.fit", labels.length === 2 && labels.every(l => l.width <= 200 && l.truncated === (l.text.length > 20)), labels.map(l => [l.width, l.truncated, l.text.length]));
+                    island.toggleLauncher();
+                    until(() => !island.launcherOpen, 1000, next);
+                }));
+            },
             () => root.inline("10 km to mi", "convert", "inline.convert", () => {
                 const last = fixture.clipboard.calls[fixture.clipboard.calls.length - 1];
                 return last?.method === "copyText" && last.args[0] === "6.21371";
