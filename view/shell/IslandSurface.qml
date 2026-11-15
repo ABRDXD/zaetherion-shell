@@ -6,6 +6,7 @@ import qs.view.cues
 import qs.view.ui
 import "../ui/FocusMap.js" as FocusMap
 import "LauncherLayout.js" as LauncherLayout
+import "IslandTiming.js" as IslandTiming
 
 FocusScope {
     id: root
@@ -99,7 +100,7 @@ FocusScope {
     // Z174 (owner, 13 November 2026; bends Z161 for the OSD only): while FART covers the island, a volume, mic or
     // brightness change shows in FART's header (FartHeaderOsd, drawn by the Overlay) at once and is never banked
     // in the queue, so the fold replays no stale level. It stays `osdDwell` after the last change.
-    readonly property int osdDwell: 1200
+    readonly property int osdDwell: IslandTiming.osd
     property var headerOsd: null
     property double headerOsdUntil: 0
     function showHeaderOsd(value: var, dwell: double): void {
@@ -137,6 +138,10 @@ FocusScope {
         still: root.motionLevel === "off"
     }
     readonly property int draftLength: (replyDrafts[expansion?.id] ?? "").length
+    // Whether the shown notice holds a reply draft, set one step later: the queue's pause follows it, and the queue
+    // decides `expansion`, so a direct binding would loop.
+    property bool draftHold: false
+    onDraftLengthChanged: Qt.callLater(() => root.draftHold = root.draftLength > 0)
     readonly property bool noticeVisible: expansion?.kind === "notification" || expansion?.kind === "critical"
     // Z175: a notification's countdown pauses only while the pointer is on its card, not on the island around it.
     property bool noticeHovered: eventPane.item?.noticeHovered ?? false
@@ -244,7 +249,9 @@ FocusScope {
 
     IslandQueue {
         id: queue
-        hovered: root.noticeVisible ? root.noticeHovered : root.pointerInside
+        // A notice waits while the pointer is on its card or a reply is being written in it (Z200: at 1 s, a draft
+        // would otherwise vanish under the typing).
+        hovered: root.noticeVisible ? root.noticeHovered || root.draftHold : root.pointerInside
         // Z161: FART grown from the island covers it: ordinary events wait (time intact) until it folds, and a
         // critical one drops down inside FART instead (`coveredEvent`, drawn by the Overlay).
         ceiling: root.docked ? events.priority.critical : Infinity

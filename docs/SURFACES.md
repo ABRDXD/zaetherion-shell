@@ -52,7 +52,7 @@ The island morphs continuously (width and height, host motion profile with overs
 | Timer/session | Countdown and current task; DONE inverts until clicked | On click (DONE) |
 | Recording | Signal-coloured timer; stopped by the same keybind (Z105) | When stopped |
 | Mic/camera in use | Signal dot at rest; app name on hover (Z74) | When the stream ends |
-| Workspace switch | N blades, active highlighted (Z21) | ~0.8 s |
+| Workspace switch | A cold edge-on system: the current workspace in transit across a small star (Z199) | ~2.2 s |
 | Memory pressure (owner, 11 Nov 2026) | Used/total bar, then the top 3 processes by PSS; pinnable to stay while working | Pressure falls below the threshold for ~10 s, unless pinned |
 | Low battery | Signal plane at 20, 10 and 5%; 5% is critical and passes DND (Z129) | Timeout, or on click |
 | Session debrief | Duration, tasks done, streak (Z103) | When dismissed |

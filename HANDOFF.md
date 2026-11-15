@@ -8,6 +8,69 @@
 - **Question for the owner (Z198).** DMS has its own clipboard manager (`dms clipboard`: history, search, pins, `send-paste`, config; today `disabled: true`, because the owner chose cliphist on 11 Nov). C's design (before Z198) keeps cliphist, has the core run the recorders (Z184) and pastes through Hyprland (Z183). Under Z198, the alternative is DMS's clipboard as the backend. Ask before §5's go-live.
 - **Next.** Owner: go live? and the clipboard question. Then: the Clips and Island tabs in FART's settings (Z176, Z184, Z201); the right-click hint on the Devices tiles (owner's call). When A's `ws-transit` merges: `IslandExpansion`, `IslandEvents`, `qmldir`, `test_island` overlap with this merge.
 
+# 15 November 2026 · UI creative handoff for Claude A and other UI contributors
+
+- Owner reaffirmed that slop, mediocrity and sameness are unacceptable across FART's UI.
+- Read [UI and creative direction](docs/UI_CREATIVE_HANDOFF.md) before designing or extending a surface.
+  It consolidates approved Angular/Confluence identities, astrophysical precedents, concrete rejection
+  criteria, motion and usability standards, implementation boundaries and the next Fluid milestone.
+- Documentation only; no visual redesign, new approval gate, runtime change or live reload.
+
+# 15 November 2026 · Codex: FLUID checkpoint integrated for the owner's live trial
+
+- Owner explicitly approved commit, merge and trying the unfinished presentation live.
+- Integrated `codex/fluid-foundation` (Media, Home, persistent controllers and native Design Style selector)
+  over the current launcher, workspace transit and native Wi-Fi/Bluetooth settings work in a scratch worktree.
+  Home's Wallpaper and Presets actions retain the newer native settings destinations in both presentations.
+  Updated the Media fixture for PreferencesPane's new required host; added both Home routing regressions.
+- Nested checks: Home 32 and Media 32 pass, including rapid switching, focus, palette preview/cancellation,
+  controller state and leases. Fresh merged Home/Media and Settings captures inspected in nested Hyprland.
+  Smoke visits all ten rooms; changed QML has zero syntax diagnostics.
+- Live trial: main fast-forwarded to the integration; only the resident view was reloaded. Core PID,
+  palette snapshot and requested mode stayed unchanged. Selected Fluid through the existing command and
+  opened Home. View reported ready; live QML log and Hyprland configerrors were clean. Mode remains Silent.
+  Newer unrelated island timing edits in the main working tree were preserved, not staged.
+- Verification complete: 42 layout/contract/palette/Home tests and 25 launcher/island/notification tests
+  pass. The broad run executed 1104 tests (one skipped), with one cue error and five failures: the old Media
+  view lookup, generated qmldir ordering, and four timing assertions loaded before the concurrent Z200 merge.
+  Corrected the lookup to use the persistent session and regenerated qmldir. Reruns: 26 module/island/
+  notification tests pass; all six closing cue scenarios pass in nested Hyprland with the software renderer
+  expected by the harness (Media idle/lyrics, orbit laws, Overdrive language, ignition/release and guards).
+  Full suite not rerun after those fixes; no blanket full-suite pass claim. The terminal suppresses QML debug
+  by default, so tests that read QML markers need `QT_LOGGING_RULES=qml.debug=true`.
+- Merge and test follow-ups committed on `s0-seed`; Fluid work remains isolated on
+  `codex/fluid-foundation` and `codex/fluid-live-merge`. No outstanding Fluid edits or push.
+- Scope: the style authority is global (`island.form` → `Design.form`), but dedicated Confluence room
+  presentations currently cover Home and Media. Other rooms and surrounding shell framing remain in progress.
+  Existing Overdrive effects and reduced-motion behaviour remain; full Fluid spatial transitions are pending.
+  No 144 Hz performance claim. No push or desktop configuration change.
+- Next: implement Confluence Performance using the existing semantic services, then shared Fluid shell framing.
+
+# 15 November 2026 · Opus (Claude A): island faces leave sooner (Z200)
+
+- **Owner.** "the notifications and anything expanding from the dynamic island just stay on for too long".
+- **Changed.** One timing file, `view/shell/IslandTiming.js`; times cut (see Z200). The main cause: senders' "never
+  expire" (0) stayed until dismissed; now 2 s on the island (critical unchanged, the Inbox keeps everything).
+- **Then "make all of these 1 or less than 1".** Every timed face 1 s (OSD 0.8 s); workspace turn 0.7 s. A reply draft
+  now pauses a notice like hovering does (`draftHold`, set one step later to avoid a binding loop).
+- **Checks.** Island and notification-server tests at the new times: 24 OK.
+
+# 15 November 2026 · Opus (Claude A): the workspace switch as a cold edge-on system; apps as planets (Z199, branch `ws-transit`)
+
+- **Owner's call.** Three instrument mock-ups on the canvas (A orrery, B astrolabe, C transit); the owner picked C, asked
+  for "the viewing angle… this large cold universe… just witnessing a speck of it", "as mature as possible" → C2,
+  "LOVE IT IMPLEMENT THAT". Also "yea sure" to apps as planets in the launcher.
+- **Built.** `view/shell/WorkspaceTransit.qml` + `WorkspaceLayout.js` (the island's workspace face, 600×118, payload
+  gains `windows`, dwell 2.2 s); shared `view/ui/ColdStar.qml`, `ColdPlanet.qml`; cold tokens in `Design`. Launcher:
+  apps are cold planets with a crescent toward a small cold star at the barycentre; tags lose the spectral letters.
+- **Bugs found on the way.** `spin` bound to `turn` started the turn at its end (no motion); construction fired a turn
+  from workspace 1; a large world covered the star (now capped at 60 % of its diameter: a transit, never an eclipse).
+- **Checks.** `tests/fixtures/island/WorkspaceTransitTest.qml` (10 checks: transit, cap, symmetry, crescents, counts,
+  readout, one step back, settles, the short way round the wrap, new world in transit). Launcher view, island, layout
+  OK. Full suite: 1103 run, 1 failure (the glint used SequentialAnimation, against the motion rule), fixed; contract and island rerun OK. Frames of a turn captured offscreen for the owner.
+- **Not checked live.** A real workspace switch on the owner's desktop (switching their workspace for a test would
+  move their work); ask the owner to try.
+
 # 15 November 2026 · Opus (Claude B): right-click on Devices' Wi-Fi and Bluetooth tiles opens FART's own panels
 
 - **Owner's ask:** the tiles only toggled; a right-click should open a usable Wi-Fi or Bluetooth panel. `LinkPlane` gains `secondaryClicked` (a right-button-only `MouseArea`, so the left click stays the toggle); Devices sends it to `openDialog("wifi"|"bluetooth")`.
@@ -254,6 +317,23 @@
 - **Not yet.** Raw-pixel pictures are shown from the view while live but not yet saved to disk (step 3, when a card draws them). The island and FART's Inbox do not use actions, reply, images or the showing time yet. No sound yet.
 - **Checks.** Notification, bus, adapter, contract, architecture and island tests: 97 OK. qmllint: no syntax diagnostics on the new files. Full suite on that commit (`41f56bf`): 865 of 866; the one failure was the inherited layout law "no QML claims the notification server", replaced in the next commit by a law that allows exactly our one gated file.
 - **Next.** Step 3, the island: showing time from the item, actions, reply, picture. Captures to the owner before that commit.
+# 14 November 2026 · FLUID Phase 2: Confluence Home checkpoint
+
+- **Built.** Home now uses persistent `HomeSession` with separate `AngularHome` and `FluidHome` presentations through the existing host. Sky requests, position lease, edition/fold snapshot, calendar month, Angular week and selected day survive style replacement. Delayed sky replies after folding/disconnection are ignored. Confluence Home has calendar, task completion, focus timer, media transport, inbox/workspace, profile and existing upkeep/desk actions. Added reusable `FluidCalendar` and `FluidActionRow`; no backend or settings authority was duplicated.
+- **Integration fixes.** The shell surveyor follows the actual presentation, so swapping a retained room does not leave references to destroyed controls. Renamed the existing orbit idle-loop id to avoid collision with `Starfield.twinkle`, eliminating its undefined phase binding. The fixture driver focuses only nested `ZTEST` before launching: floating regressions on the hidden nested output previously had unpolished layouts, including the original baseline.
+- **Verified.** 36 focused layout/day-fold/survey unit tests; 30 nested Home checks including 40 switches, calendar/fold/state retention, focus, unchanged leases/sky requests, palette preview/cancel, offline state, late replies and native viewport bounds. Existing nested Media (32), Home sky (5), Home fold (6) and surveyor (8) checks pass. Ten offscreen smoke rooms pass; zero Qt 6 `syntax*` diagnostics. Nested configerrors empty and clients released; owned nested compositor stopped. Fixtures do not actuate the host.
+- **Captures / scope.** `docs/captures/fluid-home/` contains native 1360×860 panel captures on 1920×1080 nested output: Silent/Overdrive, AMOLED/Ice preview, calendar navigation and Angular baseline. Home fits its 1034×647 viewport. Angular panel comparison has zero pixels differing by more than 16/255; exact identity is not claimed. The surrounding shell framing still uses Angular geometry/effects. No sustained 144 Hz claim.
+- **Repository / review.** Isolated sibling worktree `zaetherion-shell-fluid`, branch `codex/fluid-foundation`, base checkpoint `589a058`. Home changes and evidence form the next committed checkpoint under the owner's existing commit approval; the repository adds no separate UI approval gate. The prior Media/Settings checkpoint remains committed. No merge, push, live configuration, protected path edits or issue closures; other worktrees were not modified.
+- **Exact next task.** Implement Confluence Performance through the same presentation host with a minimal persistent controller; then address shared shell framing. Reproduce Home with `python tools/fluid_fixture.py --fixture tests/fixtures/fluid/HomeSwitch.qml` (start nested Hyprland first); add `--capture docs/captures/fluid-home`, optionally `--baseline`, for captures. Remaining rooms, wider palette coverage and performance measurements remain outstanding.
+
+# 13 November 2026 · FLUID Phase 2 recovered; Media and Settings checkpoint approved
+
+- **Recovery / scope.** The interrupted `/tmp` worktree was gone; recovered its exact edits from the previous session's tool history onto `codex/fluid-foundation` at `e6c86ea`, in the durable sibling worktree `zaetherion-shell-fluid`. Main checkout diagnosis work is untouched. No merge, push, live configuration changes or host actions.
+- **Built.** Persistent `MediaSession`, separate `AngularMedia` / `FluidMedia`, asynchronous `PresentationHost` with stale-request protection and matching-control focus transfer. Settings' Design Style selector sits beside Palette and uses the existing `island angular|fluid` command and `island.form` → `Design.form` authority. Added latest-intent queuing for delayed replies, stale reply/disconnect protection, and a bounded reusable `FluidChoice` for player lists. The recovered Media overflow correction is retained.
+- **Verified.** 59 focused core/island/palette/layout/architecture/view tests; ten offscreen smoke rooms; zero Qt 6 `syntax*` diagnostics. Nested Angular Media effects regression passes, ending at `CUE_ACTIVE 0 []`. All 32 nested Media checks pass, covering 40 alternating switches, unchanged controller and leases, palette preview and cancellation, action capability guards, focus (transport and player choice), rapid requests, delayed/rejected replies, disconnect, 12-player catalogue and component bounds. Native Shell capture verifies the same Media controller and active room survive its Settings selector, preview opens and closing cancels it. Native Media area is 1034×647 inside a 1360×860 panel; captures are 1920×1080. Nested `hyprctl configerrors` is empty; fixture logs have no QML errors. The owned nested compositor is stopped after verification. No 144 Hz or performance-budget claim.
+- **Evidence / commands.** `docs/captures/fluid-phase2/`, including `integrated/` for the real Shell. Run `python tools/nested_hypr.py start`, then `python tools/fluid_fixture.py`; `--capture <directory>` records standalone captures, add `--integrated` for native Shell/Settings. `--baseline` restores only Media from e6c86ea for Angular comparison. `--fixture tools/cuetest/MediaTest.qml` runs Angular effects in the nested compositor. Angular comparison has 344 pixels differing by >16/255, all within the centred seek hint; no broad geometry change was observed. Exact pixel identity is not claimed.
+- **Approval / remaining.** The owner approved the captures and checkpoint commit on 13 November 2026. The selector is the central, persisted control-centre style setting; the implemented Fluid presentations remain incremental. This is the Media/Settings foundation, not a complete Fluid shell: Home, Performance, shared shell framing and further rooms still use Angular presentation. Installed palette coverage beyond Amoled Black / Ice preview and sustained 144 Hz performance remain unverified. No GitHub issue acceptance closure is claimed.
+- **Exact next task.** Extract Home's small persistent state (edition/front-page choice and shared data ownership), retain its Angular view, and add the approved Confluence Home presentation through `PresentationHost`.
 
 # 13 November 2026 · Astra: S8 palette picker complete on `s8-palette`
 

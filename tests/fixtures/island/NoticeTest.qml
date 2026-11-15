@@ -48,16 +48,16 @@ ShellRoot {
         onTriggered: {
             switch (root.step++) {
             case 0:
-                fixture.notifications.items = [root.item("a", 1, { live: true, timeout: 1500 })];
+                fixture.notifications.items = [root.item("a", 1, { live: true, timeout: 900 })];
                 break;
             case 1:
-                root.check(queue.current?.id === "notification:a" && root.entry("a").remaining === 1500, "the sender's showing time");
+                root.check(queue.current?.id === "notification:a" && root.entry("a").remaining === 900, "the sender's showing time");
                 root.check(queue.current.data.actions.length === 1 && queue.current.data.reply === "Reply", "a live item can be answered");
                 fixture.notifications.items = [root.item("a", 2, { live: true, timeout: 0, summary: "Changed" })];
                 break;
             case 2:
                 root.check(queue.entries.length === 1 && queue.current.data.summary === "Changed", "replace-id refreshes the card");
-                root.check(root.entry("a").remaining === null, "zero stays until dismissed");
+                root.check(root.entry("a").remaining === 1000, "a sender's never-expire gets our time");
                 queue.remove("notification:a");
                 // Read elsewhere: the same arrival, so the dismissed card does not come back.
                 fixture.notifications.items = [root.item("a", 2, { live: true, timeout: 0, read: true }),
@@ -65,13 +65,13 @@ ShellRoot {
                 break;
             case 3:
                 root.check(root.entry("a") === null, "a change that is not an arrival shows nothing");
-                root.check(root.entry("b")?.remaining === events.durations.notification && events.durations.notification === 3000, "our own showing time");
-                root.check(NotificationTiming.showMs(-1, "normal") === 3000 && NotificationTiming.showMs(-1, "low") === 3000
+                root.check(root.entry("b")?.remaining === events.durations.notification && events.durations.notification === 1000, "our own showing time");
+                root.check(NotificationTiming.showMs(-1, "normal") === 1000 && NotificationTiming.showMs(-1, "low") === 1000
                     && NotificationTiming.showMs(-1, "critical") === 0 && NotificationTiming.showMs(8000, "normal") === 8000,
-                    "the adapter's default is 3 s and honours the sender");
-                root.check(events.showTime({ timeout: 10000, urgency: "normal" }) === 6000
-                    && events.showTime({ timeout: 6000, urgency: "low" }) === 6000, "the island caps a sender's long time at 6 s");
-                root.check(events.showTime({ timeout: 4000, urgency: "normal" }) === 4000, "a shorter sender time is kept");
+                    "the adapter's default is 1 s and honours the sender");
+                root.check(events.showTime({ timeout: 10000, urgency: "normal" }) === 1000
+                    && events.showTime({ timeout: 6000, urgency: "low" }) === 1000, "the island caps a sender's long time at 1 s");
+                root.check(events.showTime({ timeout: 600, urgency: "normal" }) === 600, "a shorter sender time is kept");
                 root.check(events.showTime({ timeout: 10000, urgency: "critical" }) === 10000
                     && events.showTime({ timeout: 0, urgency: "critical" }) === null
                     && events.showTime({ timeout: -1, urgency: "critical" }) === null, "critical is not capped");

@@ -81,7 +81,7 @@ class MatrixTests(Base):
             self.bus.send("-u", urgency, "-a", "Fixture", urgency, "Synthetic body")
         items = self.items(3)
         self.assertEqual([(i["summary"], i["urgency"], i["timeout"]) for i in items],
-                         [("low", "low", 3000), ("normal", "normal", 3000), ("critical", "critical", 0)])
+                         [("low", "low", 1000), ("normal", "normal", 1000), ("critical", "critical", 0)])
         self.assertEqual({(i["appName"], i["body"], i["read"], i["live"]) for i in items},
                          {("Fixture", "Synthetic body", False, True)})
         self.assertEqual(self.played(), ["notify.normal", "notify.critical"])   # low is silent

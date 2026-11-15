@@ -28,7 +28,7 @@ class IslandFrameTests(unittest.TestCase):
     def test_osd_shows_in_fart_header_while_covered(self):
         """Z174: covered by FART, the OSD goes to the header at once and is never banked for the fold."""
         self.run_fixture("HeaderOsdTest.qml", ("covered osd shows in header", "repeat updates in place",
-            "readout sits on the header row", "muted reads MUTED", "dwell follows the last change", "leaves after 1.2 s", "header readout gone",
+            "readout sits on the header row", "muted reads MUTED", "dwell follows the last change", "leaves after its dwell", "header readout gone",
             "fold replays no stale osd", "uncovered osd on island", "dock lifts osd into header", "fold hands it back"))
 
     def test_quick_paste_and_rest_modes(self):
@@ -39,19 +39,25 @@ class IslandFrameTests(unittest.TestCase):
             "ctrl+o opens the room with the query", "esc folds and lets go of the history", "toggle opens", "toggle folds",
             "rest B: no bell, status at the edge, unread dot", "no dot when all is read", "default rest unchanged"))
 
+    def test_workspace_instrument(self):
+        """Z199: the edge-on system: transit, symmetry, crescents, window counts, the short way round, settling."""
+        self.run_fixture("WorkspaceTransitTest.qml", ("current world on the star's face", "a transit, never an eclipse", "worlds mirror about the axis",
+            "crescents face the star", "window counts reach the worlds", "readout", "one step back turns back", "turn settles",
+            "the short way round the wrap", "new world in transit"))
+
     def test_status_faces(self):
         self.run_fixture("EventTest.qml", ("recording status", "charging notice", "DND suppresses ordinary battery warning",
             "critical battery passes DND", "backend comeback", "resident restart", "timer status", "timer done", "session debrief"))
 
     def test_notices_follow_their_inbox_item(self):
         self.run_fixture("NoticeTest.qml", ("the sender's showing time", "a live item can be answered",
-            "replace-id refreshes the card", "zero stays until dismissed", "a change that is not an arrival shows nothing",
-            "our own showing time", "the adapter's default is 3 s and honours the sender",
-            "the island caps a sender's long time at 6 s", "a shorter sender time is kept", "critical is not capped",
+            "replace-id refreshes the card", "a sender's never-expire gets our time", "a change that is not an arrival shows nothing",
+            "our own showing time", "the adapter's default is 1 s and honours the sender",
+            "the island caps a sender's long time at 1 s", "a shorter sender time is kept", "critical is not capped",
             "a restored item cannot be answered", "closed elsewhere leaves the island"))
 
     def test_right_click_dismisses_and_card_hover_pauses(self):
-        self.run_fixture("DismissTest.qml", ("right-click is idle without a notification", "default showing time is 3 s",
+        self.run_fixture("DismissTest.qml", ("right-click is idle without a notification", "default showing time is 1 s",
             "right-click takes only the right button", "right-click removes it from the island",
             "right-click dismisses it in the Inbox", "critical stays until dismissed",
             "right-click dismisses a critical notification", "pointer off the card",

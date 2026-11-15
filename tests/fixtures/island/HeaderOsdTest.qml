@@ -103,7 +103,7 @@ ShellRoot {
                 root.check(island.headerOsd?.muted === true && header.showing, "dwell follows the last change");
                 break;
             case 23:
-                root.check(island.headerOsd === null, "leaves after 1.2 s");
+                root.check(island.headerOsd === null, "leaves after its dwell");
                 break;
             case 24:
                 root.check(!header.showing, "header readout gone");

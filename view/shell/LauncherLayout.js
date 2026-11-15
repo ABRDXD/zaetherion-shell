@@ -17,6 +17,7 @@ const orbitY = 178;
 const orbitRx = 300;
 const orbitRy = 124;
 const perigeeRadius = 44;  // the accretion ring around the pick
+const starRadius = 10;     // the barycentre's cold star (Z199)
 const labelWidth = 160;    // a body's name under it, centred
 // The barycentre's scenery for a lone inline result (LauncherScenery.qml).
 const sceneryRx = 130;     // a sum's binary orbit

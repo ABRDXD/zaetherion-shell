@@ -75,6 +75,14 @@ Singleton {
     readonly property color moon: "#dfe7f2"     // DMS settings
     readonly property color quasar: "#7dd3fc"   // DMS plugins
     readonly property color satellite: "#a6e3a1" // clipboard entries
+    // The cold far system (Z199): workspaces seen edge-on, and the launcher's planets. Restrained on purpose.
+    readonly property color voidFill: "#020406"   // the island's dark while a cold scene shows
+    readonly property color coldStar: "#cfe3ff"
+    readonly property color coldCore: "#f4f8ff"
+    readonly property color coldRim: "#b9cfe6"    // a planet's lit crescent
+    readonly property color coldBody: "#05080b"   // a planet's night side
+    readonly property color coldLine: "#1b2a33"   // orbits, the scale
+    readonly property color coldInk: "#8fa6b4"    // the readout
     function starColor(rank: int): color { return spectral[Math.max(0, Math.min(rank, spectral.length - 1))]; }
 
     function linearChannel(value: real): real {

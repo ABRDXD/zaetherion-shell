@@ -4,6 +4,7 @@ import qs.view.contract
 import qs.core.client
 import qs.view.satellites
 import qs.view.ui
+import "IslandTiming.js" as Timing
 
 Scope {
     id: root
@@ -13,11 +14,12 @@ Scope {
     property var startupNotice: null
     // Z174: FART covers the island; an OSD change is handed out through `coveredOsd` instead of being queued.
     property bool covered: false
-    property int osdDwell: 1200
+    property int osdDwell: Timing.osd
     signal coveredOsd(var value)
-    readonly property var durations: ({ charging: 2000, lowBattery: 5000, backend: 5000, notification: 3000 })
+    readonly property var durations: ({ charging: Timing.charging, lowBattery: Timing.lowBattery, backend: Timing.backend,
+                                        notification: Timing.notification })
     // Z175: the island shows a non-critical notification for at most this long, whatever its sender asked for.
-    readonly property int notificationCap: 6000
+    readonly property int notificationCap: Timing.notificationCap
     readonly property var recording: host.capture.available ? host.capture.recording : null
     readonly property var battery: host.power.battery
     property var previousBattery: null
@@ -54,7 +56,9 @@ Scope {
     // honoured up to notificationCap (Z175); a critical one is not capped. The Inbox keeps the item either way.
     function showTime(item): var {
         if (item.timeout > 0) return item.urgency === "critical" ? item.timeout : Math.min(item.timeout, notificationCap);
-        return item.timeout === 0 || item.urgency === "critical" ? null : durations.notification;   // critical stays until dismissed
+        // Critical stays until dismissed. A sender's "never expire" (0) is the Inbox's business: on the island it gets our
+        // time like any other (Z200), since many apps send 0 for an everyday notice.
+        return item.urgency === "critical" ? null : durations.notification;
     }
     function arrivals(): var {
         const times = {};
@@ -89,15 +93,24 @@ Scope {
 
     onTrackChanged: {
         if (ready && track && previousTrack && track !== previousTrack)
-            queue.offer("track", "track", priority.track, player, 3000);
+            queue.offer("track", "track", priority.track, player, Timing.track);
         previousTrack = track;
+    }
+
+    // id → window count, for the workspace instrument (a workspace with more windows is a larger world, Z199).
+    function windowCounts(): var {
+        const counts = {};
+        for (const space of host.workspaces.workspaces ?? [])
+            counts[String(space.id)] = Number(space.windowCount ?? 0);
+        return counts;
     }
 
     onWorkspaceChanged: {
         const changed = ready && previousWorkspace && workspace !== previousWorkspace;
         previousWorkspace = workspace;
         if (changed && workspaceIds.includes(workspace))
-            queue.offer("workspace", "workspace", priority.workspace, { ids: workspaceIds, active: workspace }, 800);
+            queue.offer("workspace", "workspace", priority.workspace,
+                        { ids: workspaceIds, active: workspace, windows: windowCounts() }, Timing.workspace);
     }
 
     function syncRecording(): void {

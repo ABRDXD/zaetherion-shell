@@ -776,7 +776,7 @@ Scope {
             ViewState.ambientEnabled = true;
             dashboard.navigate("media");
             after(Math.max(Motion.navigate, Motion.transfer) + 300, () => {
-                const room = root.find(dashboard, i => i.hasOwnProperty("lyricsReady") && i.hasOwnProperty("visualising"));
+                const room = dashboard.shownSlot.item.session;
                 const switchBefore = room.lyrics;
             root.untilIdle(() => {
                 const cut = Motion.activeNames.slice();
