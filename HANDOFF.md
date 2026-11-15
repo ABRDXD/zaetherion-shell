@@ -10,7 +10,11 @@
   (unwrapped) with `selected` derived.
 - **Checks.** `test_launcher_view` +4 (symmetric, pick at perigee, wraps back, swing settles); captures and motion
   frames with the owner's Larimar palette when `LAUNCHER_SHOTS` is set. qmllint 0 syntax on 6 files. Full suite: 1052 OK (1 skipped).
-- **Not done.** Seen offscreen only; not yet in nested Hyprland or live. The island window is now 546 px deep (was
+- **Live (owner's yes, 15 Nov).** `s6-launcher` fast-forwarded into `s0-seed` (`9b7a8b9`); core stopped, waited, started
+  with the login's four settings (quiet copy fits); DMS and our notification server back. Opened once with
+  `qs -p shell-dms.qml ipc call launcher toggle`: real apps and icons on the orbit, closed cleanly. The island layer is
+  1920×546 but its input mask is the island's frame, so the empty area passes clicks. Binds unchanged.
+- **Not done.** Not yet in nested Hyprland. The island window is now 546 px deep (was
   324) while the launcher exists; check input region and cost live. The starfield-lensing idea behind the ring is
   not built (Overdrive). Labels of the far side can overlap at 9+ results (rows setting up to 12).
 
