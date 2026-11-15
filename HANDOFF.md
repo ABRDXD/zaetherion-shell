@@ -1,3 +1,36 @@
+# 15 November 2026 · Opus (Claude B): signing off — Notifications tab merged (not live), keys-to-ZÆTHERION started (Z207, Z208)
+
+**State at sign-off (owner: "I will do all this tomorrow, save everything, make a handoff").**
+
+- **In `s0-seed`, not yet live:** the NOTIFICATIONS settings tab and the island's notice time (Z207: do-not-disturb; on the island 1/2/3/5 s, default Z200's 1 s, `island notice <s>`; normal and critical sounds; private apps; inbox mark-all-read and clear). Full suite 1159 OK and smoke on that branch, then merged over Claude A's Z205/Z206. It changes the **core** (`core/island.py` `noticeMs`), so it needs a **core restart**: the owner runs `tools/live-restart` (new, in `s0-seed`: reads the running core's own FART_* settings from /proc, stops it, waits on the old core's and DMS backend's PIDs, starts it with the same settings; `DRY=1` prints the plan; dry-run against the live core was right). The safety check refuses Claude's own restarts.
+- **On branch `s9-paths` (`a1297b9`), not merged — full suite NOT yet run** (the run was stopped at sign-off): step 1 of the owner's "do all three" (cohesion):
+  - `settings` is FART's (Z208): `settings <palette|wallpaper|presets|island|notifications|clips|wifi|bluetooth>` (aliases wi-fi, bt, notif, clipboard, theme, wall); `settings dms` is the only path left to DMS's window. The list is checked against PreferencesPane's.
+  - `qs ipc call island session` toggles the island's session card (`IslandSurface/IslandWindow.toggleSession`, all three entry files).
+  - Tests changed or added: `test_core_verbs` (+1; `settings dms` for the host path), `test_verbs_view` (`settings dms`), `PromptTest` (+2). These passed alone; run the full suite, then merge, then **one** core restart covers Z207 and Z208.
+
+**Tomorrow, in order (owner approved all three on 15 Nov):**
+
+1. Full suite on `s9-paths`; merge into `s0-seed` (merge in a scratch worktree, fast-forward only); owner runs `tools/live-restart`; check the view log, the notification name's owner (`busctl --user … GetNameOwner org.freedesktop.Notifications` → the view's PID) and `hyprctl globalshortcuts` (three `zaetherion:`).
+2. **Keys to ZÆTHERION** (owner approved the list; back up `~/.config/hypr/zaetherion/keybinds.lua` and `fart.lua` first as `*.pre-z208-<date>`; `z = HOME .. "/src/zaetherion-shell/zaetherion"`; `hyprctl reload`, `configerrors` empty):
+   - Super+A / B / O → `z page devices` (was DMS control center)
+   - Super+N → `z page home` (was DMS dash/calendar)
+   - Super+Shift+N → `z page notifications` (was DMS's notification center, **empty** since our server holds notifications)
+   - Super+M → `z page media`
+   - Super+I / Escape / H → `z settings`
+   - Super+Shift+W → `z settings wifi`
+   - Ctrl+Super+T → `z settings wallpaper`
+   - Ctrl+Alt+Delete → `qs -p <repo>/shell-dms.qml ipc call island session` (was DMS power menu)
+   - **fix** Super+Shift+I in `fart.lua`: it calls `qs -p <repo>/shell.qml ipc call island focus`, but the live view is `shell-dms.qml` (`qs -p …/shell.qml ipc show` → "No running instances"): point it at `shell-dms.qml`.
+   - Leave with DMS: lock (Z94 safety path), screenshots (S9), volume/brightness keys (DMS backend; DMS's own OSD is off, the island shows it), Super+R.
+   - Optional while there: Super+Tab still runs `rofi -show window || dms ipc call spotlight toggle`; ask the owner.
+3. **Settings pane redesign** (both Angular and Fluid). The Island, Clips and Notifications tabs (and the shared `SettingChoices` rows) are equal-weight button rows: exactly what `docs/UI_CREATIVE_HANDOFF.md` rejects ("do not give every value and action equal visual weight"), and they look Angular in Fluid. Write the concept first (primary reading, hierarchy, what stays quiet; Fluid's own composition), show captures, build only after the owner's yes. The owner installed the frontend-design plugin for this. Coordinate with Claude A's Confluence work (A owns Fluid rooms).
+
+**Also open (owner's call, later):** the real-device check (NET_BT §7) paused after step 1 — steps 2–5: phone hotspot wrong/right password and forget, auto-join off/on, pairing the phone (connect, disconnect, trust, forget), one suspend/resume. Preset A's narrower island (Z201). A new look for the Clips room. The 650 older cliphist entries stay in cliphist (owner).
+
+**Today's live changes (all checked):** quick paste on DMS's own clipboard history (Z202; Super+V, Super+V again closes); calmer island at rest (Z201); hover words and prompt events on the island; the tiles' settings glyph; Island and Clips tabs (Z204); DMS's own password/pairing windows off (`dms_quiet.py prompts`, Z191).
+
+**Lessons.** Never wait on `pgrep -f` text that is part of the same command (it matched itself and left the desktop down ~4 min); use `tools/live-restart`. Qt's JS has no `Object.fromEntries`. Raw `Behavior`/`NumberAnimation` outside `view/cues` fails the motion rule. DMS's CLI clipboard store always trims to 100. Check decision numbers on every branch before using one (Claude A moves fast: Z199–Z206 today).
+
 # 15 November 2026 · Opus (Claude A): Fluid Tasks, a readable list in space (Z206, branch `fluid-tasks`)
 
 - **Built.** `TasksSession` (state, draft via ViewState, actions), `AngularTasks` (unchanged look), `Tasks` (wrapper; `editing`
