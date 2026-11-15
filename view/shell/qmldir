@@ -33,6 +33,7 @@ Overlay 1.0 Overlay.qml
 PalettePicker 1.0 PalettePicker.qml
 PanelBody 1.0 PanelBody.qml
 PreferencesPane 1.0 PreferencesPane.qml
+PresetPicker 1.0 PresetPicker.qml
 RoomPrecompiler 1.0 RoomPrecompiler.qml
 RoomSheet 1.0 RoomSheet.qml
 RoomSlot 1.0 RoomSlot.qml
@@ -46,5 +47,6 @@ SpaceSystem 1.0 SpaceSystem.qml
 SunFace 1.0 SunFace.qml
 Unfold 1.0 Unfold.qml
 singleton ViewState 1.0 ViewState.qml
+WallpaperPicker 1.0 WallpaperPicker.qml
 Whisper 1.0 Whisper.qml
 WifiSettings 1.0 WifiSettings.qml

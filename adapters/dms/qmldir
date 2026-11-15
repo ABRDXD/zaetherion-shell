@@ -4,9 +4,11 @@ DmsAdapter 1.0 DmsAdapter.qml
 DmsBluetooth 1.0 DmsBluetooth.qml
 DmsDeadline 1.0 DmsDeadline.qml
 DmsFeed 1.0 DmsFeed.qml
+DmsHostTheme 1.0 DmsHostTheme.qml
 DmsKeybinds 1.0 DmsKeybinds.qml
 DmsLink 1.0 DmsLink.qml
 DmsNetwork 1.0 DmsNetwork.qml
 DmsNotifications 1.0 DmsNotifications.qml
 DmsOsd 1.0 DmsOsd.qml
 DmsPower 1.0 DmsPower.qml
+DmsWallpaper 1.0 DmsWallpaper.qml

@@ -14,11 +14,11 @@ from pathlib import Path
 
 from core.errors import OpError
 from core.store import read_json, write_json
-from core.verbs import clips, equalizer, exhibit, hostactions, island, palette, media, modes, rooms, system, tasks, timers
+from core.verbs import clips, equalizer, exhibit, hostactions, island, palette, media, modes, rooms, system, tasks, timers, wallpaper, presets
 from core.verbs.base import Result, Usage, Verb
 
 log = logging.getLogger("fart.command")
-DOMAINS = (rooms, timers, tasks, modes, island, palette, equalizer, exhibit, media, system, clips, hostactions)
+DOMAINS = (rooms, timers, tasks, modes, island, palette, wallpaper, presets, equalizer, exhibit, media, system, clips, hostactions)
 MAX_LINE = 1000
 HISTORY = 100
 ROOM_LABELS = {"home": "Home", "media": "Media", "performance": "Performance", "workspaces": "Workspaces",
@@ -45,6 +45,14 @@ class Context:
         """Open the orbit and fly to a moon by name; the view resolves it (only the view knows the moons)."""
         await self.core.view.command("open", None, fly=target)
         return Result("→ the orbit" + (f" · {target}" if target else ""), "info", {"fly": target})
+
+    async def settings(self, section: str) -> Result:
+        """FART's own settings at one section; nothing opens outside FART (Z162, Z177)."""
+        view = self.core.view
+        if not (view.state == "ready" and view.open):
+            self.core._before_open()
+        await view.command("open", view.page or "home", settings=section)
+        return Result(f"→ settings · {section}", "info", {"settings": section})
 
     async def host(self, domain: str, method: str | None = None, args=(), **options):
         return await self.core.hostcalls.call(domain, method, args, **options)

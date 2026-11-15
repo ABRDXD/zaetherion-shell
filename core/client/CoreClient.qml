@@ -25,6 +25,8 @@ Scope {
     // The island's settings (Z155): form, edge, placement, screen.
     property var islandData: null
     property var paletteData: null
+    property var wallpaperData: null
+    property var presetsData: null
     property var equalizerData: null  // the equaliser the core runs (Z173)
     property var launcherData: null  // the launcher's settings (Z189)
     property var supervisorData: null  // children.dms.socket: where DMS listens now (null while it is down)
@@ -33,7 +35,7 @@ Scope {
     // The HostAdapter that core host calls act through (`vol` and friends). Null in harnesses without one.
     property var host: null
     readonly property CoreHostCalls hostCalls: CoreHostCalls { core: root; host: root.host }
-    readonly property var topics: ["timers", "tasks", "notifications", "overdrive", "session", "sfx", "ignite", "track", "journey", "discovery", "island", "palette", "equalizer", "launcher", "supervisor"]
+    readonly property var topics: ["timers", "tasks", "notifications", "overdrive", "session", "sfx", "ignite", "track", "journey", "discovery", "island", "palette", "wallpaper", "presets", "equalizer", "launcher", "supervisor"]
     property int nextId: 1
     property var pending: ({})
     property int backoff: 250
@@ -71,7 +73,7 @@ Scope {
         if (message.event === "view.command") {
             const data = message.data || {};
             const extra = {};
-            for (const key of ["screen", "focus", "query", "fly"])
+            for (const key of ["screen", "focus", "query", "fly", "settings"])
                 if (data[key] !== undefined) extra[key] = data[key];
             root.command(data.action || "", data.page || "", data.from || null, extra);
         } else if (message.event === "view.host") {

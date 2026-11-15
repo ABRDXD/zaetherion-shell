@@ -29,6 +29,8 @@ HostAdapter {
     workspaces: HyprlandWorkspaces {}
     keybinds: DmsKeybinds { link: link }
     power: DmsPower {}
+    wallpaper: DmsWallpaper { link: link }
+    hostTheme: DmsHostTheme { link: link }
     tray: QuickshellTray {}
     // The launcher's apps (S6): ready at start, since the launcher opens straight from the island (Z139).
     apps: QuickshellApps { spawner: HyprlandSpawner {} }

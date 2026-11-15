@@ -20,8 +20,9 @@ class FakeView:
         self.state, self.open, self.page = "ready", True, "home"
         self.client = None
 
-    async def command(self, action, page=None, from_=None, query=None, fly=None):
-        self.commands.append((action, page, "fly", fly) if fly is not None else (action, page) if query is None else (action, page, query))
+    async def command(self, action, page=None, from_=None, query=None, fly=None, settings=None):
+        self.commands.append((action, page, "fly", fly) if fly is not None else (action, page, "settings", settings) if settings
+                             else (action, page) if query is None else (action, page, query))
         self.open = action != "close"
 
 
@@ -184,18 +185,25 @@ class VerbTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_host_actions_fold_the_panel_first(self):
         self.view.open = True
-        self.assertEqual((await self.ok("wall"))["line"], "opened wallpapers")
+        self.assertEqual((await self.ok("settings"))["line"], "opened settings")
         self.assertEqual(self.view.commands, [("close", None)])
-        self.assertEqual(self.host.calls[-1], ("hostActions", "open", ["wallpapers"], {"hold": 0}))
-        await self.ok("settings")
+        self.assertEqual(self.host.calls[-1], ("hostActions", "open", ["settings"], {"hold": 0}))
+        await self.ok("update")
         self.assertEqual(self.view.commands, [("close", None)] * 2)  # sent again: the report may lag
         self.view.state = "absent"
-        await self.ok("theme")
+        await self.ok("update")
         self.assertEqual(len(self.view.commands), 2)  # no view, nothing to fold, and no spawn for it
         await self.ok("lock")
         self.assertEqual(self.host.calls[-1], ("power", "lock", [], {"hold": 0}))
         await self.ok("update")
         self.assertEqual(self.host.calls[-1][2], ["updates"])
+
+    async def test_wall_and_theme_open_fart_settings_never_the_host(self):
+        await self.ok("wall")
+        self.assertEqual(self.view.commands[-1], ("open", "home", "settings", "wallpaper"))
+        await self.ok("theme")
+        self.assertEqual(self.view.commands[-1], ("open", "home", "settings", "palette"))
+        self.assertFalse(any(call[0] == "hostActions" for call in self.host.calls))
 
     async def test_clip_passes_the_query_and_is_never_remembered(self):
         await self.ok("clip invoice march", "view")

@@ -8,6 +8,7 @@ QtObject {
     property var core: null
     function close() { Host.close(); }
     function openHost(target: string) { Host.openHost(target); }
+    function openSettings(section: string) { Host.openSettings(section); }
     function toggleLayout() { Host.toggleLayout(); }
     function toggleActiveTimer() { core?.timers.toggle(engagedTimerKind); }
 }

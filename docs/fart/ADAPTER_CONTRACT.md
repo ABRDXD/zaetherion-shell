@@ -74,6 +74,10 @@ The signatures below match `view/contract/`. `T?` means a value or `null`.
 
 **motion.** `roles`: FART role → `{ duration, easing, overshoot, … }`, static data with no files or processes ([CUES.md](CUES.md) §15). Missing roles or fields keep FART's defaults (`Motion.defaults`). Serpantinum has no motion tokens, so `SerpantinumMotion` holds the values its own popups and controls use inline. The fixture leaves `roles` empty.
 
+**wallpaper** (Z178). `current` (absolute path, "" for none or a colour), `perScreen`, `error`. Method: `set(path)`. The host draws the wallpaper and stays the authority; the core keeps the folder, recent choices and the preview. DMS: session.json read-only, `dms ipc call wallpaper set`.
+
+**hostTheme** (Z180). `current` (the host's theme id), `error`. Method: `set(id)`. For presets only. DMS: settings.json read-only; `set` is DMS's own `settings set customThemeFile …` then `settings set currentThemeName custom`, in order.
+
 **hostActions.** `name`, `version`, `targets`, `launcherAcceptsQuery`, `updates = { available, checking, count }`, `recording = { available, active, startedAt }`. Methods: `open(target)`, `openLauncher(query)`, `checkUpdates()`, `capture()`, `setRecording(on)`. The Serpantinum targets are launcher, clipboard, settings, themes, wallpapers, wifi, bluetooth, notifications, power, display, music, calendar and updates. Each was checked against `Main.qml` and `WindowRegistry.js`.
 
 **sfx.** `muted` and `volume` come from the host (`general.muteSfx`, `general.sfxVolume`). Method: `play(cue, gain)`. The cues are FART's: `timer.done` and `pomodoro.phase` today, mapped to the freedesktop `alarm-clock-elapsed`. Playback goes through `pw-play` with `media.role=event`, the same route as the host's `Sounds.qml`. D19's DND and Session gating is FART policy, applied before `play()`.

@@ -23,6 +23,18 @@ Item {
     property string page: "home"
     property string currentPage: "home"
     property bool preferencesOpen: false
+    property string preferencesSection: "palette"
+    function openSettings(section) {
+        Host.pendingSettings = "";
+        preferencesSection = section;
+        archiveOpen = false;
+        preferencesOpen = true;
+    }
+    // After the open's navigate(), which closes settings on a room change.
+    Connections {
+        target: Host
+        function onSettingsRequested(section) { Qt.callLater(root.openSettings, section); }
+    }
     property bool archiveOpen: false
     // Overdrive (docs/OVERDRIVE.md): the core's lease, the lease manager's popover and the ignition over the panel.
     readonly property OverdriveLease lease: OverdriveLease { core: root.core }
@@ -478,7 +490,11 @@ Item {
         }
     }
     onPageChanged: navigate(page)
-    Component.onCompleted: { navigate(page); syncEigenDevices(true); }
+    Component.onCompleted: {
+        navigate(page);
+        syncEigenDevices(true);
+        if (Host.pendingSettings) Qt.callLater(root.openSettings, Host.pendingSettings);
+    }
     function navigate(requested) {
         const name = requested === "controls" ? "devices" : requested;
         if (!pageFiles[name])
@@ -1712,6 +1728,8 @@ Item {
     }
     PreferencesPane {
         core: root.core
+        section: root.preferencesSection
+        onSectionPicked: section => root.preferencesSection = section
         expanded: root.preferencesOpen && root.shell.panelOpen
         wideLayout: root.shell.wideLayout
         onClosed: root.preferencesOpen = false

@@ -548,12 +548,12 @@ ColumnLayout {
             FMenuItem {
                 Layout.fillWidth: true
                 label: "Wallpaper"
-                onClicked: root.shell.openHost("wallpapers")
+                onClicked: root.shell.openSettings("wallpaper")
             }
             FMenuItem {
                 Layout.fillWidth: true
                 label: "Presets"
-                onClicked: root.shell.openHost("themes")
+                onClicked: root.shell.openSettings("presets")
             }
             FMenuItem {
                 Layout.fillWidth: true

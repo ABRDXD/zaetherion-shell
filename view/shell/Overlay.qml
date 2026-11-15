@@ -73,6 +73,13 @@ Scope {
     Binding { target: root.host.media; property: "preferredPlayer"; value: Config.options.bar.media.preferredPlayer }
     Binding { target: root.host.system; property: "sampleInterval"; value: Math.max(500, Config.options.resources.updateInterval) }
     ShellContext { id: context; panelOpen: root.opened; core: root.core }
+    // The host's wallpaper, for the core's `wallpaper` topic and verb (Z178): the host stays the authority.
+    readonly property var hostWallpaper: ({ available: host.wallpaper.available, current: host.wallpaper.current,
+                                            perScreen: host.wallpaper.perScreen, error: host.wallpaper.error })
+    onHostWallpaperChanged: if (core.connected) core.notify("wallpaper.report", hostWallpaper)
+    // The host's own theme, for presets (Z180).
+    readonly property var hostTheme: ({ available: host.hostTheme.available, current: host.hostTheme.current, error: host.hostTheme.error })
+    onHostThemeChanged: if (core.connected) core.notify("hosttheme.report", hostTheme)
     onOpenedChanged: { Host.panelOpen = opened; reportState(); }
     // The core reaps a closed view, ends panel leases and decides Super+` folds (Q7) from these reports.
     function reportState() {
@@ -84,12 +91,18 @@ Scope {
     }
     Connections {
         target: root.core
-        function onConnectedChanged() { if (root.core.connected) root.reportState(); }
+        function onConnectedChanged() {
+            if (!root.core.connected) return;
+            root.reportState();
+            root.core.notify("wallpaper.report", root.hostWallpaper);
+            root.core.notify("hosttheme.report", root.hostTheme);
+        }
         function onCommand(action, page, from, extra) {
             coldProbe.mark("command");
             const placement = { from: from, screen: extra?.screen ?? "" };
             if (action === "open" || action === "page") root.openPage(page || root.currentPage, placement);
             // go <moon>: the orbit opens over the room and keys that moon (docs/ORBIT.md, "type to fly").
+            if (action === "open" && extra?.settings) Host.openSettings(extra.settings);
             if (action === "open" && extra?.fly !== undefined) body.shell?.flyTo(extra.fly);
             else if (action === "close") Host.close();
             else if (action === "toggle") { if (root.opened) Host.close(); else root.openPage(page || root.currentPage, placement); }

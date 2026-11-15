@@ -10,12 +10,17 @@ Item {
     required property CoreClient core
     property bool expanded: false
     property bool wideLayout: false
+    // palette · wallpaper · presets (Z177). The section's own picker is active only while it is shown.
+    property string section: "palette"
+    readonly property var sections: [["palette", "PALETTE"], ["wallpaper", "WALLPAPER"], ["presets", "PRESETS"]]
+    readonly property bool roomy: section !== "palette"
+    signal sectionPicked(string section)
     property real reveal: expanded ? 1 : 0
     signal closed()
     signal archiveRequested()
     signal toggleExterior()
-    width: Math.min(760, parent.width - 80)
-    height: Math.min(480, parent.height - 80) * reveal
+    width: Math.min(roomy ? 1080 : 760, parent.width - 80)
+    height: Math.min(roomy ? 620 : 480, parent.height - 80) * reveal
     x: 40
     y: Math.max(20, parent.height - height - 40)
     visible: reveal > 0
@@ -34,15 +39,31 @@ Item {
         anchors.margins: Design.baseline * 4
         spacing: Design.baseline * 3
         RowLayout {
-            FText { text: "INSTRUMENT SETTINGS"; technical: true; color: Design.accent; Layout.fillWidth: true }
+            FText { text: "INSTRUMENT SETTINGS"; technical: true; color: Design.accent }
+            Item { Layout.preferredWidth: Design.baseline * 4 }
+            Repeater {
+                model: root.sections
+                FButton {
+                    required property var modelData
+                    objectName: "section-" + modelData[0]
+                    label: modelData[1]
+                    selected: root.section === modelData[0]
+                    implicitHeight: Design.minHit
+                    onClicked: root.sectionPicked(modelData[0])
+                }
+            }
+            Item { Layout.fillWidth: true }
             FButton { symbol: "close"; hint: "Close preferences"; implicitHeight: Design.minHit; onClicked: root.closed() }
         }
         RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
             spacing: Design.baseline * 5
+            // FART's own switches sit beside the palette; the wallpaper and presets take the whole width.
             ColumnLayout {
-                Layout.preferredWidth: 220
+                visible: root.section === "palette"
+                Layout.preferredWidth: 240
+                Layout.maximumWidth: 240
                 Layout.alignment: Qt.AlignTop
                 spacing: Design.baseline * 2
                 FButton { Layout.fillWidth: true; label: "CURVED SHELL · HARD INTERIOR"; enabled: false }
@@ -82,8 +103,25 @@ Item {
             PalettePicker {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+                visible: root.section === "palette"
                 core: root.core
-                active: root.expanded
+                active: root.expanded && visible
+                onCloseRequested: root.closed()
+            }
+            WallpaperPicker {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                visible: root.section === "wallpaper"
+                core: root.core
+                active: root.expanded && visible
+                onCloseRequested: root.closed()
+            }
+            PresetPicker {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                visible: root.section === "presets"
+                core: root.core
+                active: root.expanded && visible
                 onCloseRequested: root.closed()
             }
         }

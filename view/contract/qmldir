@@ -10,6 +10,7 @@ EqualizerDomain 1.0 EqualizerDomain.qml
 HostActionsDomain 1.0 HostActionsDomain.qml
 HostAdapter 1.0 HostAdapter.qml
 HostDomain 1.0 HostDomain.qml
+HostThemeDomain 1.0 HostThemeDomain.qml
 KeybindsDomain 1.0 KeybindsDomain.qml
 LyricsDomain 1.0 LyricsDomain.qml
 MediaDomain 1.0 MediaDomain.qml
@@ -22,5 +23,6 @@ PowerDomain 1.0 PowerDomain.qml
 SfxDomain 1.0 SfxDomain.qml
 SystemDomain 1.0 SystemDomain.qml
 TrayDomain 1.0 TrayDomain.qml
+WallpaperDomain 1.0 WallpaperDomain.qml
 WeatherDomain 1.0 WeatherDomain.qml
 WorkspacesDomain 1.0 WorkspacesDomain.qml
