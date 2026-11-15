@@ -131,6 +131,7 @@ ColumnLayout {
                 objectName: "clipsClear"
                 verb: "Clear history"
                 armedVerb: "Clear all but pins?"
+                implicitHeight: Design.minHit
                 onConfirmed: root.clipboard.clearHistory()
             }
             Item { Layout.fillWidth: true }

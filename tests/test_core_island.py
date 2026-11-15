@@ -58,10 +58,20 @@ class IslandVerbTests(unittest.IsolatedAsyncioTestCase):
         await run("island screen DP-1")
         self.assertEqual(self.core.island.snapshot(),
                          {"form": "fluid", "edge": "bottom", "placement": "floating", "screen": "DP-1",
-                          "rest": DEFAULTS["rest"]})
+                          "rest": DEFAULTS["rest"], "noticeMs": 1000})
         await run("island screen auto")
         self.assertEqual(self.core.island.snapshot()["screen"], "")
         self.assertFalse((await run("island sideways"))["ok"])
+
+    async def test_notice_time_is_one_of_four_and_kept(self):
+        """Z207: how long a notification stays on the island: 1 s (Z200's) by default, 2, 3 or 5 s, nothing else."""
+        run = lambda line: self.core.commands.run(line, "cli")
+        self.assertEqual(self.core.island.snapshot()["noticeMs"], 1000)
+        self.assertIn("NOTICE 3 S", (await run("island notice 3"))["line"])
+        self.assertEqual(self.core.island.snapshot()["noticeMs"], 3000)
+        for bad in ("island notice 4", "island notice 0", "island notice x", "island 3000"):
+            self.assertFalse((await run(bad))["ok"], bad)
+        self.assertEqual(self.core.island.snapshot()["noticeMs"], 3000)
 
     async def test_rest_presets_and_items(self):
         """Z201: the owner's rest (B) by default; a preset or one item's mode; bad modes refused."""

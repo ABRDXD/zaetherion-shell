@@ -28,9 +28,11 @@ ShellRoot {
     FixtureAdapter { id: fixture }
     CoreClient {
         id: client
+        property var privateApps: ["Fixture Secrets"]
         function request(op, args, callback) {
             root.sent = root.sent.concat([{ op: op, args: args }]);
-            if (callback) callback(true, { ok: true });
+            if (op === "notif.privateApps" && args.apps !== undefined) privateApps = args.apps;
+            if (callback) callback(true, op === "notif.privateApps" ? { apps: privateApps } : { ok: true });
         }
     }
     Component.onCompleted: {
@@ -38,6 +40,9 @@ ShellRoot {
         client.islandData = { form: "angular", edge: "top", placement: "notch", screen: "",
                               rest: { power: "hover", network: "always", battery: "always", inbox: "dot" } };
         client.clipsData = { enterPastes: false, rows: 6, showImages: true };
+        client.islandData = Object.assign({}, client.islandData, { noticeMs: 1000 });
+        client.sfxData = { cues: [{ name: "notify.normal", kind: "notice", enabled: true },
+                                  { name: "notify.critical", kind: "notice", enabled: true }] };
         fixture.clipboard.config = { disabled: false, maxHistory: 1000, maxEntrySize: 5242880, autoClearDays: 0,
                                      maxPinned: 25, clearAtStartup: false };
     }
@@ -113,8 +118,29 @@ ShellRoot {
             }
             case 13:
                 root.check(!fixture.clipboard.holds("config"), "leaving the tab lets go of the settings");
+                prefs.section = "notifications";
+                break;
+            case 16: {
+                root.check(root.find(prefs, "choice-on-the-island-1000")?.selected === true
+                           && root.find(prefs, "choice-sound-true")?.selected === true
+                           && !!root.find(prefs, "private-Fixture Secrets"), "notifications read from the core");
+                scene.grabToImage(r => root.check(r.saveToFile(Quickshell.env("TABS_SHOT_NOTIFICATIONS")), "notifications capture"));
+                break;
+            }
+            case 17: {
+                root.sent = [];
+                root.find(prefs, "choice-on-the-island-3000").clicked();
+                root.find(prefs, "choice-critical-sound-false").clicked();
+                root.find(prefs, "private-Fixture Secrets").clicked();
+                const ops = root.sent.map(s => s.op === "cmd.run" ? s.args.line : s.op === "sfx.configure" ? JSON.stringify(s.args.cues)
+                                                : s.op === "notif.privateApps" ? "private:" + JSON.stringify(s.args.apps) : s.op);
+                root.check(JSON.stringify(ops) === JSON.stringify(["island notice 3", '{"notify.critical":false}', 'private:[]']),
+                           "notification choices go to the core");
+                root.find(prefs, "choice-do-not-disturb-true").clicked();
+                root.check(fixture.notifications.calls.some(c => c.method === "setDnd" && c.args[0] === true), "do-not-disturb goes to the inbox");
                 Qt.quit();
                 break;
+            }
             }
         }
     }

@@ -32,6 +32,7 @@ LauncherOrbit 1.0 LauncherOrbit.qml
 LauncherRoutes 1.0 LauncherRoutes.qml
 LauncherScenery 1.0 LauncherScenery.qml
 LiveTitle 1.0 LiveTitle.qml
+NotificationsSettings 1.0 NotificationsSettings.qml
 OrbitSystem 1.0 OrbitSystem.qml
 OrbitTile 1.0 OrbitTile.qml
 Overlay 1.0 Overlay.qml

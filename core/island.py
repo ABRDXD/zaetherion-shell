@@ -22,8 +22,11 @@ REST_PRESETS = {
     "b": {"power": "hover", "network": "always", "battery": "always", "inbox": "dot"},
     "c": {"power": "hover", "network": "matters", "battery": "always", "inbox": "unread"},
 }
-DEFAULTS = {"form": "angular", "edge": "top", "placement": "notch", "screen": "", "rest": dict(REST_PRESETS["b"])}
-CHOICES = {"form": ("angular", "fluid"), "edge": ("top", "bottom"), "placement": ("notch", "floating")}
+# How long a non-critical notification stays on the island, in ms (Z207; the owner's 1 s of Z200 by default).
+NOTICE_MS = (1000, 2000, 3000, 5000)
+DEFAULTS = {"form": "angular", "edge": "top", "placement": "notch", "screen": "", "rest": dict(REST_PRESETS["b"]),
+            "noticeMs": 1000}
+CHOICES = {"form": ("angular", "fluid"), "edge": ("top", "bottom"), "placement": ("notch", "floating"), "noticeMs": NOTICE_MS}
 
 
 class Island:

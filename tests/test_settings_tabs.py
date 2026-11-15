@@ -15,7 +15,9 @@ CHECKS = ("the owner's rest reads as preset B", "edge and screen read from the c
           "the clipboard settings are not read on another tab", "island capture",
           "island choices go through the island verb", "the clips tab reads DMS's clipboard settings",
           "values read from the core and DMS", "clips capture", "quick paste choices go to the core",
-          "history choices go to DMS's config", "clear asks twice", "leaving the tab lets go of the settings")
+          "history choices go to DMS's config", "clear asks twice", "leaving the tab lets go of the settings",
+          "notifications read from the core", "notifications capture", "notification choices go to the core",
+          "do-not-disturb goes to the inbox")
 
 
 @unittest.skipUnless(shutil.which("qs"), "Quickshell is not installed")
@@ -28,7 +30,8 @@ class SettingsTabs(unittest.TestCase):
             runtime = base / "runtime"
             runtime.mkdir(mode=0o700)
             out = Path(os.environ.get("TABS_SHOTS") or base)
-            env.update(XDG_RUNTIME_DIR=str(runtime), TABS_SHOT_ISLAND=str(out / "island.png"), TABS_SHOT_CLIPS=str(out / "clips.png"))
+            env.update(XDG_RUNTIME_DIR=str(runtime), TABS_SHOT_ISLAND=str(out / "island.png"), TABS_SHOT_CLIPS=str(out / "clips.png"),
+                       TABS_SHOT_NOTIFICATIONS=str(out / "notifications.png"))
             result = subprocess.run(["qs", "--no-color", "--log-rules", "qml.debug=true", "-p", env["FART_VIEW_ENTRY"]],
                                     env=env, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
             output = result.stdout + result.stderr

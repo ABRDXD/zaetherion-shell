@@ -17,10 +17,12 @@ Scope {
     property bool covered: false
     property int osdDwell: Timing.osd
     signal coveredOsd(var value)
+    // How long a notification stays: the owner's choice in FART's Notifications tab (Z207), Z200's 1 s without one.
+    readonly property int noticeMs: core?.islandData?.noticeMs ?? Timing.notification
     readonly property var durations: ({ charging: Timing.charging, lowBattery: Timing.lowBattery, backend: Timing.backend,
-                                        notification: Timing.notification })
+                                        notification: noticeMs })
     // Z175: the island shows a non-critical notification for at most this long, whatever its sender asked for.
-    readonly property int notificationCap: Timing.notificationCap
+    readonly property int notificationCap: Math.max(Timing.notificationCap, noticeMs)
     readonly property var recording: host.capture.available ? host.capture.recording : null
     readonly property var battery: host.power.battery
     property var previousBattery: null
