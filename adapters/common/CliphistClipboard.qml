@@ -50,6 +50,9 @@ ClipboardDomain {
     function copyText(text: string) { Quickshell.clipboardText = text; }
     // cliphist keeps no pins: FART's own (ClipPins) stand in, so nothing calls this.
     function pin(id: string, on: bool) {}
+    // cliphist has no settings of its own to show (config stays null) and is cleared outside FART.
+    function setConfig(key: string, value: var) {}
+    function clearHistory() {}
     function fetchText(id: string) {
         if (!valid(id) || fetcher.running) return;
         fetcher.entryId = id;

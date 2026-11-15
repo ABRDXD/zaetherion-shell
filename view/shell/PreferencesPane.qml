@@ -12,10 +12,11 @@ Item {
     required property HostAdapter host
     property bool expanded: false
     property bool wideLayout: false
-    // palette · wallpaper · presets (Z177) · Wi-Fi · Bluetooth (Z194). A section is active only while it is shown.
+    // palette · wallpaper · presets (Z177) · island (Z201) · clips (Z184, Z202) · Wi-Fi · Bluetooth (Z194).
+    // A section is active only while it is shown.
     property string section: "palette"
     readonly property var sections: [["palette", "PALETTE"], ["wallpaper", "WALLPAPER"], ["presets", "PRESETS"],
-                                     ["wifi", "WI-FI"], ["bluetooth", "BLUETOOTH"]]
+                                     ["island", "ISLAND"], ["clips", "CLIPS"], ["wifi", "WI-FI"], ["bluetooth", "BLUETOOTH"]]
     readonly property bool roomy: section !== "palette"
     signal sectionPicked(string section)
     property real reveal: expanded ? 1 : 0
@@ -126,6 +127,21 @@ Item {
                 core: root.core
                 active: root.expanded && visible
                 onCloseRequested: root.closed()
+            }
+            IslandSettings {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                visible: root.section === "island"
+                core: root.core
+                active: root.expanded && visible
+            }
+            ClipsSettings {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                visible: root.section === "clips"
+                core: root.core
+                clipboard: root.host.clipboard
+                active: root.expanded && visible
             }
             WifiSettings {
                 Layout.fillWidth: true

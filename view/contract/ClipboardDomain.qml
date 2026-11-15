@@ -1,5 +1,7 @@
 // ClipEntry: { id, text, isImage, pinned }; text is the history preview line; pinned only where the domain keeps
 // pins (pinsKept, DMS: Z202), otherwise FART keeps them (ClipPins). Lease "history".
+// Lease "config": the history's own settings, where the host has them (DMS: { disabled, maxHistory, maxEntrySize,
+// autoClearDays, maxPinned, clearAtStartup }), null elsewhere or until read. No clip content is in it.
 HostDomain {
     property var entries: []
     // The history has been read at least once since "history" was leased (an empty list is then really empty).
@@ -8,6 +10,7 @@ HostDomain {
     property var thumbnails: ({})
     // The history keeps its own pins (each entry says `pinned`; pin() changes it).
     property bool pinsKept: false
+    property var config: null
 
     signal textFetched(string id, string text)
 
@@ -20,4 +23,7 @@ HostDomain {
     function fetchText(id: string) { record("fetchText", [id]); }
     function requestThumbnail(id: string) { record("requestThumbnail", [id]); }
     function pin(id: string, on: bool) { record("pin", [id, on]); }
+    function setConfig(key: string, value: var) { record("setConfig", [key, value]); }
+    // Every entry but the pinned ones.
+    function clearHistory() { record("clearHistory", []); }
 }

@@ -139,10 +139,12 @@ ShellRoot {
         function clips(): string {
             const c = adapter.clipboard;
             return JSON.stringify({ kind: String(c).replace(/_QMLTYPE.*|\(0x.*$/, ""), available: c.available, loaded: c.loaded,
-                entries: c.entries, thumbnails: c.thumbnails, pinsKept: c.pinsKept, fetched: root.fetched });
+                entries: c.entries, thumbnails: c.thumbnails, pinsKept: c.pinsKept, fetched: root.fetched, config: c.config });
         }
         function clipAcquire(): void { adapter.loadDeferred(); adapter.clipboard.acquire("history", "t"); }
         function clipRelease(): void { adapter.clipboard.release("history", "t"); }
+        function configAcquire(): void { adapter.loadDeferred(); adapter.clipboard.acquire("config", "t"); }
+        function configRelease(): void { adapter.clipboard.release("config", "t"); }
         function clipDo(action: string, id: string): void {
             const c = adapter.clipboard;
             if (action === "copy") c.copy(id);
@@ -152,6 +154,8 @@ ShellRoot {
             else if (action === "unpin") c.pin(id, false);
             else if (action === "fetch") c.fetchText(id);
             else if (action === "thumb") c.requestThumbnail(id);
+            else if (action === "clear") c.clearHistory();
+            else if (action.startsWith("set:")) c.setConfig(action.slice(4), Number(id));
         }
         function results(): string { return JSON.stringify(root.results); }
         function quit(): void { Qt.quit(); }

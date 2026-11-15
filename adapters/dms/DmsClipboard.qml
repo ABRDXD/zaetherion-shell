@@ -21,7 +21,11 @@ ClipboardDomain {
     // DMS can send the keystroke itself (`clipboard.pasteSupported`); without it, paste only copies.
     property bool pasteSupported: false
     readonly property bool linkReady: link.ready
-    onLinkReadyChanged: checkPaste()
+    onLinkReadyChanged: {
+        checkPaste();
+        if (configuring && linkReady)
+            readConfig();
+    }
     Component.onCompleted: checkPaste()
     function checkPaste() {
         if (!linkReady) {
@@ -95,6 +99,35 @@ ClipboardDomain {
         const entry = dmsId(id);
         if (entry !== undefined)
             link.call(on ? "clipboard.pinEntry" : "clipboard.unpinEntry", { id: entry }, () => root.refresh());
+    }
+    // DMS's own history settings (lease "config"): read when leased, written one key at a time, read again after.
+    readonly property bool configuring: holds("config")
+    onConfiguringChanged: {
+        if (configuring)
+            readConfig();
+        else
+            config = null;
+    }
+    readonly property var configKeys: ["disabled", "maxHistory", "maxEntrySize", "autoClearDays", "maxPinned", "clearAtStartup"]
+    function readConfig() {
+        link.call("clipboard.getConfig", undefined, (result, error) => {
+            if (error || !root.configuring || !result)
+                return;
+            const kept = {};
+            for (const key of root.configKeys)
+                if (key in result)
+                    kept[key] = result[key];
+            root.config = kept;
+        });
+    }
+    function setConfig(key: string, value: var) {
+        if (!configuring || !configKeys.includes(key))
+            return;
+        link.call("clipboard.setConfig", { [key]: value }, () => root.readConfig());
+    }
+    function clearHistory() {
+        if (configuring || reading)
+            link.call("clipboard.clearHistory", undefined, () => root.refresh());
     }
     function copyText(text: string) {
         link.call("clipboard.copy", { text: text }, () => {});

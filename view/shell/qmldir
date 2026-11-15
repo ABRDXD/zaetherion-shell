@@ -4,6 +4,7 @@ AppsIndex 1.0 AppsIndex.qml
 AttemptBanner 1.0 AttemptBanner.qml
 BatteryMark 1.0 BatteryMark.qml
 BluetoothSettings 1.0 BluetoothSettings.qml
+ClipsSettings 1.0 ClipsSettings.qml
 ColdProbe 1.0 ColdProbe.qml
 CommandLine 1.0 CommandLine.qml
 singleton Config 1.0 Config.qml
@@ -21,6 +22,7 @@ IslandExpansion 1.0 IslandExpansion.qml
 IslandGlyph 1.0 IslandGlyph.qml
 IslandQueue 1.0 IslandQueue.qml
 IslandRest 1.0 IslandRest.qml
+IslandSettings 1.0 IslandSettings.qml
 IslandSurface 1.0 IslandSurface.qml
 IslandTrayMenu 1.0 IslandTrayMenu.qml
 IslandWindow 1.0 IslandWindow.qml
@@ -43,6 +45,7 @@ RoomSheet 1.0 RoomSheet.qml
 RoomSlot 1.0 RoomSlot.qml
 RoomSystems 1.0 RoomSystems.qml
 SecretRow 1.0 SecretRow.qml
+SettingChoices 1.0 SettingChoices.qml
 SheetCockle 1.0 SheetCockle.qml
 SheetWear 1.0 SheetWear.qml
 Shell 1.0 Shell.qml

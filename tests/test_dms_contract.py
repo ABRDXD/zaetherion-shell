@@ -16,7 +16,7 @@ DOMAINS = {
     "ClipboardDomain": "DmsClipboard.qml",
 }
 # Leases the DMS-backed domains serve, per file.
-LEASES = {"DmsNetwork.qml": {"details", "scan", "saved"}, "DmsBluetooth.qml": {"scan"}, "DmsClipboard.qml": {"history"}}
+LEASES = {"DmsNetwork.qml": {"details", "scan", "saved"}, "DmsBluetooth.qml": {"scan"}, "DmsClipboard.qml": {"history", "config"}}
 
 
 def functions(text):
@@ -73,7 +73,7 @@ class DmsContract(unittest.TestCase):
     def test_only_the_clipboard_domain_names_the_clipboard_service_and_only_under_its_lease(self):
         # §8, Z202: DMS's clipboard history is FART's. Only DmsClipboard may name the service or its methods; its
         # subscription follows the "history" lease, and every call that names an entry goes through dmsId(), which
-        # answers nothing without the lease. Nothing reads the config (F2-4 is moot: the history is on).
+        # answers nothing without the lease. The history's settings (no content) only under the "config" lease.
         named = re.compile(r"""["']clipboard|clipboard\.(get|set|clear|delete|pin|copy|send|paste)""", re.I)
         for source in sorted(DMS.iterdir()):
             if source.suffix in (".qml", ".js") and source.name != "DmsClipboard.qml":
@@ -86,7 +86,12 @@ class DmsContract(unittest.TestCase):
             for call in re.finditer(rf'"clipboard\.{method}"', text):
                 before = text[:call.start()]
                 self.assertIn("dmsId(", before[before.rindex("function "):], method)
-        self.assertNotRegex(text, r"clipboard\.(get|set)Config")
+        self.assertIn('readonly property bool configuring: holds("config")', text)
+        for method in ("getConfig", "setConfig"):
+            for call in re.finditer(rf'"clipboard\.{method}"', text):
+                before = text[:call.start()]
+                body = before[before.rindex("function "):]
+                self.assertTrue("configuring" in body or "readConfig" in body[:body.index("(")], method)
 
     def test_a_subscribe_is_only_built_by_the_machine_and_always_with_services(self):
         for source in sorted(DMS.iterdir()):

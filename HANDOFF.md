@@ -85,6 +85,16 @@ for a fresh chat and explicitly prioritises creative implementation over context
 read only what a concrete implementation decision requires. Next: Confluence Performance
 in a fresh worktree from current main. This preparation adds no UI or runtime changes.
 
+# 15 November 2026 · Opus (Claude B): Island and Clips tabs; prompts on the island; the tiles' settings glyph (Z204)
+
+- **Owner: "do all of them one by one"** (after: Super+V again closes quick paste, `55ee299`).
+- **1. Settings tabs (Z204).** ISLAND (`IslandSettings`: rest presets All/A/B/C and each item's mode, edge, placement, screen; every change an `island …` line through the core) and CLIPS (`ClipsSettings`: Enter, rows, pictures from the core's `clips`; DMS's own history settings under the clipboard domain's new "config" lease, `getConfig`/`setConfig`; Clear history, two clicks). Shared `SettingChoices` row; `IslandRestChoices.js` mirrors the core's presets (test keeps them equal). Contract: `config`, `setConfig()`, `clearHistory()`. Tests: `test_settings_tabs` (12 checks, captures looked at), `test_island_settings`, `test_dms_clipboard` +1.
+- **2. Prompts while FART is closed** (D's leftover, NET_BT §5). A Wi-Fi password or Bluetooth pairing asked for shows as a held island event ("> WI-FI · PASSWORD" / "> BLUETOOTH · PAIRING" with NetWords' line); a click opens FART's settings at that tab; gone with the question. `PromptTest.qml` (7).
+- **3. Right-click hint.** `LinkPlane.settingsHint`: hovered or focused, a tune glyph beside ON/OFF opens the link's panel (as right-click does), tooltip names the right-click. `test_link_plane`.
+- **Checks.** Full suite 1142 OK; smoke exit 0. Found on the way: `Object.fromEntries` is missing in Qt's JS engine (a reply handler threw); a raw `Behavior` breaks the cues rule.
+- **4. The 650 older cliphist entries: left in cliphist (owner, 15 Nov: "let those be").** DMS's CLI store always trims to 100, and the server's `clipboard.store` is text-only and stamps now, so no import was attempted; cliphist's database is untouched and nothing records into it.
+- **Live (15 Nov, 20:30):** the owner restarted the view; log clean, our server holds the notification name, three `zaetherion:` shortcuts registered.
+
 # 15 November 2026 · Opus (Claude B): quick paste on DMS's own clipboard history (Z202; live)
 
 - **Owner's call** (after the restart): "quickpaste should just use DMS's own clipboard history", tired of the fuzzel/cliphist picker (raw ids, "[[ binary data ]]" rows).

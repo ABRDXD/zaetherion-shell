@@ -105,6 +105,7 @@ ColumnLayout {
                 sourceComponent: Letterpress { core: root.shell.core }
             }
             onClicked: root.network.setWifiEnabled(!root.network.wifiEnabled)
+            settingsHint: "Wi-Fi settings"
             onSecondaryClicked: root.openDialog("wifi")
         }
         LinkPlane {
@@ -118,6 +119,7 @@ ColumnLayout {
             line: !root.bluetooth.available ? "Unavailable" : root.bluetooth.primary?.name || (root.bluetooth.enabled ? "Nothing connected" : "Off")
             detail: root.percent(root.bluetooth.primary?.battery ?? -1)
             onClicked: root.bluetooth.setEnabled(!root.bluetooth.enabled)
+            settingsHint: "Bluetooth settings"
             onSecondaryClicked: root.openDialog("bluetooth")
         }
     }

@@ -179,7 +179,7 @@ DMS services with no contract domain yet: `wlroutput` (display settings), `wellb
 
 - Never subscribe-all (§2). `clipboard` may appear in a service list or a method name only in the DMS-backed clipboard domain (`DmsClipboard`, Z202), inside a `holds("history")` guard: its feed is wanted only under the lease, and every call that names an entry goes through `dmsId()`, which answers nothing without it. A static test fails any other file in `adapters/dms` that names it.
 - The cache of a service is dropped when the service leaves the list and when the link drops.
-- **DMS's clipboard history is on (Z202).** The earlier plan to keep it off (F2-4) is dropped: DMS's history is FART's. FART never reads or writes `clipboard.getConfig`/`setConfig` outside the Clips tab (not built yet).
+- **DMS's clipboard history is on (Z202).** The earlier plan to keep it off (F2-4) is dropped: DMS's history is FART's. FART reads and writes `clipboard.getConfig`/`setConfig` only under the domain's "config" lease, held by FART's Clips tab (Z204).
 - No new recorded data is needed for network. Replies to action calls in tests are synthetic, written in the test with obviously fake values, and labelled so.
 
 ## 9. What to build, and its tests

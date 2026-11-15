@@ -93,6 +93,12 @@ class IslandFrameTests(unittest.TestCase):
             "a word opens its settings section", "wrong password, in accent", "nothing once it is done",
             "without a word the glyphs open Devices as before"))
 
+    def test_prompts_while_fart_is_closed(self):
+        """docs/NET_BT.md §5: a password or pairing asked for shows on the island; a click opens its settings."""
+        self.run_fixture("PromptTest.qml", ("a password asked for shows on the island", "no secret on the island",
+            "a click opens the Wi-Fi settings", "a wrong password says so", "it goes when the question does",
+            "a pairing shows its question", "the pairing goes with its question"))
+
     def run_fixture(self, filename, checks):
         harness = (ROOT / "tests/fixtures/island" / filename).read_text()
         with tempfile.TemporaryDirectory(prefix="zaetherion-island-") as tmp:
