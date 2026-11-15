@@ -1,3 +1,21 @@
+# 15 November 2026 · Opus (Claude A): S6 inline rows in Apps (branch `s6-launcher`, waits for the owner's look)
+
+- **Built (Z195).** `core/inline.py` (sums via `ast`, unit conversions, search engines); `Launcher.query` puts a
+  sum/conversion row and a FART verb row (`Commands.inline`) above the apps; `>cmd` and `?term` lines are only their
+  own row. `launcher.act {kind, text}`: verbs run in the core (`Core._launcher_act`), the rest in `Launcher.act`
+  (`{argv}` or `{copy}`). Settings `search` (default `brave`) and `browser` (empty = xdg-open). View:
+  `AppsDomain.run(argv)` (QuickshellApps via the Hyprland spawner), `LauncherFace.act`, the clipboard domain passed
+  through `IslandSurface`/`IslandExpansion`, a glyph per kind in `LauncherRow`.
+- **Checks.** `tests/test_launcher_inline.py` (10). `test_launcher_view` grew 12 checks (calc copies 42, conversion
+  copies, `>echo hi` runs in kitty, `?cats` opens Brave Search, `task buy milk` adds the task, an empty `>` waits).
+  qmllint 0 syntax diagnostics on the 7 changed QML files; `make_qmldirs.py --check` clean. Full suite: 1045 run, OK (three modules that need the repo root rerun from it: 12 OK).
+- **Note.** The work was started in the main checkout by mistake and moved to `zaetherion-shell-s6` before any
+  commit; the main checkout is clean.
+- **For the owner.** Captures of the five row kinds. Row names are upper-case in the approved style, so `mL` reads
+  `ML`. `?term` uses Brave *Search* in the desktop's browser (Zen); Brave the browser isn't installed.
+- **Next.** Owner's look → merge into `s0-seed`. Then currency (rates source), windows (Z77), Emoji, Clips (with C),
+  Files; the FART settings controls once B's tabs (`s9-wall-presets`) are merged.
+
 # 14 November 2026 · Opus (Claude D): S10, Wi-Fi and Bluetooth in FART (branch `s10-net-bt`, merged into `s0-seed` on the owner's word)
 
 - **Plan.** `docs/NET_BT.md`, OK'd by the owner (VPN on/off added; no enterprise Wi-Fi, so those are listed and refused with a clear line). Decisions Z190–Z194. Owner: "you can steal the backend of DMS": everything goes through DMS's socket, battery alone through Quickshell (DMS has none).

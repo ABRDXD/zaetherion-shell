@@ -5,4 +5,6 @@ HostDomain {
     property var entries: []
     // Starts the app the core allowed (`launcher.launch`); terminal is the program to run it in, or "" for none.
     function launch(id: string, terminal: string): void { record("launch", [id, terminal]); }
+    // Starts a program line the core worked out (`launcher.act`: `>cmd` in the terminal, `?term` in the browser).
+    function run(argv: var): void { record("run", [argv]); }
 }

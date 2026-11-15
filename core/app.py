@@ -74,7 +74,7 @@ class Core:
         self.palette = Palette(state_dir)
         # The launcher's apps (S6): the old launcher's counts come from the host profile, once (Z136).
         self.launcher = Launcher(clock, state_dir, imported=getattr(host.profile, "launch_history", lambda: None),
-                                 session_active=self.sessions.active)
+                                 session_active=self.sessions.active, verb=lambda text: self.commands.inline(text))
         self.equalizer = Equalizer(state_dir)  # its chain only in a session that runs it (fartd attaches it)
         self.sessions.tasks_done = self.tasks.done_between
         self.sessions.music = self._session_music
@@ -298,6 +298,7 @@ class Core:
         op("apps.index", lambda peer, entries: a.index(entries) if peer.kind == "view" else self._refuse("only the view indexes apps"))
         op("launcher.query", lambda peer, text="", limit=None: a.query(text, limit))
         op("launcher.launch", lambda peer, id: a.launch(id))
+        op("launcher.act", lambda peer, kind, text: self._launcher_act(kind, text))
         op("launcher.configure", lambda peer, **changes: a.configure(**changes))
         op("launcher.forget", lambda peer: a.forget())
 
@@ -309,6 +310,14 @@ class Core:
         # panel: the view's own ignite plate (the panel is open, so the press neither folds nor opens it).
         op("key.down", lambda peer, panel=False: self.ignite.down(panel=bool(panel) and peer is self.view.client))
         op("key.up", lambda peer: self.ignite.up())
+
+    async def _launcher_act(self, kind, text) -> dict:
+        """Enter on an inline row: a FART verb runs here, as if typed on the command line; the rest is the launcher's."""
+        if kind == "verb":
+            if not isinstance(text, str) or not self.commands.inline(text):
+                raise OpError("not-inline", f"{text!r} is not a FART verb line")
+            return {"result": await self.commands.run(text, "view", fallthrough=False)}
+        return self.launcher.act(kind, text)
 
     # Sound cues (core/sfx.py)
 

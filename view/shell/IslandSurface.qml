@@ -368,6 +368,7 @@ FocusScope {
             event: root.outgoingEvent
             core: root.core
             apps: root.host.apps
+            clipboard: root.host.clipboard
             launcherRows: root.launcherRows
             bottomEdge: root.bottomEdge
             lift: root.lift
@@ -395,6 +396,7 @@ FocusScope {
             onSessionAction: action => root.runSession(action)
             core: root.core
             apps: root.host.apps
+            clipboard: root.host.clipboard
             launcherRows: root.launcherRows
             onLauncherClose: root.closeLauncher()
             restoreReplyFocus: !!event && root.replyFocusId === event.id

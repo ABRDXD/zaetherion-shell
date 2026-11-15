@@ -13,6 +13,7 @@ FocusScope {
     id: root
     required property CoreClient core
     required property AppsDomain apps
+    property ClipboardDomain clipboard: null
     property int rows: 6
     signal close()
 
@@ -38,15 +39,34 @@ FocusScope {
         if (results.length > 0)
             selected = (selected + by + results.length) % results.length;
     }
+    function fail(reply): void {
+        refusal = reply?.code === "blocked" ? reply.message : "> " + (reply?.message ?? "CANNOT START").toUpperCase();
+        Feedback.play("ui.error");
+    }
+    // Enter on an inline row (Z195): the core works out what it does again from the text.
+    function act(row): void {
+        const text = input.text;
+        core.request("launcher.act", { kind: row.kind, text: text }, (ok, reply) => {
+            if (!ok) return fail(reply);
+            if (reply.result && !reply.result.ok) {
+                refusal = "> " + String(reply.result.line ?? "").toUpperCase();
+                return;  // the core already played the verb's error cue
+            }
+            if (reply.argv) apps.run(reply.argv);
+            else if (reply.copy !== undefined) {
+                if (!clipboard) return fail({ message: "no clipboard here" });
+                clipboard.copyText(reply.copy);
+            }
+            if (!reply.result) Feedback.play("ui.click");
+            root.close();
+        });
+    }
     function launch(index: int): void {
         const row = results[index];
-        if (!row || !core) return;
+        if (!row || !core || row.ready === false) return;
+        if (row.kind && row.kind !== "app") return act(row);
         core.request("launcher.launch", { id: row.id }, (ok, reply) => {
-            if (!ok) {
-                refusal = reply?.code === "blocked" ? reply.message : "> " + (reply?.message ?? "CANNOT START").toUpperCase();
-                Feedback.play("ui.error");
-                return;
-            }
+            if (!ok) return fail(reply);
             apps.launch(reply.id, reply.terminal ?? "");
             Feedback.play("ui.click");
             root.close();

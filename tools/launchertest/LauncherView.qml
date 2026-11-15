@@ -48,6 +48,21 @@ ShellRoot {
         until(() => face.asked > 0 && face.results.length > 0 && face.results[0] !== undefined, 2000, () => after(50, fn));
     }
 
+    function lastRun() {
+        const runs = fixture.apps.calls.filter(call => call.method === "run");
+        return runs.length ? runs[runs.length - 1].args[0] : null;
+    }
+    function inline(text, kind, name, done, picture) {
+        island.openLauncher();
+        until(() => !!root.input, 2000, () => type(text, () => {
+            check(name + ".row", root.face.results[0].kind === kind, root.face.results);
+            shot(picture, () => {
+                root.face.launch(0);
+                until(() => !island.launcherOpen && done(), 2000, ok => { check(name, ok, fixture.apps.calls); next(); });
+            });
+        }));
+    }
+
     CoreClient { id: client }
     FixtureAdapter { id: fixture }
     Component.onCompleted: {
@@ -109,6 +124,40 @@ ShellRoot {
                     check("no.match", ok);
                     shot("04-nomatch", next);
                 });
+            },
+            // Inline rows (Z195): each opens the launcher, types, checks the top row and presses Enter on it.
+            () => root.inline("6*7", "calc", "inline.calc", () => {
+                const last = fixture.clipboard.calls[fixture.clipboard.calls.length - 1];
+                return last?.method === "copyText" && last.args[0] === "42";
+            }, "05-calc"),
+            () => root.inline("10 km to mi", "convert", "inline.convert", () => {
+                const last = fixture.clipboard.calls[fixture.clipboard.calls.length - 1];
+                return last?.method === "copyText" && last.args[0] === "6.21371";
+            }, "06-convert"),
+            () => root.inline(">echo hi", "command", "inline.command", () => {
+                const argv = root.lastRun();
+                return !!argv && argv[0] === "kitty" && argv[argv.length - 1] === "echo hi";
+            }, "07-command"),
+            () => root.inline("?cats", "search", "inline.search", () => {
+                const argv = root.lastRun();
+                return !!argv && argv[0] === "xdg-open" && argv[1] === "https://search.brave.com/search?q=cats";
+            }, "08-search"),
+            () => root.inline("task buy milk", "verb", "inline.verb", () => true, "09-verb"),
+            () => until(() => JSON.stringify(client.tasksData ?? {}).indexOf("buy milk") >= 0, 2000, ok => {
+                check("inline.verb.ran", ok, client.tasksData);
+                next();
+            }),
+            () => {
+                island.openLauncher();
+                until(() => !!root.input, 2000, () => type(">", () => {
+                    const before = fixture.apps.calls.length;
+                    root.face.launch(0);
+                    after(300, () => {
+                        check("inline.empty.waits", root.face.results[0].ready === false && fixture.apps.calls.length === before && island.launcherOpen, root.face.results);
+                        island.toggleLauncher();
+                        until(() => !island.launcherOpen, 1000, next);
+                    });
+                }));
             },
         ];
         next();

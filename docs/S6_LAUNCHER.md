@@ -136,5 +136,8 @@ commented, so rolling back is restoring them and `hyprctl reload`.
 - **Keyboard (Z117).** Hyprland 0.57 doesn't move the keyboard to a mapped layer that turns Exclusive, so a key-opened
   launcher got nothing (every letter stayed in the app; the island's own `focus` route behaves the same in nested
   Hyprland). The island's focus grab now starts at once for the launcher. The window then has the keyboard 6 ms after the open.
-- **Not yet**: verbs, calc, `>cmd`, `?term`, windows, Emoji, Clips, Files; the settings controls in FART; the
-  binds (§6); the owner's look.
+- **Inline rows** (Z195, 15 November 2026): sums, unit conversions, `>cmd`, `?term` and FART verbs, from
+  `core/inline.py` through `launcher.query`; Enter goes through `launcher.act`. Settings `search` and `browser` join
+  `launcher.json`. The adapter's `AppsDomain.run(argv)` starts what the core worked out; sums copy through the
+  clipboard domain. Each kind has a glyph in `LauncherRow`; an unfinished `>`/`?` row is faint and Enter waits.
+- **Not yet**: currency, windows, Emoji, Clips, Files; the settings controls in FART; the binds (§6).

@@ -37,7 +37,7 @@ Item {
             }
         }
     }
-    readonly property color ink: selected ? Design.islandFill : blocked ? Design.danger : Design.ink
+    readonly property color ink: selected ? Design.islandFill : blocked ? Design.danger : root.row?.ready === false ? Design.faint : Design.ink
     Image {
         id: icon
         x: 3 * Design.baseline
@@ -53,7 +53,8 @@ Item {
     MaterialSymbol {
         anchors.centerIn: icon
         visible: !icon.visible
-        text: "apps"
+        // Inline rows (Z195) have no icon file; each kind has its glyph.
+        text: ({ calc: "calculate", convert: "straighten", command: "terminal", search: "travel_explore", verb: "bolt" })[root.row?.kind] ?? "apps"
         iconSize: 20
         color: root.ink
     }
