@@ -22,6 +22,7 @@ const labelWidth = 160;    // a body's name under it, centred
 const sceneryRx = 130;     // a sum's binary orbit
 const sceneryRy = 44;
 const binaryStar = 18;     // a scenery star's diameter
+const sceneryLabel = 200;  // a binary star's label: what you typed, the answer
 const beam = 250;          // a pulsar's beam, a comet's tail
 const nebula = [[0, 0, 120], [-90, -20, 80], [100, 14, 90], [30, -46, 64], [-40, 40, 70]];  // clouds: [dx, dy, radius]
 // The launcher's own motion, slower than a button's so the orbit reads as moving (scaled by the host's motion profile).
