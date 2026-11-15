@@ -8,6 +8,12 @@
 - Nested checks: Home 32 and Media 32 pass, including rapid switching, focus, palette preview/cancellation,
   controller state and leases. Fresh merged Home/Media and Settings captures inspected in nested Hyprland.
   Smoke visits all ten rooms; changed QML has zero syntax diagnostics.
+- Live trial: main fast-forwarded to the integration; only the resident view was reloaded. Core PID,
+  palette snapshot and requested mode stayed unchanged. Selected Fluid through the existing command and
+  opened Home. View reported ready; live QML log and Hyprland configerrors were clean. Mode remains Silent.
+  Newer unrelated island timing edits in the main working tree were preserved, not staged.
+- Latest launcher/island/notification regressions: 25 tests pass. The broad suite is still running;
+  the first invocation was interrupted because the terminal's `*.debug=false` hid QML test markers.
 - Scope: the style authority is global (`island.form` → `Design.form`), but dedicated Confluence room
   presentations currently cover Home and Media. Other rooms and surrounding shell framing remain in progress.
   Existing Overdrive effects and reduced-motion behaviour remain; full Fluid spatial transitions are pending.
