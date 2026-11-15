@@ -143,6 +143,9 @@ FocusScope {
     property bool draftHold: false
     onDraftLengthChanged: Qt.callLater(() => root.draftHold = root.draftLength > 0)
     readonly property bool noticeVisible: expansion?.kind === "notification" || expansion?.kind === "critical"
+    // Notices queued behind the shown one, in the order they will show (after Sonner's stack).
+    readonly property var waitingNotices: noticeVisible ? queue.entries.filter(event =>
+        (event.kind === "notification" || event.kind === "critical") && event.id !== expansion?.id) : []
     // Z175: a notification's countdown pauses only while the pointer is on its card, not on the island around it.
     property bool noticeHovered: eventPane.item?.noticeHovered ?? false
     // Right-click on a shown notification: it leaves the island and the Inbox.
@@ -420,6 +423,7 @@ FocusScope {
             systemVoice: root.systemVoice
             replyDraft: root.replyDrafts[event?.id] ?? ""
             trayEntries: event?.kind === "tray" ? root.host.tray.menuEntries : []
+            waiting: event?.id === root.expansion?.id ? root.waitingNotices : []
             onTrayClose: root.closeTray()
             onTrayChoose: entryId => root.chooseTray(entryId)
             onSessionAction: action => root.runSession(action)

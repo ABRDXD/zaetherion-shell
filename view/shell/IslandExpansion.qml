@@ -12,6 +12,8 @@ Item {
     id: root
     required property var event
     readonly property var payload: event?.data ?? ({})
+    // Notices waiting behind the shown one (after Sonner): drawn as card edges under it, listed when it is hovered.
+    property var waiting: []
     readonly property string kind: event?.kind ?? ""
     signal notificationAction(string id, string action, string reply)
     // A notification's picture is on screen: the adapter may want to keep it (NotificationsDomain.keepImage).
@@ -300,12 +302,46 @@ Item {
         id: notice
         Item {
             id: card
+            objectName: "noticeCard"
             readonly property bool critical: root.kind === "critical"
             readonly property var actions: root.payload.actions ?? []
             readonly property bool replies: !!root.payload.reply
-            implicitHeight: column.implicitHeight
+            implicitHeight: column.implicitHeight + stack.height
             readonly property bool cardHovered: cardHover.hovered
+            // Whether the waiting notices are fanned out under the card: while it is hovered.
+            property bool fan: cardHovered
             HoverHandler { id: cardHover }
+
+            // A sideways flick sends the card off the island (after Sonner); the Inbox keeps it. Short of the
+            // threshold it springs back. Right-click still dismisses it from the Inbox too.
+            property real flick: 0
+            x: flick
+            opacity: 1 - Math.min(0.8, Math.abs(flick) / Math.max(1, width))
+            DragHandler {
+                id: flicker
+                target: null
+                xAxis.enabled: true
+                yAxis.enabled: false
+                onTranslationChanged: if (active) card.flick = translation.x
+                onActiveChanged: if (!active) card.release()
+            }
+            // Let go: past 30 % of the card's width it flies off and leaves the island, else it springs back.
+            function release(): void {
+                const away = Math.abs(flick) > width * 0.3;
+                settle.to = away ? Math.sign(flick) * width * 1.1 : 0;
+                settle.away = away;
+                if (!Motion.live(card)) { flick = 0; if (away) root.dismiss(); return; }
+                settle.restart();
+            }
+            NumberAnimation {
+                id: settle
+                property bool away: false
+                target: card
+                property: "flick"
+                duration: Motion.scaled(220)
+                easing.type: away ? Easing.InCubic : Easing.OutBack
+                onFinished: if (away) { card.flick = 0; root.dismiss(); }
+            }
 
             MouseArea {
                 anchors.fill: parent
@@ -480,6 +516,67 @@ Item {
                             }
                         }
                     }
+                }
+            }
+            // The waiting notices: card edges under this one (one per waiting notice, at most two, each narrower), and
+            // while the card is hovered, who they are from.
+            Column {
+                id: stack
+                objectName: "noticeStack"
+                anchors.top: column.bottom
+                anchors.topMargin: root.waiting.length ? Design.baseline : 0
+                width: parent.width
+                height: root.waiting.length ? implicitHeight + Design.baseline : 0
+                spacing: Design.baseline / 2
+                visible: root.waiting.length > 0
+                Repeater {
+                    model: Math.min(2, root.waiting.length)
+                    Rectangle {
+                        required property int index
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        width: stack.width * (0.94 - 0.06 * index)
+                        height: 2
+                        radius: 1
+                        color: Qt.alpha(Design.ink, 0.28 - 0.1 * index)
+                    }
+                }
+                FText {
+                    objectName: "noticeWaiting"
+                    anchors.right: parent.right
+                    visible: !card.fan
+                    technical: true
+                    font.pixelSize: Design.caption
+                    color: Design.muted
+                    text: "+" + root.waiting.length + (root.systemVoice ? " WAITING" : " waiting")
+                }
+                Repeater {
+                    model: card.fan ? root.waiting.slice(0, 3) : []
+                    Row {
+                        required property var modelData
+                        objectName: "noticeFan"
+                        width: stack.width
+                        spacing: 2 * Design.baseline
+                        FText {
+                            technical: true
+                            font.pixelSize: Design.caption
+                            color: Design.ink
+                            text: modelData.data?.appName || "NOTICE"
+                        }
+                        FText {
+                            width: parent.width - x
+                            elide: Text.ElideRight
+                            font.pixelSize: Design.caption
+                            color: Design.muted
+                            text: modelData.data?.summary ?? ""
+                        }
+                    }
+                }
+                FText {
+                    visible: card.fan && root.waiting.length > 3
+                    technical: true
+                    font.pixelSize: Design.caption
+                    color: Design.faint
+                    text: "+" + (root.waiting.length - 3) + " more"
                 }
             }
         }

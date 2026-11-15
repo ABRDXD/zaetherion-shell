@@ -56,6 +56,12 @@ class IslandFrameTests(unittest.TestCase):
             "the island caps a sender's long time at 1 s", "a shorter sender time is kept", "critical is not capped",
             "a restored item cannot be answered", "closed elsewhere leaves the island"))
 
+    def test_notice_stack_fan_and_flick(self):
+        """After Sonner: waiting notices as card edges, fanned on hover; a flick sends a card off, a nudge springs back."""
+        self.run_fixture("StackTest.qml", ("two wait behind the shown notice", "card edges say +2 waiting",
+            "hover fans out who is waiting", "the count gives way to the list", "a hard flick sends it off",
+            "the Inbox keeps a flicked notice", "a small flick springs back", "one left waiting"))
+
     def test_right_click_dismisses_and_card_hover_pauses(self):
         self.run_fixture("DismissTest.qml", ("right-click is idle without a notification", "default showing time is 1 s",
             "right-click takes only the right button", "right-click removes it from the island",

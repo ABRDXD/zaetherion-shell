@@ -8,7 +8,13 @@
   motion-gated. Fluid Timers' clock uses it (stopwatch rises, the rest fall).
 - **Checks.** `tests/test_rolling_digits.py` (7 checks via `tools/cuetest/RollingDigitsTest.qml`, frames with
   `ROLLING_SHOTS`); Fluid Timers, layout, contract OK.
-- **Next.** Sonner-style stacked notifications on the island.
+- **2 of 5, stacked notices (after Sonner, branch `notice-stack`).** `IslandSurface.waitingNotices` (queued notices
+  behind the shown one) → `IslandExpansion.waiting`: card edges under the notice (one per waiting, at most two,
+  narrower each) and "+N waiting"; hovered (`card.fan`), who they are from (three, then "+k more"). A sideways flick
+  (`DragHandler` x only, `card.release()`) past 30 % of the width flies the card off the island (the Inbox keeps it),
+  else it springs back. Test: `tests/fixtures/island/StackTest.qml` (8 checks). Island, notification-server, layout and
+  contract tests OK.
+- **Next.** Drag physics (after Vaul): pull the launcher / FART out of the island, rubber-band, flick to dismiss.
 
 # 15 November 2026 · Opus (Claude A): Fluid Timers as a sky (Z203, branch `fluid-timers`)
 
