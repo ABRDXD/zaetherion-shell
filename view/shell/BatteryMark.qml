@@ -50,12 +50,17 @@ Row {
             color: root.tone
         }
     }
-    FText {
+    // The percentage rolls as it changes (RollingDigits, after NumberFlow), in FText's technical voice.
+    RollingDigits {
+        objectName: "batteryPercent"
         visible: root.showPercentage
         anchors.verticalCenter: parent.verticalCenter
         text: Math.round(root.level * 100) + "%" + (root.battery.charging ? " ↑" : "")
-        technical: true
+        font.family: Design.mono
         font.pixelSize: Design.caption
+        font.letterSpacing: 0.7
+        font.capitalization: Font.AllUppercase
+        font.features: ({ "tnum": 1 })
         color: root.tone
     }
 }

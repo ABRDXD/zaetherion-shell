@@ -187,14 +187,18 @@ Item {
             color: here ? Design.coldStar : Design.coldLine
         }
     }
-    FText {
+    // The numbers roll as the system turns (RollingDigits, after NumberFlow).
+    RollingDigits {
         objectName: "workspaceReadout"
         anchors.horizontalCenter: parent.horizontalCenter
         y: Layout.readoutY
-        technical: true
+        width: implicitWidth
+        height: implicitHeight
+        font.family: Design.mono
         font.pixelSize: Design.caption
         font.weight: Font.Light
         font.letterSpacing: 2
+        font.capitalization: Font.AllUppercase
         color: Design.coldInk
         readonly property int windowsHere: Number(root.windows[root.active] ?? 0)
         text: String(root.active).padStart(2, "0") + " / " + String(root.count).padStart(2, "0") + "   ·   "

@@ -612,17 +612,29 @@ Item {
                 color: Design.accent
                 technical: true
             }
-            FText {
+            // The level rolls as it moves (RollingDigits, after NumberFlow): up as the volume rises, down as it falls.
+            Item {
                 id: reading
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
                 width: 64
-                horizontalAlignment: Text.AlignRight
-                headline: true
-                sheared: !Design.fluid
-                font.weight: Font.Bold
-                font.pixelSize: Design.readout
-                text: root.payload.muted ? "MUTED" : Math.round((root.payload.level ?? 0) * 100) + "%"
+                height: level.implicitHeight
+                RollingDigits {
+                    id: level
+                    objectName: "osdLevel"
+                    anchors.right: parent.right
+                    width: implicitWidth
+                    height: implicitHeight
+                    text: root.payload.muted ? "MUTED" : Math.round((root.payload.level ?? 0) * 100) + "%"
+                    font.family: Design.sans
+                    font.weight: Font.Bold
+                    font.pixelSize: Design.readout
+                    font.letterSpacing: -0.8
+                    font.capitalization: Font.AllUppercase
+                    font.features: ({ "tnum": 1 })
+                    sheared: !Design.fluid
+                    color: Design.ink
+                }
             }
             FBlades {
                 id: blades

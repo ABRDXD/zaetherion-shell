@@ -1,5 +1,8 @@
 # Paste this into the next Codex chat
 
+> **Update 15 Nov, Claude A:** Fluid Performance ("the star") and Fluid Tasks ("star atlas") are owner-picked and
+> being built by Claude A. Read `docs/UI_INSPIRATION.md` first; pick other Fluid work with the owner.
+
 Continue FART / ZÆTHERION FLUID Phase 2 in this repository. **Implement; do not restart
 the project, redesign Confluence, repeat Phase 1 or deliver another proposal.**
 
