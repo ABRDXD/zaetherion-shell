@@ -99,9 +99,13 @@ ShellRoot {
             case 6:
                 root.check(island.clipsOpen, "toggle opens");
                 island.toggleClips();
+                root.check(!island.clipsOpen, "toggle folds");
+                island.openClips();
                 break;
             case 7:
-                root.check(!island.clipsOpen, "toggle folds");
+                // Super+V again closes (owner): Hyprland hands the keys to the face while it holds the keyboard.
+                island.clipsFace.pressKey(Qt.Key_V, Qt.MetaModifier);
+                root.check(!island.clipsOpen && !fixture.clipboard.holds("history"), "super+v folds");
                 // The owner's rest (B): power and bell on hover; Wi-Fi and battery at the shoulder; unread as a dot.
                 fixture.notifications.unread = 1;
                 island.restItems = { power: "hover", network: "always", battery: "always", inbox: "dot" };

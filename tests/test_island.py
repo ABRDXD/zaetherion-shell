@@ -36,7 +36,7 @@ class IslandFrameTests(unittest.TestCase):
         self.run_fixture("ClipsTest.qml", ("opens as a held face with the keyboard", "leases the history while open",
             "early enter is held", "held enter copies the first match once loaded", "folds after acting",
             "shift+enter pastes the chosen clip", "ctrl+tab steps the filter", "a visible image row asks for its thumbnail",
-            "ctrl+o opens the room with the query", "esc folds and lets go of the history", "toggle opens", "toggle folds",
+            "ctrl+o opens the room with the query", "esc folds and lets go of the history", "toggle opens", "toggle folds", "super+v folds",
             "rest B: no bell, status at the edge, unread dot", "no dot when all is read", "default rest unchanged"))
 
     def test_workspace_instrument(self):

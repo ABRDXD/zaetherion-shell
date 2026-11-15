@@ -85,7 +85,10 @@ FocusScope {
         const ctrl = (modifiers & Qt.ControlModifier) !== 0;
         const shift = (modifiers & Qt.ShiftModifier) !== 0;
         const current = matches[root.current];
-        if (key === Qt.Key_Escape) dismiss();
+        // Super+V again closes (owner, 15 November 2026). While quick paste holds the keyboard, Hyprland hands the
+        // keys to it instead of running the `zaetherion:clips` bind, so the face answers it itself.
+        if (key === Qt.Key_V && (modifiers & Qt.MetaModifier) !== 0) dismiss();
+        else if (key === Qt.Key_Escape) dismiss();
         else if (key === Qt.Key_Down || (key === Qt.Key_Tab && !ctrl) || (ctrl && (key === Qt.Key_J || key === Qt.Key_N))) move(1);
         else if (key === Qt.Key_Up || (key === Qt.Key_Backtab && !ctrl) || (ctrl && (key === Qt.Key_K || key === Qt.Key_P))) move(-1);
         else if (ctrl && (key === Qt.Key_Tab || key === Qt.Key_Backtab)) {
