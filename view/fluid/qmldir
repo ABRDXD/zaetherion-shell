@@ -13,4 +13,5 @@ FluidTimers 1.0 FluidTimers.qml
 singleton FluidTokens 1.0 FluidTokens.qml
 GravityWell 1.0 GravityWell.qml
 PerformanceStar 1.0 PerformanceStar.qml
+TasksHorizon 1.0 TasksHorizon.qml
 TimersSky 1.0 TimersSky.qml

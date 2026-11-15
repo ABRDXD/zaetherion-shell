@@ -7,7 +7,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import cuetest  # noqa: E402
 
 CHECKS = ("fluid.presented", "open.count", "groups.in.order", "late.burns.warm", "done.is.ticked", "remove.waits.for.hover",
-          "lists.listed", "entry.reads", "editing.follows.focus", "switch.list", "angular.keeps.sheet")
+          "horizon.warm.while.late", "lists.listed", "entry.reads", "editing.follows.focus", "switch.list", "angular.keeps.sheet")
 
 
 class FluidTasks(unittest.TestCase):

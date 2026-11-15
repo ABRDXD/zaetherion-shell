@@ -8,7 +8,8 @@ import qs.view.ui
 import "TasksAtlasLayout.js" as Atlas
 import "../rooms/TaskEntry.js" as TaskEntry
 
-// Confluence Tasks (owner, 15 November 2026: the star chart was "not intuitive enough"; pick "Readable list in space").
+// Confluence Tasks (owner, 15 November 2026: the star chart was "not intuitive enough"; pick "Readable list in space",
+// then "boring again"; pick "Planet horizon" under it: TasksHorizon).
 // A plain list you can read in a second, grouped Late · Today · This week · Later · No date · Done today, set in a deep
 // starfield. Each task has a star whose brightness is its urgency (late burns warm) and a round tick on the right that
 // finishes it; hovering a row offers Remove. Left: the lists and the open count, the room's primary reading. The new-
@@ -44,6 +45,16 @@ Item {
             GradientStop { position: 0; color: Qt.alpha(Design.warm, 0.06) }
             GradientStop { position: 0.45; color: "transparent" }
         }
+    }
+
+    // The planet along the bottom (TasksHorizon): warm air while anything is late, its ring the day's progress.
+    TasksHorizon {
+        objectName: "tasks.horizon"
+        anchors.fill: parent
+        late: root.controller.overdue > 0
+        done: root.controller.doneToday
+        total: root.controller.doneToday + root.controller.dueToday + root.controller.overdue
+        progress: total > 0 ? done / total : 0
     }
 
     // Left: the open count, then the lists.
@@ -113,6 +124,7 @@ Item {
         anchors.top: parent.top
         anchors.topMargin: FluidTokens.sectionGap
         anchors.bottom: parent.bottom
+        anchors.bottomMargin: parent.height * 0.29   // the list ends above the planet's ring and its label
         spacing: FluidTokens.unit * 1.5
         FField {
             id: input
@@ -136,6 +148,7 @@ Item {
             FluidButton { objectName: "tasks.undo"; text: "Undo"; onClicked: root.controller.undo() }
         }
         Flickable {
+            id: scroller
             Layout.fillWidth: true
             Layout.maximumWidth: 760
             Layout.fillHeight: true
