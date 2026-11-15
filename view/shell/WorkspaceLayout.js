@@ -24,7 +24,6 @@ const tickEmpty = 3;
 const readoutY = 100;
 const turnMs = 1100;        // the system turning, smooth, no bounce
 const glintMs = 1600;       // one cold glint along the plane
-const dwellMs = 2200;       // how long the island shows it after the last switch
 // Fixed dust: [x share, y share, size px, opacity].
 const dust = [[0.06, 0.19, 1.2, 0.6], [0.2, 0.76, 1, 0.4], [0.35, 0.12, 1.4, 0.5], [0.67, 0.81, 1, 0.4],
               [0.78, 0.15, 1.2, 0.6], [0.93, 0.68, 1, 0.35], [0.55, 0.88, 0.8, 0.3]];

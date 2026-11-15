@@ -58,7 +58,7 @@ ShellRoot {
                 fixture.power.battery = { available: true, level: .64, charging: true, pluggedIn: true };
                 break;
             case 2:
-                root.check(queue.current?.kind === "charging" && queue.current.remaining === 2000, "charging notice");
+                root.check(queue.current?.kind === "charging" && queue.current.remaining === 1500, "charging notice");
                 queue.remove("charging");
                 fixture.notifications.dnd = true;
                 fixture.power.battery = { available: true, level: .18, charging: false, pluggedIn: false };
@@ -73,7 +73,7 @@ ShellRoot {
                 events.startupNotice = { kind: "backend", label: "> BACKEND · BACK · DOWN 3 s" };
                 break;
             case 5:
-                root.check(queue.current?.kind === "backend" && queue.current.remaining === 5000, "backend comeback");
+                root.check(queue.current?.kind === "backend" && queue.current.remaining === 3000, "backend comeback");
                 queue.remove("backend");
                 events.startupNotice = { kind: "resident", label: "> RESIDENT · RESTARTED", log: "fixture-log" };
                 break;
