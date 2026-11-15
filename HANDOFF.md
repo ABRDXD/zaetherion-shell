@@ -1,3 +1,10 @@
+# 15 November 2026 · Opus (Claude A): rolling digits everywhere (branch `roll-everywhere`)
+
+- `RollingDigits` gains `tracking` (letter spacing) and `sheared` (Angular's −12°), handles capitals, and guards its
+  deferred step (`alive`; the same teardown race as PresentationHost, seen in 8 island tests via the battery mark).
+- Now rolling: the battery % (`BatteryMark`, `batteryPercent`), the OSD level (`osdLevel`, sheared in Angular), the
+  workspace readout (`workspaceReadout`). Island, rolling digits, layout, contract and cue tests OK.
+
 # 15 November 2026 · Opus (Claude A): web-library ideas, 1 of 5, rolling digits (branch `roll-digits`)
 
 - **Owner.** After a video on web UI libraries: "can't you use them as inspo" → "all of them". Order: rolling digits

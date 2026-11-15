@@ -14,9 +14,19 @@ Item {
     // +1 rising, −1 falling, 0: decide from the numbers on each change.
     property int trend: 0
     property int duration: 340
+    // As FText draws it: letter spacing between slots, and Angular's −12° shear on large numerals.
+    property real tracking: font.letterSpacing
+    property bool sheared: false
     // Digits share one width (tabular), so a rolling digit never nudges its neighbours; anything else is its own width.
     readonly property real advance: fm.advanceWidth("0")
-    function widthOf(c: string): real { return /[0-9]/.test(c) ? advance : fm.advanceWidth(c); }
+    function widthOf(c: string): real {
+        const shown = font.capitalization === Font.AllUppercase ? c.toUpperCase() : c;
+        return (/[0-9]/.test(c) ? advance : fm.advanceWidth(shown)) + tracking;
+    }
+    transform: Matrix4x4 {
+        matrix: Qt.matrix4x4(1, root.sheared ? Design.shear : 0, 0, -(root.sheared ? Design.shear : 0) * root.height / 2,
+                             0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
+    }
     implicitWidth: text.split("").reduce((w, c) => w + widthOf(c), 0)
     implicitHeight: fm.height
     FontMetrics { id: fm; font: root.font }
@@ -27,7 +37,10 @@ Item {
     // only moves on once every slot has seen the change.
     function numeric(value: string): real { return Number(value.replace(/[^0-9]/g, "")) || 0; }
     property real lastNumber: numeric(text)
-    onTextChanged: Qt.callLater(() => root.lastNumber = root.numeric(root.text))
+    // The deferred step may run after the readout is gone (a surface torn down): it then does nothing.
+    property bool alive: true
+    Component.onDestruction: alive = false
+    onTextChanged: Qt.callLater(() => { if (root.alive) root.lastNumber = root.numeric(root.text); })
     function directionNow(): int { return trend !== 0 ? trend : numeric(text) < lastNumber ? -1 : 1; }
 
     Repeater {
