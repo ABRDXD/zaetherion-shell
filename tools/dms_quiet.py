@@ -122,6 +122,21 @@ def prompt_left_to_fart(text: str, path: Path, opening: str) -> str:
     return "\n".join(lines)
 
 
+def add_prompts(directory: Path) -> list[Path]:
+    """Leaves DMS's password and pairing prompts to FART in a copy made before Z191, in place (only one this tool made).
+    Idempotent: a file that already returns early is left alone. Every file is checked before any is written."""
+    if not (directory / MARKER).is_file():
+        raise SystemExit(f"dms_quiet: {directory} is not a quiet copy; not touching it")
+    patched = {}
+    for path, opening in PROMPTS:
+        text = (directory / path).read_text()
+        if PROMPT_NOTE not in text:
+            patched[path] = prompt_left_to_fart(text, path, opening)
+    for path, text in patched.items():
+        (directory / path).write_text(text)
+    return list(patched)
+
+
 def with_bridge(text: str) -> str:
     """DMSShell.qml with one bridge instance before the root's closing brace. Idempotent; refuses an unknown shape."""
     if BRIDGE_LINE in text:
@@ -257,7 +272,7 @@ def default_out() -> Path:
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=(__doc__ or "").split("\n\n")[0])
-    sub = parser.add_subparsers(dest="command", required=True)
+    sub = parser.add_subparsers(dest="command", required=True)  # build · check · fits · bridge · prompts
     b = sub.add_parser("build")
     b.add_argument("--source", type=Path)
     b.add_argument("--out", type=Path)
@@ -267,11 +282,17 @@ def main(argv=None) -> int:
     f.add_argument("directory", type=Path)
     g = sub.add_parser("bridge")
     g.add_argument("directory", type=Path, nargs="?")
+    p = sub.add_parser("prompts")
+    p.add_argument("directory", type=Path, nargs="?")
     args = parser.parse_args(argv)
     if args.command == "build":
         source = args.source or running_source()
         out = build(source, args.out or default_out())
         print(f"quiet DMS UI (revision {revision(source)}): {out}")
+        return 0
+    if args.command == "prompts":
+        done = add_prompts(args.directory or default_out())
+        print("prompts left to FART: " + (", ".join(map(str, done)) if done else "already"))
         return 0
     if args.command == "bridge":
         out = add_bridge(args.directory or default_out())

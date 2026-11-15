@@ -191,6 +191,37 @@ class BridgeTest(unittest.TestCase):
                 dms_quiet.add_bridge(source)  # only a copy this tool made
 
 
+class PromptsInPlaceTest(unittest.TestCase):
+    """A copy made before Z191 gets the two early returns in place (`dms_quiet.py prompts`)."""
+
+    def test_patches_an_older_copy_once_and_only_a_quiet_copy(self):
+        with tempfile.TemporaryDirectory() as d:
+            copy = Path(d) / "copy"
+            write_prompts(copy)
+            with self.assertRaises(SystemExit):
+                dms_quiet.add_prompts(copy)                                   # no marker: not ours
+            self.assertEqual(len(dms_quiet.prompt_problems(copy)), 2)
+            (copy / dms_quiet.MARKER).write_text("rev\n")
+            self.assertEqual(sorted(map(str, dms_quiet.add_prompts(copy))), sorted(PROMPT_FILES))
+            self.assertEqual(dms_quiet.prompt_problems(copy), [])
+            before = {n: (copy / n).read_text() for n in PROMPT_FILES}
+            self.assertEqual(dms_quiet.add_prompts(copy), [])                 # twice: nothing more
+            self.assertEqual({n: (copy / n).read_text() for n in PROMPT_FILES}, before)
+            for name in PROMPT_FILES:
+                self.assertEqual((copy / name).read_text().count(dms_quiet.PROMPT_NOTE), 1)
+
+    def test_an_unknown_handler_leaves_every_file_untouched(self):
+        with tempfile.TemporaryDirectory() as d:
+            copy = Path(d) / "copy"
+            write_prompts(copy)
+            (copy / dms_quiet.MARKER).write_text("rev\n")
+            (copy / "Modules/ControlCenter/Details/BluetoothDetail.qml").write_text("Item {}\n")
+            shell = (copy / "DMSShell.qml").read_text()
+            with self.assertRaises(ValueError):
+                dms_quiet.add_prompts(copy)
+            self.assertEqual((copy / "DMSShell.qml").read_text(), shell)     # checked before anything is written
+
+
 class FitsTest(unittest.TestCase):
     """The copy runs at login only with the `dms` program it was made from."""
 
