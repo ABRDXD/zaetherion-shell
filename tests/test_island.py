@@ -44,12 +44,12 @@ class IslandFrameTests(unittest.TestCase):
     def test_notices_follow_their_inbox_item(self):
         self.run_fixture("NoticeTest.qml", ("the sender's showing time", "a live item can be answered",
             "replace-id refreshes the card", "a sender's never-expire gets our time", "a change that is not an arrival shows nothing",
-            "our own showing time", "the adapter's default is 2 s and honours the sender",
-            "the island caps a sender's long time at 3.5 s", "a shorter sender time is kept", "critical is not capped",
+            "our own showing time", "the adapter's default is 1 s and honours the sender",
+            "the island caps a sender's long time at 1 s", "a shorter sender time is kept", "critical is not capped",
             "a restored item cannot be answered", "closed elsewhere leaves the island"))
 
     def test_right_click_dismisses_and_card_hover_pauses(self):
-        self.run_fixture("DismissTest.qml", ("right-click is idle without a notification", "default showing time is 2 s",
+        self.run_fixture("DismissTest.qml", ("right-click is idle without a notification", "default showing time is 1 s",
             "right-click takes only the right button", "right-click removes it from the island",
             "right-click dismisses it in the Inbox", "critical stays until dismissed",
             "right-click dismisses a critical notification", "pointer off the card",

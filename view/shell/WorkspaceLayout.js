@@ -22,8 +22,8 @@ const tickCurrent = 9;
 const tickInhabited = 5;
 const tickEmpty = 3;
 const readoutY = 100;
-const turnMs = 1100;        // the system turning, smooth, no bounce
-const glintMs = 1600;       // one cold glint along the plane
+const turnMs = 700;         // the system turning, smooth, no bounce (inside the 1 s it shows, Z200)
+const glintMs = 900;        // one cold glint along the plane
 // Fixed dust: [x share, y share, size px, opacity].
 const dust = [[0.06, 0.19, 1.2, 0.6], [0.2, 0.76, 1, 0.4], [0.35, 0.12, 1.4, 0.5], [0.67, 0.81, 1, 0.4],
               [0.78, 0.15, 1.2, 0.6], [0.93, 0.68, 1, 0.35], [0.55, 0.88, 0.8, 0.3]];

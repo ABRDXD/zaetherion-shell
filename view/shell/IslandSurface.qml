@@ -125,6 +125,10 @@ FocusScope {
         still: root.motionLevel === "off"
     }
     readonly property int draftLength: (replyDrafts[expansion?.id] ?? "").length
+    // Whether the shown notice holds a reply draft, set one step later: the queue's pause follows it, and the queue
+    // decides `expansion`, so a direct binding would loop.
+    property bool draftHold: false
+    onDraftLengthChanged: Qt.callLater(() => root.draftHold = root.draftLength > 0)
     readonly property bool noticeVisible: expansion?.kind === "notification" || expansion?.kind === "critical"
     // Z175: a notification's countdown pauses only while the pointer is on its card, not on the island around it.
     property bool noticeHovered: eventPane.item?.noticeHovered ?? false
@@ -230,7 +234,9 @@ FocusScope {
 
     IslandQueue {
         id: queue
-        hovered: root.noticeVisible ? root.noticeHovered : root.pointerInside
+        // A notice waits while the pointer is on its card or a reply is being written in it (Z200: at 1 s, a draft
+        // would otherwise vanish under the typing).
+        hovered: root.noticeVisible ? root.noticeHovered || root.draftHold : root.pointerInside
         // Z161: FART grown from the island covers it: ordinary events wait (time intact) until it folds, and a
         // critical one drops down inside FART instead (`coveredEvent`, drawn by the Overlay).
         ceiling: root.docked ? events.priority.critical : Infinity

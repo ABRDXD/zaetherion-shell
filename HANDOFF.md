@@ -25,7 +25,9 @@
 - **Owner.** "the notifications and anything expanding from the dynamic island just stay on for too long".
 - **Changed.** One timing file, `view/shell/IslandTiming.js`; times cut (see Z200). The main cause: senders' "never
   expire" (0) stayed until dismissed; now 2 s on the island (critical unchanged, the Inbox keeps everything).
-- **Checks.** Island and notification-server tests updated to the new times (24 OK). Full suite: see the commit after.
+- **Then "make all of these 1 or less than 1".** Every timed face 1 s (OSD 0.8 s); workspace turn 0.7 s. A reply draft
+  now pauses a notice like hovering does (`draftHold`, set one step later to avoid a binding loop).
+- **Checks.** Island and notification-server tests at the new times: 24 OK.
 
 # 15 November 2026 · Opus (Claude A): the workspace switch as a cold edge-on system; apps as planets (Z199, branch `ws-transit`)
 

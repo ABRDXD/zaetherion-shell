@@ -61,7 +61,7 @@ ShellRoot {
                 root.show([root.item("a", 1, {})]);
                 break;
             case 1:
-                root.check(island.expansion?.id === "notification:a" && island.expansion.remaining === 2000, "default showing time is 2 s");
+                root.check(island.expansion?.id === "notification:a" && island.expansion.remaining === 1000, "default showing time is 1 s");
                 root.check(root.area()?.enabled === true && root.area().acceptedButtons === Qt.RightButton, "right-click takes only the right button");
                 root.area().clicked(null);
                 break;
