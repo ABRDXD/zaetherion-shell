@@ -501,6 +501,10 @@ FocusScope {
                 if (root.expansion) queue.remove(root.expansion.id);
             }
             onOpenLog: url => root.openLog(url)
+            onOpenSettings: section => {
+                root.keyboardMode = false;
+                root.openSettings(section);
+            }
             onNotificationAction: (id, action, reply) => root.notificationAction(id, action, reply)
             onPictureShown: (id, picture) => root.host.notifications.keepImage(id, picture)
         }

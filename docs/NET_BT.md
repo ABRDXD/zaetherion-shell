@@ -121,7 +121,11 @@ survives FART and DMS. The settings sections are their own files (`view/shell/se
 sections.
 
 A password prompt that arrives while FART is closed (the island's process also holds the prompt feeds): an island event
-"‹network› needs a password" whose click opens FART on that prompt. FART never opens by itself.
+"‹network› needs a password" whose click opens FART on that prompt. FART never opens by itself. Built 15 November 2026 (Claude B):
+`IslandEvents.syncPrompts` offers `prompt:wifi` ("> WI-FI · PASSWORD", NetWords.prompt, "wrong password" included)
+and `prompt:bluetooth` ("> BLUETOOTH · PAIRING", NetWords.pairing's question), held while the prompt exists, at
+notification priority (so FART open banks it, Z161); a click opens FART's settings at that tab
+(`tests/fixtures/island/PromptTest.qml`).
 
 ## 6. Tests (all with DMS fixtures and stand-ins; no real radio is touched)
 

@@ -5,6 +5,7 @@ import qs.core.client
 import qs.view.satellites
 import qs.view.ui
 import "IslandTiming.js" as Timing
+import "NetWords.js" as NetWords
 
 Scope {
     id: root
@@ -120,6 +121,24 @@ Scope {
     }
     onRecordingChanged: if (ready) syncRecording()
 
+    // A Wi-Fi password or a Bluetooth pairing asked for while FART is closed (docs/NET_BT.md §5): one event each, held
+    // for as long as the question is open; a click opens FART's settings where it is answered. FART never opens by
+    // itself. The secret itself is never on the island.
+    readonly property var wifiPrompt: host.network.prompt ?? null
+    readonly property var pairingPrompt: host.bluetooth.pairing ?? null
+    onWifiPromptChanged: syncPrompts()
+    onPairingPromptChanged: syncPrompts()
+    function syncPrompts(): void {
+        if (wifiPrompt)
+            queue.offer("prompt:wifi", "prompt", priority.notification,
+                { label: "> WI-FI · PASSWORD", task: NetWords.prompt(wifiPrompt), section: "wifi" }, null);
+        else queue.remove("prompt:wifi");
+        if (pairingPrompt)
+            queue.offer("prompt:bluetooth", "prompt", priority.notification,
+                { label: "> BLUETOOTH · PAIRING", task: NetWords.pairing(pairingPrompt)?.line ?? "", section: "bluetooth" }, null);
+        else queue.remove("prompt:bluetooth");
+    }
+
     onBatteryChanged: {
         const previous = previousBattery;
         previousBattery = battery;
@@ -221,6 +240,7 @@ Scope {
         ready = true;
         syncMemory();
         syncRecording();
+        syncPrompts();
         syncStartupNotice();
         syncTimer();
         syncDebrief();

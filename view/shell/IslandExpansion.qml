@@ -36,6 +36,8 @@ Item {
     signal trayChoose(string entryId)
     readonly property bool trayKind: kind === "tray"
     // The session card (Z158): lock on a click, the rest on a 1 s hold, as host power menus confirm them.
+    // FART's settings at a section: a prompt event's click (docs/NET_BT.md §5).
+    signal openSettings(string section)
     signal sessionAction(string action)
     // Quick paste (S3): the clipboard grown from the island, a held face like the session card. Its clipboard is the
     // launcher's `clipboard` below.
@@ -821,10 +823,16 @@ Item {
                 radius: Design.roundPlate
                 visible: statusFace.inverse
             }
+            // A prompt (a password or a pairing asked for) opens FART's settings where it is answered.
+            readonly property bool prompt: root.event?.kind === "prompt"
             MouseArea {
                 anchors.fill: parent
-                enabled: statusFace.inverse
-                onClicked: root.dismiss()
+                enabled: statusFace.inverse || statusFace.prompt
+                cursorShape: statusFace.prompt ? Qt.PointingHandCursor : Qt.ArrowCursor
+                onClicked: {
+                    if (statusFace.prompt) root.openSettings(root.payload.section ?? "");
+                    else root.dismiss();
+                }
             }
             Column {
                 x: Design.baseline * 3
@@ -840,6 +848,7 @@ Item {
                 FText {
                     width: parent.width
                     visible: text !== ""
+                    elide: Text.ElideRight
                     technical: true
                     color: statusFace.inverse ? backing.textColor : Design.ink
                     text: root.event?.kind === "debrief"
