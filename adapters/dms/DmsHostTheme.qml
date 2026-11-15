@@ -1,6 +1,6 @@
 import QtQuick
 import Quickshell
-import Quickshell.Io
+import qs.adapters.common
 import qs.view.contract
 import "DmsThemeMap.js" as ThemeMap
 
@@ -10,33 +10,17 @@ HostThemeDomain {
     id: root
     required property DmsLink link
     readonly property string configDir: Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") ?? "") + "/.config"
-    property var queue: []
     available: link.ready
     error: link.ready ? "" : "DMS is not running"
 
+    // Two DMS settings sets, in order (DmsThemeMap.js); a second set() while they run is ignored.
     function set(id: string) {
-        if (!link.ready || runner.running)
-            return;
-        queue = ThemeMap.setCommands(configDir, id);
-        next();
+        if (link.ready)
+            runner.run(ThemeMap.setCommands(configDir, id));
     }
-    function next() {
-        if (!queue.length)
-            return;
-        runner.command = queue[0];
-        queue = queue.slice(1);
-        runner.running = true;
-    }
-    Process {
-        id: runner
-        onExited: (code, status) => { if (code === 0) root.next(); else root.queue = []; }
-    }
-    FileView {
+    CommandQueue { id: runner }
+    WatchedFile {
         path: root.configDir + "/dms/settings.json"
-        watchChanges: true
-        printErrors: false
-        onFileChanged: reload()
-        onLoaded: root.current = ThemeMap.currentFrom(text())
-        onLoadFailed: root.current = ""
+        onContentChanged: root.current = ThemeMap.currentFrom(content)
     }
 }

@@ -1,6 +1,6 @@
 import QtQuick
 import Quickshell
-import Quickshell.Io
+import qs.adapters.common
 import qs.view.contract
 import "DmsWallpaperMap.js" as WallpaperMap
 
@@ -22,12 +22,8 @@ WallpaperDomain {
             return;
         Quickshell.execDetached(WallpaperMap.setCommand(path));
     }
-    FileView {
+    WatchedFile {
         path: root.sessionPath
-        watchChanges: true
-        printErrors: false
-        onFileChanged: reload()
-        onLoaded: root.state = WallpaperMap.fromSession(text())
-        onLoadFailed: root.state = ({ current: "", perScreen: false })
+        onContentChanged: root.state = WallpaperMap.fromSession(content)
     }
 }

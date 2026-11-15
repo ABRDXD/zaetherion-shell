@@ -103,6 +103,7 @@ The island morphs continuously (width and height, host motion profile with overs
 
 - A normal Hyprland application window (Z91). The panel is not reaped while it is open.
 - **Layout:** a 78° diagonal index with search at the top. Changes apply instantly (Z92).
+- **Now (Z177):** palette, wallpaper and presets live in FART's own settings pane as tabs; the window below is still the plan for the rest.
 - **Tabs** (Z93): Display · Theme · Wallpaper · Island · Widgets · Launcher · Notifications · Network & Bluetooth · Audio/EQ · Idle · Lock · Capture · Wellbeing · Overdrive · Sessions & Timers · Keybinds (editable) · About.
   - Keybinds rewrites the ZÆTHERION keybind file, reloads Hyprland, and rolls back automatically on `configerrors` (Z94).
   - About lists missing Serpantinum assets (Z125).

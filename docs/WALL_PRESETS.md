@@ -1,6 +1,6 @@
 # Wallpaper and preset selectors inside FART (design draft, S9)
 
-Status: **draft for the owner. Nothing is built.** Branch `s9-wall-presets` from `s0-seed` 39719a2. New decisions start at Z177.
+Status: **built on `s9-wall-presets` (14 November 2026), not merged.** Decisions Z177–Z180 (Z176 was taken on s0-seed). Where the build differs from this draft, the decisions and the code win; differences are marked *Built:*.
 
 ## 1. What exists
 
@@ -44,7 +44,7 @@ Status: **draft for the owner. Nothing is built.** Branch `s9-wall-presets` from
 - A file vanishes between listing and applying: refused with "no longer there", list refreshed.
 - Unreadable image: its tile shows the name only.
 
-**Colours from the wallpaper** (owner: an option, off by default). A toggle in the wallpaper section, "Colours from this wallpaper". When on, the highlighted image also previews a palette made from it, and applying saves that palette. The adapter runs `matugen image <path> --dry-run --json hex` (matugen 4.2.0 has both flags). That writes no files and runs none of your app templates. Its dark scheme goes through DMS's role map and `normalize()` (Z165), becoming palette entry `wall:<file name>`. The core caches it by path, size and mtime, the way DMS's seed cache does. DMS's own theme stays as it is.
+**Colours from the wallpaper** (owner: an option, off by default). A toggle in the wallpaper section, "Colours from this wallpaper". When on, the highlighted image also previews a palette made from it, and applying saves that palette. The adapter runs `matugen image <path> --dry-run --json hex` (matugen 4.2.0 has both flags). That writes no files and runs none of your app templates. Its dark scheme goes through DMS's role map and `normalize()` (Z165), becoming palette entry `wall:<file name>`. The core caches it by path, size and mtime, the way DMS's seed cache does. DMS's own theme stays as it is. *Built:* matugen needs `--source-color-index 0` (otherwise it waits for a terminal choice); it is run from `adapters/common/wallpaper_colors.py` by the core, cached by path (the newest 8), and the saved one is kept in `palette.json` with its colours.
 
 ## 4. Presets (owner: wallpaper + colours, island shape, DMS's theme)
 
@@ -53,16 +53,16 @@ A preset is one saved look: `{name, wallpaper, palette, islandForm, dmsTheme}`. 
 - **Section.** The `PRESETS` tab lists looks as wide cards: a small wallpaper thumbnail, the palette's accent swatches, and the island's form drawn in miniature. "Save current look" makes a new preset from what is in use now (name typed inline). Rename and delete happen inline.
 - **Preview.** Hover or arrows preview the palette (the existing `palette.preview`, so all of FART recolours live), the island form, and the wallpaper in the large plane. Nothing in DMS changes until you apply. Esc, close or fold restores everything, as the palette picker does.
 - **Apply** (click or Enter), in order: palette (`palette.choose`), island form (the stored form setting, Z155), wallpaper (`wallpaper` host call), and last the DMS theme.
-- **DMS's theme.** DMS has no command to switch theme (its `theme` IPC only does light/dark). DMS reloads `~/.config/dms/settings.json` by itself when the file changes, so the adapter would set only `currentThemeName`/`currentThemeCategory`/`customThemeFile` there. It would write atomically, keep a dated backup the first time, and leave every other key untouched. **This is the one write to a DMS file in the whole design**; it needs your explicit OK when built.
+- **DMS's theme.** *Built differently, and safer:* DMS's `settings set <key> <value>` IPC runs a key's change hook on every set, so `settings set customThemeFile <themes>/<id>/theme.json` then `settings set currentThemeName custom` makes DMS load the theme itself (`DmsThemeMap.js`). ZÆTHERION writes no DMS file at all. Checked against a real private DMS by `tools/wall_dms_check.py` (14/14).
 - **Core.** `core/presets.py`: `presets.json` (list of looks), topic `presets`, ops `presets.list/save/rename/delete/preview/cancel/apply`; verb `zaetherion look <name>` / `look list` / `look save <name>`.
 - **Missing parts.** If a preset's wallpaper file is gone, its palette is no longer installed, or DMS is down, the card marks that part "missing". Apply does the rest and says what it skipped.
 
-## 5. Decisions to record (next free: Z177)
+## 5. Decisions (recorded in DECISIONS.md)
 
 - Z177: wallpaper picker inside FART's settings, previewed in a large plane in FART, applied through the host. `wall`/`theme` and Home's items open FART's section instead of DMS.
 - Z178: the `wallpaper` contract domain; the host is the authority for the current wallpaper; the core keeps folder, recent and preview.
 - Z179: colours from a wallpaper, optional and off by default, via `matugen --dry-run`.
-- Z180: presets bundle wallpaper, palette, island form and DMS theme; the DMS theme switch edits DMS's settings file (owner's OK required).
+- Z180: presets bundle wallpaper, palette, island form and DMS theme; DMS's theme switches through DMS's own IPC.
 
 ## 6. Build order (after the owner's OK)
 
