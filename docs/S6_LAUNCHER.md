@@ -105,6 +105,10 @@ folders.
 Super tap and Super+Space move from DMS's spotlight to ours (option B's `global` dispatcher). The old lines are kept
 commented, so rolling back is restoring them and `hyprctl reload`.
 
+**Done 15 November 2026 (owner's yes):** Super tap (`SUPER_L`/`SUPER_R` on release) and Super+Space send the global
+`zaetherion:apps`; DMS's spotlight moved to Super+Ctrl+Space. `tools/session-start` exports `FART_LAUNCHER_SHORTCUT=1`.
+Backup: `~/.config/hypr/zaetherion/keybinds.lua.bak-2026-11-15-starchart`.
+
 ## 7. The owner's answers (14 November 2026)
 
 1. **DMS's spotlight stays reachable on another key during the trial**; ours takes Super tap and Super+Space. Which
@@ -123,7 +127,7 @@ commented, so rolling back is restoring them and `hyprctl reload`.
 - **Starting an app** (Z187): through Hyprland's exec with the compositor's environment; terminal apps in the terminal setting.
 - **Settings** (Z189): rows, terminal, hidden, blocklist in `launcher.json`; their FART controls come with the surface.
 - **Surface (option C, Z185).** The launcher is a face of the island (`view/shell/LauncherFace.qml`, rows in
-  `LauncherRow.qml`, sizes in `LauncherLayout.js`): kind `launcher` in the island queue at the `held` priority, like the
+  the star chart in `LauncherOrbit.qml`, `LauncherBody.qml` and `LauncherScenery.qml` (Z196), sizes in `LauncherLayout.js`): kind `launcher` in the island queue at the `held` priority, like the
   session card, so only a critical event interrupts it. A line to type in (the island's resting height), a refusal
   line, then `rows` montage rows. Every key asks the core; stale replies are dropped. ↑/↓ (Ctrl+J/K, Ctrl+N/P) move,
   Enter launches, Esc or the key again folds it, a click outside folds it, hover selects, a click launches. The face
@@ -136,5 +140,9 @@ commented, so rolling back is restoring them and `hyprctl reload`.
 - **Keyboard (Z117).** Hyprland 0.57 doesn't move the keyboard to a mapped layer that turns Exclusive, so a key-opened
   launcher got nothing (every letter stayed in the app; the island's own `focus` route behaves the same in nested
   Hyprland). The island's focus grab now starts at once for the launcher. The window then has the keyboard 6 ms after the open.
-- **Not yet**: verbs, calc, `>cmd`, `?term`, windows, Emoji, Clips, Files; the settings controls in FART; the
-  binds (§6); the owner's look.
+- **Inline rows** (Z195, 15 November 2026): sums, unit conversions, `>cmd`, `?term` and FART verbs, from
+  `core/inline.py` through `launcher.query`; Enter goes through `launcher.act`. Settings `search` and `browser` join
+  `launcher.json`. The adapter's `AppsDomain.run(argv)` starts what the core worked out; sums copy through the
+  clipboard domain. Each kind is its own body on the orbit (Z196); an unfinished `>`/`?` row is faint and Enter waits.
+- **The star chart** (Z196, owner's pick B): see DECISIONS. Wheel swings the orbit; a click on a body launches it.
+- **Not yet**: currency, windows, Emoji, Clips, Files; the settings controls in FART; the binds (§6).

@@ -39,6 +39,7 @@ Item {
     // The launcher (S6): the core that ranks, the apps it starts, and how many rows it shows.
     property CoreClient core: null
     property AppsDomain apps: null
+    property ClipboardDomain clipboard: null
     property int launcherRows: 6
     signal launcherClose()
 
@@ -234,6 +235,7 @@ Item {
         LauncherFace {
             core: root.core
             apps: root.apps
+            clipboard: root.clipboard
             rows: root.launcherRows
             onClose: root.launcherClose()
         }

@@ -64,6 +64,14 @@ Singleton {
     readonly property color portraitDetail: palette.textMuted ?? "#999999"
     readonly property color success: palette.success ?? accent
     readonly property color islandFill: palette.islandBackground ?? darkestIslandRole(palette)
+    // Astrophysical colours (Z196): physical constants, not theme roles, so they stay the same on every palette.
+    // Stars by spectral class, hottest first (blackbody tints O B A F G K M); the launcher colours a result by rank.
+    readonly property var spectral: ["#9bb0ff", "#aabfff", "#cad7ff", "#f8f7ff", "#fff4ea", "#ffd2a1", "#ff9f6b"]
+    readonly property color pulsar: "#cba6f7"   // FART verbs
+    readonly property color comet: "#94e2d5"    // `>cmd`
+    readonly property color nebula: "#f5c2e7"   // `?term`
+    readonly property color binary: "#f9e2af"   // sums and conversions
+    function starColor(rank: int): color { return spectral[Math.max(0, Math.min(rank, spectral.length - 1))]; }
 
     function linearChannel(value: real): real {
         return value <= 0.04045 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);

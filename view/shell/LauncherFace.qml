@@ -13,40 +13,62 @@ FocusScope {
     id: root
     required property CoreClient core
     required property AppsDomain apps
+    property ClipboardDomain clipboard: null
     property int rows: 6
     signal close()
 
     property var results: []
-    property int selected: 0
+    // The selection, unwrapped: every step counts, so the orbit swings the short way past the wrap (Z196).
+    property int turn: 0
+    readonly property int selected: results.length ? ((turn % results.length) + results.length) % results.length : 0
     property string refusal: ""
     property int asked: 0
     readonly property alias text: input.text
 
     implicitWidth: Layout.contentWidth
-    implicitHeight: Layout.inputHeight + Layout.notice + Layout.gap + rows * Layout.rowHeight + Layout.gap
+    implicitHeight: Layout.inputHeight + Layout.notice + Layout.chartHeight
 
     function query(): void {
         if (!core) return;
         const seq = ++asked;
         core.request("launcher.query", { text: input.text, limit: rows }, (ok, reply) => {
             if (seq !== asked) return;
+            turn = 0;
             results = ok ? reply.rows : [];
-            selected = Math.min(selected, Math.max(0, results.length - 1));
         });
     }
     function move(by: int): void {
-        if (results.length > 0)
-            selected = (selected + by + results.length) % results.length;
+        if (results.length > 1)
+            turn += by;
+    }
+    function fail(reply): void {
+        refusal = reply?.code === "blocked" ? reply.message : "> " + (reply?.message ?? "CANNOT START").toUpperCase();
+        Feedback.play("ui.error");
+    }
+    // Enter on an inline row (Z195): the core works out what it does again from the text.
+    function act(row): void {
+        const text = input.text;
+        core.request("launcher.act", { kind: row.kind, text: text }, (ok, reply) => {
+            if (!ok) return fail(reply);
+            if (reply.result && !reply.result.ok) {
+                refusal = "> " + String(reply.result.line ?? "").toUpperCase();
+                return;  // the core already played the verb's error cue
+            }
+            if (reply.argv) apps.run(reply.argv);
+            else if (reply.copy !== undefined) {
+                if (!clipboard) return fail({ message: "no clipboard here" });
+                clipboard.copyText(reply.copy);
+            }
+            if (!reply.result) Feedback.play("ui.click");
+            root.close();
+        });
     }
     function launch(index: int): void {
         const row = results[index];
-        if (!row || !core) return;
+        if (!row || !core || row.ready === false) return;
+        if (row.kind && row.kind !== "app") return act(row);
         core.request("launcher.launch", { id: row.id }, (ok, reply) => {
-            if (!ok) {
-                refusal = reply?.code === "blocked" ? reply.message : "> " + (reply?.message ?? "CANNOT START").toUpperCase();
-                Feedback.play("ui.error");
-                return;
-            }
+            if (!ok) return fail(reply);
             apps.launch(reply.id, reply.terminal ?? "");
             Feedback.play("ui.click");
             root.close();
@@ -108,7 +130,7 @@ FocusScope {
             onTextChanged: {
                 if (!root.live) return;
                 root.refusal = "";
-                root.selected = 0;
+                root.turn = 0;
                 root.query();
             }
             Keys.onPressed: event => {
@@ -143,28 +165,23 @@ FocusScope {
         font.pixelSize: Design.caption
     }
 
-    Column {
-        y: Layout.inputHeight + Layout.notice + Layout.gap
+    LauncherOrbit {
+        id: orbit
+        objectName: "launcherOrbit"
+        y: Layout.inputHeight + Layout.notice
         width: parent.width
-        Repeater {
-            model: root.results
-            delegate: LauncherRow {
-                required property var modelData
-                required property int index
-                width: parent.width
-                height: Layout.rowHeight
-                row: modelData
-                selected: index === root.selected
-                onPointed: root.selected = index
-                onChosen: root.launch(index)
-            }
-        }
+        height: Layout.chartHeight
+        results: root.results
+        turn: root.turn
+        onChosen: index => root.launch(index)
+        onStep: by => root.move(by)
     }
     FText {
-        y: Layout.inputHeight + Layout.notice + Layout.gap
+        anchors.horizontalCenter: orbit.horizontalCenter
+        y: orbit.y + Layout.orbitY - height / 2
         visible: root.results.length === 0 && input.text !== ""
         technical: true
-        text: "> NO MATCH"
+        text: "> NO BODIES IN RANGE"
         color: Design.faint
         font.pixelSize: Design.caption
     }

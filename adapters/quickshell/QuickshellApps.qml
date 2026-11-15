@@ -26,6 +26,17 @@ AppsDomain {
         return out.sort((a, b) => a.name.localeCompare(b.name));
     }
 
+    function run(argv: var): void {
+        record("run", [argv]);
+        const command = Array.from(argv || []).map(String);
+        if (command.length === 0)
+            return;
+        if (spawner)
+            spawner.run(command, "");
+        else
+            Quickshell.execDetached({ command: command, workingDirectory: Quickshell.env("HOME") });
+    }
+
     function launch(id: string, terminal: string): void {
         record("launch", [id, terminal]);
         const entry = DesktopEntries.byId(id);

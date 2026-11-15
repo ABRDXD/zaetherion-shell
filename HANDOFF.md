@@ -1,15 +1,57 @@
 # 15 November 2026 · Opus (Claude B): S9 merge ready on `s9-wall-merge`; Wi-Fi and Bluetooth tabs in FART's settings
 
-- **Branch `s9-wall-merge`** = `s0-seed` (`b4e8e2d`) + `s9-wall-presets`, waiting for the owner's word to fast-forward `s0-seed`. Conflicts were both sides adding beside each other (S6 launcher/apps, S9 wallpaper/presets/hostTheme); both kept, 23 contract domains. Full suite on the merge: 1081 OK (1 skipped).
+- **Branch `s9-wall-merge`** = `s0-seed` (`f795823`, the star-chart launcher included) + `s9-wall-presets`, waiting for the owner's word to fast-forward `s0-seed`. Conflicts were both sides adding beside each other (S6 launcher/apps, S9 wallpaper/presets/hostTheme); both kept, 23 contract domains. Full suite on the merge: 1081 OK (1 skipped).
 - **Claude D's sections joined the tabs** (D and C were temporary agents; their leftovers are B's). `PreferencesPane` takes `host` and lists PALETTE · WALLPAPER · PRESETS · WI-FI · BLUETOOTH; `WifiSettings`/`BluetoothSettings` are active only while shown. `Host.openSettings("wifi")` now has a tab to land on.
 - **Found by loading the real pane:** `BluetoothSettings` read a missing `trusted` as an error (`Unable to assign [undefined] to bool`, which fails `tools/smoke.py`); it now reads it as not trusted. The fixture's Bluetooth devices used old icon names (`audio-headset`), drawn as garbled text; they now follow the contract (`headphones`, `keyboard`, `trusted`).
 - **Checks.** Smoke 0 errors; `test_contract`, `test_net_bt_adapter`, `test_net_bt_logic`, `test_dms_contract`, `test_layout` OK; offscreen captures of both tabs against the fixture (scratch, not kept).
-- **Owner's rule (15 Nov): ZÆTHERION changes DMS's whole UI; it builds no backend.** DMS's backend does the work; we drive its commands, IPC and settings. If our UI achieves something DMS doesn't offer, we keep it. Backend-like parts already built, kept, noted here:
+- **Owner's rule (15 Nov), now Z198: ZÆTHERION changes DMS's whole UI; it builds no backend.** DMS's backend does the work; we drive its commands, IPC and settings. If our UI achieves something DMS doesn't offer, we keep it. Backend-like parts already built, kept, noted here:
   - our notification server (Z171, quiet DMS): DMS's server lives in its UI layer and can't feed FART's island and Inbox; replaced, not added.
   - our equaliser (Z173, a PipeWire filter chain the core runs): DMS has no equaliser; kept.
   - the launcher's ranking and launch history in the core (Z185, Z186): the same order and weights as DMS's own app search, plus the old launcher's history import and the Session blocklist. Closest to duplicating DMS; check against this rule when the launcher work continues.
   - "colours from this wallpaper" (Z179): runs matugen itself although DMS's "dynamic" theme can do it; the owner chose to keep it as built.
-- **Open.** Claude C's uncommitted work (`s3-clips-rest`) numbers decisions Z181–Z185; Z185 is already Claude A's (S6). Renumber when C's work is merged. D's island hover word ("joining / wrong password / pairing") still waits on C's `IslandRest.qml`.
+- **Open.** Claude C's uncommitted work (`s3-clips-rest`) numbers decisions Z181–Z185; Z185 is already Claude A's (S6). Renumber when C's work is merged. Z197 is Claude A's (uncommitted in the s6 worktree); Z198 is this rule. D's island hover word ("joining / wrong password / pairing") still waits on C's `IslandRest.qml`.
+
+# 15 November 2026 · Opus (Claude A): the launcher becomes a star chart (Z196, branch `s6-launcher`)
+
+- **Owner's call.** First launcher look rejected ("too plain, not fun"). Three directions mocked on a design canvas
+  (A Dossier, B Orbit, C Deck); owner picked B, asked for more colour contrast and motion, symmetry, astrophysics
+  everywhere, "never average". Canvas: B2 is the live mock.
+- **Built.** `view/shell/LauncherOrbit.qml` (the chart, perigee ring, swing, draw-in, flare, headline),
+  `LauncherBody.qml` (star / pulsar / comet / nebula / binary bodies, labels, click), `LauncherScenery.qml`
+  (barycentre scenery for a lone inline result), astro colour tokens in `Design.qml`, geometry and motion constants
+  in `LauncherLayout.js`. `LauncherRow.qml` removed. `LauncherFace` keeps its API; selection is now `turn`
+  (unwrapped) with `selected` derived.
+- **Checks.** `test_launcher_view` +4 (symmetric, pick at perigee, wraps back, swing settles); captures and motion
+  frames with the owner's Larimar palette when `LAUNCHER_SHOTS` is set. qmllint 0 syntax on 6 files. Full suite: 1052 OK (1 skipped).
+- **Live (owner's yes, 15 Nov).** `s6-launcher` fast-forwarded into `s0-seed` (`9b7a8b9`); core stopped, waited, started
+  with the login's four settings (quiet copy fits); DMS and our notification server back. Opened once with
+  `qs -p shell-dms.qml ipc call launcher toggle`: real apps and icons on the orbit, closed cleanly. The island layer is
+  1920×546 but its input mask is the island's frame, so the empty area passes clicks. Binds unchanged.
+- **Keys live (owner's yes).** Super tap and Super+Space → `zaetherion:apps` (the star chart); DMS's spotlight on
+  Super+Ctrl+Space. `session-start` exports `FART_LAUNCHER_SHORTCUT=1`; core restarted with it, shortcut registered
+  (`hyprctl globalshortcuts`), a dispatched `global` opened and closed it. Rollback: the `.bak-2026-11-15-starchart`
+  bind file + `hyprctl reload`. The repo's `session/hypr` copy already differs from the live file (owner's edits); not synced.
+- **Not done.** Not yet in nested Hyprland. The island window is now 546 px deep (was
+  324) while the launcher exists; check input region and cost live. The starfield-lensing idea behind the ring is
+  not built (Overdrive). Labels of the far side can overlap at 9+ results (rows setting up to 12).
+
+# 15 November 2026 · Opus (Claude A): S6 inline rows in Apps (branch `s6-launcher`, waits for the owner's look)
+
+- **Built (Z195).** `core/inline.py` (sums via `ast`, unit conversions, search engines); `Launcher.query` puts a
+  sum/conversion row and a FART verb row (`Commands.inline`) above the apps; `>cmd` and `?term` lines are only their
+  own row. `launcher.act {kind, text}`: verbs run in the core (`Core._launcher_act`), the rest in `Launcher.act`
+  (`{argv}` or `{copy}`). Settings `search` (default `brave`) and `browser` (empty = xdg-open). View:
+  `AppsDomain.run(argv)` (QuickshellApps via the Hyprland spawner), `LauncherFace.act`, the clipboard domain passed
+  through `IslandSurface`/`IslandExpansion`, a glyph per kind (since replaced by Z196's bodies).
+- **Checks.** `tests/test_launcher_inline.py` (10). `test_launcher_view` grew 12 checks (calc copies 42, conversion
+  copies, `>echo hi` runs in kitty, `?cats` opens Brave Search, `task buy milk` adds the task, an empty `>` waits).
+  qmllint 0 syntax diagnostics on the 7 changed QML files; `make_qmldirs.py --check` clean. Full suite: 1045 run, OK (three modules that need the repo root rerun from it: 12 OK).
+- **Note.** The work was started in the main checkout by mistake and moved to `zaetherion-shell-s6` before any
+  commit; the main checkout is clean.
+- **For the owner.** Captures of the five row kinds. Row names are upper-case in the approved style, so `mL` reads
+  `ML`. `?term` uses Brave *Search* in the desktop's browser (Zen); Brave the browser isn't installed.
+- **Next.** Owner's look → merge into `s0-seed`. Then currency (rates source), windows (Z77), Emoji, Clips (with C),
+  Files; the FART settings controls once B's tabs (`s9-wall-presets`) are merged.
 
 # 14 November 2026 · Opus (Claude B): wallpaper and preset pickers inside FART (branch `s9-wall-presets`, Z177–Z180; not merged)
 

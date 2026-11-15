@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import qs.adapters.fixture
 import qs.core.client
+import qs.view.contract
 import qs.view.shell
 import qs.view.ui
 
@@ -48,10 +49,41 @@ ShellRoot {
         until(() => face.asked > 0 && face.results.length > 0 && face.results[0] !== undefined, 2000, () => after(50, fn));
     }
 
+    function frames(name, count, every, done) {
+        let n = 0;
+        const grab = () => scene.grabToImage(result => {
+            result.saveToFile(shots + "/" + name + "-" + String(n).padStart(2, "0") + ".png");
+            if (++n < count) after(every, grab); else done();
+        });
+        grab();
+    }
+    function lastRun() {
+        const runs = fixture.apps.calls.filter(call => call.method === "run");
+        return runs.length ? runs[runs.length - 1].args[0] : null;
+    }
+    function inline(text, kind, name, done, picture) {
+        island.openLauncher();
+        until(() => !!root.input, 2000, () => type(text, () => {
+            check(name + ".row", root.face.results[0].kind === kind, root.face.results);
+            shot(picture, () => {
+                root.face.launch(0);
+                until(() => !island.launcherOpen && done(), 2000, ok => { check(name, ok, fixture.apps.calls); next(); });
+            });
+        }));
+    }
+
+    PaletteDomain {
+        id: larimar
+        available: true
+        colors: ({ background: "#0a181c", surface: "#152d36", surfaceRaised: "#20424f", text: "#e6f9fc", textMuted: "#a0dbe6",
+                   textFaint: "#589dbb", line: "#2b5768", accent: "#42c8d9", warm: "#f9e2af", danger: "#b4befe",
+                   highlight: "#42c8d9", success: "#94e2d5", islandBackground: "#071114" })
+    }
     CoreClient { id: client }
     FixtureAdapter { id: fixture }
     Component.onCompleted: {
-        Design.source = fixture.palette;
+        // Captures for the owner use their palette's colours (Larimar); the checks don't depend on it.
+        Design.source = root.shots ? larimar : fixture.palette;
         steps = [
             () => until(() => client.connected && !!client.launcherData && client.launcherData.apps === 7, 5000, ok => {
                 check("apps.indexed", ok, client.launcherData);
@@ -65,6 +97,26 @@ ShellRoot {
                     check("island.wants.keyboard", island.keyboardRequest === "exclusive", island.keyboardRequest);
                     check("window.deep.enough", island.deepest >= island.height, [island.deepest, island.height]);
                     shot("01-open", next);
+                });
+            },
+            // The orbit (Z196): bodies mirror each other about the island's axis, and the selection wraps both ways.
+            () => {
+                const orbit = root.find(island, "launcherOrbit");
+                const bodies = [];
+                const walk = node => { if (!node) return; if (node.objectName === "launcherBody") bodies.push(node); for (const c of node.children) walk(c); };
+                walk(orbit);
+                const cx = orbit.cx;
+                const mirrored = bodies.every(b => b.eclipse > 0.99 || bodies.some(o => o !== b && Math.abs((o.x - cx) + (b.x - cx)) < 1 && Math.abs(o.y - b.y) < 1)
+                                                 || Math.abs(b.x - cx) < 1);
+                check("orbit.symmetric", bodies.length === 6 && mirrored, bodies.map(b => [Math.round(b.x), Math.round(b.y)]));
+                const pick = bodies.find(b => b.eclipse > 0.99);
+                check("orbit.pick.at.perigee", !!pick && Math.abs(pick.x - cx) < 1 && Math.abs(pick.y - orbit.perigeeY) < 1, pick ? [pick.x, pick.y] : null);
+                root.face.move(-1);
+                check("orbit.wraps.back", root.face.selected === 5 && root.face.turn === -1, [root.face.selected, root.face.turn]);
+                root.face.move(1);
+                after(Math.max(400, 2 * 320), () => {
+                    check("orbit.settles", Math.abs(orbit.spin - orbit.turn) < 1e-6, [orbit.spin, orbit.turn]);
+                    next();
                 });
             },
             () => type("mon", () => {
@@ -110,14 +162,60 @@ ShellRoot {
                     shot("04-nomatch", next);
                 });
             },
+            // Captures only: the orbit drawing in on open, then one swing, frame by frame.
+            () => {
+                if (!root.shots) { next(); return; }
+                if (island.launcherOpen) island.toggleLauncher();
+                until(() => !island.launcherOpen, 1000, () => {
+                    island.openLauncher();
+                    root.frames("open", 12, 70, () => until(() => !!root.face && root.face.results.length > 5, 2000, () => {
+                        root.face.move(1);
+                        root.frames("swing", 10, 60, () => { island.toggleLauncher(); until(() => !island.launcherOpen, 1000, next); });
+                    }));
+                });
+            },
+            // Inline rows (Z195): each opens the launcher, types, checks the top row and presses Enter on it.
+            () => root.inline("6*7", "calc", "inline.calc", () => {
+                const last = fixture.clipboard.calls[fixture.clipboard.calls.length - 1];
+                return last?.method === "copyText" && last.args[0] === "42";
+            }, "05-calc"),
+            () => root.inline("10 km to mi", "convert", "inline.convert", () => {
+                const last = fixture.clipboard.calls[fixture.clipboard.calls.length - 1];
+                return last?.method === "copyText" && last.args[0] === "6.21371";
+            }, "06-convert"),
+            () => root.inline(">echo hi", "command", "inline.command", () => {
+                const argv = root.lastRun();
+                return !!argv && argv[0] === "kitty" && argv[argv.length - 1] === "echo hi";
+            }, "07-command"),
+            () => root.inline("?cats", "search", "inline.search", () => {
+                const argv = root.lastRun();
+                return !!argv && argv[0] === "xdg-open" && argv[1] === "https://search.brave.com/search?q=cats";
+            }, "08-search"),
+            () => root.inline("task buy milk", "verb", "inline.verb", () => true, "09-verb"),
+            () => until(() => JSON.stringify(client.tasksData ?? {}).indexOf("buy milk") >= 0, 2000, ok => {
+                check("inline.verb.ran", ok, client.tasksData);
+                next();
+            }),
+            () => {
+                island.openLauncher();
+                until(() => !!root.input, 2000, () => type(">", () => {
+                    const before = fixture.apps.calls.length;
+                    root.face.launch(0);
+                    after(300, () => {
+                        check("inline.empty.waits", root.face.results[0].ready === false && fixture.apps.calls.length === before && island.launcherOpen, root.face.results);
+                        island.toggleLauncher();
+                        until(() => !island.launcherOpen, 1000, next);
+                    });
+                }));
+            },
         ];
         next();
     }
 
     FloatingWindow {
-        implicitWidth: 920
-        implicitHeight: 420
-        color: "#202020"
+        implicitWidth: 1040
+        implicitHeight: 640
+        color: "#02060a"
         Item {
             id: scene
             anchors.fill: parent

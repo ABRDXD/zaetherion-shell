@@ -23,9 +23,11 @@ IslandRest 1.0 IslandRest.qml
 IslandSurface 1.0 IslandSurface.qml
 IslandTrayMenu 1.0 IslandTrayMenu.qml
 IslandWindow 1.0 IslandWindow.qml
+LauncherBody 1.0 LauncherBody.qml
 LauncherFace 1.0 LauncherFace.qml
+LauncherOrbit 1.0 LauncherOrbit.qml
 LauncherRoutes 1.0 LauncherRoutes.qml
-LauncherRow 1.0 LauncherRow.qml
+LauncherScenery 1.0 LauncherScenery.qml
 LiveTitle 1.0 LiveTitle.qml
 OrbitSystem 1.0 OrbitSystem.qml
 OrbitTile 1.0 OrbitTile.qml

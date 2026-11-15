@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 import logging
 from pathlib import Path
 
-from core import matching
+from core import inline, matching
 from core.errors import OpError, bad_args
 from core.store import read_json, write_json
 
@@ -37,7 +37,9 @@ MAX_LIMIT = 50
 
 DEFAULTS = {
     "rows": 6,  # Z75
-    "terminal": "kitty",  # for apps that ask for one (and `>cmd` later); the owner's Super+Return terminal
+    "terminal": "kitty",  # for apps that ask for one and for `>cmd`; the owner's Super+Return terminal
+    "search": "brave",  # `?term`'s engine (Z28), a key of core.inline.ENGINES
+    "browser": "",  # the program `?term` opens its page in; "" is the desktop's default (xdg-open)
     "hidden": [],  # app ids never shown
     # Z102's starter set, matched against an app's name or id while a Session runs.
     "blocklist": ["steam", "discord", "lutris", "heroic", "itch", "bottles", "prismlauncher"],
@@ -65,8 +67,10 @@ class App:
 
 
 class Launcher:
-    def __init__(self, clock, state_dir: Path, imported=lambda: None, session_active=lambda: False):
+    def __init__(self, clock, state_dir: Path, imported=lambda: None, session_active=lambda: False,
+                 verb=lambda text: None):
         self.clock = clock
+        self.verb = verb  # text → {verb, usage, summary} when the line is a FART verb (core/command.py), else None
         self.session_active = session_active
         self.on_change = lambda: None
         self.history_path = state_dir / "launches.json"
@@ -101,6 +105,14 @@ class Launcher:
             if isinstance(value, str) and value.strip() and len(value) <= 128:
                 return value.strip()
             raise bad_args("terminal must be a program name")
+        if key == "search":
+            if value in inline.ENGINES:
+                return value
+            raise bad_args(f"search must be one of {', '.join(inline.ENGINES)}")
+        if key == "browser":
+            if isinstance(value, str) and len(value) <= 128 and not value.strip().startswith("-"):
+                return value.strip()
+            raise bad_args("browser must be a program name, or empty for the default")
         if key in ("hidden", "blocklist"):
             if isinstance(value, list) and len(value) <= 500 and all(isinstance(v, str) and 0 < len(v) <= MAX_FIELD for v in value):
                 return list(dict.fromkeys(value))
@@ -248,7 +260,7 @@ class Launcher:
 
     def _row(self, app: App, score: float, kind: str | None) -> dict:
         return {"kind": "app", "id": app.id, "name": app.name, "description": app.description, "icon": app.icon,
-                "score": round(score, 3), "match": kind, "blocked": self._blocked(app)}
+                "score": round(score, 3), "match": kind, "blocked": self._blocked(app), "ready": True}
 
     def query(self, text: str = "", limit=None) -> dict:
         if not isinstance(text, str) or len(text) > MAX_QUERY:
@@ -257,11 +269,20 @@ class Launcher:
             limit = self.settings["rows"]
         if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= MAX_LIMIT:
             raise bad_args(f"limit must be 1–{MAX_LIMIT}")
+        line = text.strip()
+        if line.startswith((">", "?")):  # Z28: a prefix line is only its own row, never apps
+            return {"text": text, "rows": [self._prefixed(line)], "total": 1}
+        rows = self._inline(line)[:limit]
+        apps = self._apps(line.lower())
+        return {"text": text, "rows": rows + [self._row(app, score, kind) for score, app, kind in apps[:limit - len(rows)]],
+                "total": len(rows) + len(apps)}
+
+    def _apps(self, query: str) -> list:
         hidden = set(self.settings["hidden"])
-        visible = [app for app in self.apps.values() if app.id not in hidden]
-        query = text.strip().lower()
         scored = []
-        for app in visible:
+        for app in self.apps.values():
+            if app.id in hidden:
+                continue
             bonus = sum(self.frecency(app.id))
             if not query:
                 scored.append((bonus, app, None))  # Z75: nothing typed shows the most frecent apps
@@ -270,8 +291,53 @@ class Launcher:
             if match:
                 scored.append((match[1] + bonus, app, match[0]))
         scored.sort(key=lambda item: (-item[0], item[1].name.lower(), item[1].id))
-        return {"text": text, "rows": [self._row(app, score, kind) for score, app, kind in scored[:limit]],
-                "total": len(scored)}
+        return scored
+
+    # Inline rows (Z27, Z28, Z195): above the apps, kind tells the view what Enter does.
+
+    @staticmethod
+    def _inline_row(kind: str, name: str, description: str, ready: bool = True) -> dict:
+        return {"kind": kind, "id": kind, "name": name, "description": description, "icon": "", "score": None,
+                "match": None, "blocked": False, "ready": ready}
+
+    def _prefixed(self, line: str) -> dict:
+        rest = line[1:].strip()
+        if line.startswith(">"):
+            return self._inline_row("command", f"> {rest}" if rest else "> …",
+                                    f"RUN IN {self.settings['terminal'].upper()}" if rest else "TYPE A COMMAND", bool(rest))
+        engine = inline.ENGINES[self.settings["search"]][0].upper()
+        return self._inline_row("search", f"? {rest}" if rest else "? …",
+                                engine if rest else f"TYPE TO SEARCH · {engine}", bool(rest))
+
+    def _inline(self, line: str) -> list[dict]:
+        rows = []
+        if (value := inline.calc(line)) is not None:
+            rows.append(self._inline_row("calc", f"{line} = {value}", "ENTER COPIES"))
+        elif conversion := inline.convert(line):
+            rows.append(self._inline_row("convert", f"{conversion['amount']} {conversion['source']} = "
+                                         f"{conversion['value']} {conversion['target']}", "ENTER COPIES"))
+        if verb := self.verb(line):
+            rows.append(self._inline_row("verb", line, f"FART · {verb['usage']}"))
+        return rows
+
+    def act(self, kind, text) -> dict:
+        """What Enter on an inline row does, worked out again from the text: {"argv"} for the adapter to start,
+        or {"copy"} for the clipboard. Verbs run in the core (core/app.py); an app goes through `launch`."""
+        if not isinstance(text, str) or len(text) > MAX_QUERY:
+            raise bad_args(f"text must be a string of at most {MAX_QUERY} characters")
+        line = text.strip()
+        rest = line[1:].strip()
+        if kind == "command" and line.startswith(">") and rest:
+            # Z195: the terminal stays open on a shell after the command, so its output can be read.
+            return {"argv": [self.settings["terminal"], "-e", "sh", "-c", 'eval "$1"; exec "${SHELL:-sh}"', "sh", rest]}
+        if kind == "search" and line.startswith("?") and rest:
+            url = inline.search_url(self.settings["search"], rest)
+            return {"argv": [self.settings["browser"] or "xdg-open", url]}
+        if kind == "calc" and (value := inline.calc(line)) is not None:
+            return {"copy": value}
+        if kind == "convert" and (conversion := inline.convert(line)):
+            return {"copy": conversion["value"]}
+        raise OpError("not-inline", f"{text!r} is not a {kind} line")
 
     # Launching
 

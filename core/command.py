@@ -137,6 +137,17 @@ class Commands:
             return ranked[0], ranked
         return None, ranked
 
+    def inline(self, text: str) -> dict | None:
+        """The launcher's verb row (Z195): an exact verb name, or a unique prefix with arguments ("vol 40"). A bare
+        prefix is left to the apps, so "fi" finds Firefox before any verb."""
+        words = text.split() if isinstance(text, str) and len(text) <= MAX_LINE else []
+        if not words or words[0].startswith(("?", ">")):
+            return None
+        verb, ranked = self.resolve(words[0])
+        if verb is None or ranked or (len(words) == 1 and words[0].lower() not in self.names):
+            return None
+        return {"verb": verb.name, "usage": verb.usage, "summary": verb.summary}
+
     def complete(self, text: str) -> dict:
         """The live hint while typing: the matched verb's grammar, or the candidates and their common prefix."""
         if not isinstance(text, str) or len(text) > MAX_LINE:

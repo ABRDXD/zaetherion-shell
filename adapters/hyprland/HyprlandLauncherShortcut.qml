@@ -1,5 +1,6 @@
 import Quickshell
 import Quickshell.Hyprland
+import "ShortcutEdges.js" as Edges
 
 // The launcher key as a Hyprland global shortcut (docs/S6_LAUNCHER.md §2, option B): bound with
 // `hl.dsp.global("zaetherion:launcher")`, it reaches this process directly, with no CLI spawn or core round trip.
@@ -26,7 +27,16 @@ Scope {
             appid: "zaetherion"
             name: "apps"
             description: "ZÆTHERION: launcher"
-            onPressed: root.appsPressed()
+            // A key bound on release (the Super tap: `release = true`) makes Hyprland send only the release; a plain
+            // bind (Super+Space) sends press then release. So a release opens only when no press came before it.
+            property bool down: false
+            function edge(kind) {
+                const next = Edges.edge(down, kind);
+                down = next.down;
+                if (next.open) root.appsPressed();
+            }
+            onPressed: edge("pressed")
+            onReleased: edge("released")
         }
     }
 }
