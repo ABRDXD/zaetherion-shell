@@ -14,7 +14,12 @@
   (`DragHandler` x only, `card.release()`) past 30 % of the width flies the card off the island (the Inbox keeps it),
   else it springs back. Test: `tests/fixtures/island/StackTest.qml` (8 checks). Island, notification-server, layout and
   contract tests OK.
-- **Next.** Drag physics (after Vaul): pull the launcher / FART out of the island, rubber-band, flick to dismiss.
+- **3 of 5, pull and fold (after Vaul, branch `island-pull`).** `view/shell/Rubber.js` (stretch with growing resistance,
+  reach 120 px, commit at 90 px of pointer travel, 8 px slop; Node test `tests/test_rubber.py`). The resting island's
+  gesture area pulls (`pullBy`, `endPull`, hint "PULL" / "RELEASE · FART"); a committed pull opens what a click opens
+  (`openFromRest`); pulling cancels hold-to-ignite. The launcher folds on a drag toward the edge past the threshold
+  (`launcherFold`, `endFold`), else springs back. Test: `tests/fixtures/island/PullTest.qml` (8 checks).
+- **Next.** Launcher pages (after cmdk): Enter on a FART verb opens its own options in the orbit.
 
 # 15 November 2026 · Opus (Claude A): Fluid Timers as a sky (Z203, branch `fluid-timers`)
 

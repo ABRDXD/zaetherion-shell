@@ -56,6 +56,12 @@ class IslandFrameTests(unittest.TestCase):
             "the island caps a sender's long time at 1 s", "a shorter sender time is kept", "critical is not capped",
             "a restored item cannot be answered", "closed elsewhere leaves the island"))
 
+    def test_pull_and_fold(self):
+        """After Vaul: pull the island to open FART, drag the launcher up to fold it; both spring back short of it."""
+        self.run_fixture("PullTest.qml", ("the island follows with resistance", "short of the threshold it says PULL",
+            "a short pull springs back", "past the threshold it says RELEASE", "a long pull opens FART", "launcher open",
+            "a short drag up springs the launcher back", "a long drag up folds the launcher"))
+
     def test_notice_stack_fan_and_flick(self):
         """After Sonner: waiting notices as card edges, fanned on hover; a flick sends a card off, a nudge springs back."""
         self.run_fixture("StackTest.qml", ("two wait behind the shown notice", "card edges say +2 waiting",

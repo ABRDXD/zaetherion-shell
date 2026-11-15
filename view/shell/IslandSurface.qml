@@ -6,6 +6,7 @@ import qs.view.cues
 import qs.view.ui
 import "../ui/FocusMap.js" as FocusMap
 import "LauncherLayout.js" as LauncherLayout
+import "Rubber.js" as Rubber
 import "IslandTiming.js" as IslandTiming
 
 FocusScope {
@@ -226,7 +227,36 @@ FocusScope {
     implicitWidth: docked && dockWidth > 0 ? dockWidth
         : Math.min(maximumWidth, Math.max(0, expansion ? (eventPane.item?.implicitWidth ?? centreWidth)
         : centreWidth + (wings ? 2 * wingSpan : 0)))
-    implicitHeight: expansion ? (eventPane.item?.implicitHeight ?? restHeight) : restHeight
+    implicitHeight: expansion ? (eventPane.item?.implicitHeight ?? restHeight) : restHeight + pull
+    // Pull (after Vaul): dragging the resting island toward the middle of the screen stretches it with growing
+    // resistance; let go past the threshold and FART opens, short of it the island springs back.
+    property real pull: 0
+    property real pullTravel: 0
+    readonly property bool pullCommits: Rubber.committed(pullTravel)
+    NumberAnimation { id: pullBack; target: root; property: "pull"; to: 0; duration: Motion.scaled(Rubber.springMs); easing.type: Easing.OutBack }
+    function pullBy(travel: real): void {
+        pullBack.stop();
+        pullTravel = Math.max(0, travel);
+        pull = Rubber.stretch(pullTravel);
+    }
+    readonly property real pullReach: Rubber.reach
+    function endPull(): void {
+        const open = pullCommits;
+        pullTravel = 0;
+        if (Motion.live(root)) pullBack.restart(); else pull = 0;
+        if (open) openFromRest();
+    }
+    // What a click (or a committed pull) on the resting island opens: the room for what is happening.
+    function openFromRest(): void {
+        keyboardMode = false;
+        const timers = core?.timersData;
+        const room = host.media.active?.playing ? "media"
+            : timers?.countdown?.running || timers?.pomodoro?.running ? "timers" : "home";
+        togglePanel(room);
+    }
+    // The launcher folds the same way: dragged toward the screen's edge it resists, past the threshold it folds.
+    property real foldTravel: 0
+    readonly property real fold: Rubber.stretch(foldTravel) * 0.5
     width: implicitWidth
     height: implicitHeight
 
@@ -317,30 +347,49 @@ FocusScope {
         pressAndHoldInterval: 600
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         property bool held: false
-        onPressed: held = false
+        property bool pulling: false
+        property real pressY: 0
+        onPressed: mouse => { held = false; pulling = false; pressY = mouse.y; }
+        onPositionChanged: mouse => {
+            if (!(pressedButtons & Qt.LeftButton) || held) return;
+            const travel = root.bottomEdge ? pressY - mouse.y : mouse.y - pressY;
+            if (!pulling && travel < Rubber.slop) return;
+            pulling = true;
+            root.pullBy(travel);
+        }
+        onReleased: if (pulling) root.endPull()
+        onCanceled: if (pulling) { root.pullTravel = 0; root.endPull(); }
         onPressAndHold: mouse => {
-            if (mouse.button !== Qt.LeftButton) return;
+            if (mouse.button !== Qt.LeftButton || pulling) return;
             held = true;
             root.ignite();
         }
         onClicked: mouse => {
-            if (held) return;
+            if (held || pulling) return;
             // Fluid: right-click switches the resting view between the media and the clock.
             if (mouse.button === Qt.RightButton) {
                 if (Design.fluid) root.preferClock = !root.preferClock;
                 return;
             }
-            root.keyboardMode = false;
-            const timers = root.core?.timersData;
-            const room = root.host.media.active?.playing ? "media"
-                : timers?.countdown?.running || timers?.pomodoro?.running ? "timers" : "home";
-            root.togglePanel(room);
+            root.openFromRest();
         }
+    }
+    // While pulling: what letting go will do, at the stretched edge.
+    FText {
+        objectName: "islandPullHint"
+        anchors.horizontalCenter: parent.horizontalCenter
+        y: root.bottomEdge ? Design.baseline : parent.height - height - Design.baseline
+        visible: root.pull > 1 && !root.expansion
+        opacity: Math.min(1, root.pull / (Rubber.reach * 0.5))
+        technical: true
+        font.pixelSize: Design.caption
+        color: root.pullCommits ? Design.accent : Design.muted
+        text: root.pullCommits ? "RELEASE · FART" : "PULL"
     }
 
     Cue {
         id: ignition
-        on: gesture.pressed && !gesture.held && (gesture.pressedButtons & Qt.LeftButton)
+        on: gesture.pressed && !gesture.held && !gesture.pulling && (gesture.pressedButtons & Qt.LeftButton)
         scope: root
         name: "island.ignite"
         enter: root.motionLevel === "off" ? 0 : 600
@@ -412,6 +461,7 @@ FocusScope {
     Loader {
         id: eventPane
         anchors.centerIn: parent
+        anchors.verticalCenterOffset: root.bottomEdge ? root.fold : -root.fold
         width: Math.min(parent.width, item?.implicitWidth ?? 0)
         height: item?.implicitHeight ?? 0
         active: !!root.shownEvent
@@ -470,6 +520,21 @@ FocusScope {
             if (root.bottomEdge ? event.angleDelta.y < 0 : event.angleDelta.y > 0)
                 queue.remove(root.expansion.id);
         }
+    }
+    // The launcher folds up (after Vaul): it follows a drag toward the screen's edge with resistance and folds past
+    // the threshold; short of it, it springs back.
+    DragHandler {
+        objectName: "launcherFold"
+        enabled: root.launcherOpen
+        target: null
+        xAxis.enabled: false
+        onTranslationChanged: if (active) { foldBack.stop(); root.foldTravel = Math.max(0, root.bottomEdge ? translation.y : -translation.y); }
+        onActiveChanged: if (!active) root.endFold()
+    }
+    NumberAnimation { id: foldBack; target: root; property: "foldTravel"; to: 0; duration: Motion.scaled(Rubber.springMs); easing.type: Easing.OutBack }
+    function endFold(): void {
+        if (Rubber.committed(foldTravel)) { foldTravel = 0; closeLauncher(); return; }
+        if (Motion.live(root)) foldBack.restart(); else foldTravel = 0;
     }
     DragHandler {
         enabled: root.noticeVisible
