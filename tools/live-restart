@@ -1,0 +1,35 @@
+#!/bin/sh
+# Restart the live ZÆTHERION core (and with it DMS and the view) with exactly the settings it runs with now.
+# The settings are read from the running core's environment (every FART_* variable), so nothing is retyped.
+# It waits on the old core's and DMS backend's own PIDs (never on `pgrep -f` text that is also in this command),
+# then starts the core. DRY=1 prints what it would do. Run it from the owner's session.
+set -u
+ROOT=$(dirname "$(dirname "$(readlink -f "$0")")")
+run() { if [ "${DRY:-0}" = 1 ]; then echo "would run: $*"; else "$@"; fi; }
+alive() { [ -n "$1" ] && [ -e "/proc/$1" ]; }
+
+core=$(pgrep -u "$(id -u)" -f "^/usr/bin/python3 -I $ROOT/core/fartd.py\$" | head -n 1)
+dms=$(pgrep -u "$(id -u)" -f '^dms run$' | head -n 1)
+if [ -z "$core" ]; then
+    echo "no core is running from $ROOT; start it with the session (tools/session-start) instead"; exit 1
+fi
+# Its settings, one per line: FART_NAME=value (values may not contain newlines; ours never do).
+settings=$(tr '\0' '\n' <"/proc/$core/environ" | grep '^FART_')
+echo "core $core, dms backend ${dms:-none}; settings:"
+echo "$settings" | sed 's/^/  /'
+
+run "$ROOT/zaetherion" stop
+i=0
+while [ "${DRY:-0}" != 1 ] && [ $i -lt 60 ] && { alive "$core" || alive "$dms"; }; do
+    sleep 0.5; i=$((i + 1))
+done
+if [ "${DRY:-0}" != 1 ] && alive "$core"; then
+    echo "the old core is still running after 30 s; nothing started"; exit 1
+fi
+# Start with exactly those settings (and nothing else of this shell's FART_*).
+for name in $(env | sed -n 's/^\(FART_[A-Za-z0-9_]*\)=.*/\1/p'); do unset "$name"; done
+echo "$settings" > "${TMPDIR:-/tmp}/zaetherion-restart.$$"
+while IFS= read -r line; do [ -n "$line" ] && export "$line"; done < "${TMPDIR:-/tmp}/zaetherion-restart.$$"
+rm -f "${TMPDIR:-/tmp}/zaetherion-restart.$$"
+run "$ROOT/zaetherion" start
+echo "started"
