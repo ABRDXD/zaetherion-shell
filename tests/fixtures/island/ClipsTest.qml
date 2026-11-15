@@ -4,7 +4,7 @@ import qs.adapters.fixture
 import qs.view.shell
 import qs.view.ui
 
-// Quick paste (S3, Z181–Z183) and the island's rest modes (Z185). Made-up clips only.
+// Quick paste (S3, Z181–Z183) and the island's rest modes (Z200). Made-up clips only.
 ShellRoot {
     id: root
     property int step: 0

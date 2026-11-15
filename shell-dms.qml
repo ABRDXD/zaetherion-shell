@@ -8,6 +8,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
 import qs.adapters.dms
+import qs.adapters.hyprland
 import qs.core.client
 import qs.view.overdrive
 import qs.view.shell
@@ -102,12 +103,7 @@ ShellRoot {
     // Only the island's process registers it.
     LazyLoader {
         active: root.islandWanted
-        GlobalShortcut {
-            appid: "zaetherion"
-            name: "clips"
-            description: "Quick paste from the island"
-            onPressed: root.island?.toggleClips()
-        }
+        HyprlandClipsShortcut { onPressed: root.island?.toggleClips() }
     }
     // Super+Shift+I (Z148): `qs -p <repo>/shell.qml ipc call island focus`. With FART open the island takes the
     // keyboard and FART stays open; Esc hands it back.

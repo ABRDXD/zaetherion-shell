@@ -51,13 +51,24 @@ class LayoutTests(unittest.TestCase):
             self.assertNotIn("FHeading", (ROOT / "view/rooms" / target).read_text(), target)
 
     def test_view_cannot_claim_host_services_or_reach_the_archive(self):
-        forbidden = ("ConflictKiller", "GlobalShortcut {", "host/Shell.qml",
+        forbidden = ("ConflictKiller", "host/Shell.qml",
                      "serpantinumd", "FART_SOURCE", "fart/source", "end4-pC", "illogical-impulse")
         for qml in QML:
             data = qml.read_text()
             for symbol in forbidden:
                 self.assertNotIn(symbol, data, str(qml))
         self.assertFalse(any(p.is_symlink() for p in ROOT.rglob("*") if ".git" not in p.parts))
+
+    def test_only_the_clips_adapter_claims_a_global_shortcut_and_only_where_the_island_lives(self):
+        """Z182: Super+V is `zaetherion:clips`, claimed in one Hyprland adapter, made only by the island's process."""
+        claimers = [qml.relative_to(ROOT).as_posix() for qml in QML if "GlobalShortcut {" in qml.read_text()]
+        self.assertEqual(claimers, ["adapters/hyprland/HyprlandClipsShortcut.qml"])
+        users = [qml.relative_to(ROOT).as_posix() for qml in QML if "HyprlandClipsShortcut {" in qml.read_text()]
+        self.assertEqual(sorted(users), ["shell-dms.qml", "shell.qml"])
+        for entry in users:
+            data = (ROOT / entry).read_text()
+            block = data[data.rindex("LazyLoader {", 0, data.index("HyprlandClipsShortcut {")):]
+            self.assertIn("active: root.islandWanted", block.split("HyprlandClipsShortcut {")[0], entry)
 
     def test_only_our_one_server_file_claims_the_notification_name_and_only_when_asked(self):
         """Z166, Z169: Quickshell's NotificationServer in one file, off unless FART_NOTIFICATION_SERVER=1."""

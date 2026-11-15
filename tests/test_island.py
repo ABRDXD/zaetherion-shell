@@ -32,7 +32,7 @@ class IslandFrameTests(unittest.TestCase):
             "fold replays no stale osd", "uncovered osd on island", "dock lifts osd into header", "fold hands it back"))
 
     def test_quick_paste_and_rest_modes(self):
-        """S3: quick paste grows from the island (Z181-Z183) and the rest shows what the owner chose (Z185)."""
+        """S3: quick paste grows from the island (Z181-Z183) and the rest shows what the owner chose (Z200)."""
         self.run_fixture("ClipsTest.qml", ("opens as a held face with the keyboard", "leases the history while open",
             "early enter is held", "held enter copies the first match once loaded", "folds after acting",
             "shift+enter pastes the chosen clip", "ctrl+tab steps the filter", "a visible image row asks for its thumbnail",
