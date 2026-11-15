@@ -6,7 +6,10 @@ FluidCalendar 1.0 FluidCalendar.qml
 FluidChoice 1.0 FluidChoice.qml
 FluidHome 1.0 FluidHome.qml
 FluidMedia 1.0 FluidMedia.qml
+FluidPerformance 1.0 FluidPerformance.qml
 FluidText 1.0 FluidText.qml
 FluidTimers 1.0 FluidTimers.qml
 singleton FluidTokens 1.0 FluidTokens.qml
+GravityWell 1.0 GravityWell.qml
+PerformanceStar 1.0 PerformanceStar.qml
 TimersSky 1.0 TimersSky.qml

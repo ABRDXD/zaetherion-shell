@@ -1,3 +1,13 @@
+# 15 November 2026 · Opus (Claude A): Fluid Performance, the star (Z205, branch `fluid-performance`)
+
+- **Built.** `PerformanceSession` (readings, leases, weather), `AngularPerformance` (unchanged), `Performance` (wrapper; `weather`
+  writable for PerformanceTest), `view/fluid/FluidPerformance.qml`, `PerformanceStar.qml`, `GravityWell.qml`,
+  `PerformanceStarLayout.js`. Overdrive layers polled once a second only while shown in Overdrive.
+- **Found.** The star rendered black (spectral colours are text; `Qt.color` first); PerformanceTest hung (weather read-only);
+  bodies sat on the readings (moved to the orbits' lower half); `x`/`z` property names clash with Item's.
+- **Checks.** `tests/test_fluid_performance.py` (10), `test_performance_star` (3 Node), PerformanceTest, layout, contract OK.
+- **Next.** Fluid Tasks as the star atlas (owner's pick B).
+
 # 15 November 2026 · Opus (Claude A): web-library ideas, 1 of 5, rolling digits (branch `roll-digits`)
 
 - **Owner.** After a video on web UI libraries: "can't you use them as inspo" → "all of them". Order: rolling digits

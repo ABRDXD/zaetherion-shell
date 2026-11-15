@@ -2,6 +2,7 @@
 module qs.view.rooms
 AngularHome 1.0 AngularHome.qml
 AngularMedia 1.0 AngularMedia.qml
+AngularPerformance 1.0 AngularPerformance.qml
 AngularTimers 1.0 AngularTimers.qml
 ArchiveGrain 1.0 ArchiveGrain.qml
 AttentionBand 1.0 AttentionBand.qml
@@ -41,6 +42,7 @@ Media 1.0 Media.qml
 MediaSession 1.0 MediaSession.qml
 OrreryField 1.0 OrreryField.qml
 Performance 1.0 Performance.qml
+PerformanceSession 1.0 PerformanceSession.qml
 PhotocopyLayer 1.0 PhotocopyLayer.qml
 SchedPlates 1.0 SchedPlates.qml
 SessionDebrief 1.0 SessionDebrief.qml
