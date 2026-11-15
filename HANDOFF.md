@@ -12,8 +12,16 @@
   palette snapshot and requested mode stayed unchanged. Selected Fluid through the existing command and
   opened Home. View reported ready; live QML log and Hyprland configerrors were clean. Mode remains Silent.
   Newer unrelated island timing edits in the main working tree were preserved, not staged.
-- Latest launcher/island/notification regressions: 25 tests pass. The broad suite is still running;
-  the first invocation was interrupted because the terminal's `*.debug=false` hid QML test markers.
+- Verification complete: 42 layout/contract/palette/Home tests and 25 launcher/island/notification tests
+  pass. The broad run executed 1104 tests (one skipped), with one cue error and five failures: the old Media
+  view lookup, generated qmldir ordering, and four timing assertions loaded before the concurrent Z200 merge.
+  Corrected the lookup to use the persistent session and regenerated qmldir. Reruns: 26 module/island/
+  notification tests pass; all six closing cue scenarios pass in nested Hyprland with the software renderer
+  expected by the harness (Media idle/lyrics, orbit laws, Overdrive language, ignition/release and guards).
+  Full suite not rerun after those fixes; no blanket full-suite pass claim. The terminal suppresses QML debug
+  by default, so tests that read QML markers need `QT_LOGGING_RULES=qml.debug=true`.
+- Merge and test follow-ups committed on `s0-seed`; Fluid work remains isolated on
+  `codex/fluid-foundation` and `codex/fluid-live-merge`. No outstanding Fluid edits or push.
 - Scope: the style authority is global (`island.form` → `Design.form`), but dedicated Confluence room
   presentations currently cover Home and Media. Other rooms and surrounding shell framing remain in progress.
   Existing Overdrive effects and reduced-motion behaviour remain; full Fluid spatial transitions are pending.
