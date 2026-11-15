@@ -8,9 +8,8 @@ import qs.view.contract
 import qs.view.ui as UI
 import qs.view.cues
 
-// Confluence Tasks (view/fluid/FluidTasks.qml, TasksAtlas.qml), offscreen on a fake core's task lists: the late task
-// burns warm at the core, sooner tasks sit nearer the centre, today's finished task is hollow, the next task and the
-// open count read right, the lists show as constellations, the entry line reads through the controller, typing marks
+// Confluence Tasks (view/fluid/FluidTasks.qml), offscreen on a fake core's task lists: groups read Late to Done today,
+// the late task's star burns warm, today's finished task is ticked, Remove waits for hover, the lists are listed, the entry line reads through the controller, typing marks
 // the room as editing, and Angular keeps the sheet. With FLUID_TASKS_SHOTS set, frames are saved there.
 Scope {
     id: root
@@ -33,10 +32,6 @@ Scope {
     function day(n) {
         const d = new Date(); d.setDate(d.getDate() + n);
         return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-    }
-    function centre(id) {
-        const s = named("tasksStar." + id), atlas = named("tasks.atlas");
-        return s ? Math.hypot(s.x - atlas.cx, (s.y - atlas.cy) / 0.5) : -1;
     }
     CoreClient { id: core; path: "" }
     FixtureAdapter { id: fixture }
@@ -79,17 +74,15 @@ Scope {
             ]
         };
         after(1200, () => {
-            check("fluid.presented", !!named("tasks.atlas"), {});
+            check("fluid.presented", !!named("tasks.group.late"), {});
             check("open.count", named("tasks.open").text === "06", named("tasks.open")?.text);
-            const order = ["t1", "t2", "t3", "t4", "t5", "t6"].map(root.centre);
-            check("sooner.is.nearer", order.every((d, i) => i === 0 || d > order[i - 1]), order.map(Math.round));
-            const late = named("tasksStarBody", named("tasksStar.t1"));
-            check("late.burns.warm", String(late.color).toLowerCase() !== String(UI.Design.coldStar).toLowerCase() && late.color.b < late.color.r, String(late.color));
-            const done = named("tasksStarBody", named("tasksStar.t7"));
-            check("done.is.hollow", !!done && done.hollow && done.border.width > 0, {});
-            check("next.is.the.late.one", named("tasks.next").text === "Renew the passport", named("tasks.next").text);
-            check("route.drawn", named("tasksRoute").visible, {});
-            check("lists.as.constellations", !!named("tasks.list.work") && !!named("tasks.list.home"), {});
+            const keys = room.presentation.item.groups.map(g => g.key);
+            check("groups.in.order", JSON.stringify(keys) === JSON.stringify(["late", "today", "week", "later", "someday", "done"]), keys);
+            const late = named("tasksStarBody", named("tasks.row.t1"));
+            check("late.burns.warm", !!late && late.color.b < late.color.r, String(late?.color));
+            check("done.is.ticked", named("tasks.tick.t7")?.checked === true && named("tasks.tick.t2")?.checked === false, {});
+            check("remove.waits.for.hover", named("tasks.remove.t2")?.opacity === 0, named("tasks.remove.t2")?.opacity);
+            check("lists.listed", !!named("tasks.list.work") && !!named("tasks.list.home"), {});
             room.controller.setDraft("call the bank @home !fri");
             after(100, () => {
                 check("entry.reads", room.controller.entryHint.indexOf("Home") > 0 && room.controller.canAdd, room.controller.entryHint);
@@ -98,10 +91,10 @@ Scope {
                 root.shot("fluid-tasks", () => {
                     ViewState.taskList = "home";
                     after(300, () => {
-                        check("switch.list", named("tasks.open").text === "02" && !!named("tasksStar.h1"), named("tasks.open").text);
+                        check("switch.list", named("tasks.open").text === "02" && !!named("tasks.row.h1"), named("tasks.open").text);
                         UI.Design.form = "angular";
                         after(600, () => {
-                            check("angular.keeps.sheet", !named("tasks.atlas") && room.controller.remaining === 2, room.controller.remaining);
+                            check("angular.keeps.sheet", !named("tasks.group.late") && room.controller.remaining === 2, room.controller.remaining);
                             console.log("CUE_DONE");
                             Qt.quit();
                         });

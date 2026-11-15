@@ -56,3 +56,23 @@ function field(count, seed) {
     }
     return out;
 }
+
+// The readable list (owner, 15 November 2026: the chart was "not intuitive enough"): open tasks grouped by when they
+// fall due, soonest first, then today's finished ones. Each group: {key, label, tasks}; empty groups are left out.
+const groupOrder = [["late", "Late"], ["today", "Today"], ["week", "This week"], ["later", "Later"], ["someday", "No date"], ["done", "Done today"]];
+function groupOf(t) {
+    if (t.done) return "done";
+    if (t.days === null || t.days === undefined) return "someday";
+    return t.days < 0 ? "late" : t.days === 0 ? "today" : t.days < 7 ? "week" : "later";
+}
+function groups(tasks) {
+    const sorted = order(tasks);
+    return groupOrder.map(([key, label]) => ({ key: key, label: label, tasks: sorted.filter(t => groupOf(t) === key) }))
+                     .filter(g => g.tasks.length > 0);
+}
+// A row's star: 1 for late, falling with distance; undated and done are the faintest.
+function urgency(t) {
+    if (t.done || t.days === null || t.days === undefined) return 0.15;
+    if (t.days < 0) return 1;
+    return Math.max(0.2, 0.85 - 0.65 * Math.min(1, Math.log(1 + t.days) / Math.log(1 + horizon)));
+}
