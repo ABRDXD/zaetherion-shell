@@ -296,8 +296,8 @@ class FluidTimersRoom(unittest.TestCase):
         output = cuetest.run("FluidTimersTest.qml", timeout=150)
         self.assertIn("CUE_DONE", output, output[-2000:])
         self.assertEqual([line for line in output.splitlines() if "CUE_FAIL" in line], [])
-        for name in ("fluid.presented", "fluid.clock", "fluid.picker.shown", "fluid.countdown.lengths", "fluid.glance", "fluid.ring",
-                     "fluid.mode.picker", "fluid.focus.plan", "fluid.stopwatch.laps", "fluid.session.ready", "fluid.session.presets",
+        for name in ("fluid.presented", "fluid.clock", "fluid.picker.shown", "fluid.countdown.lengths", "fluid.sky.lit", "fluid.light",
+                     "fluid.mode.picker", "fluid.focus.plan", "fluid.stopwatch.zenith", "fluid.stopwatch.laps", "fluid.session.ready", "fluid.session.presets",
                      "fluid.session.running", "angular.keeps.state", "fluid.again"):
             self.assertIn(f"CUE_PASS {name}", output)
         self.assertFalse([e for e in ("ReferenceError:", "TypeError:", "Binding loop") if e in output], output[-2000:])

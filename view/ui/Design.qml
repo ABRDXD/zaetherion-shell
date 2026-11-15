@@ -83,6 +83,7 @@ Singleton {
     readonly property color coldBody: "#05080b"   // a planet's night side
     readonly property color coldLine: "#1b2a33"   // orbits, the scale
     readonly property color coldInk: "#8fa6b4"    // the readout
+    readonly property color atmosphere: "#6fb7d6" // a planet's thin air, lit by the disc (Fluid Timers)
     function starColor(rank: int): color { return spectral[Math.max(0, Math.min(rank, spectral.length - 1))]; }
 
     function linearChannel(value: real): real {

@@ -1,3 +1,16 @@
+# 15 November 2026 · Opus (Claude A): Fluid Timers as a sky (Z201, branch `fluid-timers`)
+
+- **Owner.** The ring dial was "very very bland". Five canvas mock-ups later (Eclipse, Horizon, Accretion, One system,
+  B + C) the owner picked B + C: "YES THIS ONE IS MAJESTIC IMPLEMENT THIS ONE".
+- **Built.** `view/fluid/TimersSky.qml` (sky, stars, the hole's path, hole + disc + lensed arc + spiral + matter, the
+  breathing light, the planet and its lit air), `TimersSkyLayout.js` (every position as a share of the room, the
+  spiral and path maths), `FluidTimers.qml` (per clock: lit, progress, arc, lines; numerals in the sky; plan, lengths,
+  laps, presets and controls on the planet's face). Stopwatch holds the hole at the top (`arc`).
+- **Checks.** `FluidTimersTest` (16 checks, realistic running clocks, 1360x860, Larimar) incl. Angular and back;
+  `SessionTest`, `TemporalTest`, layout, contract OK. Captures inspected for all four clocks and idle Session.
+- **Weaknesses left.** Not yet seen in nested Hyprland or live; the light's breath is a 1.8 s cycle by eye only; the
+  spiral crowds near the hole at small panel heights; no Overdrive-specific motion yet.
+
 # 15 November 2026 · Opus (Claude A): FART // Fluid, Confluence Timers (branch `fluid-timers`, worktree `zaetherion-shell-fluida`)
 
 - **Owner.** "Astra is working on FART fluid … if you have no other tasks you can start work on FART fluid to help bro

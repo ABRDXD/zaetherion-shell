@@ -1,34 +1,31 @@
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Shapes
 import qs.view.rooms
 import qs.view.cues
 import qs.view.ui
+import "TimersSkyLayout.js" as Sky
 
-// Confluence Timers. The interval is one revolution of an orbit: a large thin ring holds the clock, the lit arc is the
-// time already passed and one small body rides its leading edge, now. Focus draws its whole plan on the ring (focus
-// and rest arcs for every cycle), so the reading is "where am I in the set", not only "how long is left". Across a
-// vertical rule, what this clock needs (lengths with the time each would end, the plan, laps, session presets and the
-// streak); the other clocks wait quietly at the bottom edges. Status and the picker sit as in Media; the controls are
-// centred under the ring. State and actions are the room's controller's (TimersSession), shared with Angular.
-ColumnLayout {
+// Confluence Timers (owner's pick "B + C", "majestic"): the room is a sky (TimersSky). You stand on a planet; over a
+// stretch a black hole crosses it, rise to set, and the time still to go falls into it while one pulsing light marks
+// now. Each clock is the same sky read its own way: Focus, a stretch per day and rest as night; Countdown, one
+// stretch; Stopwatch, the light falls in once a minute; Session, the long deep fall. The numerals stand large in
+// the sky; the plan, lengths, laps or presets and the controls lie on the planet's dark face. State and actions are
+// the room's controller's (TimersSession), shared with Angular.
+Item {
     id: root
     required property TimersSession controller
     readonly property var timers: controller.timers
-    readonly property bool compact: width < 860
-    spacing: FluidTokens.gap
+    readonly property string kind: controller.kind
 
-    component Rule: Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: FluidTokens.rule }
-    component Caption: FluidText { color: FluidTokens.secondary; font.pixelSize: FluidTokens.caption }
+    component Caption: FluidText { color: FluidTokens.secondary; font.pixelSize: FluidTokens.caption; font.capitalization: Font.AllUppercase; font.letterSpacing: 2 }
 
-    readonly property var names: ({ countdown: "Countdown", pomodoro: "Focus", stopwatch: "Stopwatch", session: "Session" })
     // "HH:mm" a number of seconds from now; reading Clock.minuteStr keeps it current without a timer of its own.
     function endsAt(seconds: real): string {
         const minute = Clock.minuteStr;  // dependency only
         return Qt.formatTime(new Date(Date.now() + seconds * 1000), "HH:mm");
     }
 
-    // The Focus plan: every cycle's focus and rest as arcs of one revolution, and how far through the set we are.
+    // Focus: every cycle's focus and rest, where we are in it and how far through the current stretch.
     readonly property var plan: {
         const cycles = Math.max(1, controller.cycles), focus = Math.max(1, timers.focusTime), rest = Math.max(0, timers.breakTime);
         const out = [];
@@ -38,75 +35,83 @@ ColumnLayout {
         }
         return out;
     }
-    readonly property real planTotal: plan.reduce((sum, p) => sum + p.seconds, 0)
     readonly property bool planStarted: timers.pomodoroRunning || timers.value("pomodoro") > 0
-    readonly property real planDone: {
-        if (!planStarted) return 0;
-        const focus = Math.max(1, timers.focusTime), rest = Math.max(0, timers.breakTime), cycle = timers.pomodoroCycle;
-        const left = timers.pomodoroSecondsLeft;
-        return cycle * (focus + rest) + (timers.pomodoroBreak ? focus + (rest - left) : focus - left);
-    }
-    // The ring's reading, 0–1: the plan for Focus, the minute for the stopwatch, the interval otherwise.
-    readonly property real progress: controller.kind === "pomodoro" ? (planTotal > 0 ? planDone / planTotal : 0)
-        : Math.max(0, Math.min(1, controller.fraction))
-    // Only a change of clock sweeps the ring (one plain animation, the motion rule); the seconds tick straight on.
-    property real shownProgress: 0
-    Component.onCompleted: shownProgress = progress
-    onProgressChanged: if (!sweep.running) shownProgress = progress
-    NumberAnimation {
-        id: sweep
-        target: root
-        property: "shownProgress"
-        duration: Motion.scaled(420)
-        easing.type: Easing.OutCubic
-    }
-    Connections {
-        target: root.controller
-        function onKindChanged() {
-            if (!Motion.live(root)) { root.shownProgress = root.progress; return; }
-            sweep.stop();
-            sweep.from = root.shownProgress;
-            sweep.to = root.progress;
-            sweep.start();
-        }
-    }
+    readonly property int planIndex: planStarted ? 2 * timers.pomodoroCycle + (timers.pomodoroBreak ? 1 : 0) : 0
+    readonly property real planTotal: plan.reduce((sum, p) => sum + p.seconds, 0)
+    readonly property real stretchDone: timers.pomodoroLapDuration > 0 ? 1 - timers.pomodoroSecondsLeft / timers.pomodoroLapDuration : 0
 
-    readonly property string status: {
-        const c = controller;
-        if (c.kind === "session") return c.active ? "In session" : c.debrief ? "Last session" : "No session";
-        if (c.completed) return "Done";
-        if (!timers.available) return "Offline";
-        return c.running ? "Running" : "Held";
-    }
-    readonly property string modeLine: {
-        const c = controller;
-        switch (c.kind) {
-        case "pomodoro": return (timers.pomodoroBreak ? "Rest" : "Focus") + " · cycle " + (timers.pomodoroCycle + 1) + " of " + c.cycles;
-        case "stopwatch": return "No deadline";
-        case "session": return c.active ? String(c.active.preset) : c.debrief ? String(c.debrief.preset) + (c.debrief.completed ? " · complete" : " · ended early") : "Pick a length";
-        default: return c.running || timers.countdownDuration > 0 ? "Ends " + root.endsAt(timers.countdownSecondsLeft) : "Set a length";
+    // How the sky reads for the clock showing: lit (a stretch under way) and progress through it.
+    readonly property bool lit: {
+        switch (kind) {
+        case "pomodoro": return planStarted && !timers.pomodoroBreak;
+        case "countdown": return timers.countdownDuration > 0 && !timers.countdownDone;
+        case "stopwatch": return timers.stopwatchRunning || timers.stopwatchSeconds > 0;
+        case "session": return controller.active !== null;
         }
+        return false;
     }
-    // What another clock reads now, for the quiet edges.
-    function glance(id: string): string {
-        switch (id) {
-        case "countdown": return timers.countdownDuration > 0 ? (timers.countdownDone ? "Done" : controller.stamp(timers.countdownSecondsLeft) + (timers.countdownRunning ? "" : " held")) : "Not set";
-        case "pomodoro": return planStarted ? controller.stamp(timers.pomodoroSecondsLeft) + (timers.pomodoroRunning ? "" : " held") : "Idle";
-        case "stopwatch": return timers.stopwatchRunning || timers.stopwatchSeconds > 0 ? controller.stamp(timers.stopwatchSeconds) + (timers.stopwatchRunning ? "" : " held") : "Idle";
-        case "session": return controller.active ? controller.stamp(controller.sessionLeft) + " left" : "None";
+    readonly property real progress: {
+        switch (kind) {
+        case "pomodoro": return Math.max(0, Math.min(1, stretchDone));
+        case "countdown": return timers.countdownDuration > 0 ? Math.max(0, Math.min(1, 1 - timers.countdownSecondsLeft / timers.countdownDuration)) : 0;
+        case "stopwatch": return (timers.stopwatchSeconds % 60) / 60;
+        case "session": return controller.active ? Math.max(0, Math.min(1, 1 - controller.sessionLeft / Math.max(1, controller.active.seconds))) : 0;
+        }
+        return 0;
+    }
+    readonly property string phaseLine: {
+        switch (kind) {
+        case "pomodoro": return (planStarted && timers.pomodoroBreak ? "Rest · cycle " : "Focus · cycle ") + (timers.pomodoroCycle + 1) + " of " + controller.cycles;
+        case "countdown": return timers.countdownDuration > 0 ? (timers.countdownDone ? "Countdown · done" : "Countdown · ends " + endsAt(timers.countdownSecondsLeft)) : "Countdown";
+        case "stopwatch": return "Stopwatch · " + (timers.stopwatchLaps.length ? timers.stopwatchLaps.length + (timers.stopwatchLaps.length === 1 ? " lap" : " laps") : "no laps");
+        case "session": return controller.active ? String(controller.active.preset) + " session · Silent holds" : controller.debrief ? "Last session · " + controller.debrief.preset : "Session";
         }
         return "";
     }
-    readonly property var others: controller.modes.filter(m => m.id !== controller.kind)
+    readonly property string sentence: {
+        switch (kind) {
+        case "pomodoro":
+            if (!planStarted) return "Start, and the first stretch rises.";
+            return timers.pomodoroBreak ? "The disc is dark. Rest under the stars until the next stretch rises."
+                                        : "The light is now, falling in. When the bright matter is gone, the hole sets.";
+        case "countdown":
+            if (timers.countdownDone) return "Fallen in. The countdown is done.";
+            return timers.countdownDuration > 0 ? "The bright matter is the time still to go." : "Pick a length, and the hole rises.";
+        case "stopwatch":
+            return root.lit ? "No deadline. The light falls in once a minute and rises again at the rim." : "Start, and the light begins its fall.";
+        case "session":
+            if (controller.active) return "Until " + endsAt(controller.sessionLeft) + ". Notifications wait at the rim.";
+            if (controller.debrief) return controller.debrief.completed ? "The last session fell in completely." : "The last session ended early, " + Math.round(100 * controller.debrief.seconds / Math.max(1, controller.debrief.planned)) + "% of the way in.";
+            return "Pick a length. The longest fall; Silent holds while it runs.";
+        }
+        return "";
+    }
 
-    // Status and the picker, as Media sets "Paused" against its player.
+    TimersSky {
+        objectName: "timers.sky"
+        anchors.fill: parent
+        progress: root.progress
+        arc: root.kind === "stopwatch" ? 0.5 : root.progress   // no deadline: the hole stands at the top
+        lit: root.lit
+        running: root.controller.running
+    }
+
+    // Status and the clock picker along the top, as Media sets them.
     RowLayout {
-        Layout.fillWidth: true
-        FluidText { objectName: "timers.status"; text: root.status; color: FluidTokens.secondary }
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.margins: FluidTokens.sectionGap
+        FluidText {
+            objectName: "timers.status"
+            text: root.kind === "session" ? (root.controller.active ? "In session" : "No session")
+                : root.controller.completed ? "Done" : !root.timers.available ? "Offline" : root.controller.running ? "Running" : "Held"
+            color: FluidTokens.secondary
+        }
         Item { Layout.fillWidth: true }
         FluidChoice {
             objectName: "timers.modes"
-            Layout.preferredWidth: Math.min(460, root.width * 0.6)
+            Layout.preferredWidth: Math.min(460, root.width * 0.5)
             label: "Clock"
             model: root.controller.modes.map(m => m.name)
             currentIndex: root.controller.modeIndex
@@ -114,317 +119,138 @@ ColumnLayout {
         }
     }
 
-    RowLayout {
-        objectName: "timers.main"
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-        Layout.minimumHeight: 0
-        spacing: FluidTokens.sectionGap
+    // The reading, large in the sky.
+    ColumnLayout {
+        anchors.left: parent.left
+        anchors.leftMargin: FluidTokens.sectionGap * 2
+        anchors.top: parent.top
+        anchors.topMargin: FluidTokens.sectionGap * 3
+        spacing: FluidTokens.unit
+        Caption { objectName: "timers.phase"; text: root.phaseLine }
+        FluidText {
+            objectName: "timers.clock"
+            text: root.controller.completed ? "Done"
+                : root.kind === "session" && !root.controller.active && !root.controller.debrief ? "Ready"
+                : root.controller.stamp(root.controller.seconds)
+            font.pixelSize: Math.min(Sky.clockSize, root.height * 0.24) // scale: the numerals keep below the sky's middle
+            font.weight: Font.ExtraLight
+            font.letterSpacing: Sky.clockTracking
+            font.features: ({ "tnum": 1 })
+        }
+        FluidText {
+            objectName: "timers.sentence"
+            Layout.preferredWidth: Sky.sentenceWidth
+            text: root.sentence
+            font.pixelSize: FluidTokens.heading
+            font.weight: Font.Light
+            color: FluidTokens.secondary
+            wrapMode: Text.Wrap
+        }
+    }
 
-        // The orbit and the clock.
-        Item {
-            id: dial
-            objectName: "timers.dial"
-            Layout.fillHeight: true
-            Layout.preferredWidth: side
-            Layout.minimumWidth: 0
-            readonly property real side: Math.min(height, root.width * (root.compact ? 0.5 : 0.44))
-            readonly property real r: Math.max(0, Math.min(width, height) / 2 - FluidTokens.gap)
-            readonly property real cx: width / 2
-            readonly property real cy: height / 2
-            readonly property real lead: -90 + 360 * root.shownProgress   // the leading edge, degrees from 3 o'clock
+    // On the planet's dark face: what this clock needs, then the controls.
+    ColumnLayout {
+        objectName: "timers.face"
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: FluidTokens.gap
+        width: Math.min(parent.width - 2 * FluidTokens.sectionGap, 900)
+        spacing: FluidTokens.gap
 
-            Shape {
-                anchors.fill: parent
-                preferredRendererType: Shape.CurveRenderer
-                // The full revolution, quiet.
-                ShapePath {
-                    strokeColor: FluidTokens.rule
-                    strokeWidth: 1.5
-                    fillColor: "transparent"
-                    PathAngleArc { centerX: dial.cx; centerY: dial.cy; radiusX: dial.r; radiusY: dial.r; startAngle: -90; sweepAngle: 360 }
-                }
-                // What has passed, in the accent (every clock but Focus, which draws its plan below).
-                ShapePath {
-                    strokeColor: root.controller.kind === "pomodoro" ? "transparent" : FluidTokens.accent
-                    strokeWidth: 3
-                    capStyle: ShapePath.RoundCap
-                    fillColor: "transparent"
-                    PathAngleArc { centerX: dial.cx; centerY: dial.cy; radiusX: dial.r; radiusY: dial.r; startAngle: -90; sweepAngle: 360 * root.shownProgress }
-                }
-            }
-            // Focus: the plan as arcs with a small gap between each; passed arcs in the accent, rests thinner.
+        // Focus: the plan, a stretch per day and a rest per night.
+        Row {
+            Layout.alignment: Qt.AlignHCenter
+            visible: root.kind === "pomodoro"
+            spacing: FluidTokens.unit * 1.5
             Repeater {
-                model: root.controller.kind === "pomodoro" ? root.plan : []
-                Shape {
-                    id: stretchArc
+                model: root.kind === "pomodoro" ? root.plan : []
+                Column {
+                    id: stretch
                     required property var modelData
                     required property int index
-                    readonly property real start: root.plan.slice(0, index).reduce((s, p) => s + p.seconds, 0) / Math.max(1, root.planTotal)
-                    readonly property real span: modelData.seconds / Math.max(1, root.planTotal)
-                    readonly property real gap: 2.5 / 360
-                    readonly property real lit: Math.max(0, Math.min(1, (root.shownProgress - start) / span))
-                    readonly property real weight: modelData.kind === "rest" ? 1.5 : 3
-                    anchors.fill: parent
-                    preferredRendererType: Shape.CurveRenderer
-                    ShapePath {
-                        strokeColor: Qt.alpha(FluidTokens.ink, stretchArc.modelData.kind === "rest" ? 0.25 : 0.45)
-                        strokeWidth: stretchArc.weight
-                        fillColor: "transparent"
-                        PathAngleArc { centerX: dial.cx; centerY: dial.cy; radiusX: dial.r; radiusY: dial.r
-                                       startAngle: -90 + 360 * (stretchArc.start + stretchArc.gap); sweepAngle: 360 * Math.max(0, stretchArc.span - 2 * stretchArc.gap) }
+                    readonly property real fill: !root.planStarted ? 0 : index < root.planIndex ? 1 : index === root.planIndex ? root.stretchDone : 0
+                    spacing: FluidTokens.unit * 1.5
+                    width: modelData.kind === "focus" ? 96 : 30
+                    Rectangle {
+                        width: parent.width
+                        height: 3
+                        radius: 2
+                        color: Design.coldLine
+                        Rectangle { width: parent.width * stretch.fill; height: parent.height; radius: 2
+                                    color: stretch.modelData.kind === "focus" ? Design.coldStar : Design.coldInk }
                     }
-                    ShapePath {
-                        strokeColor: FluidTokens.accent
-                        strokeWidth: stretchArc.weight
-                        fillColor: "transparent"
-                        PathAngleArc { centerX: dial.cx; centerY: dial.cy; radiusX: dial.r; radiusY: dial.r
-                                       startAngle: -90 + 360 * (stretchArc.start + stretchArc.gap); sweepAngle: 360 * Math.max(0, stretchArc.span - 2 * stretchArc.gap) * stretchArc.lit }
+                    Caption {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: stretch.modelData.kind === "focus" ? "Focus " + (stretch.modelData.cycle + 1) : "R"
+                        color: stretch.index === root.planIndex && root.planStarted ? FluidTokens.ink : FluidTokens.secondary
                     }
-                }
-            }
-            // Now: one small body at the leading edge, only while there is something to measure.
-            Rectangle {
-                objectName: "timers.now"
-                readonly property real a: dial.lead * Math.PI / 180
-                visible: root.controller.running || root.shownProgress > 0
-                width: FluidTokens.unit * 3
-                height: width
-                radius: width / 2
-                x: dial.cx + dial.r * Math.cos(a) - width / 2
-                y: dial.cy + dial.r * Math.sin(a) - height / 2
-                color: FluidTokens.ink
-                border.width: 2
-                border.color: FluidTokens.base
-            }
-            ColumnLayout {
-                anchors.centerIn: parent
-                width: dial.r * 1.6
-                spacing: FluidTokens.unit
-                Caption { Layout.alignment: Qt.AlignHCenter; text: root.names[root.controller.kind].toUpperCase() }
-                FluidText {
-                    objectName: "timers.clock"
-                    Layout.alignment: Qt.AlignHCenter
-                    Layout.maximumWidth: parent.width
-                    text: root.controller.completed ? "Done"
-                        : root.controller.kind === "session" && !root.controller.active && !root.controller.debrief ? "Ready"
-                        : root.controller.stamp(root.controller.seconds)
-                    font.pixelSize: Math.min(FluidTokens.clock, dial.r * 0.62) // scale: the numerals fit inside the ring
-                    font.weight: Font.Light
-                    font.features: ({ "tnum": 1 })
-                    font.letterSpacing: -2
-                    color: root.controller.completed ? FluidTokens.accent : FluidTokens.ink
-                }
-                FluidText {
-                    objectName: "timers.modeLine"
-                    Layout.alignment: Qt.AlignHCenter
-                    Layout.maximumWidth: parent.width
-                    text: root.modeLine
-                    color: FluidTokens.secondary
-                    elide: Text.ElideRight
                 }
             }
         }
-
-        Rectangle { Layout.fillHeight: true; implicitWidth: 1; color: FluidTokens.rule }
-
-        // What this clock needs.
-        ColumnLayout {
-            objectName: "timers.details"
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.minimumWidth: 0
+        // Countdown: lengths, each with the time it would end.
+        Flow {
+            Layout.alignment: Qt.AlignHCenter
+            visible: root.kind === "countdown"
             spacing: FluidTokens.unit * 2
-
-            // Countdown: lengths, each with the time it would end.
-            Caption { visible: root.controller.kind === "countdown"; text: "START A COUNTDOWN" }
             Repeater {
-                model: root.controller.kind === "countdown" ? root.controller.countdownMinutes : []
-                ColumnLayout {
+                model: root.kind === "countdown" ? root.controller.countdownMinutes : []
+                FluidButton {
                     required property int modelData
-                    Layout.fillWidth: true
-                    spacing: 0
-                    FluidActionRow {
-                        objectName: "timers.countdown." + modelData
-                        Layout.fillWidth: true
-                        text: modelData + " minutes"
-                        detail: "until " + root.endsAt(modelData * 60)
-                        enabled: root.timers.available
-                        onClicked: root.controller.startCountdown(modelData)
-                    }
-                    Rule {}
+                    objectName: "timers.countdown." + modelData
+                    text: modelData + " min · " + root.endsAt(modelData * 60)
+                    enabled: root.timers.available
+                    onClicked: root.controller.startCountdown(modelData)
                 }
             }
-
-            // Focus: the plan, the current stretch marked; when the whole set ends.
-            Caption {
-                visible: root.controller.kind === "pomodoro"
-                text: "THE PLAN · " + Math.round(root.planTotal / 60) + " MIN"
-                    + (root.timers.pomodoroRunning ? " · DONE BY " + root.endsAt(root.planTotal - root.planDone) : "")
-            }
+        }
+        // Stopwatch: the laps, oldest to newest along the face; the fastest in the accent.
+        Row {
+            Layout.alignment: Qt.AlignHCenter
+            visible: root.kind === "stopwatch" && root.controller.splits.length > 0
+            spacing: FluidTokens.sectionGap
             Repeater {
-                model: root.controller.kind === "pomodoro" ? root.plan : []
-                RowLayout {
-                    id: stretch
-                    required property var modelData
-                    readonly property bool now: root.planStarted && modelData.cycle === root.timers.pomodoroCycle
-                        && (modelData.kind === "rest") === root.timers.pomodoroBreak
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: FluidTokens.controlHeight * 0.8
-                    Rectangle {
-                        implicitWidth: FluidTokens.unit * 2
-                        implicitHeight: implicitWidth
-                        radius: width / 2
-                        color: stretch.now ? FluidTokens.accent : "transparent"
-                        border.width: 1
-                        border.color: stretch.now ? FluidTokens.accent : FluidTokens.rule
-                    }
-                    FluidText { Layout.fillWidth: true; text: (stretch.modelData.kind === "focus" ? "Focus " : "Rest ") + (stretch.modelData.cycle + 1)
-                                color: stretch.now ? FluidTokens.ink : FluidTokens.secondary }
-                    FluidText { text: Math.round(stretch.modelData.seconds / 60) + " min"; color: FluidTokens.secondary; font.features: ({ "tnum": 1 }) }
-                }
-            }
-
-            // Stopwatch: the laps, newest first; the fastest in the accent.
-            Caption { visible: root.controller.kind === "stopwatch"; text: root.timers.stopwatchLaps.length ? "LAPS · " + root.timers.stopwatchLaps.length : "LAPS" }
-            Repeater {
-                model: root.controller.kind === "stopwatch" ? root.controller.splits : []
-                ColumnLayout {
+                model: root.kind === "stopwatch" ? root.controller.splits.slice().reverse() : []
+                Column {
                     id: lap
                     required property var modelData
                     readonly property bool best: Math.abs(modelData.split - root.controller.fastest) < 0.005
                     objectName: "timers.lap." + modelData.number
-                    Layout.fillWidth: true
-                    spacing: 0
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: FluidTokens.controlHeight
-                        FluidText { Layout.fillWidth: true; text: "Lap " + lap.modelData.number + (lap.best ? " · fastest" : ""); color: lap.best ? FluidTokens.accent : FluidTokens.ink }
-                        FluidText { text: root.controller.splitStamp(lap.modelData.split); font.pixelSize: FluidTokens.heading; font.weight: Font.Light
-                                    font.features: ({ "tnum": 1 }); color: lap.best ? FluidTokens.accent : FluidTokens.ink }
-                    }
-                    Rule {}
-                }
-            }
-            FluidText {
-                visible: root.controller.kind === "stopwatch" && root.controller.splits.length === 0
-                Layout.fillWidth: true
-                text: "No laps yet. Just the one long one."
-                font.pixelSize: FluidTokens.heading
-                color: FluidTokens.secondary
-                wrapMode: Text.Wrap
-            }
-
-            // Session: the presets, each with the time it would end; then the streak as fourteen quiet days.
-            Caption { visible: root.controller.kind === "session" && !root.controller.active; text: "BEGIN A SESSION · SILENT HOLDS WHILE IT RUNS" }
-            Repeater {
-                model: root.controller.kind === "session" && !root.controller.active ? root.controller.presets : []
-                ColumnLayout {
-                    required property var modelData
-                    Layout.fillWidth: true
-                    spacing: 0
-                    FluidActionRow {
-                        objectName: "timers.preset." + modelData.name
-                        Layout.fillWidth: true
-                        text: String(modelData.name).charAt(0).toUpperCase() + String(modelData.name).slice(1) + " · " + root.controller.lengthLabel(modelData.seconds)
-                        detail: "until " + root.endsAt(modelData.seconds)
-                        enabled: root.timers.available
-                        onClicked: root.controller.startSession(modelData.name)
-                    }
-                    Rule {}
-                }
-            }
-            FluidText {
-                visible: root.controller.kind === "session" && !!root.controller.active
-                Layout.fillWidth: true
-                text: "Until " + root.endsAt(root.controller.sessionLeft) + ". Notifications wait; the desk stays Silent."
-                font.pixelSize: FluidTokens.heading
-                wrapMode: Text.Wrap
-            }
-            ColumnLayout {
-                objectName: "timers.streak"
-                visible: root.controller.kind === "session" && (root.controller.streak?.minutes?.length ?? 0) > 0
-                Layout.fillWidth: true
-                Layout.topMargin: FluidTokens.gap
-                spacing: FluidTokens.unit * 2
-                Caption {
-                    text: (root.controller.streak?.current ?? 0) > 0
-                        ? root.controller.streak.current + (root.controller.streak.current === 1 ? " DAY" : " DAYS") + " IN A ROW · BEST " + (root.controller.streak.best ?? 0)
-                        : "THE LAST TWO WEEKS"
-                }
-                Row {
-                    id: days
-                    readonly property var minutes: root.controller.streak?.minutes ?? []
-                    readonly property real most: Math.max(1, ...minutes)
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: FluidTokens.controlHeight * 1.4
                     spacing: FluidTokens.unit
-                    Repeater {
-                        model: days.minutes
-                        Rectangle {
-                            required property real modelData
-                            required property int index
-                            width: (days.width - (days.minutes.length - 1) * days.spacing) / Math.max(1, days.minutes.length)
-                            height: modelData > 0 ? Math.max(FluidTokens.unit, days.height * modelData / days.most) : 1
-                            y: days.height - height
-                            radius: Math.min(width / 2, FluidTokens.unit)
-                            color: index === days.minutes.length - 1 ? FluidTokens.accent : modelData > 0 ? Qt.alpha(FluidTokens.ink, 0.45) : FluidTokens.rule
-                        }
-                    }
+                    Caption { text: "Lap " + lap.modelData.number + (lap.best ? " · fastest" : ""); color: lap.best ? FluidTokens.accent : FluidTokens.secondary }
+                    FluidText { text: root.controller.splitStamp(lap.modelData.split); font.pixelSize: FluidTokens.heading; font.weight: Font.Light
+                                font.features: ({ "tnum": 1 }); color: lap.best ? FluidTokens.accent : FluidTokens.ink }
                 }
             }
-            FluidActionRow {
-                objectName: "timers.dismissDebrief"
-                Layout.fillWidth: true
-                visible: root.controller.kind === "session" && !root.controller.active && !!root.controller.debrief
-                text: "Clear the last session"
-                detail: "→"
-                onClicked: root.controller.dismissDebrief()
-            }
-            Item { Layout.fillHeight: true; Layout.minimumHeight: 0 }
         }
-    }
-
-    Rule {}
-    // The controls, centred under the ring as Media centres its transport; the other clocks wait at the edges.
-    RowLayout {
-        Layout.fillWidth: true
-        spacing: FluidTokens.unit * 2
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.preferredWidth: 1
-            spacing: FluidTokens.gap
+        // Session: the presets while none runs, each with the time it would end.
+        Flow {
+            Layout.alignment: Qt.AlignHCenter
+            visible: root.kind === "session" && !root.controller.active
+            spacing: FluidTokens.unit * 2
             Repeater {
-                model: root.others.slice(0, 2)
-                FluidActionRow {
+                model: root.kind === "session" && !root.controller.active ? root.controller.presets : []
+                FluidButton {
                     required property var modelData
-                    objectName: "timers.glance." + modelData.id
-                    Layout.fillWidth: true
-                    Layout.maximumWidth: 220
-                    text: root.names[modelData.id]
-                    detail: root.glance(modelData.id)
-                    onClicked: root.controller.setKind(modelData.id)
+                    objectName: "timers.preset." + modelData.name
+                    text: String(modelData.name).charAt(0).toUpperCase() + String(modelData.name).slice(1) + " · " + root.controller.lengthLabel(modelData.seconds)
+                        + " · " + root.endsAt(modelData.seconds)
+                    enabled: root.timers.available
+                    onClicked: root.controller.startSession(modelData.name)
                 }
             }
         }
-        FluidButton { objectName: "timers.reset"; visible: root.controller.kind !== "session"; text: "Reset"; enabled: root.timers.available; onClicked: root.controller.reset() }
-        FluidButton { objectName: "timers.toggle"; visible: root.controller.kind !== "session"; text: root.controller.running ? "Pause" : "Start"; primary: true; enabled: root.controller.canToggle; onClicked: root.controller.toggle() }
-        FluidButton { objectName: "timers.lap"; visible: root.controller.kind === "stopwatch"; text: "Lap"; enabled: root.controller.running; onClicked: root.controller.lap() }
-        FluidButton { objectName: "timers.addMinute"; visible: root.controller.kind === "countdown"; text: "+1 min"; enabled: root.timers.available; onClicked: root.controller.addMinute() }
-        FluidButton { objectName: "timers.endSession"; visible: root.controller.kind === "session" && root.controller.active !== null; text: "End session"; onClicked: root.controller.endSession() }
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.preferredWidth: 1
-            Item { Layout.fillWidth: true }
-            FluidActionRow {
-                readonly property var last: root.others[2] ?? null
-                objectName: "timers.glance." + (last?.id ?? "")
-                Layout.fillWidth: true
-                Layout.maximumWidth: 220
-                text: last ? root.names[last.id] : ""
-                detail: last ? root.glance(last.id) : ""
-                onClicked: if (last) root.controller.setKind(last.id)
-            }
+        // The controls, centred.
+        Row {
+            Layout.alignment: Qt.AlignHCenter
+            spacing: FluidTokens.unit * 2
+            FluidButton { objectName: "timers.reset"; visible: root.kind !== "session"; text: "Reset"; enabled: root.timers.available; onClicked: root.controller.reset() }
+            FluidButton { objectName: "timers.toggle"; visible: root.kind !== "session"; text: root.controller.running ? "Pause" : "Start"; primary: true
+                          enabled: root.controller.canToggle; onClicked: root.controller.toggle() }
+            FluidButton { objectName: "timers.lap"; visible: root.kind === "stopwatch"; text: "Lap"; enabled: root.controller.running; onClicked: root.controller.lap() }
+            FluidButton { objectName: "timers.addMinute"; visible: root.kind === "countdown"; text: "+1 min"; enabled: root.timers.available; onClicked: root.controller.addMinute() }
+            FluidButton { objectName: "timers.endSession"; visible: root.kind === "session" && root.controller.active !== null; text: "End session"; onClicked: root.controller.endSession() }
+            FluidButton { objectName: "timers.dismissDebrief"; visible: root.kind === "session" && !root.controller.active && !!root.controller.debrief
+                          text: "Clear the last session"; onClicked: root.controller.dismissDebrief() }
         }
     }
 }

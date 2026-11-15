@@ -76,29 +76,33 @@ Scope {
         core.sessionData = { active: null, last: null, presets: root.presets, streak: root.streak };
         after(500, () => {
             const clock = named("timers.clock");
-            check("fluid.presented", !!named("timers.main") && !!named("timers.dial") && !named("temporal-clock"), {});
+            check("fluid.presented", !!named("timers.sky") && !!named("timers.planet") && !named("temporal-clock"), {});
             check("fluid.clock", clock && clock.text === room.controller.stamp(room.controller.seconds), clock?.text);
             const picker = named("timers.modes");
             check("fluid.picker.shown", shown(picker) && picker.width > 200, picker?.width);
             check("fluid.countdown.lengths", shown(named("timers.countdown.25")) && shown(named("timers.addMinute")) && !shown(named("timers.lap")), {});
-            check("fluid.glance", ["pomodoro", "stopwatch", "session"].every(id => shown(named("timers.glance." + id))) && !named("timers.glance.countdown"), {});
-            check("fluid.ring", shown(named("timers.now")) && Math.abs(room.presentation.item.progress - (1500 - 787) / 1500) < 0.01, room.presentation.item.progress);
+            const scene = room.presentation.item;
+            check("fluid.sky.lit", scene.lit && Math.abs(scene.progress - (1500 - 787) / 1500) < 0.01, scene.progress);
+            check("fluid.light", shown(named("timers.light")) && shown(named("timers.hole")), {});
             shot("fluid-countdown", () => {
                 named("timers.modes").activated(1);
                 after(600, () => {
                     check("fluid.mode.picker", ViewState.timerKind === "pomodoro" && named("timers.modes").currentIndex === 1, ViewState.timerKind);
                     const plan = room.presentation.item;
-                    check("fluid.focus.plan", plan.plan.length === 8 && Math.abs(plan.progress - (1800 + 948) / 7200) < 0.01 && !shown(named("timers.countdown.25")), plan.progress);
+                    check("fluid.focus.plan", plan.plan.length === 8 && plan.planIndex === 2 && Math.abs(plan.progress - 948 / 1500) < 0.01
+                          && !shown(named("timers.countdown.25")), [plan.planIndex, plan.progress]);
                     shot("fluid-focus", () => {
                         ViewState.timerKind = "stopwatch";
                         after(600, () => {
+                            const sky = named("timers.sky");
+                            check("fluid.stopwatch.zenith", Math.abs(sky.hole.x - sky.width / 2) < 1 && sky.arc === 0.5, [sky.hole.x, sky.width / 2]);
                             check("fluid.stopwatch.laps", shown(named("timers.lap.4")) && shown(named("timers.lap.1")) && shown(named("timers.lap")), {});
                             shot("fluid-stopwatch", () => {
                                 ViewState.timerKind = "session";
                                 after(600, () => {
                                     check("fluid.session.ready", named("timers.clock").text === "Ready", named("timers.clock").text);
                                     check("fluid.session.presets", shown(named("timers.preset.focus")) && shown(named("timers.preset.study"))
-                                          && !shown(named("timers.toggle")) && !shown(named("timers.endSession")) && shown(named("timers.streak")), {});
+                                          && !shown(named("timers.toggle")) && !shown(named("timers.endSession")) && !room.presentation.item.lit, {});
                                     shot("fluid-session-idle", () => {
                                         const now = Date.now();
                                         core.sessionData = { active: { preset: "deep", startedAt: now - 600000, until: now + 4800000, seconds: 5400 },
@@ -110,11 +114,11 @@ Scope {
                                             shot("fluid-session-running", () => {
                                                 UI.Design.form = "angular";
                                                 after(500, () => {
-                                                    check("angular.keeps.state", !!named("temporal-clock") && !named("timers.main")
+                                                    check("angular.keeps.state", !!named("temporal-clock") && !named("timers.sky")
                                                           && ViewState.timerKind === "session" && room.running, {});
                                                     UI.Design.form = "fluid";
                                                     after(400, () => {
-                                                        check("fluid.again", !!named("timers.main") && shown(named("timers.endSession")), {});
+                                                        check("fluid.again", !!named("timers.sky") && shown(named("timers.endSession")), {});
                                                         console.log("CUE_DONE");
                                                         Qt.quit();
                                                     });
