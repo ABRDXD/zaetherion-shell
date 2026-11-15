@@ -165,7 +165,7 @@ class LauncherTests(unittest.TestCase):
 
     def test_bad_input_is_refused(self):
         launcher = self.make()
-        for text, limit in (("x" * 201, None), (3, None), ("", 0), ("", True)):
+        for text, limit in (("x" * 1001, None), (3, None), ("", 0), ("", True)):
             with self.assertRaises(OpError):
                 launcher.query(text, limit)
         with self.assertRaises(OpError):
