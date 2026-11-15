@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import "FluidKeys.js" as Keys_
 
 // A shared action on the continuous surface; separators carry the grouping.
 Button {
@@ -9,6 +10,15 @@ Button {
     implicitWidth: title.implicitWidth + note.implicitWidth + FluidTokens.gap * 2
     Accessible.name: text + (detail ? ", " + detail : "")
     hoverEnabled: true
+    // Radix-style focus: the ring is for the keyboard only (a click does not take focus), Enter presses as Space
+    // does, and ←/→ move along a row of sibling controls.
+    focusPolicy: Qt.TabFocus
+    Keys.onReturnPressed: root.click()
+    Keys.onEnterPressed: root.click()
+    Keys.onLeftPressed: event => { const to = Keys_.sibling(root, -1); if (to) to.forceActiveFocus(Qt.TabFocusReason); else event.accepted = false; }
+    Keys.onRightPressed: event => { const to = Keys_.sibling(root, 1); if (to) to.forceActiveFocus(Qt.TabFocusReason); else event.accepted = false; }
+    Keys.onUpPressed: event => { const to = Keys_.along(root, false); if (to) to.forceActiveFocus(Qt.TabFocusReason); else event.accepted = false; }
+    Keys.onDownPressed: event => { const to = Keys_.along(root, true); if (to) to.forceActiveFocus(Qt.TabFocusReason); else event.accepted = false; }
     opacity: enabled ? 1 : 0.5
     background: Rectangle {
         color: root.hovered || root.down ? FluidTokens.control : "transparent"

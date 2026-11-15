@@ -24,7 +24,13 @@
   `PAGE_FREE_TEXT`). View: Enter on a bare verb opens its page (moons, kind `moon`, crescent bodies), breadcrumb
   "> VERB ›", placeholder CHOOSE, typing filters, Esc or Backspace on empty goes back, Enter on a moon runs
   `verb choice`; a verb with no choices runs bare. Tests: `PageTests` (5), launcher view +7.
-- **Next.** Keyboard/focus pass (after Radix/Base UI) across the Fluid controls.
+- **5 of 5, keyboard and focus (after Radix / Base UI, branch `focus-pass`; touches Astra's `FluidButton` and
+  `FluidActionRow`).** `focusPolicy: Qt.TabFocus` (ring for the keyboard only), Enter presses, ←/→ rove along sibling
+  controls (`view/fluid/FluidKeys.js` `sibling`, skipping hidden and disabled), ↑/↓ along action-row lists (`along`).
+  Test: `tests/test_fluid_keys.py` (6). Rule, cue, Astra cue and Timers tests OK.
+- **Later (owner).** Pages for UI items too (rooms, settings, app actions), not only FART verbs.
+- **Next.** Owner's call; open from earlier: Fluid Tasks, Confluence Performance and shared framing (Astra's handoff),
+  rolling digits on the workspace readout and battery %.
 
 # 15 November 2026 · Opus (Claude A): Fluid Timers as a sky (Z203, branch `fluid-timers`)
 

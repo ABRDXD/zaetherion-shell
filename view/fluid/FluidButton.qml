@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import "FluidKeys.js" as Keys_
 
 Button {
     id: root
@@ -8,6 +9,13 @@ Button {
     implicitHeight: FluidTokens.controlHeight
     implicitWidth: label.implicitWidth + FluidTokens.gap * 2
     hoverEnabled: true
+    // Radix-style focus: the ring is for the keyboard only (a click does not take focus), Enter presses as Space
+    // does, and ←/→ move along a row of sibling controls.
+    focusPolicy: Qt.TabFocus
+    Keys.onReturnPressed: root.click()
+    Keys.onEnterPressed: root.click()
+    Keys.onLeftPressed: event => { const to = Keys_.sibling(root, -1); if (to) to.forceActiveFocus(Qt.TabFocusReason); else event.accepted = false; }
+    Keys.onRightPressed: event => { const to = Keys_.sibling(root, 1); if (to) to.forceActiveFocus(Qt.TabFocusReason); else event.accepted = false; }
     Accessible.name: text
     Accessible.role: Accessible.Button
     Accessible.checkable: checkable
