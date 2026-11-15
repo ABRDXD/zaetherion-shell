@@ -19,6 +19,9 @@ HostAdapter {
     property string role: "shell"
     // Where the island lives (shell-dms.qml with ZAETHERION_ISLAND=1): volume and mic changes become OSD events (S5).
     property bool osdWanted: false
+    // Where the island lives: quick paste (Super+V) grows from it, so the clipboard is there from the start. It reads
+    // nothing until a surface leases "history" (S3; cold start in docs/S3_CLIPS_REST.md).
+    property bool clipsWanted: false
     readonly property DmsLink dms: DmsLink { id: link; clientId: "zaetherion-" + root.role }
     name: "dms"
     media: QuickshellMedia {}
@@ -54,7 +57,18 @@ HostAdapter {
         if (!serverAtStart)
             createNotifications();
         create("../common/LyricsSource.qml", { media: root.media }, domain => root.lyrics = domain);
-        create("../common/CliphistClipboard.qml", {}, domain => root.clipboard = domain);
+        if (!clipsWanted)
+            createClipboard();
+    }
+    // The paste keystroke for quick paste: Hyprland's, not DMS's clipboard service (kept off, F2-4).
+    readonly property HyprlandPaste pasteKeys: HyprlandPaste {
+        focusedAppId: root.workspaces.windows.find(window => window.focused)?.appId ?? ""
+    }
+    function createClipboard() {
+        create("../common/CliphistClipboard.qml", {
+            sendPaste: terminal => root.pasteKeys.paste(terminal),
+            terminalFocused: () => root.pasteKeys.terminalFocused()
+        }, domain => root.clipboard = domain);
     }
     // With our notification server on (Z169), the notifications domain runs it, so it loads at start: until it
     // does, nobody holds the bus name and notifications sent meanwhile are lost.
@@ -66,6 +80,8 @@ HostAdapter {
     Component.onCompleted: {
         if (osdWanted)
             create("DmsOsd.qml", { link: link }, domain => root.osd = domain);
+        if (clipsWanted)
+            createClipboard();
         if (serverAtStart)
             createNotifications();
     }

@@ -63,8 +63,21 @@ FocusScope {
     // The deepest face: the island's window is this deep, so it never resizes while a face grows.
     readonly property int deepest: Math.max(160, LauncherLayout.depth(launcherRows, LauncherLayout.edgePad))
     AppsIndex { core: root.core; apps: root.host.apps; }
+    // Quick paste (S3): Super+V grows the clipboard from the island; it holds the keyboard until it folds.
+    property var clipSettings: ({})
+    property var restItems: ({})
+    readonly property bool clipsOpen: queue.entries.some(event => event.id === "clips")
+    function openClips(): void {
+        keyboardMode = false;
+        queue.offer("clips", "clips", events.priority.held, {}, null);
+    }
+    function closeClips(): void { queue.remove("clips"); }
+    readonly property var clipsFace: expansion?.kind === "clips" ? eventPane.item?.faceItem ?? null : null
+    function toggleClips(): void { if (clipsOpen) closeClips(); else openClips(); }
+    signal clipRoom(string query)
     // Faces the owner opened and holds: the keyboard goes to them, and a click outside closes them.
     readonly property bool heldFace: expansion?.kind === "tray" || expansion?.kind === "session" || expansion?.kind === "launcher"
+        || expansion?.kind === "clips"
     function runSession(action: string): void {
         closeSession();
         Feedback.play("ui.click");
@@ -331,6 +344,7 @@ FocusScope {
         color: Design.accent
     }
 
+    readonly property var restPaneItem: restPane.item
     readonly property bool restVisible: !shownEvent || !outgoingEvent && eventFade.value < 1
     Loader {
         id: restPane
@@ -344,6 +358,7 @@ FocusScope {
         sourceComponent: IslandRest {
             host: root.host
             preferClock: root.preferClock
+            restItems: root.restItems
             reveal: wingReveal.value
             onOpenTray: itemId => root.openTray(itemId)
             reach: Math.max(0, (root.width - root.centreWidth) / 2)
@@ -401,6 +416,10 @@ FocusScope {
             launcherEngine: root.host.launcher
             launcherRows: root.launcherRows
             onLauncherClose: root.closeLauncher()
+            clipSettings: root.clipSettings
+            onClipPaste: id => { root.closeClips(); root.host.clipboard.paste(id); }
+            onClipCopy: id => { root.closeClips(); root.host.clipboard.copy(id); }
+            onClipRoom: query => { root.closeClips(); root.clipRoom(query); }
             restoreReplyFocus: !!event && root.replyFocusId === event.id
             onReplyFocused: focused => root.replyFocus(String(event?.id ?? ""), focused)
             onReplyEdited: text => {

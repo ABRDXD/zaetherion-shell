@@ -59,18 +59,27 @@ class LayoutTests(unittest.TestCase):
                 self.assertNotIn(symbol, data, str(qml))
         self.assertFalse(any(p.is_symlink() for p in ROOT.rglob("*") if ".git" not in p.parts))
 
-    def test_only_the_launcher_shortcut_file_holds_a_global_shortcut_and_only_when_asked(self):
-        """S6 (docs/S6_LAUNCHER.md §2): one GlobalShortcut, in the Hyprland adapter, off unless FART_LAUNCHER_SHORTCUT=1."""
+    def test_only_the_shortcut_files_hold_a_global_shortcut_and_only_when_asked(self):
+        """S6 (docs/S6_LAUNCHER.md §2) and Z182: GlobalShortcuts only in two Hyprland adapters, each off unless asked:
+        the launcher's unless FART_LAUNCHER_SHORTCUT=1, quick paste's unless the island lives in the process."""
         claim = re.compile(r"(?<![A-Za-z])GlobalShortcut \{")
         holders = [qml.relative_to(ROOT).as_posix() for qml in QML if claim.search(qml.read_text())]
-        self.assertEqual(holders, ["adapters/hyprland/HyprlandLauncherShortcut.qml"])
-        holder = (ROOT / holders[0]).read_text()
-        self.assertIn("property bool enabled: false", holder)
-        self.assertIn("active: root.enabled", holder)
+        self.assertEqual(holders, ["adapters/hyprland/HyprlandClipsShortcut.qml",
+                                   "adapters/hyprland/HyprlandLauncherShortcut.qml"])
+        for holder in holders:
+            text = (ROOT / holder).read_text()
+            self.assertIn("property bool enabled: false", text, holder)
+            self.assertIn("active: root.enabled", text, holder)
         users = sorted(qml.relative_to(ROOT).as_posix() for qml in QML if "HyprlandLauncherShortcut {" in qml.read_text())
         self.assertEqual(users, ["adapters/fixture/FixtureAdapter.qml", "adapters/hyprland/HyprlandKeybinds.qml"])
         for user in users:
             self.assertIn('enabled: Quickshell.env("FART_LAUNCHER_SHORTCUT") === "1"', (ROOT / user).read_text())
+        users = sorted(qml.relative_to(ROOT).as_posix() for qml in QML if "HyprlandClipsShortcut {" in qml.read_text())
+        self.assertEqual(users, ["shell-dms.qml", "shell.qml"])
+        for user in users:
+            text = (ROOT / user).read_text()
+            block = text[text.index("HyprlandClipsShortcut {"):]
+            self.assertIn("enabled: root.islandWanted", block[:block.index("}")], user)
 
     def test_only_our_one_server_file_claims_the_notification_name_and_only_when_asked(self):
         """Z166, Z169: Quickshell's NotificationServer in one file, off unless FART_NOTIFICATION_SERVER=1."""
