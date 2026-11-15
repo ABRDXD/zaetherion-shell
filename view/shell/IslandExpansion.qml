@@ -6,6 +6,7 @@ import qs.view.ui
 import qs.core.client
 import qs.view.contract
 import "LauncherLayout.js" as LauncherLayout
+import "WorkspaceLayout.js" as WorkspaceLayout
 
 Item {
     id: root
@@ -57,6 +58,7 @@ Item {
         case "critical": return Qt.size(496, 124);
         case "memory": return Qt.size(448, 140);
         case "osd": return Qt.size(444, 56);
+        case "workspace": return Qt.size(WorkspaceLayout.width, WorkspaceLayout.depth);
         case "track": return Qt.size(420, 72);
         case "launcher": return Qt.size(LauncherLayout.contentWidth + 2 * launcherInset, LauncherLayout.depth(launcherRows, edgePad));
         case "session": return Qt.size(5 * 88 + 2 * 16 + (Design.fluid ? 0 : 2 * Math.ceil(12 + 76 / Math.tan(84 * Math.PI / 180))), 76);
@@ -576,25 +578,15 @@ Item {
     Component {
         id: workspaces
         Item {
-            Row {
-                anchors.centerIn: parent
-                spacing: Design.baseline
-                Repeater {
-                    model: root.payload.ids ?? []
-                    FPlate {
-                        required property string modelData
-                        width: Math.min(40, (root.width - 2 * root.sideInset) / Math.max(1, root.payload.ids?.length ?? 1) - Design.baseline)
-                        height: Design.minHit
-                        role: modelData === root.payload.active ? "signal" : "paper"
-                        radius: height / 2
-                        FText {
-                            anchors.centerIn: parent
-                            color: parent.textColor
-                            text: modelData
-                            technical: true
-                        }
-                    }
-                }
+            // The cold edge-on system (Z199). It takes the island's full depth (the face is inset by edgePad), and its
+            // orbit runs past the face's sides on purpose: a slot onto a larger system.
+            WorkspaceTransit {
+                y: -root.edgePad
+                width: parent.width
+                height: root.height
+                ids: root.payload.ids ?? []
+                active: root.payload.active ?? ""
+                windows: root.payload.windows ?? ({})
             }
         }
     }

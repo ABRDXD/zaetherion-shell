@@ -31,6 +31,12 @@ class IslandFrameTests(unittest.TestCase):
             "readout sits on the header row", "muted reads MUTED", "dwell follows the last change", "leaves after 1.2 s", "header readout gone",
             "fold replays no stale osd", "uncovered osd on island", "dock lifts osd into header", "fold hands it back"))
 
+    def test_workspace_instrument(self):
+        """Z199: the edge-on system: transit, symmetry, crescents, window counts, the short way round, settling."""
+        self.run_fixture("WorkspaceTransitTest.qml", ("current world on the star's face", "a transit, never an eclipse", "worlds mirror about the axis",
+            "crescents face the star", "window counts reach the worlds", "readout", "one step back turns back", "turn settles",
+            "the short way round the wrap", "new world in transit"))
+
     def test_status_faces(self):
         self.run_fixture("EventTest.qml", ("recording status", "charging notice", "DND suppresses ordinary battery warning",
             "critical battery passes DND", "backend comeback", "resident restart", "timer status", "timer done", "session debrief"))

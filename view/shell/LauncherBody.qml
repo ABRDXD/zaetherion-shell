@@ -17,10 +17,12 @@ Item {
     property real depth: 0
     property real eclipse: 0
     property bool outward: true   // on the right half: a comet's tail and a pulsar's beam lean away from the centre
+    property real lit: 1          // a planet's crescent: full beside the star, none straight behind or in front
     signal chosen()
 
     readonly property string kind: row?.kind ?? "app"
     readonly property bool pair: kind === "calc" || kind === "convert"
+    readonly property bool planet: kind === "app"  // apps are planets (Z199): no glow, a crescent toward the star
     readonly property real core: Math.round(7 + 13 * depth)
     readonly property real shown: (1 - eclipse) * born
     readonly property bool front: depth > 0.5  // the front half of the orbit reads larger and brighter
@@ -57,6 +59,7 @@ Item {
         // The glow: a soft disc of the body's colour, larger for a nebula.
         Shape {
             id: glow
+            visible: !root.planet
             readonly property real r: root.core * (root.kind === "search" ? 3.2 : 1.9)
             x: -r
             y: -r
@@ -114,7 +117,7 @@ Item {
         // The core: a disc (a pair for a sum), a tumbling rock for a file, a crescent for a setting, a satellite's
         // body and panels for a clipboard entry.
         Repeater {
-            model: root.pair ? 2 : root.kind === "file" || root.kind === "clip" ? 0 : 1
+            model: root.pair ? 2 : root.planet || root.kind === "file" || root.kind === "clip" ? 0 : 1
             delegate: Rectangle {
                 required property int index
                 readonly property real d: root.pair ? root.core * 0.7 : root.core
@@ -127,6 +130,13 @@ Item {
                 border.width: root.kind === "search" ? 0 : 1
                 border.color: Qt.lighter(root.tint, 1.25)
             }
+        }
+        ColdPlanet {
+            visible: root.planet
+            size: root.core
+            lit: root.lit
+            litRight: !root.outward  // on the left half the star is to the right
+            depth: root.depth
         }
         Rectangle {  // the crescent's shadow: the island's dark across most of the disc
             visible: root.kind === "setting"
@@ -196,8 +206,9 @@ Item {
     readonly property string tag: {
         const words = { verb: "PULSAR", command: "COMET", search: "NEBULA", calc: "BINARY", convert: "BINARY",
                         file: "ASTEROID", setting: "MOON", plugin: "QUASAR", clip: "SATELLITE" };
-        const what = row?.blocked ? "BLOCKED" : words[kind] ?? "OBAFGKM"[Math.min(rank, 6)];
-        return what + (row?.description ? " · " + row.description : "");
+        const what = row?.blocked ? "BLOCKED" : words[kind] ?? "";
+        const description = row?.description ?? "";
+        return what && description ? what + " · " + description : what || description;
     }
 
     MouseArea {
