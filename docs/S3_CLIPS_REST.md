@@ -151,7 +151,7 @@ Changed on 15 November 2026 (Z202): the history is DMS's, so the core records no
 DMS instead of the core.
 
 1. Back up `~/.config/hypr/zaetherion/keybinds.lua`, `fart.lua` and `session.lua` (`*.pre-dms-clips-2026-11-15`).
-2. DMS's history on: `dms clipboard config set --enable`; `dms clipboard config get` shows `"disabled": false`. Then `dms clipboard cliphist-migrate` imports cliphist's history.
+2. DMS's history on: `dms clipboard config set --enable`; `dms clipboard config get` shows `"disabled": false`. Then `dms clipboard cliphist-migrate` imports cliphist's history, but only with DMS's backend stopped (it locks its database), and it keeps only the newest 100 (done 15 November 2026 inside a core restart).
 3. `session.lua`: remove the two `wl-paste … cliphist store` lines (DMS records now); `pkill -f 'wl-paste --type (text|image) --watch cliphist'`
    ends the running ones. `pgrep -af wl-paste` shows no cliphist watcher.
 4. `keybinds.lua`: comment out the fuzzel Super+V bind; `fart.lua`: add the `hl.dsp.global("zaetherion:clips")` bind.
