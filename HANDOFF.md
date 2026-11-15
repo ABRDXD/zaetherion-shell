@@ -85,6 +85,14 @@ for a fresh chat and explicitly prioritises creative implementation over context
 read only what a concrete implementation decision requires. Next: Confluence Performance
 in a fresh worktree from current main. This preparation adds no UI or runtime changes.
 
+# 15 November 2026 · Opus (Claude B): DMS no longer opens its own password and pairing windows (Z191, live)
+
+- **Found.** `dms_quiet.py check` on the live copy warned that `DMSShell.qml` and `BluetoothDetail.qml` still open DMS's own windows (the copy predates Z191; a full rebuild needs the stock UI running). With the island's prompt events live, a password or pairing would have shown in two places.
+- **Built** (`c013fe0`): `tools/dms_quiet.py prompts [dir]` puts the two early returns into an existing quiet copy in place (only a copy the tool made; idempotent; all files checked before any is written). `test_dms_quiet` +2. Tried first on a copy of the live one: exactly two lines, `check` clean, qmllint 0 syntax.
+- **Live (owner's yes, 20:41).** Applied to `~/.local/state/zaetherion/dms-quiet` (the two files' previous versions kept in Claude B's scratchpad). DMS hot-reloaded its UI at 20:41:35; the bar stayed hidden (`visible: false` in DMS's settings); the launcher bridge socket came back and our view reconnected (ESTAB, view 688898 ↔ DMS 620468); `check` and `fits` clean; no new warnings in DMS's log (its Hct.js TypeErrors are there on every load).
+- **Note.** The view was restarted by someone else at 20:40:47 (SIGTERM; not Claude B).
+- **Left on Claude B's list (owner's call):** a real-device check of Wi-Fi and Bluetooth through DMS with the owner present (OPEN F2-7, NET_BT §7); preset A's narrower island (Z201); a new look for the Clips room.
+
 # 15 November 2026 · Opus (Claude B): Island and Clips tabs; prompts on the island; the tiles' settings glyph (Z204)
 
 - **Owner: "do all of them one by one"** (after: Super+V again closes quick paste, `55ee299`).
