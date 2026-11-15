@@ -26,6 +26,7 @@ Item {
     readonly property int remaining: inList.filter(t => !t.done).length
     readonly property int finished: inList.length - remaining
     readonly property int overdue: inList.filter(t => !t.done && TaskEntry.state(t.due, today) === "overdue").length
+    readonly property int doneToday: inList.filter(t => TaskEntry.vanishedToday(t, today)).length
     readonly property int dueToday: inList.filter(t => !t.done && TaskEntry.state(t.due, today) === "today").length
     // The open list keeps today's finished tasks in their places as empty cut-outs (TaskRow.vanished, atlas #26).
     readonly property var visibleTasks: inList.filter(t => ViewState.taskFilter === "all" || (ViewState.taskFilter === "done") === t.done

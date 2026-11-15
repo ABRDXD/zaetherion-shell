@@ -82,6 +82,8 @@ Scope {
             check("late.burns.warm", !!late && late.color.b < late.color.r, String(late?.color));
             check("done.is.ticked", named("tasks.tick.t7")?.checked === true && named("tasks.tick.t2")?.checked === false, {});
             check("remove.waits.for.hover", named("tasks.remove.t2")?.opacity === 0, named("tasks.remove.t2")?.opacity);
+            const horizon = named("tasks.horizon");
+            check("horizon.warm.while.late", !!horizon && horizon.late && named("tasksRingLabel").text === "1 OF 3 DONE TODAY", named("tasksRingLabel")?.text);
             check("lists.listed", !!named("tasks.list.work") && !!named("tasks.list.home"), {});
             room.controller.setDraft("call the bank @home !fri");
             after(100, () => {
@@ -91,7 +93,7 @@ Scope {
                 root.shot("fluid-tasks", () => {
                     ViewState.taskList = "home";
                     after(300, () => {
-                        check("switch.list", named("tasks.open").text === "02" && !!named("tasks.row.h1"), named("tasks.open").text);
+                        check("switch.list", named("tasks.open").text === "02" && !!named("tasks.row.h1") && !named("tasks.horizon").late, named("tasks.open").text);
                         UI.Design.form = "angular";
                         after(600, () => {
                             check("angular.keeps.sheet", !named("tasks.group.late") && room.controller.remaining === 2, room.controller.remaining);
