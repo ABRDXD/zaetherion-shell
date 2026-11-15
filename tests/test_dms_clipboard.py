@@ -144,5 +144,29 @@ class DmsClipboard(unittest.TestCase):
         self.assertEqual(self.clips(lambda s: "41" in s["fetched"])["fetched"]["41"], TEXT)
 
 
+    def test_the_settings_are_read_only_under_their_lease_and_written_one_key_at_a_time(self):
+        config = {"disabled": False, "maxHistory": 1000, "maxEntrySize": 5242880, "autoClearDays": 0, "maxPinned": 25,
+                  "clearAtStartup": False, "extra": "ignored"}
+        stand, h = self.start(replies={"clipboard.getConfig": {"result": config}, "clipboard.setConfig": OK,
+                                       "clipboard.clearHistory": OK})
+        h.ipc("domains")
+        time.sleep(0.4)
+        h.ipc("clipDo", "set:maxHistory", "500")              # unleased: nothing sent
+        self.assertEqual((self.sent("clipboard.getConfig"), self.sent("clipboard.setConfig")), ([], []))
+        h.ipc("configAcquire")
+        state = self.clips(lambda s: s["config"] is not None)
+        self.assertEqual(state["config"], {k: v for k, v in config.items() if k != "extra"})
+        h.ipc("clipDo", "set:maxHistory", "500")
+        h.ipc("clipDo", "set:bogus", "1")                     # not a DMS setting: nothing sent
+        h.ipc("clipDo", "clear", "")
+        deadline = time.time() + 3
+        while time.time() < deadline and len(self.sent("clipboard.getConfig")) < 2:
+            time.sleep(0.05)
+        self.assertEqual(self.sent("clipboard.setConfig"), [{"maxHistory": 500}])
+        self.assertEqual(len(self.sent("clipboard.clearHistory")), 1)
+        self.assertGreaterEqual(len(self.sent("clipboard.getConfig")), 2)   # read again after the write
+        h.ipc("configRelease")
+        self.assertIsNone(self.clips(lambda s: s["config"] is None)["config"])
+
 if __name__ == "__main__":
     unittest.main()
