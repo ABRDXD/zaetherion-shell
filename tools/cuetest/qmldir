@@ -11,6 +11,7 @@ DiscoveryTest 1.0 DiscoveryTest.qml
 FalseRoomTest 1.0 FalseRoomTest.qml
 FluidKeysTest 1.0 FluidKeysTest.qml
 FluidPerformanceTest 1.0 FluidPerformanceTest.qml
+FluidTasksTest 1.0 FluidTasksTest.qml
 FluidTimersTest 1.0 FluidTimersTest.qml
 GateTest 1.0 GateTest.qml
 HomeFoldTest 1.0 HomeFoldTest.qml
