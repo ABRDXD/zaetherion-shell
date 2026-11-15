@@ -1,3 +1,18 @@
+# 15 November 2026 · Opus (Claude A): DMS's launcher engine behind the star chart (Z197, branch `s6-launcher`)
+
+- **Owner's call.** "use DMS own app launcher but only change the UI, so that we have all the features of DMS but
+  the UI is ours".
+- **Built.** Bridge inside DMS (`adapters/dms/bridge/ZaetherionLauncherBridge.qml`: DMS's `Controller` without its
+  window, served on `$XDG_RUNTIME_DIR/zaetherion/dms-launcher.sock`); `tools/dms_quiet.py` puts it into copies and has
+  `bridge` for an existing copy; contract `LauncherDomain`, adapter `DmsLauncher`; `LauncherMerge.js` (core inline
+  rows above DMS's results; the core's apps whenever DMS can't answer); new bodies (asteroid, moon, quasar,
+  satellite). Bug found by the new checks and fixed: a late second answer reset the selection.
+- **Checks.** Bridge probed against the real DMS in a private bridge-only copy (no windows, own socket): "fi" 11 apps
+  in ~0.13 s, "=2+2" DMS's calculator, "wifi" apps + a settings page + a plugin. Tests: `test_dms_quiet` (+2),
+  `test_launcher_merge` (5), `test_shortcut_edges` (3), `test_launcher_view` (+4 engine checks). Full suite: 1062 OK (1 skipped).
+- **Not live yet.** Needs `tools/dms_quiet.py bridge` on the live copy and a DMS restart (owner's OK). The live copy
+  also still lacks the Z191 prompt patches (a full rebuild needs stock DMS running).
+
 # 15 November 2026 · Opus (Claude A): the launcher becomes a star chart (Z196, branch `s6-launcher`)
 
 - **Owner's call.** First launcher look rejected ("too plain, not fun"). Three directions mocked on a design canvas

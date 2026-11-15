@@ -28,4 +28,5 @@ Scope {
     property CaptureDomain capture: CaptureDomain {}
     property KeybindsDomain keybinds: KeybindsDomain {}
     property AppsDomain apps: AppsDomain {}
+    property LauncherDomain launcher: LauncherDomain {}
 }

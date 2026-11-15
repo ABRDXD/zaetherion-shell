@@ -145,4 +145,6 @@ Backup: `~/.config/hypr/zaetherion/keybinds.lua.bak-2026-11-15-starchart`.
   `launcher.json`. The adapter's `AppsDomain.run(argv)` starts what the core worked out; sums copy through the
   clipboard domain. Each kind is its own body on the orbit (Z196); an unfinished `>`/`?` row is faint and Enter waits.
 - **The star chart** (Z196, owner's pick B): see DECISIONS. Wheel swings the orbit; a click on a body launches it.
-- **Not yet**: currency, windows, Emoji, Clips, Files; the settings controls in FART; the binds (§6).
+- **DMS's engine** (Z197): `LauncherDomain`, `adapters/dms/DmsLauncher.qml`, the bridge in DMS, `view/shell/LauncherMerge.js`.
+  Files, clipboard and plugins now come from DMS; our own Files/Emoji/Clips tabs are not needed while DMS answers.
+- **Not yet**: currency, windows; the settings controls in FART.

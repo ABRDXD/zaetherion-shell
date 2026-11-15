@@ -20,6 +20,7 @@ Item {
     signal chosen()
 
     readonly property string kind: row?.kind ?? "app"
+    readonly property bool pair: kind === "calc" || kind === "convert"
     readonly property real core: Math.round(7 + 13 * depth)
     readonly property real shown: (1 - eclipse) * born
     readonly property bool front: depth > 0.5  // the front half of the orbit reads larger and brighter
@@ -97,20 +98,69 @@ Item {
                 GradientStop { position: 1; color: root.outward ? "transparent" : root.tint }
             }
         }
-        // The core: one disc, or a pair for a sum.
+        // A quasar's twin jets, straight up and down through the core.
+        Rectangle {
+            visible: root.kind === "plugin"
+            width: 2
+            height: root.core * 4
+            x: -1
+            y: -height / 2
+            gradient: Gradient {
+                GradientStop { position: 0; color: "transparent" }
+                GradientStop { position: 0.5; color: root.tint }
+                GradientStop { position: 1; color: "transparent" }
+            }
+        }
+        // The core: a disc (a pair for a sum), a tumbling rock for a file, a crescent for a setting, a satellite's
+        // body and panels for a clipboard entry.
         Repeater {
-            model: root.kind === "calc" || root.kind === "convert" ? 2 : 1
+            model: root.pair ? 2 : root.kind === "file" || root.kind === "clipboard" ? 0 : 1
             delegate: Rectangle {
                 required property int index
-                readonly property real d: root.kind === "calc" || root.kind === "convert" ? root.core * 0.7 : root.core
+                readonly property real d: root.pair ? root.core * 0.7 : root.core
                 width: d
                 height: d
                 radius: d / 2
-                x: -d / 2 + (root.kind === "calc" || root.kind === "convert" ? (index ? 0.7 : -0.7) * root.core : 0)
+                x: -d / 2 + (root.pair ? (index ? 0.7 : -0.7) * root.core : 0)
                 y: -d / 2
                 color: index ? Design.spectral[0] : root.tint
                 border.width: root.kind === "search" ? 0 : 1
                 border.color: Qt.lighter(root.tint, 1.25)
+            }
+        }
+        Rectangle {  // the crescent's shadow: the island's dark across most of the disc
+            visible: root.kind === "setting"
+            width: root.core
+            height: width
+            radius: width / 2
+            x: -width / 2 + root.core * 0.32
+            y: -height / 2 - root.core * 0.12
+            color: Design.islandFill
+        }
+        Rectangle {  // an asteroid: a rough rock, leaning on the −12° line
+            visible: root.kind === "file"
+            width: root.core * 0.9
+            height: root.core * 0.7
+            x: -width / 2
+            y: -height / 2
+            radius: Design.radiusCard
+            rotation: -12
+            color: root.tint
+        }
+        Row {        // a satellite: panels either side of a small body
+            visible: root.kind === "clipboard"
+            x: -width / 2
+            y: -height / 2
+            spacing: 1
+            Repeater {
+                model: 3
+                delegate: Rectangle {
+                    required property int index
+                    width: index === 1 ? root.core * 0.45 : root.core * 0.6
+                    height: index === 1 ? root.core * 0.45 : root.core * 0.28
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: index === 1 ? Qt.lighter(root.tint, 1.2) : root.tint
+                }
             }
         }
     }
@@ -144,7 +194,8 @@ Item {
     }
     // The tag: what kind of body, then what the core says about it.
     readonly property string tag: {
-        const words = { verb: "PULSAR", command: "COMET", search: "NEBULA", calc: "BINARY", convert: "BINARY" };
+        const words = { verb: "PULSAR", command: "COMET", search: "NEBULA", calc: "BINARY", convert: "BINARY",
+                        file: "ASTEROID", setting: "MOON", plugin: "QUASAR", clipboard: "SATELLITE" };
         const what = row?.blocked ? "BLOCKED" : words[kind] ?? "OBAFGKM"[Math.min(rank, 6)];
         return what + (row?.description ? " · " + row.description : "");
     }

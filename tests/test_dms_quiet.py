@@ -37,7 +37,10 @@ BAR_LINE = ("    readonly property real surfaceExclusiveZone: isIsland ? ((islan
 
 
 PROMPT_FILES = {
-    "DMSShell.qml": """Item {
+    "DMSShell.qml": """import QtQuick
+import qs.Modals.DLauncherV2
+
+Item {
     Connections {
         target: NetworkService
 
@@ -154,6 +157,38 @@ class QuietTest(unittest.TestCase):
                 dms_quiet.build(source, other)  # never over a folder it didn't make
             with self.assertRaises(SystemExit):
                 dms_quiet.build(out, Path(d) / "again")  # never from a quiet copy
+
+
+class BridgeTest(unittest.TestCase):
+    """DMS's launcher engine reaches the star chart through one bridge file and one instance (Z197)."""
+
+    def test_one_instance_before_the_root_closes_and_idempotent(self):
+        shell = PROMPT_FILES["DMSShell.qml"]
+        once = dms_quiet.with_bridge(shell)
+        self.assertEqual(once.count(dms_quiet.BRIDGE_LINE), 1)
+        self.assertTrue(once.rstrip().endswith(dms_quiet.BRIDGE_LINE + "\n}"))
+        self.assertEqual(dms_quiet.with_bridge(once), once)
+        with self.assertRaises(ValueError):
+            dms_quiet.with_bridge("Item {\n}\n")  # no launcher import: not the shell this knows
+
+    def test_build_carries_it_and_bridge_adds_it_to_an_older_copy(self):
+        with tempfile.TemporaryDirectory() as d:
+            source, out = Path(d) / "src", Path(d) / "out"
+            (source / "Services").mkdir(parents=True)
+            (source / "Services/NotificationService.qml").write_text(SERVICE)
+            (source / "Modules/DBar").mkdir(parents=True)
+            (source / "Modules/DBar/DBarBody.qml").write_text(BAR_LINE)
+            write_prompts(source)
+            dms_quiet.build(source, out)
+            self.assertEqual(dms_quiet.bridge_problems(out), [])
+            self.assertIn(dms_quiet.PROMPT_NOTE, (out / "DMSShell.qml").read_text())  # both patches in the one file
+            (out / dms_quiet.BRIDGE).unlink()
+            (out / "DMSShell.qml").write_text(PROMPT_FILES["DMSShell.qml"])
+            self.assertEqual(len(dms_quiet.bridge_problems(out)), 2)
+            dms_quiet.add_bridge(out)
+            self.assertEqual(dms_quiet.bridge_problems(out), [])
+            with self.assertRaises(SystemExit):
+                dms_quiet.add_bridge(source)  # only a copy this tool made
 
 
 class FitsTest(unittest.TestCase):

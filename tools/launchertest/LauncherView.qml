@@ -79,6 +79,21 @@ ShellRoot {
                    textFaint: "#589dbb", line: "#2b5768", accent: "#42c8d9", warm: "#f9e2af", danger: "#b4befe",
                    highlight: "#42c8d9", success: "#94e2d5", islandBackground: "#071114" })
     }
+    // A stand-in for DMS's launcher engine (Z197): one result of each kind, answering any text at once.
+    LauncherDomain {
+        id: engine
+        recordCalls: true
+        available: false
+        function search(text: string) {
+            record("search", [text]);
+            query = text;
+            results = [{ key: 0, id: "sample-browser", kind: "app", name: "Sample Browser", description: "Web Browser", icon: "", glyph: "", source: "" },
+                       { key: 1, id: "", kind: "setting", name: "Wi-Fi", description: "Network", icon: "", glyph: "wifi", source: "" },
+                       { key: 2, id: "", kind: "file", name: "wish-list.md", description: "Documents", icon: "", glyph: "", source: "" },
+                       { key: 3, id: "", kind: "plugin", name: "Weather", description: "Plugin", icon: "", glyph: "cloud", source: "" },
+                       { key: 4, id: "", kind: "clipboard", name: "Sample clip", description: "Clipboard", icon: "", glyph: "", source: "" }];
+        }
+    }
     CoreClient { id: client }
     FixtureAdapter { id: fixture }
     Component.onCompleted: {
@@ -172,6 +187,33 @@ ShellRoot {
                         root.face.move(1);
                         root.frames("swing", 10, 60, () => { island.toggleLauncher(); until(() => !island.launcherOpen, 1000, next); });
                     }));
+                });
+            },
+            // The host's engine (Z197): its results show under the core's inline rows, and Enter runs them there.
+            () => {
+                fixture.launcher = engine;
+                engine.available = true;
+                island.openLauncher();
+                until(() => !!root.input, 2000, () => {
+                    root.input.text = "wi";
+                    until(() => root.face.results.length === 5, 2000, ok => {
+                        check("engine.rows", ok && root.face.results.map(r => r.kind).join() === "app,setting,file,plugin,clipboard", root.face.results);
+                        check("engine.opened", engine.calls.some(c => c.method === "open"), engine.calls);
+                        root.face.move(1);
+                        root.shot("10-engine", () => {
+                            root.face.launch(root.face.selected);
+                            until(() => engine.calls.some(c => c.method === "execute"), 2000, ran => {
+                                const call = engine.calls.find(c => c.method === "execute");
+                                check("engine.executes", ran && call.args[0] === 1, engine.calls);
+                                until(() => !island.launcherOpen, 1000, closed => {
+                                    check("engine.closes", closed && engine.calls.some(c => c.method === "close"), engine.calls);
+                                    engine.available = false;
+                                    fixture.launcher = null;
+                                    next();
+                                });
+                            });
+                        });
+                    });
                 });
             },
             // Inline rows (Z195): each opens the launcher, types, checks the top row and presses Enter on it.

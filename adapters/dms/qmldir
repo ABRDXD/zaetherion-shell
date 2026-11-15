@@ -5,6 +5,7 @@ DmsBluetooth 1.0 DmsBluetooth.qml
 DmsDeadline 1.0 DmsDeadline.qml
 DmsFeed 1.0 DmsFeed.qml
 DmsKeybinds 1.0 DmsKeybinds.qml
+DmsLauncher 1.0 DmsLauncher.qml
 DmsLink 1.0 DmsLink.qml
 DmsNetwork 1.0 DmsNetwork.qml
 DmsNotifications 1.0 DmsNotifications.qml
