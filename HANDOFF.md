@@ -1,4 +1,4 @@
-# 15 November 2026 · Opus (Claude A): Fluid Timers as a sky (Z202, branch `fluid-timers`)
+# 15 November 2026 · Opus (Claude A): Fluid Timers as a sky (Z203, branch `fluid-timers`)
 
 - **Owner.** The ring dial was "very very bland". Five canvas mock-ups later (Eclipse, Horizon, Accretion, One system,
   B + C) the owner picked B + C: "YES THIS ONE IS MAJESTIC IMPLEMENT THIS ONE".
@@ -43,6 +43,15 @@ Use [the continuation prompt](docs/NEXT_CHAT_PROMPT.md). The owner requests prep
 for a fresh chat and explicitly prioritises creative implementation over context gathering:
 read only what a concrete implementation decision requires. Next: Confluence Performance
 in a fresh worktree from current main. This preparation adds no UI or runtime changes.
+
+# 15 November 2026 · Opus (Claude B): quick paste on DMS's own clipboard history (Z202; live)
+
+- **Owner's call** (after the restart): "quickpaste should just use DMS's own clipboard history", tired of the fuzzel/cliphist picker (raw ids, "[[ binary data ]]" rows).
+- **Built** (`49411a8`): `adapters/dms/DmsClipboard.qml` + `DmsClipMap.js` (DMS's history, copy, `sendPaste`, delete, pins, UTF-8 text, pictures as data URLs; all under the "history" lease); contract `pinsKept`/`pin()`; `ClipPins` defers to DMS's pins; the core's recorder removed (`core/clips.py` = quick paste's three settings). Z202; Z183/Z184 marked; F2-4 moot; DMS_ADAPTER §8; NOTICE.
+- **Checks.** `test_dms_clipboard` (7, stand-in DMS), `test_dms_clip_map` (4), `test_core_clips` (3), privacy rule. Full suite 1122: all OK but `test_astra_cues` (timing under load; 3/3 alone). Smoke exit 0.
+- **Live (owner's yes, 15 Nov, 18:43).** Backups `~/.config/hypr/zaetherion/*.pre-dms-clips-2026-11-15`; DMS's history on, 1000 kept (`dms clipboard config set --enable --max-history 1000`; DMS's default was 100); `session.lua` without the cliphist watchers (the running two stopped); `keybinds.lua` Super+V → `hl.dsp.global("zaetherion:clips")`; `hyprctl reload`, configerrors empty; `s0-seed` fast-forwarded to `6285fcd`; the owner ran the core restart (scratch script: stop, wait on the exact PIDs, `dms clipboard cliphist-migrate` while DMS's backend was down, start). After: core, DMS, view up; view log clean; our server holds the notification name; `zaetherion:clips` registered.
+- **Import, partly.** `cliphist-migrate` while DMS runs fails ("open db: timeout": `dms run` locks the database). Run with DMS down it said "Migrated 750", but DMS kept only the newest 100 (all stamped with the import time): the importer trims to 100 whatever `maxHistory` says. The other 650 are still in cliphist's own database (untouched; nothing records into it now). Owner to decide whether they matter.
+- **Incident (mine).** The restart line I gave the owner waited with `pgrep -f core/fartd.py`, which matched its own shell, so the start never ran: core, DMS and view were down ~4 min until I stopped it and started the core (16:35, same ten settings; view log clean, our server holds the notification name). Never wait on `pgrep -f` text that is in the same command.
 
 # 15 November 2026 · Opus (Claude B): Claude C's quick paste and calmer rest merged; the island's hover word (branches `s3-clips-merge`, `s10-hover-word`; not live)
 

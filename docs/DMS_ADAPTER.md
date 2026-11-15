@@ -133,7 +133,7 @@ Limits: the contract has no kind for cellular or VPN, so a cellular-only machine
 | hostActions.open, targets | — | ZÆTHERION's own surfaces (S6, S10) | | | |
 | lyrics | `lyrics` | OPEN 3: DMS `lyrics.get` (request only) or `adapters/common/LyricsSource` | none | `lyrics.get` | lyrics |
 | system | `resources`, `gpu` | `adapters/common/LinuxSystem` today; `dgop.*` is request-only, so it would poll under the lease too. Measure before moving | none | `dgop.*` | dgop |
-| clipboard | `history` | `adapters/common/CliphistClipboard` (owner's choice, 11 Nov: cliphist records, DMS clipboard off) | — | — | — |
+| clipboard | `history` | `adapters/dms/DmsClipboard` (Z202, owner 15 Nov: DMS's own history; cliphist was the 11 Nov choice) | `clipboard` (under `history`) | `clipboard.getHistory`, `copyEntry`, `sendPaste`, `deleteEntry`, `pinEntry`/`unpinEntry`, `getEntry`, `copy`, `pasteSupported` | — |
 | media, audio, equalizer, notifications | as today | quickshell (MPRIS, Pipewire, `NotificationServer`); the panel reads the core's notification mirror | — | — | — |
 | workspaces, keybinds | — | hyprland | — | — | — |
 | keybinds.capsLock, numLock | — | dms (S5) | `evdev` | — | none: held while the domain exists |
@@ -177,9 +177,9 @@ DMS services with no contract domain yet: `wlroutput` (display settings), `wellb
 
 ## 8. Privacy
 
-- Never subscribe-all (§2). `clipboard` may appear in a service list or a method name only in a DMS-backed clipboard domain, inside a `holds("history")` guard. A static test fails any other file in `adapters/dms` that names it. For this owner the clipboard domain is cliphist, so today nothing names it.
+- Never subscribe-all (§2). `clipboard` may appear in a service list or a method name only in the DMS-backed clipboard domain (`DmsClipboard`, Z202), inside a `holds("history")` guard: its feed is wanted only under the lease, and every call that names an entry goes through `dmsId()`, which answers nothing without it. A static test fails any other file in `adapters/dms` that names it.
 - The cache of a service is dropped when the service leaves the list and when the link drops.
-- **Keeping DMS's clipboard history off:** at each ready, when the capability is present, the resident's `DmsAdapter` reads `clipboard.getConfig` and, if `disabled` isn't true, sends `clipboard.setConfig {"disabled": true}` and reads it again. Not to be built until `clipboard.getConfig` has a recorded fixture (OPEN F2-4).
+- **DMS's clipboard history is on (Z202).** The earlier plan to keep it off (F2-4) is dropped: DMS's history is FART's. FART never reads or writes `clipboard.getConfig`/`setConfig` outside the Clips tab (not built yet).
 - No new recorded data is needed for network. Replies to action calls in tests are synthetic, written in the test with obviously fake values, and labelled so.
 
 ## 9. What to build, and its tests

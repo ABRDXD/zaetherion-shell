@@ -13,9 +13,10 @@ DOMAINS = {
     "PowerDomain": "DmsPower.qml",
     "NotificationsDomain": "DmsNotifications.qml",
     "BluetoothDomain": "DmsBluetooth.qml",
+    "ClipboardDomain": "DmsClipboard.qml",
 }
 # Leases the DMS-backed domains serve, per file.
-LEASES = {"DmsNetwork.qml": {"details", "scan", "saved"}, "DmsBluetooth.qml": {"scan"}}
+LEASES = {"DmsNetwork.qml": {"details", "scan", "saved"}, "DmsBluetooth.qml": {"scan"}, "DmsClipboard.qml": {"history"}}
 
 
 def functions(text):
@@ -69,14 +70,23 @@ class DmsContract(unittest.TestCase):
             if qml.name not in ("DmsLink.qml", "DmsLauncher.qml"):
                 self.assertNotIn("Quickshell.Io", qml.read_text(), qml.name)
 
-    def test_the_clipboard_service_is_never_named(self):
-        # DMS's clipboard history is off for this owner (cliphist records, F2-4). Only a DMS-backed clipboard domain,
-        # inside a holds("history") guard, may name the service or its methods; none exists, so nothing here may.
-        # (The cliphist clipboard domain is wired by DmsAdapter under its own name; that is not DMS's service.)
-        named = re.compile(r"""["']clipboard|clipboard\.(get|set|clear|delete|pin)""", re.I)
+    def test_only_the_clipboard_domain_names_the_clipboard_service_and_only_under_its_lease(self):
+        # §8, Z202: DMS's clipboard history is FART's. Only DmsClipboard may name the service or its methods; its
+        # subscription follows the "history" lease, and every call that names an entry goes through dmsId(), which
+        # answers nothing without the lease. Nothing reads the config (F2-4 is moot: the history is on).
+        named = re.compile(r"""["']clipboard|clipboard\.(get|set|clear|delete|pin|copy|send|paste)""", re.I)
         for source in sorted(DMS.iterdir()):
-            if source.suffix in (".qml", ".js"):
+            if source.suffix in (".qml", ".js") and source.name != "DmsClipboard.qml":
                 self.assertIsNone(named.search(source.read_text()), source.name)
+        text = (DMS / "DmsClipboard.qml").read_text()
+        self.assertIn('readonly property bool reading: holds("history")', text)
+        self.assertIn('service: "clipboard"; capability: "clipboard"; wanted: root.reading', text)
+        self.assertIn("function dmsId(id) { return reading ? dmsIds[id] : undefined; }", text)
+        for method in ("copyEntry", "deleteEntry", "pinEntry", "getEntry"):
+            for call in re.finditer(rf'"clipboard\.{method}"', text):
+                before = text[:call.start()]
+                self.assertIn("dmsId(", before[before.rindex("function "):], method)
+        self.assertNotRegex(text, r"clipboard\.(get|set)Config")
 
     def test_a_subscribe_is_only_built_by_the_machine_and_always_with_services(self):
         for source in sorted(DMS.iterdir()):

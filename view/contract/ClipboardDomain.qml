@@ -1,10 +1,13 @@
-// ClipEntry: { id, text, isImage }; text is the history preview line. Lease "history".
+// ClipEntry: { id, text, isImage, pinned }; text is the history preview line; pinned only where the domain keeps
+// pins (pinsKept, DMS: Z202), otherwise FART keeps them (ClipPins). Lease "history".
 HostDomain {
     property var entries: []
     // The history has been read at least once since "history" was leased (an empty list is then really empty).
     property bool loaded: false
     // Decoded image clips, id -> image URL; filled by requestThumbnail, dropped with the lease (Z79: visible rows only).
     property var thumbnails: ({})
+    // The history keeps its own pins (each entry says `pinned`; pin() changes it).
+    property bool pinsKept: false
 
     signal textFetched(string id, string text)
 
@@ -16,4 +19,5 @@ HostDomain {
     function copyText(text: string) { record("copyText", [text]); }
     function fetchText(id: string) { record("fetchText", [id]); }
     function requestThumbnail(id: string) { record("requestThumbnail", [id]); }
+    function pin(id: string, on: bool) { record("pin", [id, on]); }
 }

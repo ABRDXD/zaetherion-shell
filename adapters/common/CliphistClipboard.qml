@@ -48,6 +48,8 @@ ClipboardDomain {
         remover.running = true;
     }
     function copyText(text: string) { Quickshell.clipboardText = text; }
+    // cliphist keeps no pins: FART's own (ClipPins) stand in, so nothing calls this.
+    function pin(id: string, on: bool) {}
     function fetchText(id: string) {
         if (!valid(id) || fetcher.running) return;
         fetcher.entryId = id;

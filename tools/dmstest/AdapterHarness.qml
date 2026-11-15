@@ -16,6 +16,11 @@ ShellRoot {
     property var unknown: []
     property var prompts: []
     property var pairings: []
+    property var fetched: ({})
+    Connections {
+        target: adapter.clipboard
+        function onTextFetched(id, text) { root.fetched = Object.assign({}, root.fetched, { [id]: text }); }
+    }
     Connections {
         target: adapter.network
         function onPromptArrived(id) { root.prompts = root.prompts.concat([id]); }
@@ -130,6 +135,24 @@ ShellRoot {
         function btCancel(id: string): void { adapter.bluetooth.cancelPairing(id); }
         function btAcquire(feature: string): void { adapter.bluetooth.acquire(feature, "t"); }
         function btRelease(feature: string): void { adapter.bluetooth.release(feature, "t"); }
+        // The clipboard (Z202): made only after loadDeferred() here (no island in this run).
+        function clips(): string {
+            const c = adapter.clipboard;
+            return JSON.stringify({ kind: String(c).replace(/_QMLTYPE.*|\(0x.*$/, ""), available: c.available, loaded: c.loaded,
+                entries: c.entries, thumbnails: c.thumbnails, pinsKept: c.pinsKept, fetched: root.fetched });
+        }
+        function clipAcquire(): void { adapter.loadDeferred(); adapter.clipboard.acquire("history", "t"); }
+        function clipRelease(): void { adapter.clipboard.release("history", "t"); }
+        function clipDo(action: string, id: string): void {
+            const c = adapter.clipboard;
+            if (action === "copy") c.copy(id);
+            else if (action === "paste") c.paste(id);
+            else if (action === "remove") c.remove(id);
+            else if (action === "pin") c.pin(id, true);
+            else if (action === "unpin") c.pin(id, false);
+            else if (action === "fetch") c.fetchText(id);
+            else if (action === "thumb") c.requestThumbnail(id);
+        }
         function results(): string { return JSON.stringify(root.results); }
         function quit(): void { Qt.quit(); }
     }

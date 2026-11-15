@@ -208,7 +208,7 @@ class Composition(Base):
         expected = {"media": "QuickshellMedia", "audio": "QuickshellAudio", "network": "DmsNetwork",
                     "notifications": "DmsNotifications", "workspaces": "HyprlandWorkspaces", "power": "DmsPower",
                     "tray": "QuickshellTray", "keybinds": "DmsKeybinds", "lyrics": "LyricsSource",
-                    "clipboard": "CliphistClipboard", "system": "LinuxSystem"}
+                    "clipboard": "DmsClipboard", "system": "LinuxSystem"}
         for domain, kind in expected.items():
             self.assertTrue(got[domain].startswith(kind), f"{domain}: {got[domain]}")
         self.assertFalse(got["notificationsAvailable"])                            # no core in the run, so no mirror
