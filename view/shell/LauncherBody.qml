@@ -114,7 +114,7 @@ Item {
         // The core: a disc (a pair for a sum), a tumbling rock for a file, a crescent for a setting, a satellite's
         // body and panels for a clipboard entry.
         Repeater {
-            model: root.pair ? 2 : root.kind === "file" || root.kind === "clipboard" ? 0 : 1
+            model: root.pair ? 2 : root.kind === "file" || root.kind === "clip" ? 0 : 1
             delegate: Rectangle {
                 required property int index
                 readonly property real d: root.pair ? root.core * 0.7 : root.core
@@ -148,7 +148,7 @@ Item {
             color: root.tint
         }
         Row {        // a satellite: panels either side of a small body
-            visible: root.kind === "clipboard"
+            visible: root.kind === "clip"
             x: -width / 2
             y: -height / 2
             spacing: 1
@@ -195,7 +195,7 @@ Item {
     // The tag: what kind of body, then what the core says about it.
     readonly property string tag: {
         const words = { verb: "PULSAR", command: "COMET", search: "NEBULA", calc: "BINARY", convert: "BINARY",
-                        file: "ASTEROID", setting: "MOON", plugin: "QUASAR", clipboard: "SATELLITE" };
+                        file: "ASTEROID", setting: "MOON", plugin: "QUASAR", clip: "SATELLITE" };
         const what = row?.blocked ? "BLOCKED" : words[kind] ?? "OBAFGKM"[Math.min(rank, 6)];
         return what + (row?.description ? " · " + row.description : "");
     }

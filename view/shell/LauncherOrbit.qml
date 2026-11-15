@@ -42,7 +42,7 @@ Item {
         case "file": return Design.asteroid;
         case "setting": return Design.moon;
         case "plugin": return Design.quasar;
-        case "clipboard": return Design.satellite;
+        case "clip": return Design.satellite;
         default: return Design.starColor(rank);
         }
     }
@@ -249,7 +249,7 @@ Item {
             anchors.centerIn: parent
             visible: !icon.visible
             text: root.pick?.glyph || (({ calc: "calculate", convert: "straighten", command: "terminal", search: "travel_explore", verb: "bolt",
-                     file: "description", setting: "settings", plugin: "extension", clipboard: "content_paste" })[root.pick?.kind] ?? "apps")
+                     file: "description", setting: "settings", plugin: "extension", clip: "content_paste" })[root.pick?.kind] ?? "apps")
             iconSize: Layout.perigeeRadius * 0.8 // scale: the glyph fills the ring
             color: root.pickTint
         }
@@ -316,7 +316,7 @@ Item {
             if (!row) return "";
             if (row.blocked) return "> BLOCKED · SESSION";
             const enter = { app: "LAUNCH", verb: "RUN", command: "RUN", search: "OPEN", calc: "COPY", convert: "COPY",
-                            file: "OPEN", setting: "OPEN", plugin: "RUN", clipboard: "PASTE" }[row.kind ?? "app"] ?? "GO";
+                            file: "OPEN", setting: "OPEN", plugin: "RUN", clip: "PASTE" }[row.kind ?? "app"] ?? "GO";
             const what = root.sum ? root.sumParts[0] : row.kind === "app" ? "CLASS " + "OBAFGKM"[Math.min(root.selected, 6)] + (row.description ? " · " + row.description : "") : row.description;
             return what + (row.ready === false ? "" : " · ↵ " + enter);
         }

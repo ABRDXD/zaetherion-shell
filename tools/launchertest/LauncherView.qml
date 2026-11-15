@@ -91,7 +91,7 @@ ShellRoot {
                        { key: 1, id: "", kind: "setting", name: "Wi-Fi", description: "Network", icon: "", glyph: "wifi", source: "" },
                        { key: 2, id: "", kind: "file", name: "wish-list.md", description: "Documents", icon: "", glyph: "", source: "" },
                        { key: 3, id: "", kind: "plugin", name: "Weather", description: "Plugin", icon: "", glyph: "cloud", source: "" },
-                       { key: 4, id: "", kind: "clipboard", name: "Sample clip", description: "Clipboard", icon: "", glyph: "", source: "" }];
+                       { key: 4, id: "", kind: "clip", name: "Sample clip", description: "Clipboard", icon: "", glyph: "", source: "" }];
         }
     }
     CoreClient { id: client }
@@ -197,7 +197,7 @@ ShellRoot {
                 until(() => !!root.input, 2000, () => {
                     root.input.text = "wi";
                     until(() => root.face.results.length === 5, 2000, ok => {
-                        check("engine.rows", ok && root.face.results.map(r => r.kind).join() === "app,setting,file,plugin,clipboard", root.face.results);
+                        check("engine.rows", ok && root.face.results.map(r => r.kind).join() === "app,setting,file,plugin,clip", root.face.results);
                         check("engine.opened", engine.calls.some(c => c.method === "open"), engine.calls);
                         root.face.move(1);
                         root.shot("10-engine", () => {

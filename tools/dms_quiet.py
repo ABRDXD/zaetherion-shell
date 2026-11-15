@@ -50,7 +50,8 @@ PROMPTS = (
 )
 PROMPT_NOTE = "return; // ZÆTHERION tools/dms_quiet.py: FART answers this prompt (docs/NET_BT.md, Z191)"
 # The launcher bridge (Z197): one file beside DMS's launcher and one instance at the end of DMSShell.qml.
-BRIDGE_SOURCE = Path(__file__).resolve().parents[1] / "adapters/dms/bridge/ZaetherionLauncherBridge.qml"
+# A template (.qml.in): it imports DMS's modules, so it is QML only once installed inside DMS.
+BRIDGE_SOURCE = Path(__file__).resolve().parents[1] / "adapters/dms/bridge/ZaetherionLauncherBridge.qml.in"
 BRIDGE = Path("Modals/DLauncherV2/ZaetherionLauncherBridge.qml")
 SHELL = Path("DMSShell.qml")
 BRIDGE_LINE = "    ZaetherionLauncherBridge {} // ZÆTHERION tools/dms_quiet.py: DMS's launcher engine for the star chart (Z197)"

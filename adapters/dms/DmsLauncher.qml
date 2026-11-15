@@ -13,8 +13,8 @@ LauncherDomain {
     readonly property int retryMs: 3000
     available: socket.connected
 
-    // DMS's item types as the star chart's kinds; anything new reads as a plugin.
-    readonly property var kinds: ({ app: "app", file: "file", setting: "setting", plugin: "plugin", clipboard: "clipboard" })
+    // DMS's item types as the star chart's kinds ("clip" for a clipboard entry); anything new reads as a plugin.
+    readonly property var kinds: ({ app: "app", file: "file", setting: "setting", plugin: "plugin", clipboard: "clip" })
     function icon(item) {
         if (item.iconType !== "image" || !item.icon) return "";
         if (item.icon.startsWith("/") || item.icon.includes("://")) return item.icon;

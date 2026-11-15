@@ -1,7 +1,7 @@
 // The host's own launcher engine (S6, Z197): on DMS, DMS's launcher (apps with its frecency and actions, files,
 // clipboard, DMS settings, plugins) without its window. The star chart sends what was typed and shows the answer;
 // unavailable means the chart ranks apps in the core instead (Z185), so it always works.
-//   results: [{ key, kind (app | file | setting | plugin | clipboard), name, description, icon (an Image source or
+//   results: [{ key, kind (app | file | setting | plugin | clip), name, description, icon (an Image source or
 //              ""), glyph (a Material Symbols name or ""), source }] answering `query`; `searching` while more may come.
 HostDomain {
     property var results: []

@@ -61,11 +61,12 @@ class DmsContract(unittest.TestCase):
     def test_only_the_link_uses_a_socket(self):
         for qml in sorted(DMS.glob("*.qml")):
             uses = re.search(r"\bSocket\b", qml.read_text())
-            self.assertEqual(bool(uses), qml.name == "DmsLink.qml", qml.name)
+            # DmsLauncher is the bridge's client (Z197): its own socket to DMS's launcher engine, not DMS's server.
+            self.assertEqual(bool(uses), qml.name in ("DmsLink.qml", "DmsLauncher.qml"), qml.name)
 
     def test_only_the_link_imports_quickshell_io(self):
         for qml in sorted(DMS.glob("*.qml")):
-            if qml.name != "DmsLink.qml":
+            if qml.name not in ("DmsLink.qml", "DmsLauncher.qml"):
                 self.assertNotIn("Quickshell.Io", qml.read_text(), qml.name)
 
     def test_the_clipboard_service_is_never_named(self):

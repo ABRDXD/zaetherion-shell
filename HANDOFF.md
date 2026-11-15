@@ -7,9 +7,12 @@
   `bridge` for an existing copy; contract `LauncherDomain`, adapter `DmsLauncher`; `LauncherMerge.js` (core inline
   rows above DMS's results; the core's apps whenever DMS can't answer); new bodies (asteroid, moon, quasar,
   satellite). Bug found by the new checks and fixed: a late second answer reset the selection.
+  The first commit (`5e21cae`) went in with 6 rule failures; fixed in the next: the bridge is a `.qml.in` template
+  (it imports DMS's modules), `DmsLauncher` may hold its own socket (test updated, Z197), the clip kind is `clip`
+  (DMS's clipboard service stays unnamed in the adapter), `launcher` counted as a resident domain, fixture placeholder.
 - **Checks.** Bridge probed against the real DMS in a private bridge-only copy (no windows, own socket): "fi" 11 apps
   in ~0.13 s, "=2+2" DMS's calculator, "wifi" apps + a settings page + a plugin. Tests: `test_dms_quiet` (+2),
-  `test_launcher_merge` (5), `test_shortcut_edges` (3), `test_launcher_view` (+4 engine checks). Full suite: 1062 OK (1 skipped).
+  `test_launcher_merge` (5), `test_shortcut_edges` (3), `test_launcher_view` (+4 engine checks). Full suite: 1062 OK (1 skipped), after the rule fixes in the next commit.
 - **Not live yet.** Needs `tools/dms_quiet.py bridge` on the live copy and a DMS restart (owner's OK). The live copy
   also still lacks the Z191 prompt patches (a full rebuild needs stock DMS running).
 

@@ -3,7 +3,7 @@ import Quickshell
 import Quickshell.Io
 import qs.Modals.DLauncherV2
 
-// Runs inside DMS, not in ZÆTHERION (Z197). tools/dms_quiet.py copies this file into the quiet DMS copy beside DMS's
+// Runs inside DMS, not in ZÆTHERION (Z197); a template here (.qml.in), installed as ZaetherionLauncherBridge.qml. tools/dms_quiet.py copies this file into the quiet DMS copy beside DMS's
 // launcher and adds one instance to DMSShell.qml. It drives DMS's own launcher engine (`Controller`: apps with its
 // frecency and actions, files through dsearch, clipboard, DMS settings, plugins) without DMS's window, and serves it to
 // ZÆTHERION's star chart over a private socket in the runtime folder, one JSON object per line.
