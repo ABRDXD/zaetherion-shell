@@ -14,6 +14,13 @@
   No 144 Hz performance claim. No push or desktop configuration change.
 - Next: implement Confluence Performance using the existing semantic services, then shared Fluid shell framing.
 
+# 15 November 2026 · Opus (Claude A): island faces leave sooner (Z200)
+
+- **Owner.** "the notifications and anything expanding from the dynamic island just stay on for too long".
+- **Changed.** One timing file, `view/shell/IslandTiming.js`; times cut (see Z200). The main cause: senders' "never
+  expire" (0) stayed until dismissed; now 2 s on the island (critical unchanged, the Inbox keeps everything).
+- **Checks.** Island and notification-server tests updated to the new times (24 OK). Full suite: see the commit after.
+
 # 15 November 2026 · Opus (Claude A): the workspace switch as a cold edge-on system; apps as planets (Z199, branch `ws-transit`)
 
 - **Owner's call.** Three instrument mock-ups on the canvas (A orrery, B astrolabe, C transit); the owner picked C, asked

@@ -57,7 +57,7 @@ ShellRoot {
                 break;
             case 2:
                 root.check(queue.entries.length === 1 && queue.current.data.summary === "Changed", "replace-id refreshes the card");
-                root.check(root.entry("a").remaining === null, "zero stays until dismissed");
+                root.check(root.entry("a").remaining === 2000, "a sender's never-expire gets our time");
                 queue.remove("notification:a");
                 // Read elsewhere: the same arrival, so the dismissed card does not come back.
                 fixture.notifications.items = [root.item("a", 2, { live: true, timeout: 0, read: true }),
@@ -65,13 +65,13 @@ ShellRoot {
                 break;
             case 3:
                 root.check(root.entry("a") === null, "a change that is not an arrival shows nothing");
-                root.check(root.entry("b")?.remaining === events.durations.notification && events.durations.notification === 3000, "our own showing time");
-                root.check(NotificationTiming.showMs(-1, "normal") === 3000 && NotificationTiming.showMs(-1, "low") === 3000
+                root.check(root.entry("b")?.remaining === events.durations.notification && events.durations.notification === 2000, "our own showing time");
+                root.check(NotificationTiming.showMs(-1, "normal") === 2000 && NotificationTiming.showMs(-1, "low") === 2000
                     && NotificationTiming.showMs(-1, "critical") === 0 && NotificationTiming.showMs(8000, "normal") === 8000,
-                    "the adapter's default is 3 s and honours the sender");
-                root.check(events.showTime({ timeout: 10000, urgency: "normal" }) === 6000
-                    && events.showTime({ timeout: 6000, urgency: "low" }) === 6000, "the island caps a sender's long time at 6 s");
-                root.check(events.showTime({ timeout: 4000, urgency: "normal" }) === 4000, "a shorter sender time is kept");
+                    "the adapter's default is 2 s and honours the sender");
+                root.check(events.showTime({ timeout: 10000, urgency: "normal" }) === 3500
+                    && events.showTime({ timeout: 6000, urgency: "low" }) === 3500, "the island caps a sender's long time at 3.5 s");
+                root.check(events.showTime({ timeout: 3000, urgency: "normal" }) === 3000, "a shorter sender time is kept");
                 root.check(events.showTime({ timeout: 10000, urgency: "critical" }) === 10000
                     && events.showTime({ timeout: 0, urgency: "critical" }) === null
                     && events.showTime({ timeout: -1, urgency: "critical" }) === null, "critical is not capped");

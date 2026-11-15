@@ -6,6 +6,7 @@ import qs.view.cues
 import qs.view.ui
 import "../ui/FocusMap.js" as FocusMap
 import "LauncherLayout.js" as LauncherLayout
+import "IslandTiming.js" as IslandTiming
 
 FocusScope {
     id: root
@@ -86,7 +87,7 @@ FocusScope {
     // Z174 (owner, 13 November 2026; bends Z161 for the OSD only): while FART covers the island, a volume, mic or
     // brightness change shows in FART's header (FartHeaderOsd, drawn by the Overlay) at once and is never banked
     // in the queue, so the fold replays no stale level. It stays `osdDwell` after the last change.
-    readonly property int osdDwell: 1200
+    readonly property int osdDwell: IslandTiming.osd
     property var headerOsd: null
     property double headerOsdUntil: 0
     function showHeaderOsd(value: var, dwell: double): void {
