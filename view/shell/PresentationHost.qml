@@ -47,13 +47,17 @@ Item {
         }
         pending.sourceComponent = presentation;
     }
+    // A deferred step can run after the room is gone (a test tearing several rooms down at once): it then does nothing.
+    property bool alive: true
+    Component.onDestruction: alive = false
     function ready(slot) {
         // Defer to let geometry/bindings settle and coalesce rapid changes in the same turn.
         Qt.callLater(() => {
-            if (slot !== pending || slot.status !== Loader.Ready || slot.sourceComponent !== presentation) return;
+            if (!root.alive) return;
+            if (slot !== root.pending || slot.status !== Loader.Ready || slot.sourceComponent !== root.presentation) return;
             const window = root.Window.window;
             const focus = window?.activeFocusItem;
-            const key = containsItem(focus) ? focusName(focus) : "";
+            const key = root.containsItem(focus) ? root.focusName(focus) : "";
             const old = shown;
             firstShown = !firstShown;
             old.sourceComponent = null;
@@ -61,8 +65,8 @@ Item {
             const focusAfter = window?.activeFocusItem;
             Qt.callLater(() => {
                 // Never take focus back from settings or a newer presentation.
-                if (!key || root.item !== replacement || window?.activeFocusItem !== focusAfter) return;
-                const control = named(replacement, key);
+                if (!root.alive || !key || root.item !== replacement || window?.activeFocusItem !== focusAfter) return;
+                const control = root.named(replacement, key);
                 if (control?.visible && control.enabled) control.forceActiveFocus(Qt.OtherFocusReason);
             });
             committed();

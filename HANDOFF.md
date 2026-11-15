@@ -8,6 +8,9 @@
   laps, presets and controls on the planet's face). Stopwatch holds the hole at the top (`arc`).
 - **Checks.** `FluidTimersTest` (16 checks, realistic running clocks, 1360x860, Larimar) incl. Angular and back;
   `SessionTest`, `TemporalTest`, layout, contract OK. Captures inspected for all four clocks and idle Session.
+- **Fixed in Astra's `PresentationHost.qml` (for Astra).** Its deferred commit and focus steps ran after the host
+  was destroyed ("containsItem is not a function" in `test_cues` ViewTest under load: 3 of 4 parallel runs). Now
+  `alive` guards both steps and calls are `root.`-qualified; 4 of 4 clean. Timers made it likelier (a third host).
 - **Weaknesses left.** Not yet seen in nested Hyprland or live; the light's breath is a 1.8 s cycle by eye only; the
   spiral crowds near the hole at small panel heights; no Overdrive-specific motion yet.
 
