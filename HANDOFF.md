@@ -12,7 +12,15 @@
 - **Checks.** `tools/cuetest/FluidTimersTest.qml` via `test_core_sessions.FluidTimersRoom` (12 checks, incl. switching
   to Angular and back keeps state). Existing `TemporalTest` and `SessionTest` pass on the Angular side. Captures shown
   to the owner (offscreen, fixture palette). Not merged, not live.
-- **Next.** Confluence Tasks the same way.
+- **Redesign (owner: "too bland"; Astra's docs/UI_CREATIVE_HANDOFF.md).** Concept: the interval is one revolution of an
+  orbit. A large thin ring holds the clock; the lit arc is time passed, one small body rides its leading edge. Focus draws
+  its whole plan (focus and rest arcs for every cycle) on the ring. Across a vertical rule: lengths with their end times,
+  the plan with the current stretch and "done by", laps (fastest in the accent), presets with end times and a 14-day
+  streak strip. Status and picker as in Media; controls under the ring; the other clocks at the bottom edges. Mode change
+  sweeps the ring 0.42 s (one plain animation); seconds tick. Test at 1360x860 with realistic running clocks, Larimar.
+- **Weaknesses left.** Controls are centred in the row, not exactly under the ring; the countdown's right column is sparse
+  below its four lengths. Not yet seen in nested Hyprland.
+- **Next.** Per Astra's handoff, Confluence Performance, then shared Fluid framing; Tasks after.
 
 # 15 November 2026 · Codex: FLUID checkpoint integrated for the owner's live trial
 

@@ -9,6 +9,7 @@ CueTest 1.0 CueTest.qml
 DevicesTest 1.0 DevicesTest.qml
 DiscoveryTest 1.0 DiscoveryTest.qml
 FalseRoomTest 1.0 FalseRoomTest.qml
+FluidTimersTest 1.0 FluidTimersTest.qml
 GateTest 1.0 GateTest.qml
 HomeFoldTest 1.0 HomeFoldTest.qml
 HomeTest 1.0 HomeTest.qml
