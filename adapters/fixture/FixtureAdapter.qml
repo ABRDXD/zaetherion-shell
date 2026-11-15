@@ -38,8 +38,8 @@ HostAdapter {
         recordCalls: true
         available: true
         enabled: true
-        devices: [{ id: "00:00:5E:00:53:01", name: "Fixture Headset", kind: "audio-headset", connected: true, paired: true, battery: 0.7 },
-                  { id: "00:00:5E:00:53:02", name: "Fixture Keyboard", kind: "input-keyboard", connected: false, paired: true, battery: -1 }]
+        devices: [{ id: "00:00:5E:00:53:01", name: "Fixture Headset", kind: "headphones", connected: true, paired: true, trusted: true, battery: 0.7 },
+                  { id: "00:00:5E:00:53:02", name: "Fixture Keyboard", kind: "keyboard", connected: false, paired: true, trusted: false, battery: -1 }]
         primary: devices[0]
     }
     notifications: NotificationsDomain {

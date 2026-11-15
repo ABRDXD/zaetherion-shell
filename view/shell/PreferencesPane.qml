@@ -3,16 +3,19 @@ import QtQuick.Layouts
 import qs.core.client
 import qs.view.ui
 import qs.view.cues
+import qs.view.contract
 
 // Settings are drawn and clipped inside FART. Opening grows this section; closing folds it back.
 Item {
     id: root
     required property CoreClient core
+    required property HostAdapter host
     property bool expanded: false
     property bool wideLayout: false
-    // palette · wallpaper · presets (Z177). The section's own picker is active only while it is shown.
+    // palette · wallpaper · presets (Z177) · Wi-Fi · Bluetooth (Z194). A section is active only while it is shown.
     property string section: "palette"
-    readonly property var sections: [["palette", "PALETTE"], ["wallpaper", "WALLPAPER"], ["presets", "PRESETS"]]
+    readonly property var sections: [["palette", "PALETTE"], ["wallpaper", "WALLPAPER"], ["presets", "PRESETS"],
+                                     ["wifi", "WI-FI"], ["bluetooth", "BLUETOOTH"]]
     readonly property bool roomy: section !== "palette"
     signal sectionPicked(string section)
     property real reveal: expanded ? 1 : 0
@@ -123,6 +126,20 @@ Item {
                 core: root.core
                 active: root.expanded && visible
                 onCloseRequested: root.closed()
+            }
+            WifiSettings {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                visible: root.section === "wifi"
+                network: root.host.network
+                active: root.expanded && visible
+            }
+            BluetoothSettings {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                visible: root.section === "bluetooth"
+                bluetooth: root.host.bluetooth
+                active: root.expanded && visible
             }
         }
     }

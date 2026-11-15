@@ -1728,6 +1728,7 @@ Item {
     }
     PreferencesPane {
         core: root.core
+        host: root.host
         section: root.preferencesSection
         onSectionPicked: section => root.preferencesSection = section
         expanded: root.preferencesOpen && root.shell.panelOpen

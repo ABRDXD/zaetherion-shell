@@ -170,7 +170,7 @@ ColumnLayout {
                             label: "TRUSTED"
                             hint: modelData.trusted ? "Connects without asking" : "Asks before it connects"
                             implicitHeight: Design.minHit + Design.baseline * 2
-                            selected: modelData.trusted
+                            selected: modelData.trusted === true
                             enabled: root.bluetooth.enabled && !root.busy(modelData.id)
                             onClicked: root.bluetooth.trust(modelData.id, !modelData.trusted)
                         }

@@ -1,3 +1,11 @@
+# 15 November 2026 · Opus (Claude B): S9 merge ready on `s9-wall-merge`; Wi-Fi and Bluetooth tabs in FART's settings
+
+- **Branch `s9-wall-merge`** = `s0-seed` (`b4e8e2d`) + `s9-wall-presets`, waiting for the owner's word to fast-forward `s0-seed`. Conflicts were both sides adding beside each other (S6 launcher/apps, S9 wallpaper/presets/hostTheme); both kept, 23 contract domains. Full suite on the merge: 1081 OK (1 skipped).
+- **Claude D's sections joined the tabs** (D and C were temporary agents; their leftovers are B's). `PreferencesPane` takes `host` and lists PALETTE · WALLPAPER · PRESETS · WI-FI · BLUETOOTH; `WifiSettings`/`BluetoothSettings` are active only while shown. `Host.openSettings("wifi")` now has a tab to land on.
+- **Found by loading the real pane:** `BluetoothSettings` read a missing `trusted` as an error (`Unable to assign [undefined] to bool`, which fails `tools/smoke.py`); it now reads it as not trusted. The fixture's Bluetooth devices used old icon names (`audio-headset`), drawn as garbled text; they now follow the contract (`headphones`, `keyboard`, `trusted`).
+- **Checks.** Smoke 0 errors; `test_contract`, `test_net_bt_adapter`, `test_net_bt_logic`, `test_dms_contract`, `test_layout` OK; offscreen captures of both tabs against the fixture (scratch, not kept).
+- **Open.** Claude C's uncommitted work (`s3-clips-rest`) numbers decisions Z181–Z185; Z185 is already Claude A's (S6). Renumber when C's work is merged. D's island hover word ("joining / wrong password / pairing") still waits on C's `IslandRest.qml`.
+
 # 14 November 2026 · Opus (Claude B): wallpaper and preset pickers inside FART (branch `s9-wall-presets`, Z177–Z180; not merged)
 
 - **Owner's calls.** Presets bundle wallpaper + colours, island shape and DMS's theme; wallpaper preview is a big plane inside FART (desktop changes only on click/Enter); "colours from this wallpaper" is an option, off by default. Owner OK'd the build and the screens. Design note: `docs/WALL_PRESETS.md`.
