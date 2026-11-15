@@ -20,7 +20,7 @@ CHECKS = ("apps.indexed", "open.rows", "open.focus", "island.wants.keyboard", "w
           "blocked.stays.open", "toggle.closes", "no.match", "inline.calc.row", "inline.calc", "inline.convert.row",
           "inline.convert", "inline.command.row", "inline.command", "inline.search.row", "inline.search", "inline.verb.row",
           "inline.verb", "inline.verb.ran", "inline.empty.waits", "orbit.symmetric", "orbit.pick.at.perigee",
-          "orbit.wraps.back", "orbit.settles")
+          "orbit.wraps.back", "orbit.settles", "engine.rows", "engine.opened", "engine.executes", "engine.closes")
 
 
 def scene(base: Path, shots: str = "") -> str:

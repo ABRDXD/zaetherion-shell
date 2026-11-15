@@ -71,6 +71,10 @@ Singleton {
     readonly property color comet: "#94e2d5"    // `>cmd`
     readonly property color nebula: "#f5c2e7"   // `?term`
     readonly property color binary: "#f9e2af"   // sums and conversions
+    readonly property color asteroid: "#d9b48a" // files (DMS's engine, Z197)
+    readonly property color moon: "#dfe7f2"     // DMS settings
+    readonly property color quasar: "#7dd3fc"   // DMS plugins
+    readonly property color satellite: "#a6e3a1" // clipboard entries
     function starColor(rank: int): color { return spectral[Math.max(0, Math.min(rank, spectral.length - 1))]; }
 
     function linearChannel(value: real): real {

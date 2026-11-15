@@ -30,4 +30,5 @@ Scope {
     property AppsDomain apps: AppsDomain {}
     property WallpaperDomain wallpaper: WallpaperDomain {}
     property HostThemeDomain hostTheme: HostThemeDomain {}
+    property LauncherDomain launcher: LauncherDomain {}
 }

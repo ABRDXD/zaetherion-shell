@@ -206,3 +206,8 @@ Never exercised against a real DMS, because tests must not actuate: `network.wif
 
 ## 10. Open items
 Added to docs/OPEN.md as F2-1 to F2-6.
+
+
+## Launcher bridge (Z197)
+
+DMS's launcher engine runs inside DMS through `adapters/dms/bridge/ZaetherionLauncherBridge.qml`, which `tools/dms_quiet.py` copies beside DMS's launcher (`Modals/DLauncherV2/`) and instantiates at the end of `DMSShell.qml`. It serves `$XDG_RUNTIME_DIR/zaetherion/dms-launcher.sock` (override: `ZAETHERION_LAUNCHER_SOCKET`), one JSON object per line: `open`, `query {text}`, `execute {key}`, `close` in; `results {query, searching, items}` and `executed` out. Only plain values cross; DMS's items stay in DMS, looked up again by key. `tools/dms_quiet.py bridge` adds it to a copy made before it; `check`/`fits` warn while it is missing.

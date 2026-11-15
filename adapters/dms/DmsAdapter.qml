@@ -34,6 +34,8 @@ HostAdapter {
     tray: QuickshellTray {}
     // The launcher's apps (S6): ready at start, since the launcher opens straight from the island (Z139).
     apps: QuickshellApps { spawner: HyprlandSpawner {} }
+    // DMS's own launcher engine for the star chart (Z197), through the bridge in the quiet copy.
+    launcher: DmsLauncher {}
     system: LinuxSystem {}
 
     // Nothing on the panel's first frame shows these four, so they load when the view asks, after the first open

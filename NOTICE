@@ -75,6 +75,8 @@ function is adapted (DMS, MIT, "Copyright (c) 2025 Avenge Media LLC", licenses/D
 - adapters/dms/DmsBluetoothMap.js: kindOf() and hasRealName() from DMS's Services/BluetoothService.qml
   (getDeviceIcon, hasRealName).
 tools/dms_quiet.py also adds an early return to two of DMS's prompt handlers in the local, unpublished copy (Z191).
+adapters/dms/bridge/ZaetherionLauncherBridge.qml is ours; it uses DMS's launcher engine (Modals/DLauncherV2/Controller.qml)
+unchanged, and tools/dms_quiet.py places it and one instance in the local, unpublished copy (Z197).
 
 Dux Shell (MIT, copyright 2025 Avenge Media LLC)
 ------------------------------------------------
