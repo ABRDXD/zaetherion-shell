@@ -50,6 +50,11 @@ FocusScope {
         queue.offer("session", "session", events.priority.held, {}, null);
     }
     function closeSession(): void { queue.remove("session"); }
+    // Ctrl+Alt+Del (`qs ipc call island session`, Z208): the card, or away again if it is open.
+    function toggleSession(): void {
+        if (queue.entries.some(event => event.id === "session")) closeSession();
+        else openSession();
+    }
     // The launcher (S6) grows from the island like the session card and holds the keyboard while open (Z117).
     readonly property int launcherRows: core?.launcherData?.settings?.rows ?? 6
     readonly property bool launcherOpen: expansion?.kind === "launcher"

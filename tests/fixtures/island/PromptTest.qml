@@ -83,6 +83,14 @@ ShellRoot {
                 break;
             case 17:
                 root.check(island.expansion?.kind !== "prompt", "the pairing goes with its question");
+                island.toggleSession();
+                break;
+            case 19:
+                root.check(island.expansion?.kind === "session", "the session toggle opens the card");
+                island.toggleSession();
+                break;
+            case 21:
+                root.check(island.expansion?.kind !== "session", "and closes it again");
                 Qt.quit();
                 break;
             }

@@ -185,7 +185,7 @@ class VerbTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_host_actions_fold_the_panel_first(self):
         self.view.open = True
-        self.assertEqual((await self.ok("settings"))["line"], "opened settings")
+        self.assertEqual((await self.ok("settings dms"))["line"], "opened DMS's settings")
         self.assertEqual(self.view.commands, [("close", None)])
         self.assertEqual(self.host.calls[-1], ("hostActions", "open", ["settings"], {"hold": 0}))
         await self.ok("update")
@@ -197,6 +197,22 @@ class VerbTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.host.calls[-1], ("power", "lock", [], {"hold": 0}))
         await self.ok("update")
         self.assertEqual(self.host.calls[-1][2], ["updates"])
+
+    async def test_settings_opens_fart_at_any_tab_and_dms_only_when_named(self):
+        """Z208: settings is FART's; its tabs are PreferencesPane's, in order."""
+        import re
+        from core.verbs.hostactions import SECTIONS
+        pane = (Path(__file__).resolve().parents[1] / "view/shell/PreferencesPane.qml").read_text()
+        listed = re.search(r"readonly property var sections: \[(.*?)\]\s*$", pane, re.S | re.M).group(1)
+        self.assertEqual(tuple(re.findall(r'\["(\w+)", "', listed)), SECTIONS)
+        await self.ok("settings")
+        self.assertEqual(self.view.commands[-1], ("open", "home", "settings", "palette"))
+        for words, section in (("settings island", "island"), ("settings wi-fi", "wifi"), ("settings bt", "bluetooth"),
+                               ("settings notifications", "notifications")):
+            await self.ok(words)
+            self.assertEqual(self.view.commands[-1], ("open", "home", "settings", section), words)
+        self.assertFalse(any(call[0] == "hostActions" for call in self.host.calls))
+        self.assertEqual(await self.code("settings displays"), "usage")
 
     async def test_wall_and_theme_open_fart_settings_never_the_host(self):
         await self.ok("wall")

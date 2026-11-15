@@ -108,5 +108,7 @@ ShellRoot {
         function focus(): void { root.island?.focusIsland(); }
         // The same as Super+V, for a bind that runs a command instead.
         function clips(): void { root.island?.toggleClips(); }
+        // Ctrl+Alt+Del: the session card (Z158, Z208).
+        function session(): void { root.island?.toggleSession(); }
     }
 }

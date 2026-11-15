@@ -35,6 +35,7 @@ Scope {
     function focusIsland(): void { companionWindow?.focusIsland(); }
     function openTray(itemId: string): void { companionWindow?.openTray(itemId); }
     function openSession(): void { companionWindow?.openSession(); }
+    function toggleSession(): void { companionWindow?.toggleSession(); }
     function toggleLauncher(): void { companionWindow?.toggleLauncher(); }
     // Quick paste (S3, Super+V).
     function toggleClips(): void { companionWindow?.toggleClips(); }
@@ -74,6 +75,7 @@ Scope {
             })
             function focusIsland(): void { frame.enterKeyboard(); }
             function openSession(): void { frame.openSession(); }
+            function toggleSession(): void { frame.toggleSession(); }
             function toggleLauncher(): void { frame.toggleLauncher(); }
             function toggleClips(): void { frame.toggleClips(); }
             function openTray(itemId: string): void {

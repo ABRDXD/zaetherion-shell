@@ -97,7 +97,8 @@ class IslandFrameTests(unittest.TestCase):
         """docs/NET_BT.md §5: a password or pairing asked for shows on the island; a click opens its settings."""
         self.run_fixture("PromptTest.qml", ("a password asked for shows on the island", "no secret on the island",
             "a click opens the Wi-Fi settings", "a wrong password says so", "it goes when the question does",
-            "a pairing shows its question", "the pairing goes with its question"))
+            "a pairing shows its question", "the pairing goes with its question",
+            "the session toggle opens the card", "and closes it again"))
 
     def run_fixture(self, filename, checks):
         harness = (ROOT / "tests/fixtures/island" / filename).read_text()

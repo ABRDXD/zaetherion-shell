@@ -107,6 +107,8 @@ ShellRoot {
         function tray(): void { island.openTray("sample"); }
         function power(): void { island.openSession(); }
         function clips(): void { island.toggleClips(); }
+        // Ctrl+Alt+Del: the session card (Z158, Z208).
+        function session(): void { island.toggleSession(); }
         function panel(room: string): void { root.togglePanel(room); }
         function recording(on: bool): void {
             fixture.capture.recording = { active: on, startedAt: Date.now() / 1000 };
