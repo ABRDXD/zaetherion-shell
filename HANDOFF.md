@@ -1,3 +1,19 @@
+# 15 November 2026 · Opus (Claude A): FART // Fluid, Confluence Timers (branch `fluid-timers`, worktree `zaetherion-shell-fluida`)
+
+- **Owner.** "Astra is working on FART fluid … if you have no other tasks you can start work on FART fluid to help bro
+  out". Astra's next (its 15 Nov note): Confluence Performance, then shared Fluid shell framing. **Claude A takes
+  Timers and Tasks** so the two don't collide; Astra keeps Performance and the framing.
+- **Built (Astra's pattern, as Home and Media).** `view/rooms/TimersSession.qml` (state and actions; property
+  `controller`, since "session" already means an M11 Session here), `AngularTimers.qml` (today's temporal field,
+  unchanged, every action routed through the controller), `Timers.qml` (PresentationHost; keeps `running`, `sources`,
+  `eventKey`, `completionKey`, `fieldLoaded`, `staticPaints` on the room for the cue tools), `view/fluid/FluidTimers.qml`
+  (mode picker, one clock large and light, a progress rule, controls; per-mode details: countdown lengths, focus
+  lengths, last four laps with the fastest in the accent, session presets; a quiet "All clocks" column with the streak).
+- **Checks.** `tools/cuetest/FluidTimersTest.qml` via `test_core_sessions.FluidTimersRoom` (12 checks, incl. switching
+  to Angular and back keeps state). Existing `TemporalTest` and `SessionTest` pass on the Angular side. Captures shown
+  to the owner (offscreen, fixture palette). Not merged, not live.
+- **Next.** Confluence Tasks the same way.
+
 # 15 November 2026 · Codex: FLUID checkpoint integrated for the owner's live trial
 
 - Owner explicitly approved commit, merge and trying the unfinished presentation live.
