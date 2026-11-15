@@ -1,8 +1,9 @@
-# 15 November 2026 · Opus (Claude A): Fluid Tasks, the star atlas (Z206, branch `fluid-tasks`)
+# 15 November 2026 · Opus (Claude A): Fluid Tasks, a readable list in space (Z206, branch `fluid-tasks`)
 
 - **Built.** `TasksSession` (state, draft via ViewState, actions), `AngularTasks` (unchanged look), `Tasks` (wrapper; `editing`
-  forwarded for Shell.editingText), `view/fluid/FluidTasks.qml`, `TasksAtlas.qml`, `TasksAtlasLayout.js`.
-- **Checks.** `tests/test_fluid_tasks.py` (12), `tests/test_tasks_atlas.py` (5 Node), TasksTest, layout, contract OK.
+  forwarded for Shell.editingText), `view/fluid/FluidTasks.qml`, `TasksAtlasLayout.js`.
+- **Owner.** The first version (a tilted sky chart) was "not intuitive enough": replaced by grouped rows with ticks. Lesson: in rooms you act in, the reading must be obvious first.
+- **Checks.** `tests/test_fluid_tasks.py` (11), `tests/test_tasks_atlas.py` (7 Node), TasksTest, layout, contract OK.
 - **Next.** Owner's earlier ask: launcher pages for UI items too (rooms, settings, app actions).
 
 # 15 November 2026 · Opus (Claude A): Fluid Performance, the star (Z205, branch `fluid-performance`)

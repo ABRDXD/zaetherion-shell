@@ -40,6 +40,18 @@ class Atlas(unittest.TestCase):
         self.assertEqual((near["y"], far["y"]), (50, -50))
         self.assertGreater(run(f"magnitude(0.5, {near['depth']})"), run(f"magnitude(0.5, {far['depth']})"))
 
+    def test_groups_read_soonest_first_and_skip_empty(self):
+        g = run('groups([{id:"a",days:null,done:false},{id:"b",days:3,done:false},{id:"c",days:-1,done:false},{id:"d",days:0,done:true},{id:"e",days:30,done:false}])')
+        self.assertEqual([(x["key"], [t["id"] for t in x["tasks"]]) for x in g],
+                         [("late", ["c"]), ("week", ["b"]), ("later", ["e"]), ("someday", ["a"]), ("done", ["d"])])
+
+    def test_late_is_the_brightest(self):
+        u = run('[urgency({days:-2}), urgency({days:0}), urgency({days:20}), urgency({days:null}), urgency({days:-2,done:true})]')
+        self.assertEqual(u[0], 1)
+        self.assertGreater(u[1], u[2])
+        self.assertGreater(u[2], u[3])
+        self.assertEqual(u[3], u[4])
+
     def test_background_field_is_fixed(self):
         self.assertEqual(run("field(5, 7)"), run("field(5, 7)"))
 

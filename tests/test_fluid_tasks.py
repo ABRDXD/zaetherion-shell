@@ -1,4 +1,4 @@
-"""Confluence Tasks (the star atlas), offscreen on a fake core's lists."""
+"""Confluence Tasks (the readable list in space), offscreen on a fake core's lists."""
 from pathlib import Path
 import sys
 import unittest
@@ -6,8 +6,8 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import cuetest  # noqa: E402
 
-CHECKS = ("fluid.presented", "open.count", "sooner.is.nearer", "late.burns.warm", "done.is.hollow", "next.is.the.late.one",
-          "route.drawn", "lists.as.constellations", "entry.reads", "editing.follows.focus", "switch.list", "angular.keeps.sheet")
+CHECKS = ("fluid.presented", "open.count", "groups.in.order", "late.burns.warm", "done.is.ticked", "remove.waits.for.hover",
+          "lists.listed", "entry.reads", "editing.follows.focus", "switch.list", "angular.keeps.sheet")
 
 
 class FluidTasks(unittest.TestCase):
