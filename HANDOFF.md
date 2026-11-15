@@ -3,7 +3,9 @@
 - **Owner's ask:** the tiles only toggled; a right-click should open a usable Wi-Fi or Bluetooth panel. `LinkPlane` gains `secondaryClicked` (a right-button-only `MouseArea`, so the left click stays the toggle); Devices sends it to `openDialog("wifi"|"bluetooth")`.
 - **"All networks…" and "Bluetooth settings…" no longer open DMS's window.** `Shell.onOpenDialog` opens FART's settings at the Wi-Fi or Bluetooth tab (Z194, Z198); any other kind still goes to the host.
 - **Checks.** Offscreen harness (fixture, scratch): both right-clicks open the right tab, neither toggles the link, no host call made; captures looked at. Smoke 0 errors; layout, contract, net_bt_adapter, verbs_view, elements OK; full suite before the merge.
-- **Not done.** No hint on the tile that right-click exists. Not yet seen on the live desktop (the core loads it at its next restart).
+- **Live (15 Nov, 15:05).** In `s0-seed` (`ac184f9`); the owner restarted the view (`pkill -TERM` on the `shell-dms.qml` qs; the core respawns it) and liked it. View log clean apart from a canvas font warning ("JetBrains Mono Nerd Font" invalid in Context2D).
+- **Incident (mine).** My 14:25 fast-forward of the main checkout hot-reloaded the live view mid-session (A's launcher lost its answers); A's merge at 14:30 then broke it (Wi-Fi/Bluetooth dead until 14:32). A has since turned hot reload off. Rule: merge in a scratch worktree, test, fast-forward only; then restart the view.
+- **Next for B.** A hint that right-click exists on the tiles (owner's call); D's island hover word ("joining / wrong password / pairing") once C's island work is taken over; C's Z181–Z185 need renumbering (Z185, Z197, Z198 taken). Memory notes: temporary agents C/D, UI only on DMS (Z198), main checkout is live.
 
 # 15 November 2026 · Opus (Claude A): DMS's launcher engine behind the star chart (Z197, branch `s6-launcher`)
 
