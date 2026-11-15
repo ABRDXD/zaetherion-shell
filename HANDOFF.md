@@ -19,7 +19,12 @@
   gesture area pulls (`pullBy`, `endPull`, hint "PULL" / "RELEASE · FART"); a committed pull opens what a click opens
   (`openFromRest`); pulling cancels hold-to-ignite. The launcher folds on a drag toward the edge past the threshold
   (`launcherFold`, `endFold`), else springs back. Test: `tests/fixtures/island/PullTest.qml` (8 checks).
-- **Next.** Launcher pages (after cmdk): Enter on a FART verb opens its own options in the orbit.
+- **4 of 5, launcher pages (after cmdk, branch `launcher-pages`).** Core: `Commands.page(verb)` and op `launcher.page`
+  (choices from `PAGE_CHOICES`, session presets live, else examples with arguments; none for free-text verbs
+  `PAGE_FREE_TEXT`). View: Enter on a bare verb opens its page (moons, kind `moon`, crescent bodies), breadcrumb
+  "> VERB ›", placeholder CHOOSE, typing filters, Esc or Backspace on empty goes back, Enter on a moon runs
+  `verb choice`; a verb with no choices runs bare. Tests: `PageTests` (5), launcher view +7.
+- **Next.** Keyboard/focus pass (after Radix/Base UI) across the Fluid controls.
 
 # 15 November 2026 · Opus (Claude A): Fluid Timers as a sky (Z203, branch `fluid-timers`)
 

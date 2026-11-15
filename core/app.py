@@ -338,6 +338,7 @@ class Core:
         c = self.commands
         op("cmd.run", lambda peer, line, fallthrough=None, record=None: c.run(line, peer.kind, fallthrough, record))
         op("cmd.complete", lambda peer, text: c.complete(text))
+        op("launcher.page", lambda peer, verb: c.page(verb))
         op("cmd.history", lambda peer, prefix="", limit=100: c.recent(prefix, limit))
 
         # panel: the view's own ignite plate (the panel is open, so the press neither folds nor opens it).
