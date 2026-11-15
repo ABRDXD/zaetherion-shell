@@ -69,7 +69,7 @@ Item {
                 Layout.maximumWidth: 240
                 Layout.alignment: Qt.AlignTop
                 spacing: Design.baseline * 2
-                FButton { Layout.fillWidth: true; label: "CURVED SHELL · HARD INTERIOR"; enabled: false }
+                StylePicker { Layout.fillWidth: true; core: root.core }
                 FButton {
                     Layout.fillWidth: true
                     label: Design.italic ? "Shell asides: italic" : "Shell asides: upright"

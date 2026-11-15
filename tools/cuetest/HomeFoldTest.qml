@@ -38,9 +38,9 @@ Scope {
         if (!shots) { fn(); return; }
         stage.grabToImage(r => { r.saveToFile(shots + "/" + name + ".png"); fn(); });
     }
-    CoreClient { id: core }
+    CoreClient { id: client }
     FixtureAdapter { id: fixture }
-    ShellContext { id: context; panelOpen: true; core: core }
+    ShellContext { id: context; panelOpen: true; core: client }
     FloatingWindow {
         id: window
         implicitWidth: 1100; implicitHeight: 760; visible: true
@@ -49,7 +49,7 @@ Scope {
             id: stage
             anchors.fill: parent
             Rectangle { anchors.fill: parent; color: "#0d1218" }
-            Home { id: room; x: 24; y: 24; width: parent.width - 48; height: parent.height - 48; host: fixture; shell: context; core: core }
+            Home { id: room; x: 24; y: 24; width: parent.width - 48; height: parent.height - 48; host: fixture; shell: context; core: client }
         }
     }
     function iso(h) { const d = new Date(); d.setHours(Math.floor(h), Math.round(h % 1 * 60), 0, 0); return d.toISOString(); }
@@ -62,7 +62,7 @@ Scope {
     function hour() { const d = new Date(); return d.getHours() + d.getMinutes() / 60; }
     Component.onCompleted: after(400, () => {
         const sky = find(room, i => i.lapse !== undefined && i.traced !== undefined);
-        sky.sky = { at: new Date().toISOString(), sidereal: 52.5, sun: { rise: iso(6.5), set: iso(18.25) }, bodies: {}, moon: { illumination: 0.4 } };
+        room.session.sky = { at: new Date().toISOString(), sidereal: 52.5, sun: { rise: iso(6.5), set: iso(18.25) }, bodies: {}, moon: { illumination: 0.4 } };
         after(150, () => {
             const order = cards().map(c => c.modelData.room);
             check("fold.silent", masthead()?.text === "TODAY" && !Strata.live.includes("panel:home.fold") && !sheet()
@@ -76,7 +76,7 @@ Scope {
                 const ruler = find(room, i => i.lineY !== undefined && i.misregistered !== undefined);
                 const at = ruler.mapToItem(room, 0, 0);
                 const placed = s ? Math.abs(s.folds[0].x * room.width - (at.x + ruler.width * T.x(hour(), 6.5, 18.25))) < 2 : false;
-                check("fold.pressed", !!s && Strata.live.includes("panel:home.fold") && s.folds.length === 1 && placed && s.parent?.parent === stage,
+                check("fold.pressed", !!s && Strata.live.includes("panel:home.fold") && s.folds.length === 1 && placed && s.parent?.parent === room,
                       { sheet: !!s, folds: s?.folds, live: Strata.live });
                 const c = cards();
                 check("fold.edition", masthead()?.text === edition + " · 1ST PRINTING" && c[0].modelData.room === room.frontPage[0]
@@ -84,7 +84,7 @@ Scope {
                       { masthead: masthead()?.text, expected: edition, front: room.frontPage, widths: c.map(x => Math.round(x.width)) });
                 shot("home-fold", () => {
                     // Opened again (the panel closed and opened), with a day spent in the inbox.
-                    core.journeyData = { days: { [Qt.formatDate(new Date(), "yyyy-MM-dd")]: { notifications: 30, tasks: 1 } } };
+                    client.journeyData = { days: { [Qt.formatDate(new Date(), "yyyy-MM-dd")]: { notifications: 30, tasks: 1 } } };
                     context.panelOpen = false;
                     after(200, () => {
                         context.panelOpen = true;

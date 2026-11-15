@@ -1,4 +1,3 @@
-import qs.core.client
 import qs.view.cues
 import qs.view.strata
 import qs.view.ui
@@ -9,13 +8,12 @@ import QtQuick
 // the sun warm, the moon a square lit by its phase, the planets accent. Verticals lean to 78°, like the orbit's
 // stalks. Above the horizon is up the band; below it, compressed and fainter, is what is under the floor.
 //
-// Silent: the core is asked (`sky.now`) once a minute while Home shows, and the band is drawn once per answer.
+// HomeSession supplies the sky snapshot; this view never requests data or owns subscriptions.
 // Nothing moves. Overdrive: the day runs as a time-lapse (24 s for 24 h), every body sweeping its real path, the
 // band lit by the sun's height at the cursor, the cursor's time beside it (a Stratum, destroyed on release). The
 // lapse is scaled by the engine's level, so a release glides every body back to now.
 Item {
     id: root
-    property CoreClient core: null
     property bool active: false
     property var sky: null
     readonly property var tracks: sky?.tracks ?? null
@@ -31,14 +29,6 @@ Item {
                                      jupiter: "JUP", saturn: "SAT", uranus: "URA", neptune: "NEP" })
     // The bodies with a drawn path; Uranus and Neptune are marks only (not to the naked eye).
     readonly property var traced: ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn"]
-
-    function ask() {
-        if (!active || !core || !core.connected) return;
-        core.request("sky.now", { tracks: true }, (ok, result) => { if (ok && result) root.sky = result; });
-    }
-    onActiveChanged: ask()
-    Connections { target: Clock; enabled: root.active; function onMinuteStrChanged() { root.ask(); } }
-    Connections { target: root.core; enabled: root.active; function onConnectedChanged() { root.ask(); } }
 
     function signedAngle(a) {
         a = ((a % 360) + 360) % 360;

@@ -161,6 +161,25 @@ class PaletteIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(self.core.palette.snapshot()["preview"])
         self.assertFalse(self.core.palette.path.exists())
 
+    async def test_style_command_preserves_preview_owner_palette_file_and_topic(self):
+        from core.island import Island
+        peer = object()
+        self.core.palette.choose("Violet")
+        saved = self.core.palette.path.read_bytes()
+        self.core.palette.preview_name("Ice", peer)
+        before = self.core.palette.snapshot()
+        revision = self.core.server.revs["palette"]
+        for form in ("fluid", "angular", "fluid"):
+            result = await self.core.commands.run("island " + form, "view", record=False)
+            self.assertTrue(result["ok"])
+            self.assertEqual(Island(self.path).snapshot()["form"], form)
+            self.assertEqual(self.core.palette.snapshot(), before)
+            self.assertIs(self.core.palette.owner, peer)
+            self.assertEqual(self.core.palette.path.read_bytes(), saved)
+            self.assertEqual(self.core.server.revs["palette"], revision)
+        self.core.palette.cancel(peer)
+        self.assertEqual(self.core.palette.snapshot()["effective"], "amoled:violet")
+
 
 class PaletteCliTests(unittest.TestCase):
     def test_zaetherion_palette_command_in_private_core(self):

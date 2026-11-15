@@ -36,6 +36,7 @@ PalettePicker 1.0 PalettePicker.qml
 PanelBody 1.0 PanelBody.qml
 PreferencesPane 1.0 PreferencesPane.qml
 PresetPicker 1.0 PresetPicker.qml
+PresentationHost 1.0 PresentationHost.qml
 RoomPrecompiler 1.0 RoomPrecompiler.qml
 RoomSheet 1.0 RoomSheet.qml
 RoomSlot 1.0 RoomSlot.qml
@@ -46,6 +47,7 @@ SheetWear 1.0 SheetWear.qml
 Shell 1.0 Shell.qml
 ShellContext 1.0 ShellContext.qml
 SpaceSystem 1.0 SpaceSystem.qml
+StylePicker 1.0 StylePicker.qml
 SunFace 1.0 SunFace.qml
 Unfold 1.0 Unfold.qml
 singleton ViewState 1.0 ViewState.qml
