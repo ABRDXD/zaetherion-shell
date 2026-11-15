@@ -566,9 +566,12 @@ Item {
         function onEditProfile() {
             root.profileOpen = true;
         }
-        // Connection dialogs belong to the host.
+        // Wi-Fi and Bluetooth open FART's own panels (Z194, Z198); anything else is still the host's.
         function onOpenDialog(kind) {
-            root.shell.openHost(kind);
+            if (kind === "wifi" || kind === "bluetooth")
+                root.openSettings(kind);
+            else
+                root.shell.openHost(kind);
         }
     }
     // Z134 (owner, 12 November 2026): grown from the island, FART's header sits where the island was, so a click on

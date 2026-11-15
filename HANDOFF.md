@@ -1,3 +1,10 @@
+# 15 November 2026 · Opus (Claude B): right-click on Devices' Wi-Fi and Bluetooth tiles opens FART's own panels
+
+- **Owner's ask:** the tiles only toggled; a right-click should open a usable Wi-Fi or Bluetooth panel. `LinkPlane` gains `secondaryClicked` (a right-button-only `MouseArea`, so the left click stays the toggle); Devices sends it to `openDialog("wifi"|"bluetooth")`.
+- **"All networks…" and "Bluetooth settings…" no longer open DMS's window.** `Shell.onOpenDialog` opens FART's settings at the Wi-Fi or Bluetooth tab (Z194, Z198); any other kind still goes to the host.
+- **Checks.** Offscreen harness (fixture, scratch): both right-clicks open the right tab, neither toggles the link, no host call made; captures looked at. Smoke 0 errors; layout, contract, net_bt_adapter, verbs_view, elements OK; full suite before the merge.
+- **Not done.** No hint on the tile that right-click exists. Not yet seen on the live desktop (the core loads it at its next restart).
+
 # 15 November 2026 · Opus (Claude B): S9 merge ready on `s9-wall-merge`; Wi-Fi and Bluetooth tabs in FART's settings
 
 - **Branch `s9-wall-merge`** = `s0-seed` (`f795823`, the star-chart launcher included) + `s9-wall-presets`, waiting for the owner's word to fast-forward `s0-seed`. Conflicts were both sides adding beside each other (S6 launcher/apps, S9 wallpaper/presets/hostTheme); both kept, 23 contract domains. Full suite on the merge: 1081 OK (1 skipped).

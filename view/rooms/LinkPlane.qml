@@ -3,10 +3,11 @@ import QtQuick
 import QtQuick.Controls
 
 // A link's toggle as a whole plane (Devices, MONTAGE §5): on, it is filled with signal (an
-// accent-filled tile); off, paper. One click toggles. It names the link at readout size in Black,
-// then what it is connected to and one detail.
+// accent-filled tile); off, paper. One click toggles; a right-click opens the link's own panel
+// (secondaryClicked). It names the link at readout size in Black, then what it is connected to and one detail.
 AbstractButton {
     id: root
+    signal secondaryClicked()
     property string symbol: ""
     property string label: ""
     property string line: ""
@@ -25,6 +26,13 @@ AbstractButton {
     Accessible.role: Accessible.CheckBox
     Accessible.checked: on
     onClicked: Feedback.play("ui.switch")
+    // The right button only, so the left click stays the toggle.
+    MouseArea {
+        objectName: "linkSecondary"
+        anchors.fill: parent
+        acceptedButtons: Qt.RightButton
+        onClicked: root.secondaryClicked()
+    }
     background: Item {
         Plane {
             id: plane
