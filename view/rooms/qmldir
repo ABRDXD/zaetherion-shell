@@ -2,6 +2,7 @@
 module qs.view.rooms
 AngularHome 1.0 AngularHome.qml
 AngularMedia 1.0 AngularMedia.qml
+AngularTimers 1.0 AngularTimers.qml
 ArchiveGrain 1.0 ArchiveGrain.qml
 AttentionBand 1.0 AttentionBand.qml
 BatteryLedger 1.0 BatteryLedger.qml
@@ -53,5 +54,6 @@ TemporalAnchor 1.0 TemporalAnchor.qml
 TemporalContours 1.0 TemporalContours.qml
 ThermalStrata 1.0 ThermalStrata.qml
 Timers 1.0 Timers.qml
+TimersSession 1.0 TimersSession.qml
 Workspaces 1.0 Workspaces.qml
 WorkspaceTab 1.0 WorkspaceTab.qml

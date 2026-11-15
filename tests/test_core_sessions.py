@@ -286,5 +286,20 @@ class SessionsInTheTimersRoom(unittest.TestCase):
         self.assertFalse([e for e in ("ReferenceError:", "TypeError:", "Binding loop") if e in output], output[-2000:])
 
 
+
+class FluidTimersRoom(unittest.TestCase):
+    """Confluence Timers (tools/cuetest/FluidTimersTest.qml), offscreen: nothing reaches a core."""
+
+    def test_fluid_presentation_follows_the_controller(self):
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+        import cuetest
+        output = cuetest.run("FluidTimersTest.qml", timeout=150)
+        self.assertIn("CUE_DONE", output, output[-2000:])
+        self.assertEqual([line for line in output.splitlines() if "CUE_FAIL" in line], [])
+        for name in ("fluid.presented", "fluid.clock", "fluid.picker.shown", "fluid.session.ready", "fluid.countdown.lengths", "fluid.glance", "fluid.mode.picker",
+                     "fluid.focus.details", "fluid.session.presets", "fluid.session.running", "angular.keeps.state", "fluid.again"):
+            self.assertIn(f"CUE_PASS {name}", output)
+        self.assertFalse([e for e in ("ReferenceError:", "TypeError:", "Binding loop") if e in output], output[-2000:])
+
 if __name__ == "__main__":
     unittest.main()
