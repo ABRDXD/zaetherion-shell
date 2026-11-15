@@ -34,6 +34,12 @@ Scope {
     function focusIsland(): void { companionWindow?.focusIsland(); }
     function openTray(itemId: string): void { companionWindow?.openTray(itemId); }
     function openSession(): void { companionWindow?.openSession(); }
+    // Quick paste (S3, Super+V).
+    function toggleClips(): void { companionWindow?.toggleClips(); }
+    signal clipRoom(string query)
+    // What shows at rest (Z185) and quick paste's settings (Z184), from the core.
+    property var restItems: ({})
+    property var clipSettings: ({})
     required property ShellScreen output
     required property bool bottomEdge
     required property int edgeGap
@@ -66,6 +72,7 @@ Scope {
             })
             function focusIsland(): void { frame.enterKeyboard(); }
             function openSession(): void { frame.openSession(); }
+            function toggleClips(): void { frame.toggleClips(); }
             function openTray(itemId: string): void {
                 trayItem = itemId;
                 root.host.tray.menu(itemId);
@@ -77,9 +84,17 @@ Scope {
             // click-to-panel jitter). It spans the output and the deepest face; the island morphs inside it, the
             // mask keeps input to the island, and the transparent gap is inside it (a layer-shell margin would add
             // to the reserved zone).
+            // Quick paste is deeper than any event face. The surface grows once when it opens, before the face grows
+            // inside it, and shrinks once after it has folded, never during the morph (`clipsDepth`).
             readonly property int deepest: 160
+            readonly property int clipsDeepest: 272
+            property bool clipsDepth: false
+            readonly property bool clipsWanted: frame.clipsOpen
+            onClipsWantedChanged: if (clipsWanted) clipsDepth = true
+            readonly property bool folded: !frame.clipsOpen && frame.height <= deepest
+            onFoldedChanged: if (folded) clipsDepth = false
             implicitWidth: root.output?.width ?? frame.width
-            implicitHeight: deepest + root.edgeGap
+            implicitHeight: (clipsDepth ? clipsDeepest : deepest) + root.edgeGap
             exclusiveZone: frame.restHeight
             color: "transparent"
             WlrLayershell.namespace: "zaetherion-island"
@@ -108,6 +123,9 @@ Scope {
                 keyboardPeer: root.keyboardPeer
                 onOpenLog: url => root.openLog(url)
                 trayItem: panel.trayItem
+                restItems: root.restItems
+                clipSettings: root.clipSettings
+                onClipRoom: query => root.clipRoom(query)
                 onOpenTray: itemId => panel.openTray(itemId)
                 onCloseTray: panel.trayItem = ""
                 onChooseTray: entryId => root.host.tray.triggerMenuItem(panel.trayItem, entryId)

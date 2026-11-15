@@ -13,7 +13,16 @@ from core.store import read_json, write_json
 
 log = logging.getLogger("fart.island")
 
-DEFAULTS = {"form": "angular", "edge": "top", "placement": "notch", "screen": ""}
+# What shows at rest (Z185): each item's mode; hovered, everything shows. The default is the owner's rest (B).
+REST_MODES = {"power": ("always", "matters", "hover"), "network": ("always", "matters", "hover"),
+              "battery": ("always", "matters", "hover"), "inbox": ("always", "matters", "unread", "dot", "hover")}
+REST_PRESETS = {
+    "today": {"power": "always", "network": "always", "battery": "always", "inbox": "always"},
+    "a": {"power": "hover", "network": "matters", "battery": "matters", "inbox": "matters"},
+    "b": {"power": "hover", "network": "always", "battery": "always", "inbox": "dot"},
+    "c": {"power": "hover", "network": "matters", "battery": "always", "inbox": "unread"},
+}
+DEFAULTS = {"form": "angular", "edge": "top", "placement": "notch", "screen": "", "rest": dict(REST_PRESETS["b"])}
 CHOICES = {"form": ("angular", "fluid"), "edge": ("top", "bottom"), "placement": ("notch", "floating")}
 
 
@@ -27,8 +36,13 @@ class Island:
             log.warning("%s; using defaults", error)
             saved = {}
         self.state = dict(DEFAULTS)
+        self.state["rest"] = dict(DEFAULTS["rest"])
         for key, value in saved.items():
-            if self._valid(key, value):
+            if key == "rest" and isinstance(value, dict):
+                for item, mode in value.items():
+                    if mode in REST_MODES.get(item, ()):
+                        self.state["rest"][item] = mode
+            elif self._valid(key, value):
                 self.state[key] = value
 
     @staticmethod
@@ -38,7 +52,19 @@ class Island:
         return key in CHOICES and value in CHOICES[key]
 
     def snapshot(self) -> dict:
-        return dict(self.state)
+        return {**self.state, "rest": dict(self.state["rest"])}
+
+    def set_rest(self, **modes) -> dict:
+        """Each item's mode at rest (power, network, battery, inbox)."""
+        for item, mode in modes.items():
+            if mode not in REST_MODES.get(item, ()):
+                raise bad_args(f"island rest {item}: {mode!r} is not one of " + ", ".join(REST_MODES.get(item, ("power", "network", "battery", "inbox"))))
+        rest = {**self.state["rest"], **modes}
+        if rest != self.state["rest"]:
+            self.state["rest"] = rest
+            write_json(self.path, self.state)
+            self.on_change()
+        return self.snapshot()
 
     def set(self, **changes) -> dict:
         for key, value in changes.items():

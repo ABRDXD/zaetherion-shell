@@ -104,6 +104,7 @@ ShellRoot {
         function focus(): void { island.focusIsland(); }
         function tray(): void { island.openTray("sample"); }
         function power(): void { island.openSession(); }
+        function clips(): void { island.toggleClips(); }
         function panel(room: string): void { root.togglePanel(room); }
         function recording(on: bool): void {
             fixture.capture.recording = { active: on, startedAt: Date.now() / 1000 };

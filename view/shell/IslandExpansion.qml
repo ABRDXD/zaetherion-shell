@@ -31,6 +31,13 @@ Item {
     readonly property bool trayKind: kind === "tray"
     // The session card (Z158): lock on a click, the rest on a 1 s hold, as host power menus confirm them.
     signal sessionAction(string action)
+    // Quick paste (S3): the clipboard grown from the island, a held face like the session card.
+    property var clipboard: null
+    property var clipSettings: ({})
+    readonly property bool clipsKind: kind === "clips"
+    signal clipPaste(string id)
+    signal clipCopy(string id)
+    signal clipRoom(string query)
     readonly property int holdMs: 1000
     readonly property int deepest: 160
 
@@ -59,16 +66,17 @@ Item {
     readonly property real shoulderSlope: 1 / Math.tan(84 * Math.PI / 180)
     // A notice is sized by its text, so its inset uses the deepest notice, not its own depth.
     readonly property real sideInset: Design.fluid ? 16
-        : Math.ceil(12 + (noticeKind ? 140 : shape(kind).height) * shoulderSlope)
+        : Math.ceil(12 + (noticeKind ? 140 : clipsKind ? implicitHeight : shape(kind).height) * shoulderSlope)
     readonly property int edgePad: 10
     readonly property int facet: 0
     readonly property real noticeContent: noticeKind && face.item ? face.item.implicitHeight : 0
-    implicitWidth: trayKind ? 248 + 2 * sideInset : shape(kind).width
-    implicitHeight: trayKind ? Math.min(deepest, Math.max(shape(kind).height, (face.item?.implicitHeight ?? 0) + 2 * edgePad))
+    implicitWidth: trayKind ? 248 + 2 * sideInset : clipsKind ? (face.item?.implicitWidth ?? 600) + 2 * sideInset : shape(kind).width
+    implicitHeight: clipsKind ? (face.item?.implicitHeight ?? 0) + 2 * edgePad : trayKind ? Math.min(deepest, Math.max(shape(kind).height, (face.item?.implicitHeight ?? 0) + 2 * edgePad))
         : noticeKind
         ? Math.max(shape(kind).height, Math.ceil((noticeContent + 2 * edgePad + facet) / Design.baseline) * Design.baseline)
         : shape(kind).height
 
+    readonly property var faceItem: face.item
     Loader {
         id: face
         anchors.fill: parent
@@ -87,6 +95,7 @@ Item {
             case "recording": return recording;
             case "tray": return tray;
             case "session": return session;
+            case "clips": return clips;
             default: return status;
             }
         }
@@ -229,6 +238,21 @@ Item {
             SessionAction { glyph: "logout"; label: "> LOG OUT"; verb: "logout" }
             SessionAction { glyph: "restart_alt"; label: "> REBOOT"; verb: "reboot" }
             SessionAction { glyph: "power_settings_new"; label: "> POWER OFF"; verb: "powerOff" }
+        }
+    }
+
+    Component {
+        id: clips
+        IslandClips {
+            clipboard: root.clipboard
+            systemVoice: root.systemVoice
+            rows: root.clipSettings.rows ?? 6
+            enterPastes: root.clipSettings.enterPastes ?? false
+            showImages: root.clipSettings.showImages ?? true
+            onDismiss: root.dismiss()
+            onPaste: id => root.clipPaste(id)
+            onCopy: id => root.clipCopy(id)
+            onOpenRoom: query => root.clipRoom(query)
         }
     }
 

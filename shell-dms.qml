@@ -6,6 +6,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Hyprland
 import qs.adapters.dms
 import qs.core.client
 import qs.view.overdrive
@@ -33,7 +34,8 @@ ShellRoot {
         form: Quickshell.env("ZAETHERION_ISLAND_FORM") === "fluid" ? "fluid" : "angular",
         edge: Quickshell.env("ZAETHERION_ISLAND_EDGE") === "bottom" ? "bottom" : "top",
         placement: Quickshell.env("ZAETHERION_ISLAND_PLACEMENT") === "floating" ? "floating" : "notch",
-        screen: Quickshell.env("ZAETHERION_ISLAND_OUTPUT") ?? ""
+        screen: Quickshell.env("ZAETHERION_ISLAND_OUTPUT") ?? "",
+        rest: ({ power: "hover", network: "always", battery: "always", inbox: "dot" })
     })
     readonly property string islandOutput: islandSettings.screen ?? ""
     Binding { target: Design; property: "form"; value: root.islandSettings.form === "fluid" ? "fluid" : "angular" }
@@ -87,6 +89,24 @@ ShellRoot {
             // the Overdrive asked for outlasts it ("sticky") instead of the panel's own "panel" mode.
             onIgnite: lease.requested ? lease.release() : lease.request("sticky")
             onNotificationAction: (id, action, reply) => adapter.notifications.invoke(id, action, reply)
+            restItems: root.islandSettings.rest ?? ({})
+            clipSettings: client.clipsData ?? ({})
+            // Ctrl+O in quick paste: FART's Clips room with the query carried.
+            onClipRoom: query => {
+                ViewState.clipQuery = query;
+                root.showPanel("clipboard");
+            }
+        }
+    }
+    // Super+V (S3): Hyprland's global shortcut `zaetherion:clips`, delivered to this process with nothing started.
+    // Only the island's process registers it.
+    LazyLoader {
+        active: root.islandWanted
+        GlobalShortcut {
+            appid: "zaetherion"
+            name: "clips"
+            description: "Quick paste from the island"
+            onPressed: root.island?.toggleClips()
         }
     }
     // Super+Shift+I (Z148): `qs -p <repo>/shell.qml ipc call island focus`. With FART open the island takes the
@@ -94,5 +114,7 @@ ShellRoot {
     IpcHandler {
         target: "island"
         function focus(): void { root.island?.focusIsland(); }
+        // The same as Super+V, for a bind that runs a command instead.
+        function clips(): void { root.island?.toggleClips(); }
     }
 }

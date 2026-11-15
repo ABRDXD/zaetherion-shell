@@ -1,8 +1,9 @@
 # S3: quick paste from the island, and a calmer island at rest
 
-Branch `s3-clips-rest` (from `s0-seed` at `0c617f5`). Design and prototype for the owner's look. Nothing is live, no
-Hyprland file is changed. Decision numbers Z181–Z185 are proposed here and go into DECISIONS.md once the owner agrees
-(Claude B holds Z177–Z180 on `s9-wall-presets`).
+Branch `s3-clips-rest` (from `s0-seed` at `0c617f5`). The owner answered the captures on 14 November 2026: yes to
+everything, **Enter copies**, and rest B with Wi-Fi and battery at the edge in place of the bell (Z181–Z185 in
+DECISIONS.md; Claude B holds Z177–Z180 on `s9-wall-presets`). Nothing is live and no Hyprland file is changed yet:
+the bind and the recorder hand-over go in at go-live (§5).
 
 ## 1. Quick paste (Super+V)
 
@@ -26,8 +27,8 @@ critical event interrupts it (Z161). It is drawn in `view/shell/IslandClips.qml`
 |---|---|
 | typing | filters (the field holds the keyboard from the first frame) |
 | Up/Down, Tab/Shift+Tab, Ctrl+J/K, Ctrl+N/P | move |
-| Enter | paste into the window underneath (setting: or copy) |
-| Shift+Enter | the other one (copy, or paste) |
+| Enter | copy (owner's choice; a setting can make it paste) |
+| Shift+Enter | paste into the window underneath |
 | Ctrl+S | pin / unpin (pins are FART's own and outlive cliphist's limit) |
 | Delete | remove the chosen clip (only when the field has nothing after its cursor) |
 | Ctrl+Tab / Ctrl+Shift+Tab | ALL → PINNED → IMAGES |
@@ -69,7 +70,7 @@ Hyprland (whether `send_shortcut` without a window reaches the focused one under
 ### Settings (Z176): a "Clips" tab in FART's settings
 | Setting | Control | Default |
 |---|---|---|
-| Enter does | choice: Paste · Copy | Paste (DMS's default is Copy; owner to choose) |
+| Enter does | choice: Copy · Paste | Copy (owner) |
 | Rows in quick paste | stepper 4–10 | 6 |
 | Images in quick paste | toggle: thumbnails · text only | thumbnails |
 | Keep history of | choice: 100 · 250 · 750 · 1500 entries | 750 (cliphist's) |
@@ -116,7 +117,9 @@ less and not plugged in (Z129's first step); inbox when a critical notification 
 it is on hover only unless set to always. The mic/camera privacy glyph is not a choice: it shows whenever a stream
 is live (Z74). Prototype in `IslandRest.atRest()`.
 
-Three calmer rests, as presets of those modes (captures: normal / everything needs you):
+Three calmer rests, as presets of those modes (captures: normal / everything needs you). **The owner chose B with
+Wi-Fi and battery always, at the right shoulder in the bell's place, and unread as a dot on the battery** (inbox mode
+"dot"); that is the default (`island rest b`). The table's first B row was the proposal:
 
 | | Power | Network | Battery | Inbox |
 |---|---|---|---|---|
@@ -129,18 +132,22 @@ The modes live in the core's `island` topic (`rest`, like form/edge/placement, Z
 without FART open; the "Island" tab in FART's settings shows the three presets and the per-item choice under them.
 The resting width stays 420 px (Z66); a narrower island for A is possible but bends Z66, so it is a question.
 
-## 3. Proposed decisions (numbers held for after the owner's answers)
-- **Z181** Quick paste is a held island face (Super+V), DMS's key map, Enter pastes by default (pending answer),
-  Ctrl+O to the room, contents only there and in the room.
-- **Z182** Cold start: the clipboard domain is created at start where the island lives and reads only under lease;
-  the field takes keys at once; an early Enter is held; thumbnails only for rows on screen, in the runtime dir.
-- **Z183** Paste keystroke through Hyprland's `send_shortcut`, DMS's terminal rule; not DMS's clipboard service.
-- **Z184** Clips settings tab (§1), with the recorders owned by the core.
-- **Z185** Island rest modes per item and the presets; the privacy glyph always shows.
+## 3. Decisions
+Z181–Z185 in DECISIONS.md.
 
 ## 4. State of the branch
-Committed: the contract (`loaded`, `thumbnails`, `paste`, `requestThumbnail`), `CliphistClipboard` (paste,
-thumbnails), `HyprlandPaste`, `DmsAdapter.clipsWanted`, NOTICE, this note. **Not committed (waiting for the owner's
-look):** `IslandClips.qml`, the island wiring and `IslandRest` rest modes, and the capture harness
-(`tools/clips_capture/`). Not yet wired: the global shortcut, the face's paste/copy/room signals out of
-`IslandWindow`, the surface depth, the settings tabs (they go into Claude B's settings tabs once merged), the room.
+Built and tested: the face and its wiring (Super+V global shortcut in the island's process, `qs ipc call island
+clips`, paste and copy through the clipboard domain, Ctrl+O to the room with the query, the surface's one-time
+resize), the rest modes with the owner's default, the core's `clips` topic and recorders (`core/clips.py`,
+`clip_recorders` in the Serpantinum profile, `FART_CLIP_RECORDER`), `island rest` and the `island.rest` op.
+Not built yet: the Clips and Island tabs in FART's settings (they join Claude B's settings tabs once those merge),
+the Clips room's new look (§1), the narrower island for preset A, `send_shortcut` checked in the nested Hyprland.
+
+## 5. Go-live (owner present; each step needs the branch merged into `s0-seed` and the core restarted)
+1. Back up `~/.config/hypr/zaetherion/keybinds.lua`, `fart.lua` and `session.lua` (`*.pre-clips-2026-11-14`).
+2. `keybinds.lua`: comment out the fuzzel Super+V bind; `fart.lua`: add the `hl.dsp.global("zaetherion:clips")` bind.
+3. `session.lua`: remove the two `wl-paste … cliphist store` lines; `tools/session-start` is changed to set `FART_CLIP_RECORDER=1`
+   (and the core's environment gets it on restart), so the core records from then on. Check `pgrep -af wl-paste`
+   shows the core's two watchers and nothing else.
+4. `hyprctl reload`, `hyprctl configerrors` empty; Super+V, type, Enter, Shift+Enter into a text field and a terminal.
+5. Roll back: copy the three backups over, `hyprctl reload`, restart the core without `FART_CLIP_RECORDER`.

@@ -31,6 +31,14 @@ class IslandFrameTests(unittest.TestCase):
             "readout sits on the header row", "muted reads MUTED", "dwell follows the last change", "leaves after 1.2 s", "header readout gone",
             "fold replays no stale osd", "uncovered osd on island", "dock lifts osd into header", "fold hands it back"))
 
+    def test_quick_paste_and_rest_modes(self):
+        """S3: quick paste grows from the island (Z181-Z183) and the rest shows what the owner chose (Z185)."""
+        self.run_fixture("ClipsTest.qml", ("opens as a held face with the keyboard", "leases the history while open",
+            "early enter is held", "held enter copies the first match once loaded", "folds after acting",
+            "shift+enter pastes the chosen clip", "ctrl+tab steps the filter", "a visible image row asks for its thumbnail",
+            "ctrl+o opens the room with the query", "esc folds and lets go of the history", "toggle opens", "toggle folds",
+            "rest B: no bell, status at the edge, unread dot", "no dot when all is read", "default rest unchanged"))
+
     def test_status_faces(self):
         self.run_fixture("EventTest.qml", ("recording status", "charging notice", "DND suppresses ordinary battery warning",
             "critical battery passes DND", "backend comeback", "resident restart", "timer status", "timer done", "session debrief"))
