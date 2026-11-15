@@ -1,3 +1,11 @@
+# 15 November 2026 · UI creative handoff for Claude A and other UI contributors
+
+- Owner reaffirmed that slop, mediocrity and sameness are unacceptable across FART's UI.
+- Read [UI and creative direction](docs/UI_CREATIVE_HANDOFF.md) before designing or extending a surface.
+  It consolidates approved Angular/Confluence identities, astrophysical precedents, concrete rejection
+  criteria, motion and usability standards, implementation boundaries and the next Fluid milestone.
+- Documentation only; no visual redesign, new approval gate, runtime change or live reload.
+
 # 15 November 2026 · Codex: FLUID checkpoint integrated for the owner's live trial
 
 - Owner explicitly approved commit, merge and trying the unfinished presentation live.
