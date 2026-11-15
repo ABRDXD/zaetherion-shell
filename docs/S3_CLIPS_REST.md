@@ -1,7 +1,7 @@
 # S3: quick paste from the island, and a calmer island at rest
 
 Branch `s3-clips-rest` (from `s0-seed` at `0c617f5`). The owner answered the captures on 14 November 2026: yes to
-everything, **Enter copies**, and rest B with Wi-Fi and battery at the edge in place of the bell (Z181–Z184, Z200 in
+everything, **Enter copies**, and rest B with Wi-Fi and battery at the edge in place of the bell (Z181–Z184, Z201 in
 DECISIONS.md; Claude B holds Z177–Z180 on `s9-wall-presets`). Nothing is live and no Hyprland file is changed yet:
 the bind and the recorder hand-over go in at go-live (§5).
 
@@ -135,7 +135,7 @@ without FART open; the "Island" tab in FART's settings shows the three presets a
 The resting width stays 420 px (Z66); a narrower island for A is possible but bends Z66, so it is a question.
 
 ## 3. Decisions
-Z181–Z184, Z200 in DECISIONS.md.
+Z181–Z184, Z201 in DECISIONS.md.
 
 ## 4. State of the branch
 Built and tested: the face and its wiring (Super+V global shortcut in the island's process, `qs ipc call island

@@ -1,4 +1,4 @@
-"""The island verb (Z155, Z200): island [fluid | angular | top | bottom | notch | floating | screen <name> | screen auto
+"""The island verb (Z155, Z201): island [fluid | angular | top | bottom | notch | floating | screen <name> | screen auto
 | rest <today|a|b|c> | rest <power|network|battery|inbox> <mode>]."""
 from __future__ import annotations
 

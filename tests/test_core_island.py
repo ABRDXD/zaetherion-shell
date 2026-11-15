@@ -64,7 +64,7 @@ class IslandVerbTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse((await run("island sideways"))["ok"])
 
     async def test_rest_presets_and_items(self):
-        """Z200: the owner's rest (B) by default; a preset or one item's mode; bad modes refused."""
+        """Z201: the owner's rest (B) by default; a preset or one item's mode; bad modes refused."""
         run = lambda line: self.core.commands.run(line, "cli")
         self.assertEqual(self.core.island.snapshot()["rest"],
                          {"power": "hover", "network": "always", "battery": "always", "inbox": "dot"})

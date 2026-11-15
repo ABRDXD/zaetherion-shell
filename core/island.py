@@ -13,7 +13,7 @@ from core.store import read_json, write_json
 
 log = logging.getLogger("fart.island")
 
-# What shows at rest (Z200): each item's mode; hovered, everything shows. The default is the owner's rest (B).
+# What shows at rest (Z201): each item's mode; hovered, everything shows. The default is the owner's rest (B).
 REST_MODES = {"power": ("always", "matters", "hover"), "network": ("always", "matters", "hover"),
               "battery": ("always", "matters", "hover"), "inbox": ("always", "matters", "unread", "dot", "hover")}
 REST_PRESETS = {

@@ -39,7 +39,7 @@ Scope {
     // Quick paste (S3, Super+V).
     function toggleClips(): void { companionWindow?.toggleClips(); }
     signal clipRoom(string query)
-    // What shows at rest (Z200) and quick paste's settings (Z184), from the core.
+    // What shows at rest (Z201) and quick paste's settings (Z184), from the core.
     property var restItems: ({})
     property var clipSettings: ({})
     required property ShellScreen output
