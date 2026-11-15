@@ -4,6 +4,7 @@ import qs.view.contract
 import qs.core.client
 import qs.view.satellites
 import qs.view.ui
+import "WorkspaceLayout.js" as WorkspaceLayout
 
 Scope {
     id: root
@@ -93,11 +94,20 @@ Scope {
         previousTrack = track;
     }
 
+    // id → window count, for the workspace instrument (a workspace with more windows is a larger world, Z199).
+    function windowCounts(): var {
+        const counts = {};
+        for (const space of host.workspaces.workspaces ?? [])
+            counts[String(space.id)] = Number(space.windowCount ?? 0);
+        return counts;
+    }
+
     onWorkspaceChanged: {
         const changed = ready && previousWorkspace && workspace !== previousWorkspace;
         previousWorkspace = workspace;
         if (changed && workspaceIds.includes(workspace))
-            queue.offer("workspace", "workspace", priority.workspace, { ids: workspaceIds, active: workspace }, 800);
+            queue.offer("workspace", "workspace", priority.workspace,
+                        { ids: workspaceIds, active: workspace, windows: windowCounts() }, WorkspaceLayout.dwellMs);
     }
 
     function syncRecording(): void {

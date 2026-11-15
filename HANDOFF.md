@@ -1,3 +1,19 @@
+# 15 November 2026 · Opus (Claude A): the workspace switch as a cold edge-on system; apps as planets (Z199, branch `ws-transit`)
+
+- **Owner's call.** Three instrument mock-ups on the canvas (A orrery, B astrolabe, C transit); the owner picked C, asked
+  for "the viewing angle… this large cold universe… just witnessing a speck of it", "as mature as possible" → C2,
+  "LOVE IT IMPLEMENT THAT". Also "yea sure" to apps as planets in the launcher.
+- **Built.** `view/shell/WorkspaceTransit.qml` + `WorkspaceLayout.js` (the island's workspace face, 600×118, payload
+  gains `windows`, dwell 2.2 s); shared `view/ui/ColdStar.qml`, `ColdPlanet.qml`; cold tokens in `Design`. Launcher:
+  apps are cold planets with a crescent toward a small cold star at the barycentre; tags lose the spectral letters.
+- **Bugs found on the way.** `spin` bound to `turn` started the turn at its end (no motion); construction fired a turn
+  from workspace 1; a large world covered the star (now capped at 60 % of its diameter: a transit, never an eclipse).
+- **Checks.** `tests/fixtures/island/WorkspaceTransitTest.qml` (10 checks: transit, cap, symmetry, crescents, counts,
+  readout, one step back, settles, the short way round the wrap, new world in transit). Launcher view, island, layout
+  OK. Full suite: 1103 run, 1 failure (the glint used SequentialAnimation, against the motion rule), fixed; contract and island rerun OK. Frames of a turn captured offscreen for the owner.
+- **Not checked live.** A real workspace switch on the owner's desktop (switching their workspace for a test would
+  move their work); ask the owner to try.
+
 # 15 November 2026 · Opus (Claude B): right-click on Devices' Wi-Fi and Bluetooth tiles opens FART's own panels
 
 - **Owner's ask:** the tiles only toggled; a right-click should open a usable Wi-Fi or Bluetooth panel. `LinkPlane` gains `secondaryClicked` (a right-button-only `MouseArea`, so the left click stays the toggle); Devices sends it to `openDialog("wifi"|"bluetooth")`.

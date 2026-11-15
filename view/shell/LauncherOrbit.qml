@@ -43,7 +43,7 @@ Item {
         case "setting": return Design.moon;
         case "plugin": return Design.quasar;
         case "clip": return Design.satellite;
-        default: return Design.starColor(rank);
+        default: return Design.coldStar;  // apps are planets lit by the chart's cold star (Z199)
         }
     }
     readonly property color pickTint: tint(pick, selected)
@@ -156,14 +156,11 @@ Item {
             PathLine { x: root.cx + Layout.orbitRx * 1.24 * root.drawn; y: root.cy }
         }
     }
-    // The barycentre.
-    Rectangle {
-        x: root.cx - width / 2
-        y: root.cy - height / 2
-        width: 2 * Design.baseline
-        height: width
-        radius: width / 2
-        color: Design.line
+    // The barycentre: a small cold star that lights the planets (Z199).
+    ColdStar {
+        radius: Layout.starRadius
+        x: root.cx - radius
+        y: root.cy - radius
     }
 
     LauncherScenery {
@@ -276,6 +273,7 @@ Item {
             depth: (Math.sin(angle) + 1) / 2
             eclipse: root.nearness(index)
             outward: Math.cos(angle) >= 0
+            lit: Math.abs(Math.cos(angle))
             onChosen: root.chosen(index)
         }
     }
@@ -317,7 +315,7 @@ Item {
             if (row.blocked) return "> BLOCKED · SESSION";
             const enter = { app: "LAUNCH", verb: "RUN", command: "RUN", search: "OPEN", calc: "COPY", convert: "COPY",
                             file: "OPEN", setting: "OPEN", plugin: "RUN", clip: "PASTE" }[row.kind ?? "app"] ?? "GO";
-            const what = root.sum ? root.sumParts[0] : row.kind === "app" ? "CLASS " + "OBAFGKM"[Math.min(root.selected, 6)] + (row.description ? " · " + row.description : "") : row.description;
+            const what = root.sum ? root.sumParts[0] : row.description;
             return what + (row.ready === false ? "" : " · ↵ " + enter);
         }
     }

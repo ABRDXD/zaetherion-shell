@@ -52,3 +52,4 @@ singleton ViewState 1.0 ViewState.qml
 WallpaperPicker 1.0 WallpaperPicker.qml
 Whisper 1.0 Whisper.qml
 WifiSettings 1.0 WifiSettings.qml
+WorkspaceTransit 1.0 WorkspaceTransit.qml
