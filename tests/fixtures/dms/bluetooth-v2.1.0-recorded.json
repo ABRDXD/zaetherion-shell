@@ -1,0 +1,22 @@
+{
+ "method": "bluetooth.getState",
+ "reply": {
+  "id": 1,
+  "result": {
+   "powered": true,
+   "discovering": false,
+   "adapters": [
+    {
+     "path": "<path-1>",
+     "name": "<name-2>",
+     "address": "<address-3>",
+     "powered": true,
+     "discovering": false
+    }
+   ],
+   "devices": null,
+   "pairedDevices": null,
+   "connectedDevices": null
+  }
+ }
+}
