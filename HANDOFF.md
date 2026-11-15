@@ -1,3 +1,15 @@
+# 15 November 2026 · Opus (Claude A): web-library ideas, 1 of 5, rolling digits (branch `roll-digits`)
+
+- **Owner.** After a video on web UI libraries: "can't you use them as inspo" → "all of them". Order: rolling digits
+  (NumberFlow), stacked notifications (Sonner), drag physics (Vaul), launcher pages (cmdk), keyboard/focus pass
+  (Radix/Base UI).
+- **Built.** `view/ui/RollingDigits.qml`: fixed slots from the right, digits share one width, changed digits roll in
+  the direction the number moves (per roll, read against the number before the change), separators still,
+  motion-gated. Fluid Timers' clock uses it (stopwatch rises, the rest fall).
+- **Checks.** `tests/test_rolling_digits.py` (7 checks via `tools/cuetest/RollingDigitsTest.qml`, frames with
+  `ROLLING_SHOTS`); Fluid Timers, layout, contract OK.
+- **Next.** Sonner-style stacked notifications on the island.
+
 # 15 November 2026 · Opus (Claude A): Fluid Timers as a sky (Z203, branch `fluid-timers`)
 
 - **Owner.** The ring dial was "very very bland". Five canvas mock-ups later (Eclipse, Horizon, Accretion, One system,

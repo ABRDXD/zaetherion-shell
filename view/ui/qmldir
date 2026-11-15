@@ -42,4 +42,5 @@ Plane 1.0 Plane.qml
 Pointer 1.0 Pointer.qml
 Register 1.0 Register.qml
 Reticle 1.0 Reticle.qml
+RollingDigits 1.0 RollingDigits.qml
 Wipe 1.0 Wipe.qml

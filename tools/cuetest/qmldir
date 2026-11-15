@@ -21,6 +21,7 @@ MediaTest 1.0 MediaTest.qml
 OccultationTest 1.0 OccultationTest.qml
 OrbitHitTest 1.0 OrbitHitTest.qml
 PerformanceTest 1.0 PerformanceTest.qml
+RollingDigitsTest 1.0 RollingDigitsTest.qml
 SatTest 1.0 SatTest.qml
 SessionTest 1.0 SessionTest.qml
 SurveyorTest 1.0 SurveyorTest.qml

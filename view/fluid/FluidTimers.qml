@@ -127,15 +127,18 @@ Item {
         anchors.topMargin: FluidTokens.sectionGap * 3
         spacing: FluidTokens.unit
         Caption { objectName: "timers.phase"; text: root.phaseLine }
-        FluidText {
+        // The numerals roll (RollingDigits, after NumberFlow): each changed digit slides in the way the time moves.
+        RollingDigits {
             objectName: "timers.clock"
             text: root.controller.completed ? "Done"
                 : root.kind === "session" && !root.controller.active && !root.controller.debrief ? "Ready"
                 : root.controller.stamp(root.controller.seconds)
+            trend: root.kind === "stopwatch" ? 1 : -1   // a stopwatch climbs; every other clock counts down
+            font.family: FluidTokens.sans
             font.pixelSize: Math.min(Sky.clockSize, root.height * 0.24) // scale: the numerals keep below the sky's middle
             font.weight: Font.ExtraLight
-            font.letterSpacing: Sky.clockTracking
             font.features: ({ "tnum": 1 })
+            color: FluidTokens.ink
         }
         FluidText {
             objectName: "timers.sentence"
