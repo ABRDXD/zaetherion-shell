@@ -55,8 +55,8 @@ ShellRoot {
             switch (root.step++) {
             case 0:
                 fixture.network.attempt = { target: "FIXTURE-CAFE", action: "join", phase: "working", reason: "" };
-                fixture.bluetooth.pairing = { id: "fixture-pairing", kind: "confirm", deviceName: "Fixture Keyboard",
-                                              device: "00:00:5E:00:53:02", passkey: "000000" };
+                // A pair in progress (its prompt, when one comes, is the island's own event: PromptTest).
+                fixture.bluetooth.attempts = { "00:00:5E:00:53:02": { target: "00:00:5E:00:53:02", action: "pair", phase: "working", reason: "" } };
                 break;
             case 1:
                 root.check(!root.find(root.rest, "joining") && !root.find(root.rest, "pairing"), "no word at rest");
@@ -73,7 +73,7 @@ ShellRoot {
                 root.check(JSON.stringify(root.opened) === JSON.stringify(["settings:wifi", "settings:bluetooth"]),
                            "a word opens its settings section");
                 fixture.network.attempt = { target: "FIXTURE-CAFE", action: "join", phase: "wrong-secret", reason: "bad-credentials" };
-                fixture.bluetooth.pairing = null;
+                fixture.bluetooth.attempts = {};
                 break;
             case 8:
                 root.check(!!root.find(root.rest, "wrong password") && !root.find(root.rest, "pairing")

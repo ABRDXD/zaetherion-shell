@@ -1,5 +1,4 @@
 import qs.view.ui
-import qs.view.cues
 import QtQuick
 import QtQuick.Controls
 
@@ -83,7 +82,6 @@ AbstractButton {
             anchors.verticalCenter: state.verticalCenter
             visible: root.settingsHint !== "" && root.enabled
             opacity: root.hovered || root.activeFocus || settingsArea.containsMouse ? 1 : 0
-            Behavior on opacity { NumberAnimation { duration: Motion.tint } }
             text: "tune"
             iconSize: 18
             color: root.inkColor
