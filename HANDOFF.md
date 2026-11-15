@@ -1,3 +1,19 @@
+# 15 November 2026 · Opus (Claude A): the launcher becomes a star chart (Z196, branch `s6-launcher`)
+
+- **Owner's call.** First launcher look rejected ("too plain, not fun"). Three directions mocked on a design canvas
+  (A Dossier, B Orbit, C Deck); owner picked B, asked for more colour contrast and motion, symmetry, astrophysics
+  everywhere, "never average". Canvas: B2 is the live mock.
+- **Built.** `view/shell/LauncherOrbit.qml` (the chart, perigee ring, swing, draw-in, flare, headline),
+  `LauncherBody.qml` (star / pulsar / comet / nebula / binary bodies, labels, click), `LauncherScenery.qml`
+  (barycentre scenery for a lone inline result), astro colour tokens in `Design.qml`, geometry and motion constants
+  in `LauncherLayout.js`. `LauncherRow.qml` removed. `LauncherFace` keeps its API; selection is now `turn`
+  (unwrapped) with `selected` derived.
+- **Checks.** `test_launcher_view` +4 (symmetric, pick at perigee, wraps back, swing settles); captures and motion
+  frames with the owner's Larimar palette when `LAUNCHER_SHOTS` is set. qmllint 0 syntax on 6 files. Full suite: 1052 OK (1 skipped).
+- **Not done.** Seen offscreen only; not yet in nested Hyprland or live. The island window is now 546 px deep (was
+  324) while the launcher exists; check input region and cost live. The starfield-lensing idea behind the ring is
+  not built (Overdrive). Labels of the far side can overlap at 9+ results (rows setting up to 12).
+
 # 15 November 2026 · Opus (Claude A): S6 inline rows in Apps (branch `s6-launcher`, waits for the owner's look)
 
 - **Built (Z195).** `core/inline.py` (sums via `ast`, unit conversions, search engines); `Launcher.query` puts a
@@ -5,7 +21,7 @@
   own row. `launcher.act {kind, text}`: verbs run in the core (`Core._launcher_act`), the rest in `Launcher.act`
   (`{argv}` or `{copy}`). Settings `search` (default `brave`) and `browser` (empty = xdg-open). View:
   `AppsDomain.run(argv)` (QuickshellApps via the Hyprland spawner), `LauncherFace.act`, the clipboard domain passed
-  through `IslandSurface`/`IslandExpansion`, a glyph per kind in `LauncherRow`.
+  through `IslandSurface`/`IslandExpansion`, a glyph per kind (since replaced by Z196's bodies).
 - **Checks.** `tests/test_launcher_inline.py` (10). `test_launcher_view` grew 12 checks (calc copies 42, conversion
   copies, `>echo hi` runs in kitty, `?cats` opens Brave Search, `task buy milk` adds the task, an empty `>` waits).
   qmllint 0 syntax diagnostics on the 7 changed QML files; `make_qmldirs.py --check` clean. Full suite: 1045 run, OK (three modules that need the repo root rerun from it: 12 OK).

@@ -123,7 +123,7 @@ commented, so rolling back is restoring them and `hyprctl reload`.
 - **Starting an app** (Z187): through Hyprland's exec with the compositor's environment; terminal apps in the terminal setting.
 - **Settings** (Z189): rows, terminal, hidden, blocklist in `launcher.json`; their FART controls come with the surface.
 - **Surface (option C, Z185).** The launcher is a face of the island (`view/shell/LauncherFace.qml`, rows in
-  `LauncherRow.qml`, sizes in `LauncherLayout.js`): kind `launcher` in the island queue at the `held` priority, like the
+  the star chart in `LauncherOrbit.qml`, `LauncherBody.qml` and `LauncherScenery.qml` (Z196), sizes in `LauncherLayout.js`): kind `launcher` in the island queue at the `held` priority, like the
   session card, so only a critical event interrupts it. A line to type in (the island's resting height), a refusal
   line, then `rows` montage rows. Every key asks the core; stale replies are dropped. ↑/↓ (Ctrl+J/K, Ctrl+N/P) move,
   Enter launches, Esc or the key again folds it, a click outside folds it, hover selects, a click launches. The face
@@ -139,5 +139,6 @@ commented, so rolling back is restoring them and `hyprctl reload`.
 - **Inline rows** (Z195, 15 November 2026): sums, unit conversions, `>cmd`, `?term` and FART verbs, from
   `core/inline.py` through `launcher.query`; Enter goes through `launcher.act`. Settings `search` and `browser` join
   `launcher.json`. The adapter's `AppsDomain.run(argv)` starts what the core worked out; sums copy through the
-  clipboard domain. Each kind has a glyph in `LauncherRow`; an unfinished `>`/`?` row is faint and Enter waits.
+  clipboard domain. Each kind is its own body on the orbit (Z196); an unfinished `>`/`?` row is faint and Enter waits.
+- **The star chart** (Z196, owner's pick B): see DECISIONS. Wheel swings the orbit; a click on a body launches it.
 - **Not yet**: currency, windows, Emoji, Clips, Files; the settings controls in FART; the binds (§6).
