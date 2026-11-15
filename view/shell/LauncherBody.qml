@@ -139,7 +139,7 @@ Item {
             depth: root.depth
         }
         Rectangle {  // the crescent's shadow: the island's dark across most of the disc
-            visible: root.kind === "setting"
+            visible: root.kind === "setting" || root.kind === "moon"
             width: root.core
             height: width
             radius: width / 2
@@ -205,7 +205,7 @@ Item {
     // The tag: what kind of body, then what the core says about it.
     readonly property string tag: {
         const words = { verb: "PULSAR", command: "COMET", search: "NEBULA", calc: "BINARY", convert: "BINARY",
-                        file: "ASTEROID", setting: "MOON", plugin: "QUASAR", clip: "SATELLITE" };
+                        file: "ASTEROID", setting: "MOON", plugin: "QUASAR", clip: "SATELLITE", moon: "MOON" };
         const what = row?.blocked ? "BLOCKED" : words[kind] ?? "";
         const description = row?.description ?? "";
         return what && description ? what + " · " + description : what || description;

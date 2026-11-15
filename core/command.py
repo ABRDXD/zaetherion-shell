@@ -21,6 +21,26 @@ log = logging.getLogger("fart.command")
 DOMAINS = (rooms, timers, tasks, modes, island, palette, wallpaper, presets, equalizer, exhibit, media, system, clips, hostactions)
 MAX_LINE = 1000
 HISTORY = 100
+# Launcher pages (after cmdk, owner 15 November 2026): Enter on a bare verb in the launcher opens its choices as moons.
+# A verb's page is its genuine choices: listed here where the usage alone can't say, else its examples with arguments.
+# Verbs that take free text get no page (their examples are samples, not choices: "task buy milk" would add a task).
+PAGE_CHOICES = {
+    "vol": ("0", "20", "40", "60", "80", "100", "+5", "-5"),
+    "bri": ("20", "40", "60", "80", "100", "+10", "-10"),
+    "eq": ("on", "off", "mono", "stereo", "flat", "bass", "treble", "vocal", "loudness"),
+    "island": ("fluid", "angular", "top", "bottom", "notch", "floating", "screen auto"),
+    "tim": ("25", "50", "90s", "focus", "sw", "lap", "pause", "stop"),
+    "focus": ("25", "50"),
+    "overdrive": ("20m", "sticky", "off"),
+    "power": ("perf", "bal", "save"),
+    "wifi": ("on", "off"),
+    "bt": ("on", "off"),
+    "wall": ("list", "next", "prev"),
+    "look": ("list",),
+    "palette": ("list",),
+    "go": ("home", "media", "performance", "workspaces", "devices", "tasks", "timers", "clipboard", "notifications", "codex"),
+}
+PAGE_FREE_TEXT = {"task", "clip", "out"}
 ROOM_LABELS = {"home": "Home", "media": "Media", "performance": "Performance", "workspaces": "Workspaces",
                "devices": "Devices", "tasks": "Tasks", "timers": "Timers", "clipboard": "Clips",
                "notifications": "Inbox", "codex": "Codex"}
@@ -147,6 +167,23 @@ class Commands:
         if verb is None or ranked or (len(words) == 1 and words[0].lower() not in self.names):
             return None
         return {"verb": verb.name, "usage": verb.usage, "summary": verb.summary}
+
+    def page(self, name) -> dict:
+        """A verb's launcher page: {verb, usage, summary, options: [{line, label}]}; no options when it has none."""
+        verb, ranked = self.resolve(name) if isinstance(name, str) and name.strip() else (None, [])
+        if verb is None or ranked:
+            raise OpError("bad-args", f"no verb {name!r}")
+        if verb.name in PAGE_FREE_TEXT:
+            labels = []
+        elif verb.name == "session":   # the presets the core knows, then end
+            presets = self.core.sessions.snapshot().get("presets", []) if self.core else []
+            labels = [p["name"] for p in presets] + ["end"]
+        elif verb.name in PAGE_CHOICES:
+            labels = list(PAGE_CHOICES[verb.name])
+        else:
+            labels = [e.split(" ", 1)[1] for e in verb.examples if " " in e]
+        return {"verb": verb.name, "usage": verb.usage, "summary": verb.summary,
+                "options": [{"line": f"{verb.name} {label}", "label": label} for label in labels]}
 
     def complete(self, text: str) -> dict:
         """The live hint while typing: the matched verb's grammar, or the candidates and their common prefix."""

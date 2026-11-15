@@ -33,8 +33,35 @@ FocusScope {
     implicitWidth: Layout.contentWidth
     implicitHeight: Layout.inputHeight + Layout.notice + Layout.chartHeight
 
+    // A verb's page (after cmdk): its choices as moons; typing filters them, Esc or Backspace on an empty line goes
+    // back. null at the root.
+    property var page: null
+    function pageRows(): var {
+        const needle = input.text.trim().toLowerCase();
+        return page.options.filter(o => !needle || o.label.toLowerCase().includes(needle)).slice(0, rows)
+            .map(o => ({ kind: "moon", id: "moon:" + o.line, name: o.label, line: o.line, description: page.summary, ready: true }));
+    }
+    function openPage(verb: string): void {
+        core.request("launcher.page", { verb: verb }, (ok, reply) => {
+            if (!ok || !reply.options.length) return act({ kind: "verb" }, verb);   // nothing to choose: run it bare
+            page = reply;
+            input.text = "";
+            query();
+            Feedback.play("ui.click");
+        });
+    }
+    function closePage(): void {
+        page = null;
+        input.text = "";
+        query();
+    }
     function query(): void {
         if (!core) return;
+        if (page) {
+            turn = 0;
+            results = pageRows();
+            return;
+        }
         const seq = ++asked;
         core.request("launcher.query", { text: input.text, limit: rows }, (ok, reply) => {
             if (seq !== asked) return;
@@ -47,6 +74,7 @@ FocusScope {
     // The two sources answer at different times; the selection goes back to the top only when what shows changes,
     // so a late answer that changes nothing never undoes a step already taken.
     function merge(): void {
+        if (page) return;   // a page shows its own choices; late answers for the root wait for it to close
         const next = Merge.rows(input.text, coreRows, engine, rows);
         if (Merge.key(next) !== Merge.key(results)) {
             turn = 0;
@@ -81,8 +109,8 @@ FocusScope {
         Feedback.play("ui.error");
     }
     // Enter on an inline row (Z195): the core works out what it does again from the text.
-    function act(row): void {
-        const text = input.text;
+    function act(row, line): void {
+        const text = line ?? input.text;
         core.request("launcher.act", { kind: row.kind, text: text }, (ok, reply) => {
             if (!ok) return fail(reply);
             if (reply.result && !reply.result.ok) {
@@ -102,6 +130,9 @@ FocusScope {
         const row = results[index];
         if (!row || !core || row.ready === false) return;
         if (row.source === "host") return runHost(row);
+        if (row.kind === "moon") return act({ kind: "verb" }, row.line);
+        // A bare verb opens its page of choices; with arguments it runs as typed.
+        if (row.kind === "verb" && input.text.trim().split(/\s+/).length === 1) return openPage(input.text.trim());
         if (row.kind && row.kind !== "app") return act(row);
         core.request("launcher.launch", { id: row.id }, (ok, reply) => {
             if (!ok) return fail(reply);
@@ -149,7 +180,7 @@ FocusScope {
             id: prompt
             anchors.verticalCenter: parent.verticalCenter
             technical: true
-            text: ">"
+            text: root.page ? "> " + root.page.verb.toUpperCase() + " ›" : ">"
             color: Design.accent
             font.pixelSize: Design.control
         }
@@ -178,7 +209,8 @@ FocusScope {
                 if (event.key === Qt.Key_Down || ctrl && (event.key === Qt.Key_J || event.key === Qt.Key_N)) root.move(1);
                 else if (event.key === Qt.Key_Up || ctrl && (event.key === Qt.Key_K || event.key === Qt.Key_P)) root.move(-1);
                 else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) root.launch(root.selected);
-                else if (event.key === Qt.Key_Escape) root.close();
+                else if (event.key === Qt.Key_Escape) root.page ? root.closePage() : root.close();
+                else if (event.key === Qt.Key_Backspace && root.page && input.text === "") root.closePage();
                 else return;
                 event.accepted = true;
             }
@@ -187,7 +219,7 @@ FocusScope {
             anchors.left: input.left
             anchors.verticalCenter: parent.verticalCenter
             visible: input.text === ""
-            text: "APPS"
+            text: root.page ? "CHOOSE" : "APPS"
             technical: true
             color: Design.faint
             font.pixelSize: Design.control

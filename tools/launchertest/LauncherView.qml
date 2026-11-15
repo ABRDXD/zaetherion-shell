@@ -216,6 +216,48 @@ ShellRoot {
                     });
                 });
             },
+            // Pages (after cmdk): Enter on a bare verb opens its choices as moons; typing filters; Esc goes back;
+            // Enter on a moon runs the verb with that choice.
+            () => {
+                island.openLauncher();
+                until(() => !!root.input, 2000, () => type("focus", () => {
+                    check("page.verb.row", root.face.results[0].kind === "verb", root.face.results[0]);
+                    root.face.launch(0);
+                    until(() => !!root.face.page, 2000, opened => {
+                        check("page.opens", opened && root.face.page.verb === "focus" && root.face.results.every(r => r.kind === "moon")
+                              && root.face.results.map(r => r.name).join() === "25,50", root.face.results);
+                        root.shot("11-page", () => {
+                            root.input.text = "5";
+                            after(150, () => {
+                                check("page.filters", root.face.results.length === 2 && root.face.results.every(r => r.name.includes("5")), root.face.results);
+                                root.input.text = "50";
+                                after(150, () => {
+                                    check("page.filters.down", root.face.results.length === 1 && root.face.results[0].name === "50", root.face.results);
+                                    root.input.text = "";
+                                    root.face.closePage();
+                                    after(150, () => {
+                                        check("page.back", !root.face.page && island.launcherOpen, {});
+                                        root.input.text = "focus";
+                                        until(() => root.face.results[0]?.kind === "verb", 2000, () => {
+                                            root.face.launch(0);
+                                            until(() => !!root.face.page, 2000, () => {
+                                                root.face.launch(1);   // "50"
+                                                until(() => !island.launcherOpen, 2000, closed => {
+                                                    check("page.runs", closed, {});
+                                                    until(() => client.timersData?.pomodoro?.running === true, 2000, ran => {
+                                                        check("page.ran.verb", ran, client.timersData?.pomodoro);
+                                                        next();
+                                                    });
+                                                });
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                }));
+            },
             // Inline rows (Z195): each opens the launcher, types, checks the top row and presses Enter on it.
             () => root.inline("6*7", "calc", "inline.calc", () => {
                 const last = fixture.clipboard.calls[fixture.clipboard.calls.length - 1];

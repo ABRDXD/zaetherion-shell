@@ -137,5 +137,43 @@ class CoreTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(await act(self.peer, kind="calc", text="6*7"), {"copy": "42"})
 
 
+
+class PageTests(unittest.IsolatedAsyncioTestCase):
+    """Launcher pages (after cmdk): a verb's genuine choices, never free-text samples."""
+    async def asyncSetUp(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        clock, scheduler, profile, host = core_fakes.fakes()
+
+        async def no_spawn():
+            raise OSError("no view in this test")
+        self.core = Core(clock, scheduler, host, Path(temp.name), spawn=no_spawn)
+
+    def labels(self, verb):
+        return [o["label"] for o in self.core.commands.page(verb)["options"]]
+
+    def test_listed_choices_and_lines(self):
+        page = self.core.commands.page("eq")
+        self.assertEqual(page["verb"], "eq")
+        self.assertIn("bass", self.labels("eq"))
+        self.assertEqual(page["options"][0]["line"], "eq " + page["options"][0]["label"])
+
+    def test_free_text_verbs_have_no_page(self):
+        self.assertEqual(self.labels("task"), [])
+        self.assertEqual(self.labels("clip"), [])
+
+    def test_sessions_page_reads_the_presets(self):
+        names = [p["name"] for p in self.core.sessions.snapshot()["presets"]]
+        self.assertEqual(self.labels("session"), names + ["end"])
+
+    def test_examples_stand_in_and_prefixes_resolve(self):
+        self.assertEqual(self.labels("vo"), self.labels("vol"))   # a unique prefix
+        with self.assertRaises(OpError):
+            self.core.commands.page("nosuchverb")
+
+    async def test_op(self):
+        reply = self.core.server.ops["launcher.page"](types.SimpleNamespace(kind="view"), verb="power")
+        self.assertEqual([o["label"] for o in reply["options"]], ["perf", "bal", "save"])
+
 if __name__ == "__main__":
     unittest.main()
