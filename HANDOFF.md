@@ -1,3 +1,10 @@
+# Next Codex session
+
+Use [the continuation prompt](docs/NEXT_CHAT_PROMPT.md). The owner requests preparation
+for a fresh chat and explicitly prioritises creative implementation over context gathering:
+read only what a concrete implementation decision requires. Next: Confluence Performance
+in a fresh worktree from current main. This preparation adds no UI or runtime changes.
+
 # 15 November 2026 · Opus (Claude B): Claude C's quick paste and calmer rest merged; the island's hover word (branches `s3-clips-merge`, `s10-hover-word`; not live)
 
 - **C's work committed** on `s3-clips-rest` (owner's OK to take it over): `8612594` as C left it (suite then: 961, 2 failures), `c7a1116` the fixes. C's Z185 (the island's rest) is now **Z201**; Z181–Z184 were free and stay. Z199 and Z200 are Claude A's (workspace transit; island faces leave sooner).
