@@ -13,6 +13,9 @@ import qs.view.shell
 import qs.view.ui
 ShellRoot {
     id: root
+    // The live view never reloads itself when files change (several agents edit and merge in this checkout; a reload
+    // mid-session left the launcher without answers, 15 Nov 2026). Changes load when the core restarts the view.
+    settings.watchFiles: false
     CoreClient { id: client; host: adapter }
     DmsAdapter {
         id: adapter

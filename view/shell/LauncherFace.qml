@@ -5,19 +5,24 @@ import qs.view.contract
 import qs.view.cues
 import qs.view.ui
 import "LauncherLayout.js" as Layout
+import "LauncherMerge.js" as Merge
 
-// The launcher grown out of the island (S6, Z26, Z29, Z75): a line to type in and the core's ranked rows under it.
-// The core matches and ranks (`launcher.query`), allows and records a launch (`launcher.launch`); the adapter starts
-// the app (`apps.launch`). Every key asks the core; a reply that is no longer the latest is dropped.
+// The launcher grown out of the island (S6, Z26, Z75, Z196): a line to type in and the star chart under it.
+// Two sources answer each key (Z197): the host's own launcher engine (`engine`: DMS's apps, files, clipboard,
+// settings and plugins) and the core (`launcher.query`: FART verbs, sums and conversions, `>cmd`, `?term`, and its own
+// app ranking, which stands in whenever the engine can't answer). LauncherMerge.js decides what shows. The core still
+// allows a launch (the Session blocklist, `launcher.launch`); a reply that is no longer the latest is dropped.
 FocusScope {
     id: root
     required property CoreClient core
     required property AppsDomain apps
     property ClipboardDomain clipboard: null
+    property LauncherDomain engine: null
     property int rows: 6
     signal close()
 
     property var results: []
+    property var coreRows: []
     // The selection, unwrapped: every step counts, so the orbit swings the short way past the wrap (Z196).
     property int turn: 0
     readonly property int selected: results.length ? ((turn % results.length) + results.length) % results.length : 0
@@ -33,8 +38,38 @@ FocusScope {
         const seq = ++asked;
         core.request("launcher.query", { text: input.text, limit: rows }, (ok, reply) => {
             if (seq !== asked) return;
+            coreRows = ok ? reply.rows : [];
+            merge();
+        });
+        if (engine?.available && input.text.trim() !== "")
+            engine.search(input.text);
+    }
+    // The two sources answer at different times; the selection goes back to the top only when what shows changes,
+    // so a late answer that changes nothing never undoes a step already taken.
+    function merge(): void {
+        const next = Merge.rows(input.text, coreRows, engine, rows);
+        if (Merge.key(next) !== Merge.key(results)) {
             turn = 0;
-            results = ok ? reply.rows : [];
+            results = next;
+        }
+    }
+    Connections {
+        target: root.live ? root.engine : null
+        function onResultsChanged() { root.merge(); }
+        function onAvailableChanged() { if (root.engine.available) root.engine.open(); root.query(); }
+    }
+    // A result of the host's engine: the core allows it first when it is an app it knows (the Session blocklist),
+    // then the engine runs it as its own launcher would.
+    function runHost(row): void {
+        const go = () => {
+            engine.execute(row.key);
+            Feedback.play("ui.click");
+            root.close();
+        };
+        if (row.kind !== "app" || !row.id || row.id.startsWith("host:")) return go();
+        core.request("launcher.launch", { id: row.id }, (ok, reply) => {
+            if (!ok && reply?.code === "blocked") return fail(reply);
+            go();  // allowed, or an app only the engine knows
         });
     }
     function move(by: int): void {
@@ -66,6 +101,7 @@ FocusScope {
     function launch(index: int): void {
         const row = results[index];
         if (!row || !core || row.ready === false) return;
+        if (row.source === "host") return runHost(row);
         if (row.kind && row.kind !== "app") return act(row);
         core.request("launcher.launch", { id: row.id }, (ok, reply) => {
             if (!ok) return fail(reply);
@@ -89,7 +125,10 @@ FocusScope {
     }
     // The island's fading copy of a face that just closed is disabled: it asks nothing and takes no focus.
     readonly property bool live: enabled
-    Component.onDestruction: if (probe && live) console.log("FART_LAUNCHER", "closed", Date.now())
+    Component.onDestruction: {
+        if (probe && live) console.log("FART_LAUNCHER", "closed", Date.now());
+        if (live && engine?.available) engine.close();
+    }
     Component.onCompleted: {
         if (!live) return;
         if (probe) {
@@ -98,6 +137,7 @@ FocusScope {
             console.log("FART_CMDFOCUS", Date.now(), "input", input.activeFocus);
         }
         input.forceActiveFocus();
+        if (engine?.available) engine.open();
         query();
     }
 

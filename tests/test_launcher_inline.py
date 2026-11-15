@@ -19,6 +19,13 @@ class CalcTests(unittest.TestCase):
                             ("2*pi", "6.28318530718"), ("0.1+0.2", "0.3")]:
             self.assertEqual(inline.calc(text), shown, text)
 
+    def test_long_sums_and_deep_brackets(self):
+        e = "((17^3-29*41+7^4)/(13^2+5*11))*((2^10+3^8+5^6)/(17^2-19))+((97^2-89^2)*(61^2+43^2))/(2^9+7^3)-((123^3-456^2)/(29^2+31^2))"
+        self.assertEqual(inline.calc(e), "11127.0283498")
+        self.assertEqual(inline.calc(e + "+" + e), "22254.0566996")  # past the old 200-character limit
+        self.assertIsNone(inline.calc("(" * 499 + "1+1" + ")" * 499))  # too deep to parse: not a sum, never a crash
+        self.assertIsNone(inline.calc("1+" * 600 + "1"))  # past the limit
+
     def test_what_is_not_a_sum_is_left_to_the_apps(self):
         for text in ["", "2", "-3", "e", "pi", "hello", "firefox", "1,5", "20%", "x+1", "__import__('os')",
                      "(1).real", "1/0", "9^9^9", "sqrt(-1)", "10**400*10**400", "2+" * 120]:

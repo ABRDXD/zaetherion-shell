@@ -5,6 +5,30 @@
 - **Checks.** Offscreen harness (fixture, scratch): both right-clicks open the right tab, neither toggles the link, no host call made; captures looked at. Smoke 0 errors; layout, contract, net_bt_adapter, verbs_view, elements OK; full suite before the merge.
 - **Not done.** No hint on the tile that right-click exists. Not yet seen on the live desktop (the core loads it at its next restart).
 
+# 15 November 2026 · Opus (Claude A): DMS's launcher engine behind the star chart (Z197, branch `s6-launcher`)
+
+- **Owner's call.** "use DMS own app launcher but only change the UI, so that we have all the features of DMS but
+  the UI is ours".
+- **Built.** Bridge inside DMS (`adapters/dms/bridge/ZaetherionLauncherBridge.qml`: DMS's `Controller` without its
+  window, served on `$XDG_RUNTIME_DIR/zaetherion/dms-launcher.sock`); `tools/dms_quiet.py` puts it into copies and has
+  `bridge` for an existing copy; contract `LauncherDomain`, adapter `DmsLauncher`; `LauncherMerge.js` (core inline
+  rows above DMS's results; the core's apps whenever DMS can't answer); new bodies (asteroid, moon, quasar,
+  satellite). Bug found by the new checks and fixed: a late second answer reset the selection.
+  The first commit (`5e21cae`) went in with 6 rule failures; fixed in the next: the bridge is a `.qml.in` template
+  (it imports DMS's modules), `DmsLauncher` may hold its own socket (test updated, Z197), the clip kind is `clip`
+  (DMS's clipboard service stays unnamed in the adapter), `launcher` counted as a resident domain, fixture placeholder.
+- **Checks.** Bridge probed against the real DMS in a private bridge-only copy (no windows, own socket): "fi" 11 apps
+  in ~0.13 s, "=2+2" DMS's calculator, "wifi" apps + a settings page + a plugin. Tests: `test_dms_quiet` (+2),
+  `test_launcher_merge` (5), `test_shortcut_edges` (3), `test_launcher_view` (+4 engine checks). Full suite: 1062 OK (1 skipped), after the rule fixes in the next commit.
+- **Live (owner's yes).** Merged into `s0-seed` over Claude B's `s9-wall-merge` merge (conflicts in HostAdapter,
+  DECISIONS, test_contract, HANDOFF: both sides kept; Z197 before B's Z198). Full suite on the merged tree: 1101 OK.
+  `tools/dms_quiet.py bridge` on the live copy, core restarted with the login's settings; the bridge socket came up.
+  Live: "chatgp" → ChatGPT + DMS's QR plugin; "wi" → apps with DMS's app actions. The live copy still lacks the Z191
+  prompt patches (a full rebuild needs stock DMS running).
+- **Incident.** The live view hot-reloaded at 14:25 when the merge changed files in this checkout, and its launcher
+  then got no answers (the core was fine). `shell.qml` and `shell-dms.qml` now set `settings.watchFiles: false`:
+  changes load only when the core restarts the view. Also: one live test typed into the focused browser because two
+  notifications held the island and the launcher didn't open; live typing now waits for the chart to be drawn.
 # 15 November 2026 · Opus (Claude B): S9 merge ready on `s9-wall-merge`; Wi-Fi and Bluetooth tabs in FART's settings
 
 - **Branch `s9-wall-merge`** = `s0-seed` (`f795823`, the star-chart launcher included) + `s9-wall-presets`, waiting for the owner's word to fast-forward `s0-seed`. Conflicts were both sides adding beside each other (S6 launcher/apps, S9 wallpaper/presets/hostTheme); both kept, 23 contract domains. Full suite on the merge: 1081 OK (1 skipped).

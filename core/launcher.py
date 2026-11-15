@@ -32,7 +32,7 @@ FRECENCY_CAP = 2000
 RECENCY = ((1, 1500), (7, 1000), (30, 500))  # (days since the last launch under, bonus)
 MAX_ENTRIES = 4000
 MAX_FIELD = 512
-MAX_QUERY = 200
+MAX_QUERY = 1000  # a long sum is a real query (owner, 15 Nov 2026); as long as a command line
 MAX_LIMIT = 50
 
 DEFAULTS = {

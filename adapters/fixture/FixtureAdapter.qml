@@ -62,6 +62,8 @@ HostAdapter {
         current: ({ icon: "cloud", tempC: 24 })
     }
     osd: OsdDomain { available: true }
+    // No host launcher engine in the fixture: the star chart ranks apps in the core (Z185, Z197).
+    launcher: LauncherDomain {}
     // Neutral sample apps for the launcher; launches are only recorded.
     apps: AppsDomain {
         available: true

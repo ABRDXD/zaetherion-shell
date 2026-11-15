@@ -40,6 +40,7 @@ Item {
     property CoreClient core: null
     property AppsDomain apps: null
     property ClipboardDomain clipboard: null
+    property LauncherDomain launcherEngine: null
     property int launcherRows: 6
     signal launcherClose()
 
@@ -236,6 +237,7 @@ Item {
             core: root.core
             apps: root.apps
             clipboard: root.clipboard
+            engine: root.launcherEngine
             rows: root.launcherRows
             onClose: root.launcherClose()
         }

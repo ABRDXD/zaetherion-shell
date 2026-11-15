@@ -14,6 +14,10 @@ supervisor at it with FART_RESIDENT_DIR, which reaches `dms run` as DMS_SHELL_DI
     tools/dms_quiet.py build [--source DIR] [--out DIR]   # default source: the running DMS's UI
     tools/dms_quiet.py check DIR                           # exit 0 if DIR is a quiet copy
     tools/dms_quiet.py fits DIR                            # exit 0 if DIR was made for the installed `dms`
+    tools/dms_quiet.py bridge [DIR]                        # add the launcher bridge to an existing copy (Z197)
+
+The copy also carries ZÆTHERION's launcher bridge (adapters/dms/bridge, Z197): DMS's own launcher engine, served to
+the star chart over a private socket. `bridge` adds it to a copy made before it, without rebuilding.
 
 `dms version` names no UI revision, and the UI is extracted only when DMS runs, so at login (before DMS) an upgrade
 can't be seen by revision. `build` therefore also records the installed `dms` program (path, size, mtime);
@@ -45,6 +49,12 @@ PROMPTS = (
     (Path("Modules/ControlCenter/Details/BluetoothDetail.qml"), "function onBluetoothPairingRequest(data) {"),
 )
 PROMPT_NOTE = "return; // ZÆTHERION tools/dms_quiet.py: FART answers this prompt (docs/NET_BT.md, Z191)"
+# The launcher bridge (Z197): one file beside DMS's launcher and one instance at the end of DMSShell.qml.
+# A template (.qml.in): it imports DMS's modules, so it is QML only once installed inside DMS.
+BRIDGE_SOURCE = Path(__file__).resolve().parents[1] / "adapters/dms/bridge/ZaetherionLauncherBridge.qml.in"
+BRIDGE = Path("Modals/DLauncherV2/ZaetherionLauncherBridge.qml")
+SHELL = Path("DMSShell.qml")
+BRIDGE_LINE = "    ZaetherionLauncherBridge {} // ZÆTHERION tools/dms_quiet.py: DMS's launcher engine for the star chart (Z197)"
 MARKER = ".zaetherion-quiet"
 PROGRAM = ".zaetherion-dms"
 OPENING = re.compile(r"^(?P<indent>[ \t]*)NotificationServer\s*\{", re.M)
@@ -112,6 +122,41 @@ def prompt_left_to_fart(text: str, path: Path, opening: str) -> str:
     return "\n".join(lines)
 
 
+def with_bridge(text: str) -> str:
+    """DMSShell.qml with one bridge instance before the root's closing brace. Idempotent; refuses an unknown shape."""
+    if BRIDGE_LINE in text:
+        return text
+    if "import qs.Modals.DLauncherV2" not in text:
+        raise ValueError(f"{SHELL}: does not import DMS's launcher (qs.Modals.DLauncherV2)")
+    body = text.rstrip()
+    if not body.endswith("}"):
+        raise ValueError(f"{SHELL}: does not end with the root object's closing brace")
+    return body[:-1].rstrip() + "\n\n" + BRIDGE_LINE + "\n}\n"
+
+
+def add_bridge(directory: Path) -> Path:
+    """Puts the launcher bridge into a quiet copy (only one this tool made)."""
+    if not (directory / MARKER).is_file():
+        raise SystemExit(f"dms_quiet: {directory} is not a quiet copy; not touching it")
+    shell = with_bridge((directory / SHELL).read_text())  # before writing anything
+    (directory / BRIDGE).parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(BRIDGE_SOURCE, directory / BRIDGE)
+    (directory / SHELL).write_text(shell)
+    return directory
+
+
+def bridge_problems(directory: Path) -> list[str]:
+    """Why a copy lacks the launcher bridge; a warning, not part of check() (the star chart falls back without it)."""
+    problems = []
+    if not (directory / BRIDGE).is_file():
+        problems.append("no launcher bridge (run `tools/dms_quiet.py bridge`)")
+    elif (directory / BRIDGE).read_text() != BRIDGE_SOURCE.read_text():
+        problems.append("the launcher bridge is older than ZÆTHERION's (run `tools/dms_quiet.py bridge`)")
+    if not (directory / SHELL).is_file() or BRIDGE_LINE not in (directory / SHELL).read_text():
+        problems.append("DMSShell.qml makes no launcher bridge (run `tools/dms_quiet.py bridge`)")
+    return problems
+
+
 def running_source() -> Path:
     """The UI folder the running DMS's Quickshell was started with (`qs -p <dir>`)."""
     out = subprocess.run(["pgrep", "-a", "-x", "qs"], capture_output=True, text=True).stdout
@@ -160,6 +205,7 @@ def build(source: Path, out: Path) -> Path:
     patched = quiet(text)  # before any copying: a DMS we don't understand leaves nothing behind
     bar = hidden_bar_reserves_nothing((source / BAR).read_text())
     prompts = {path: prompt_left_to_fart((source / path).read_text(), path, opening) for path, opening in PROMPTS}
+    prompts[SHELL] = with_bridge(prompts.get(SHELL, (source / SHELL).read_text()))
     if out.exists():
         if not (out / MARKER).is_file():
             raise SystemExit(f"dms_quiet: {out} exists and is not a quiet copy; not touching it")
@@ -172,6 +218,8 @@ def build(source: Path, out: Path) -> Path:
     (out / BAR).write_text(bar)
     for path, text in prompts.items():
         (out / path).write_text(text)
+    (out / BRIDGE).parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(BRIDGE_SOURCE, out / BRIDGE)
     (out / MARKER).write_text(revision(source) + "\n")
     (out / PROGRAM).write_text(program_stamp() + "\n")
     return out
@@ -217,17 +265,25 @@ def main(argv=None) -> int:
     c.add_argument("directory", type=Path)
     f = sub.add_parser("fits")
     f.add_argument("directory", type=Path)
+    g = sub.add_parser("bridge")
+    g.add_argument("directory", type=Path, nargs="?")
     args = parser.parse_args(argv)
     if args.command == "build":
         source = args.source or running_source()
         out = build(source, args.out or default_out())
         print(f"quiet DMS UI (revision {revision(source)}): {out}")
         return 0
+    if args.command == "bridge":
+        out = add_bridge(args.directory or default_out())
+        print(f"launcher bridge added: {out / BRIDGE}")
+        return 0
     problems = check(args.directory) if args.command == "check" else fits(args.directory)
     for problem in problems:
         print("dms_quiet:", problem, file=sys.stderr)
     for warning in prompt_problems(args.directory):
         print("dms_quiet: warning:", warning, "(rebuild the copy to leave it to FART)", file=sys.stderr)
+    for warning in bridge_problems(args.directory):
+        print("dms_quiet: warning:", warning, file=sys.stderr)
     return 1 if problems else 0
 
 

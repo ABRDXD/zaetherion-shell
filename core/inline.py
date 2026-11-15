@@ -17,7 +17,7 @@ import operator
 import re
 from urllib.parse import quote_plus
 
-MAX_TEXT = 200
+MAX_TEXT = 1000  # as long as a command line (core/command.py MAX_LINE)
 MAX_EXPONENT = 10_000  # a power past this is not a sum anyone types; it would only burn time
 SIGNIFICANT = 12  # digits shown for a sum
 UNIT_SIGNIFICANT = 6  # digits shown for a conversion
@@ -81,7 +81,7 @@ def calc(text: str) -> str | None:
         if not _has_work(tree):
             return None
         value = _value(tree)
-    except (SyntaxError, _NotASum, ArithmeticError, ValueError, TypeError):
+    except (SyntaxError, _NotASum, ArithmeticError, ValueError, TypeError, RecursionError, MemoryError):
         return None
     if isinstance(value, complex) or not math.isfinite(value):
         return None

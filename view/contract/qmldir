@@ -12,6 +12,7 @@ HostAdapter 1.0 HostAdapter.qml
 HostDomain 1.0 HostDomain.qml
 HostThemeDomain 1.0 HostThemeDomain.qml
 KeybindsDomain 1.0 KeybindsDomain.qml
+LauncherDomain 1.0 LauncherDomain.qml
 LyricsDomain 1.0 LyricsDomain.qml
 MediaDomain 1.0 MediaDomain.qml
 MotionDomain 1.0 MotionDomain.qml
