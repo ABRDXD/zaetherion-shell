@@ -69,6 +69,12 @@ class IslandFrameTests(unittest.TestCase):
             "right-click switches to the clock",
             "fluid hover shows the row", "fluid notification face"))
 
+    def test_hover_word(self):
+        """docs/NET_BT.md §5: one word beside Wi-Fi or Bluetooth while hovered; a click opens that settings section."""
+        self.run_fixture("HoverWordTest.qml", ("no word at rest", "hovered: joining and pairing",
+            "a word opens its settings section", "wrong password, in accent", "nothing once it is done",
+            "without a word the glyphs open Devices as before"))
+
     def run_fixture(self, filename, checks):
         harness = (ROOT / "tests/fixtures/island" / filename).read_text()
         with tempfile.TemporaryDirectory(prefix="zaetherion-island-") as tmp:

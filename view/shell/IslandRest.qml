@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import qs.view.contract
 import qs.view.ui
+import "NetWords.js" as NetWords
 
 // The island's row, at rest and hovered, balanced around the centred clock (Z124). Each side of the clock is one
 // run from the clock to a shoulder:
@@ -20,6 +21,8 @@ Item {
     // The hover fade (0–1) for items that appear only with the wings.
     property real reveal: wings ? 1 : 0
     signal openPanel(string room)
+    // FART's settings at a section ("wifi", "bluetooth"): a glyph with a hover word opens where that is happening.
+    signal openSettings(string section)
     signal openPower()
     // What shows at rest (Z176, FART's Island tab): each item "always", "matters" (only while it needs you) or
     // "hover"; the inbox may also be "unread" (its bell while anything is unread) or "dot" (no bell at rest: a dot on
@@ -54,6 +57,9 @@ Item {
     readonly property bool hovered: wings || reveal > 0
     readonly property var player: host.media.available ? host.media.active : null
     readonly property bool visualising: live && !!player?.playing
+    // One word while hovered when something is happening (docs/NET_BT.md §5): "joining", "wrong password", "pairing".
+    readonly property string wifiWord: NetWords.wifiWord(host.network.attempt, host.network.prompt)
+    readonly property string bluetoothWord: NetWords.bluetoothWord(host.bluetooth.attempts, host.bluetooth.pairing)
     readonly property string networkGlyph: host.network.kind === "ethernet" && host.network.connected
         ? "lan" : host.network.connected ? "wifi" : "wifi_off"
     // Inside each end: Angular's shoulders take little, Fluid's flare and corners take more, so Fluid keeps
@@ -73,7 +79,8 @@ Item {
     // list leaves it out.
     readonly property var audio: host.audio
     readonly property var hoverStatus: [
-        { glyph: host.bluetooth.enabled ? "bluetooth" : "bluetooth_disabled", label: "Bluetooth", shown: host.bluetooth.available },
+        { glyph: host.bluetooth.enabled ? "bluetooth" : "bluetooth_disabled", label: "Bluetooth", shown: host.bluetooth.available,
+          word: bluetoothWord, section: "bluetooth" },
         { glyph: audio.output?.muted ? "volume_off" : "volume_up", label: "Volume", shown: !!audio.output },
         { glyph: audio.input?.muted ? "mic_off" : "mic", label: "Microphone", shown: !!audio.input },
         // Warnings only while they apply. Num lock and the power profile live in the Devices room (owner, 12 November).
@@ -102,13 +109,42 @@ Item {
 
     component HoverStatus: Repeater {
         model: root.hovered ? root.hoverStatus : []
-        IslandGlyph {
+        Row {
+            id: status
             required property var modelData
-            quiet: true
+            readonly property string word: modelData.word ?? ""
+            function open(): void {
+                if (word) root.openSettings(modelData.section);
+                else root.openPanel("devices");
+            }
+            spacing: Design.baseline
             opacity: root.reveal
-            glyph: modelData.glyph
-            description: modelData.label
-            onClicked: root.openPanel("devices")
+            IslandGlyph {
+                quiet: true
+                glyph: status.modelData.glyph
+                description: status.word ? status.modelData.label + ": " + status.word : status.modelData.label
+                onClicked: status.open()
+            }
+            HoverWord {
+                word: status.word
+                onClicked: status.open()
+            }
+        }
+    }
+    // The hover word itself: quiet unless it needs the person ("wrong password"); a click does what its glyph does.
+    component HoverWord: FText {
+        id: hoverWord
+        property string word: ""
+        signal clicked()
+        visible: root.hovered && word !== ""
+        anchors.verticalCenter: parent.verticalCenter
+        technical: true
+        text: word
+        color: word === "wrong password" ? Design.accent : Design.muted
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: hoverWord.clicked()
         }
     }
     component Weather: Row {
@@ -309,8 +345,13 @@ Item {
             // The unread dot rides the last status glyph; with no battery that is this one.
             signalDot: root.unreadDot && !root.batteryShown
             glyph: root.networkGlyph
-            description: "Network"
-            onClicked: root.openPanel("devices")
+            description: root.wifiWord ? "Network: " + root.wifiWord : "Network"
+            onClicked: root.wifiWord ? root.openSettings("wifi") : root.openPanel("devices")
+        }
+        HoverWord {
+            opacity: root.reveal
+            word: root.wifiWord
+            onClicked: root.wifiWord ? root.openSettings("wifi") : root.openPanel("devices")
         }
         IslandGlyph {
             visible: root.host.audio.privacy.length > 0

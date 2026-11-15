@@ -13,6 +13,7 @@ Scope {
     property string motionLevel: "all"
     property bool systemVoice: true
     signal openPanel(string room)
+    signal openSettings(string section)
     signal togglePanel(string room)
     property bool docked: false
     readonly property var companionWindow: layer.active ? layer.item : null
@@ -109,6 +110,7 @@ Scope {
                 bottomEdge: root.bottomEdge
                 notch: root.edgeGap === 0
                 onOpenPanel: room => root.openPanel(room)
+                onOpenSettings: section => root.openSettings(section)
                 onTogglePanel: room => root.togglePanel(room)
                 docked: root.docked
                 workspaceIds: root.workspaceIds

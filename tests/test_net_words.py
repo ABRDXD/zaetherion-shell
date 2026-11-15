@@ -49,3 +49,19 @@ class Words(unittest.TestCase):
         self.assertIn("042137", got[0]["line"])
         self.assertEqual(got[1]["yes"], "")              # nothing to answer: the device is where the code is typed
         self.assertEqual(run("[percent(-1), percent(0.804), band(''), band('5')]"), ["", "80 %", "", "5 GHz"])
+
+    def test_the_islands_hover_word(self):
+        """docs/NET_BT.md §5: "joining", "wrong password", "pairing" while something happens, nothing otherwise."""
+        for phase in PHASES:
+            for action in ("join", "connect"):
+                want = {"working": "joining", "lost": "joining", "wrong-secret": "wrong password"}.get(phase, "")
+                self.assertEqual(run(f"wifiWord({a(phase, action)}, null)"), want, (phase, action))
+            self.assertEqual(run(f"wifiWord({a(phase, 'vpn:on')}, null)"), "", phase)
+            self.assertEqual(run(f"wifiWord({a(phase, 'forget')}, null)"), "", phase)
+            pair = run(f"bluetoothWord({{dev: {a(phase, 'pair')}}}, null)")
+            self.assertEqual(pair, "pairing" if phase in ("working", "lost", "wrong-secret") else "", phase)
+            self.assertEqual(run(f"bluetoothWord({{dev: {a(phase, 'connect')}}}, null)"), "", phase)
+        self.assertEqual(run("wifiWord(null, {ssid: 'x', reason: 'wrong-password'})"), "wrong password")
+        self.assertEqual(run("wifiWord(null, {ssid: 'x', reason: ''})"), "")
+        self.assertEqual(run("[wifiWord(null, null), bluetoothWord({}, null), bluetoothWord(null, null)]"), ["", "", ""])
+        self.assertEqual(run("bluetoothWord({}, {kind: 'confirm', deviceName: 'Phone'})"), "pairing")

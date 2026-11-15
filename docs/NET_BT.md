@@ -108,7 +108,7 @@ adapter get the new members as stand-ins.
 
 | Where | What |
 |---|---|
-| Island hover (Z95) | Wi-Fi and Bluetooth glyphs as today, plus one word when something is happening: "joining", "wrong password", "pairing". Click opens FART on the right settings section |
+| Island hover (Z95) | Wi-Fi and Bluetooth glyphs as today, plus one word when something is happening: "joining", "wrong password", "pairing". Click opens FART on the right settings section. Built 15 November 2026 (`IslandRest`, `NetWords.wifiWord`/`bluetoothWord`): the word shows only while hovered, "wrong password" in accent; glyph and word open the section while a word shows, Devices otherwise |
 | Devices room, Wi-Fi tile and "nearby" page | On/off; nearby list with signal, lock, KNOWN/NEW; a known network joins in place. A **new** network's row says "join…" and opens FART's Wi-Fi settings with that name filled in (passwords live in settings). The "host dialog" verb goes |
 | Devices room, Bluetooth tile and "paired" page | On/off; connect/release; battery; device glyph; audio first |
 | FART settings → **Wi-Fi** | `Wi-Fi` on/off · network list (signal, band, lock, saved, enterprise tag) · Join (password field) · **Join a hidden network…** (name + password) · per saved network: **Auto-join** toggle, **Forget** (click twice) · **Prefer auto / Wi-Fi / wired** (`network.preference.set`) · **Wired** status · **VPN Start/Stop** per profile · the live password prompt when NM asks |

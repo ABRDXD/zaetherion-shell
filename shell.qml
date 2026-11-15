@@ -79,6 +79,8 @@ ShellRoot {
             docked: panel.retained
             keyboardPeer: panel.holdsKeyboard
             onOpenPanel: room => root.showPanel(room)
+            // A hover word ("joining", "pairing"): FART's settings at that section, over Devices.
+            onOpenSettings: section => { root.showPanel("devices"); Host.openSettings(section); }
             onTogglePanel: room => root.togglePanel(room)
             // A long press ignites, or cuts a running Overdrive, as the panel's plate does. FART is folded here, so
             // the Overdrive asked for outlasts it ("sticky") instead of the panel's own "panel" mode.

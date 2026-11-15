@@ -207,6 +207,8 @@ FocusScope {
     // past half the hovered centre.
     readonly property int wingSpan: Math.max(Design.minHit, Math.ceil((restPane.item?.sideNeed ?? 0) - hoverCentre / 2))
     signal openPanel(string room)
+    // FART's settings at a section, from a hover word on the island (docs/NET_BT.md §5).
+    signal openSettings(string section)
     signal togglePanel(string room)
     signal ignite()
     signal openTray(string itemId)
@@ -367,6 +369,10 @@ FocusScope {
             onOpenPanel: room => {
                 root.keyboardMode = false;
                 root.openPanel(room);
+            }
+            onOpenSettings: section => {
+                root.keyboardMode = false;
+                root.openSettings(section);
             }
             onOpenPower: root.openSession()
         }

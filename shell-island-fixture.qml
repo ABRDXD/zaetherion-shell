@@ -79,6 +79,8 @@ ShellRoot {
         overdriveActive: root.overdrive
         keyboardPeer: panel.holdsKeyboard
         onOpenPanel: room => root.showPanel(room)
+        // A hover word ("joining", "pairing"): FART's settings at that section, over Devices.
+        onOpenSettings: section => { root.showPanel("devices"); Host.openSettings(section); }
         onTogglePanel: room => root.togglePanel(room)
         docked: panel.retained
         onIgnite: root.overdrive = true
