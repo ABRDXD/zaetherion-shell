@@ -2,6 +2,7 @@
 module qs.adapters.dms
 DmsAdapter 1.0 DmsAdapter.qml
 DmsBluetooth 1.0 DmsBluetooth.qml
+DmsClipboard 1.0 DmsClipboard.qml
 DmsDeadline 1.0 DmsDeadline.qml
 DmsFeed 1.0 DmsFeed.qml
 DmsHostTheme 1.0 DmsHostTheme.qml

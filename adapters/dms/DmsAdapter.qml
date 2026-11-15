@@ -60,13 +60,14 @@ HostAdapter {
         if (!clipsWanted)
             createClipboard();
     }
-    // The paste keystroke for quick paste: Hyprland's, not DMS's clipboard service (kept off, F2-4).
+    // DMS's own clipboard history (Z202): DMS records, pins and sends the paste keystroke. Which window gets it
+    // (a terminal takes Ctrl+Shift+V) is read from Hyprland, as DMS reads it from its toplevels.
     readonly property HyprlandPaste pasteKeys: HyprlandPaste {
         focusedAppId: root.workspaces.windows.find(window => window.focused)?.appId ?? ""
     }
     function createClipboard() {
-        create("../common/CliphistClipboard.qml", {
-            sendPaste: terminal => root.pasteKeys.paste(terminal),
+        create("DmsClipboard.qml", {
+            link: link,
             terminalFocused: () => root.pasteKeys.terminalFocused()
         }, domain => root.clipboard = domain);
     }

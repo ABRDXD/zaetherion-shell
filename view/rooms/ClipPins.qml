@@ -2,16 +2,22 @@ import QtQuick
 import qs.view.contract
 import qs.view.shell
 
-// FART's clipboard pins. They live in FART settings and can outlive the host history's retention.
+// Clipboard pins. Where the history keeps its own (DMS, Z202) they are the history's; otherwise they live in FART
+// settings and can outlive the host history's retention.
 QtObject {
     id: root
     required property ClipboardDomain clipboard
     readonly property var pins: Config.options.search.clipboardPins ?? []
+    readonly property bool kept: clipboard?.pinsKept === true
     function indexOf(entry) {
         return pins.findIndex(pin => pin.id === entry.id || (!entry.isImage && pin.text !== "" && pin.text === entry.text));
     }
-    function isPinned(entry) { return indexOf(entry) !== -1; }
+    function isPinned(entry) { return kept ? entry?.pinned === true : indexOf(entry) !== -1; }
     function toggle(entry) {
+        if (kept) {
+            clipboard.pin(entry.id, entry.pinned !== true);
+            return;
+        }
         const next = pins.slice();
         const index = indexOf(entry);
         if (index !== -1) next.splice(index, 1);
@@ -20,6 +26,7 @@ QtObject {
         if (index === -1 && !entry.isImage) clipboard.fetchText(entry.id);
     }
     function missing(entries, search) {
+        if (kept) return [];
         const ids = new Set(entries.map(e => e.id));
         const texts = new Set(entries.map(e => e.text));
         const query = (search ?? "").trim().toLowerCase();

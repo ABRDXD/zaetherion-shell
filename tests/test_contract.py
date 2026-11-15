@@ -46,7 +46,7 @@ DMS = {
     "TrayDomain": "quickshell/QuickshellTray.qml",
     "LyricsDomain": "common/LyricsSource.qml",
     "SystemDomain": "common/LinuxSystem.qml",
-    "ClipboardDomain": "common/CliphistClipboard.qml",
+    "ClipboardDomain": "dms/DmsClipboard.qml",
 }
 # Domains the DMS adapter leaves on their contract placeholders for now.
 DMS_UNBUILT = {"weather", "osd", "capture", "palette", "motion", "sfx", "clockGeometry", "hostActions"}

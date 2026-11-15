@@ -1,9 +1,9 @@
 import QtQuick
 import Quickshell.Hyprland
 
-// The paste keystroke for quick paste (S3): Hyprland sends Ctrl+V (Ctrl+Shift+V into a terminal) to the window that
-// has the keyboard. Compositor-native, so no virtual-keyboard program and nothing of DMS's clipboard service, whose
-// history stays off (F2-4). The terminal rule is DMS's ClipboardService.isTerminalFocused (MIT, see NOTICE).
+// Is the window that has the keyboard a terminal (Ctrl+Shift+V)? DMS's ClipboardService.isTerminalFocused (MIT, see
+// NOTICE). On DMS the keystroke itself is DMS's `clipboard.sendPaste` (Z202) and only the rule is used; paste()
+// sends it through Hyprland, for a session whose clipboard history is not DMS's.
 QtObject {
     id: root
     // The focused window's app id, from the session's workspaces domain.

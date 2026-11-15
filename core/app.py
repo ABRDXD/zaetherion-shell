@@ -74,7 +74,7 @@ class Core:
         self.tasks = Tasks(clock, state_dir)
         self.sessions = Sessions(clock, scheduler, host, state_dir)
         self.island = Island(state_dir)
-        self.clips = Clips(state_dir)  # its recorders only in a session that hands them over (fartd attaches them)
+        self.clips = Clips(state_dir)  # quick paste's settings; the history is DMS's (Z202)
         self.palette = Palette(state_dir)
         # The launcher's apps (S6): the old launcher's counts come from the host profile, once (Z136).
         self.launcher = Launcher(clock, state_dir, imported=getattr(host.profile, "launch_history", lambda: None),
@@ -646,7 +646,6 @@ class Core:
     async def close(self):
         self.exhibit.stop()
         await self.equalizer.close()  # the owner's routing is back before anything else stops
-        await self.clips.close()
         await self.view.stop()  # the view's end shows DMS's bar again (_view_changed), before DMS stops
         if self.supervisor:
             await self.supervisor.stop()  # after the panel: dms and its whole tree (docs/SUPERVISOR.md §6)

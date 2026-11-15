@@ -40,12 +40,6 @@ class HostProfile:
         source = Path(os.environ.get("SERPANTINUM_DIR") or Path.home() / ".local/share/serpantinum/src")
         self.host_sounds = source / "assets/sounds"
 
-    def clip_recorders(self, keep: int, images: bool) -> list:
-        """The clipboard recorders the core runs once the session hands them over (Z184): cliphist, as the owner
-        chose (11 November), keeping `keep` entries; the image watcher only when images are recorded."""
-        kinds = ("text", "image") if images else ("text",)
-        return [["wl-paste", "--type", kind, "--watch", "cliphist", "-max-items", str(keep), "store"] for kind in kinds]
-
     def settings(self) -> dict:
         try:
             value = json.loads(self.settings_path.read_text())

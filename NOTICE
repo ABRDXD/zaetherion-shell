@@ -92,7 +92,11 @@ quickshell/Services/ClipboardService.qml (isTerminalFocused), and
 view/shell/IslandClips.qml follows the key map of
 quickshell/Modals/Clipboard/ClipboardKeyboardController.qml (Enter and
 Shift+Enter, Ctrl+S, Delete, Ctrl+Tab, Ctrl+J/K/N/P), both as installed with
-DMS 2.1.0 (v2.1.0 of duxlabs-dev/dux-shell). No other code is taken.
+DMS 2.1.0 (v2.1.0 of duxlabs-dev/dux-shell). adapters/dms/DmsClipboard.qml makes
+the same socket calls as that ClipboardService (getHistory, copyEntry, the 200 ms
+wait before sendPaste, deleteEntry, pinEntry/unpinEntry, getEntry, copy,
+pasteSupported) and adapters/dms/DmsClipMap.js its newest-first order and the
+base64 text decode of ClipboardEditor.qml. No other code is taken.
 
 adapters/quickshell/QuickshellNotificationServer.qml,
 adapters/quickshell/QuickshellNotification.qml and
