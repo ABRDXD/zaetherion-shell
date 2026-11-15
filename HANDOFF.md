@@ -1,4 +1,4 @@
-# 15 November 2026 · Opus (Claude A): Fluid Timers as a sky (Z201, branch `fluid-timers`)
+# 15 November 2026 · Opus (Claude A): Fluid Timers as a sky (Z202, branch `fluid-timers`)
 
 - **Owner.** The ring dial was "very very bland". Five canvas mock-ups later (Eclipse, Horizon, Accretion, One system,
   B + C) the owner picked B + C: "YES THIS ONE IS MAJESTIC IMPLEMENT THIS ONE".
@@ -34,6 +34,30 @@
 - **Weaknesses left.** Controls are centred in the row, not exactly under the ring; the countdown's right column is sparse
   below its four lengths. Not yet seen in nested Hyprland.
 - **Next.** Per Astra's handoff, Confluence Performance, then shared Fluid framing; Tasks after.
+# Next Codex session
+
+Use [the continuation prompt](docs/NEXT_CHAT_PROMPT.md). The owner requests preparation
+for a fresh chat and explicitly prioritises creative implementation over context gathering:
+read only what a concrete implementation decision requires. Next: Confluence Performance
+in a fresh worktree from current main. This preparation adds no UI or runtime changes.
+
+# 15 November 2026 · Opus (Claude B): Claude C's quick paste and calmer rest merged; the island's hover word (branches `s3-clips-merge`, `s10-hover-word`; not live)
+
+- **C's work committed** on `s3-clips-rest` (owner's OK to take it over): `8612594` as C left it (suite then: 961, 2 failures), `c7a1116` the fixes. C's Z185 (the island's rest) is now **Z201**; Z181–Z184 were free and stay. Z199 and Z200 are Claude A's (workspace transit; island faces leave sooner).
+- **Fixes.** The view may not hold a `GlobalShortcut` (test_layout), so Super+V's `zaetherion:clips` is `adapters/hyprland/HyprlandClipsShortcut.qml`, in A's launcher-shortcut shape (`enabled`, off unless the island lives in the process). test_layout now allows exactly the two shortcut adapters.
+- **Merge** (`1d71fb7` on `s3-clips-merge` = `s0-seed` + C): core topics, `Island` (rest modes beside the preset's form preview), the island faces (launcher and clips both held; one `ClipboardDomain` property), DECISIONS in number order. The island surface keeps the launcher's fixed depth (546 px), deeper than quick paste at 10 rows, so C's grow to 272 px went (Z182, S3_CLIPS_REST §1.6). Full suite 1110 OK (1 skipped); smoke exit 0.
+- **Hover word** (`s10-hover-word`, on the merge; D's leftover, docs/NET_BT.md §5): hovered, "joining" / "wrong password" (accent) beside Wi-Fi and "pairing" beside Bluetooth; glyph or word then opens FART's settings at that tab over Devices (`openSettings` up through IslandRest → IslandSurface → IslandWindow → the entry files' `Host.openSettings`). Without a word, clicks open Devices as before. `NetWords.wifiWord`/`bluetoothWord` (pure, `test_net_words` +1), `tests/fixtures/island/HoverWordTest.qml` (6 checks + capture, looked at). Full suite 1112 OK (1 skipped).
+- **Merged (owner: "you can merge", 15 Nov).** `s0-seed` fast-forwarded to `s10-hover-word` (`03d5050`, over A's Z199/Z200 and the Fluid merge; full suite 1114 OK, 1 skipped; smoke exit 0). Not loaded yet: the core *and* the view must restart (new core topics `clips`, `island.rest`); Claude B's restart was refused by the tool's safety check, so the owner runs it. Then the owner sees rest B (power and bell on hover, Wi-Fi and battery at the edge, unread as a dot). Super+V stays fuzzel until S3_CLIPS_REST §5 (Hyprland binds and `session.lua`: owner's approval, owner present).
+- **Question for the owner (Z198).** DMS has its own clipboard manager (`dms clipboard`: history, search, pins, `send-paste`, config; today `disabled: true`, because the owner chose cliphist on 11 Nov). C's design (before Z198) keeps cliphist, has the core run the recorders (Z184) and pastes through Hyprland (Z183). Under Z198, the alternative is DMS's clipboard as the backend. Ask before §5's go-live.
+- **Next.** Owner: the core restart and the clipboard question. Then: the Clips and Island tabs in FART's settings (Z176, Z184, Z201); the right-click hint on the Devices tiles (owner's call). When A's `ws-transit` merges: `IslandExpansion`, `IslandEvents`, `qmldir`, `test_island` overlap with this merge.
+
+# 15 November 2026 · UI creative handoff for Claude A and other UI contributors
+
+- Owner reaffirmed that slop, mediocrity and sameness are unacceptable across FART's UI.
+- Read [UI and creative direction](docs/UI_CREATIVE_HANDOFF.md) before designing or extending a surface.
+  It consolidates approved Angular/Confluence identities, astrophysical precedents, concrete rejection
+  criteria, motion and usability standards, implementation boundaries and the next Fluid milestone.
+- Documentation only; no visual redesign, new approval gate, runtime change or live reload.
 
 # 15 November 2026 · Codex: FLUID checkpoint integrated for the owner's live trial
 
@@ -49,8 +73,16 @@
   palette snapshot and requested mode stayed unchanged. Selected Fluid through the existing command and
   opened Home. View reported ready; live QML log and Hyprland configerrors were clean. Mode remains Silent.
   Newer unrelated island timing edits in the main working tree were preserved, not staged.
-- Latest launcher/island/notification regressions: 25 tests pass. The broad suite is still running;
-  the first invocation was interrupted because the terminal's `*.debug=false` hid QML test markers.
+- Verification complete: 42 layout/contract/palette/Home tests and 25 launcher/island/notification tests
+  pass. The broad run executed 1104 tests (one skipped), with one cue error and five failures: the old Media
+  view lookup, generated qmldir ordering, and four timing assertions loaded before the concurrent Z200 merge.
+  Corrected the lookup to use the persistent session and regenerated qmldir. Reruns: 26 module/island/
+  notification tests pass; all six closing cue scenarios pass in nested Hyprland with the software renderer
+  expected by the harness (Media idle/lyrics, orbit laws, Overdrive language, ignition/release and guards).
+  Full suite not rerun after those fixes; no blanket full-suite pass claim. The terminal suppresses QML debug
+  by default, so tests that read QML markers need `QT_LOGGING_RULES=qml.debug=true`.
+- Merge and test follow-ups committed on `s0-seed`; Fluid work remains isolated on
+  `codex/fluid-foundation` and `codex/fluid-live-merge`. No outstanding Fluid edits or push.
 - Scope: the style authority is global (`island.form` → `Design.form`), but dedicated Confluence room
   presentations currently cover Home and Media. Other rooms and surrounding shell framing remain in progress.
   Existing Overdrive effects and reduced-motion behaviour remain; full Fluid spatial transitions are pending.
@@ -215,6 +247,13 @@
 - **Checks.** Full suite 954 OK on `2d04d4f`. Main checkout fast-forwarded; core restarted with the S4 settings.
 - **Prompts written** for Claude B (wallpaper/presets, Z177+), C (clipboard from the island, calmer island rest, Z180+), D (Wi-Fi and Bluetooth in FART, Z190+). Launcher decisions: Z185+.
 - **Next.** The launcher itself: apps domain in the adapter, frecency in the core (import `launch_stats.json`, Z136), matching in the core, the surface grown from the island.
+
+# 14 November 2026 · Opus (Claude C): S3, quick paste from the island and a calmer rest (branch `s3-clips-rest`; not live)
+
+- **Owner's answers** (from the captures, https://claude.ai/artifact/7cd8cEiZ4i5H6i3Z6YsaNs): yes to all; Enter copies (Shift+Enter pastes); rest B, but Wi-Fi and battery at the right edge in place of the bell, unread as a dot on the battery. OK to change Super+V and for FART to take over clipboard recording (both at go-live). Recorded as Z181–Z184, Z201 (Claude B holds Z177–Z180; both insert after Z176 in DECISIONS, expect a small merge conflict there).
+- **Built.** `view/shell/IslandClips.qml` (held island face, DMS's keys, fixed height, held early Enter, thumbnails only for built rows); `IslandSurface`/`IslandExpansion`/`IslandWindow` wiring (the surface grows once to 272 px for it, shrinks after the fold); Super+V as Hyprland global shortcut `zaetherion:clips` registered only in the island's process, `qs ipc call island clips` as fallback; Ctrl+O sets `ViewState.clipQuery` and opens Clips. `IslandRest.restItems` with modes always/matters/hover (+ inbox unread/dot); core `island` topic gains `rest` (default the owner's B), `island rest <preset|item mode>`, op `island.rest`. Core `clips` topic (`core/clips.py`, op `clips.set`) with Enter-copies default, rows, images, entries kept, images recorded, and the recorders (Serpantinum profile `clip_recorders`, only with `FART_CLIP_RECORDER=1`). Adapter: `CliphistClipboard` paste and thumbnails, `HyprlandPaste` (Hyprland `send_shortcut`, DMS's terminal rule), `DmsAdapter.clipsWanted`.
+- **Checks.** New `tests/fixtures/island/ClipsTest.qml` (15 checks; it caught a held Enter that never fired, fixed) and `tests/test_core_clips.py` (6). qmllint 0 syntax diagnostics; `make_qmldirs.py --check` clean; full suite in the commit message. Captures offscreen (`tools/clips_capture.py` with `tests/fixtures/clips/Harness.qml`, made-up clips); not yet seen in the nested Hyprland (Claude B's nested instance was up).
+- **Next.** Settings tabs Clips and Island inside FART (after Claude B's tabs merge); the Clips room's look; `send_shortcut` and the global shortcut in the nested Hyprland; then go-live per `docs/S3_CLIPS_REST.md` §5 with the owner (merge OK first).
 
 # 14 November 2026 · Opus (Claude A): S4 live; our notification server starts with the desktop
 

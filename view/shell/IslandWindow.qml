@@ -13,6 +13,7 @@ Scope {
     property string motionLevel: "all"
     property bool systemVoice: true
     signal openPanel(string room)
+    signal openSettings(string section)
     signal togglePanel(string room)
     property bool docked: false
     readonly property var companionWindow: layer.active ? layer.item : null
@@ -35,6 +36,12 @@ Scope {
     function openTray(itemId: string): void { companionWindow?.openTray(itemId); }
     function openSession(): void { companionWindow?.openSession(); }
     function toggleLauncher(): void { companionWindow?.toggleLauncher(); }
+    // Quick paste (S3, Super+V).
+    function toggleClips(): void { companionWindow?.toggleClips(); }
+    signal clipRoom(string query)
+    // What shows at rest (Z201) and quick paste's settings (Z184), from the core.
+    property var restItems: ({})
+    property var clipSettings: ({})
     required property ShellScreen output
     required property bool bottomEdge
     required property int edgeGap
@@ -68,6 +75,7 @@ Scope {
             function focusIsland(): void { frame.enterKeyboard(); }
             function openSession(): void { frame.openSession(); }
             function toggleLauncher(): void { frame.toggleLauncher(); }
+            function toggleClips(): void { frame.toggleClips(); }
             function openTray(itemId: string): void {
                 trayItem = itemId;
                 root.host.tray.menu(itemId);
@@ -79,6 +87,7 @@ Scope {
             // click-to-panel jitter). It spans the output and the deepest face; the island morphs inside it, the
             // mask keeps input to the island, and the transparent gap is inside it (a layer-shell margin would add
             // to the reserved zone).
+            // Quick paste (S3) is shallower than the launcher at any row count, so it fits without a resize too.
             readonly property int deepest: frame.deepest
             implicitWidth: root.output?.width ?? frame.width
             implicitHeight: deepest + root.edgeGap
@@ -101,6 +110,7 @@ Scope {
                 bottomEdge: root.bottomEdge
                 notch: root.edgeGap === 0
                 onOpenPanel: room => root.openPanel(room)
+                onOpenSettings: section => root.openSettings(section)
                 onTogglePanel: room => root.togglePanel(room)
                 docked: root.docked
                 workspaceIds: root.workspaceIds
@@ -110,6 +120,9 @@ Scope {
                 keyboardPeer: root.keyboardPeer
                 onOpenLog: url => root.openLog(url)
                 trayItem: panel.trayItem
+                restItems: root.restItems
+                clipSettings: root.clipSettings
+                onClipRoom: query => root.clipRoom(query)
                 onOpenTray: itemId => panel.openTray(itemId)
                 onCloseTray: panel.trayItem = ""
                 onChooseTray: entryId => root.host.tray.triggerMenuItem(panel.trayItem, entryId)

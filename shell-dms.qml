@@ -6,7 +6,9 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Hyprland
 import qs.adapters.dms
+import qs.adapters.hyprland
 import qs.core.client
 import qs.view.overdrive
 import qs.view.shell
@@ -22,6 +24,7 @@ ShellRoot {
         core: client
         role: "shell"
         osdWanted: root.islandWanted
+        clipsWanted: root.islandWanted
         // With a core, DMS's socket follows the supervisor (it changes with every DMS restart, and is null while
         // DMS is down); without one, DMS_SOCKET.
         socketPath: client.connected ? (client.supervisorData?.children?.dms?.socket ?? "") : (Quickshell.env("DMS_SOCKET") ?? "")
@@ -35,7 +38,8 @@ ShellRoot {
         form: Quickshell.env("ZAETHERION_ISLAND_FORM") === "fluid" ? "fluid" : "angular",
         edge: Quickshell.env("ZAETHERION_ISLAND_EDGE") === "bottom" ? "bottom" : "top",
         placement: Quickshell.env("ZAETHERION_ISLAND_PLACEMENT") === "floating" ? "floating" : "notch",
-        screen: Quickshell.env("ZAETHERION_ISLAND_OUTPUT") ?? ""
+        screen: Quickshell.env("ZAETHERION_ISLAND_OUTPUT") ?? "",
+        rest: ({ power: "hover", network: "always", battery: "always", inbox: "dot" })
     })
     readonly property string islandOutput: islandSettings.screen ?? ""
     Binding { target: Design; property: "form"; value: root.islandSettings.form === "fluid" ? "fluid" : "angular" }
@@ -85,17 +89,34 @@ ShellRoot {
             docked: panel.retained
             keyboardPeer: panel.holdsKeyboard
             onOpenPanel: room => root.showPanel(room)
+            // A hover word ("joining", "pairing"): FART's settings at that section, over Devices.
+            onOpenSettings: section => { root.showPanel("devices"); Host.openSettings(section); }
             onTogglePanel: room => root.togglePanel(room)
             // A long press ignites, or cuts a running Overdrive, as the panel's plate does. FART is folded here, so
             // the Overdrive asked for outlasts it ("sticky") instead of the panel's own "panel" mode.
             onIgnite: lease.requested ? lease.release() : lease.request("sticky")
             onNotificationAction: (id, action, reply) => adapter.notifications.invoke(id, action, reply)
+            restItems: root.islandSettings.rest ?? ({})
+            clipSettings: client.clipsData ?? ({})
+            // Ctrl+O in quick paste: FART's Clips room with the query carried.
+            onClipRoom: query => {
+                ViewState.clipQuery = query;
+                root.showPanel("clipboard");
+            }
         }
+    }
+    // Super+V (S3): Hyprland's global shortcut `zaetherion:clips`, delivered to this process with nothing started.
+    // Only the island's process registers it.
+    HyprlandClipsShortcut {
+        enabled: root.islandWanted
+        onPressed: root.island?.toggleClips()
     }
     // Super+Shift+I (Z148): `qs -p <repo>/shell.qml ipc call island focus`. With FART open the island takes the
     // keyboard and FART stays open; Esc hands it back.
     IpcHandler {
         target: "island"
         function focus(): void { root.island?.focusIsland(); }
+        // The same as Super+V, for a bind that runs a command instead.
+        function clips(): void { root.island?.toggleClips(); }
     }
 }

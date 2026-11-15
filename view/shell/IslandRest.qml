@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import qs.view.contract
 import qs.view.ui
+import "NetWords.js" as NetWords
 
 // The island's row, at rest and hovered, balanced around the centred clock (Z124). Each side of the clock is one
 // run from the clock to a shoulder:
@@ -20,7 +21,28 @@ Item {
     // The hover fade (0–1) for items that appear only with the wings.
     property real reveal: wings ? 1 : 0
     signal openPanel(string room)
+    // FART's settings at a section ("wifi", "bluetooth"): a glyph with a hover word opens where that is happening.
+    signal openSettings(string section)
     signal openPower()
+    // What shows at rest (Z176, FART's Island tab): each item "always", "matters" (only while it needs you) or
+    // "hover"; the inbox may also be "unread" (its bell while anything is unread) or "dot" (no bell at rest: a dot on
+    // the last status glyph while anything is unread). Hovered, everything shows as before. The default is the rest
+    // as it was. The owner's rest (B, 14 November): power on hover, Wi-Fi and battery always, the inbox as a dot.
+    property var restItems: ({})
+    readonly property bool batteryLow: !!host.power.battery?.available && !host.power.battery?.pluggedIn
+        && (host.power.battery?.level ?? 1) <= 0.2
+    readonly property bool networkDown: host.network.available && !host.network.connected
+    readonly property bool unreadCritical: host.notifications.items.some(item => item.urgency === "critical" && !item.read)
+    function atRest(item: string, matters: bool): bool {
+        const mode = restItems[item] ?? "always";
+        return hovered || mode === "always" || (mode === "matters" && matters)
+            || (mode === "unread" && host.notifications.unread > 0);
+    }
+    // The bell is not at rest: the status run moves out to the shoulder in its place.
+    readonly property bool inboxAtRest: host.notifications.available && atRest("inbox", unreadCritical)
+    readonly property bool statusAtEdge: !hovered && !inboxAtRest
+    readonly property bool unreadDot: !hovered && (restItems.inbox ?? "always") === "dot" && host.notifications.unread > 0
+    readonly property bool batteryShown: !!host.power.battery?.available && atRest("battery", batteryLow)
     signal openTray(string itemId)
 
     // Fluid at rest (Z145): the clock alone, or the track and its waveform either side of it while playing.
@@ -35,6 +57,9 @@ Item {
     readonly property bool hovered: wings || reveal > 0
     readonly property var player: host.media.available ? host.media.active : null
     readonly property bool visualising: live && !!player?.playing
+    // One word while hovered when something is happening (docs/NET_BT.md §5): "joining", "wrong password", "pairing".
+    readonly property string wifiWord: NetWords.wifiWord(host.network.attempt, host.network.prompt)
+    readonly property string bluetoothWord: NetWords.bluetoothWord(host.bluetooth.attempts, host.bluetooth.pairing)
     readonly property string networkGlyph: host.network.kind === "ethernet" && host.network.connected
         ? "lan" : host.network.connected ? "wifi" : "wifi_off"
     // Inside each end: Angular's shoulders take little, Fluid's flare and corners take more, so Fluid keeps
@@ -54,7 +79,8 @@ Item {
     // list leaves it out.
     readonly property var audio: host.audio
     readonly property var hoverStatus: [
-        { glyph: host.bluetooth.enabled ? "bluetooth" : "bluetooth_disabled", label: "Bluetooth", shown: host.bluetooth.available },
+        { glyph: host.bluetooth.enabled ? "bluetooth" : "bluetooth_disabled", label: "Bluetooth", shown: host.bluetooth.available,
+          word: bluetoothWord, section: "bluetooth" },
         { glyph: audio.output?.muted ? "volume_off" : "volume_up", label: "Volume", shown: !!audio.output },
         { glyph: audio.input?.muted ? "mic_off" : "mic", label: "Microphone", shown: !!audio.input },
         // Warnings only while they apply. Num lock and the power profile live in the Devices room (owner, 12 November).
@@ -83,13 +109,42 @@ Item {
 
     component HoverStatus: Repeater {
         model: root.hovered ? root.hoverStatus : []
-        IslandGlyph {
+        Row {
+            id: status
             required property var modelData
-            quiet: true
+            readonly property string word: modelData.word ?? ""
+            function open(): void {
+                if (word) root.openSettings(modelData.section);
+                else root.openPanel("devices");
+            }
+            spacing: Design.baseline
             opacity: root.reveal
-            glyph: modelData.glyph
-            description: modelData.label
-            onClicked: root.openPanel("devices")
+            IslandGlyph {
+                quiet: true
+                glyph: status.modelData.glyph
+                description: status.word ? status.modelData.label + ": " + status.word : status.modelData.label
+                onClicked: status.open()
+            }
+            HoverWord {
+                word: status.word
+                onClicked: status.open()
+            }
+        }
+    }
+    // The hover word itself: quiet unless it needs the person ("wrong password"); a click does what its glyph does.
+    component HoverWord: FText {
+        id: hoverWord
+        property string word: ""
+        signal clicked()
+        visible: root.hovered && word !== ""
+        anchors.verticalCenter: parent.verticalCenter
+        technical: true
+        text: word
+        color: word === "wrong password" ? Design.accent : Design.muted
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: hoverWord.clicked()
         }
     }
     component Weather: Row {
@@ -134,7 +189,7 @@ Item {
     // clock instead, mirroring the status on the right.
     Loader {
         id: leftPower
-        active: !root.compact
+        active: !root.compact && root.atRest("power", false)
         x: root.leftShoulder
         anchors.verticalCenter: parent.verticalCenter
         sourceComponent: Power {}
@@ -280,16 +335,23 @@ Item {
         readonly property var parts: children
         readonly property real used: root.runWidth(parts, 0)
         readonly property int count: parts.filter(item => item.visible && item.width > 0).length
-        x: root.clockRight + root.gap
+        x: root.statusAtEdge ? root.rightShoulder - width : root.clockRight + root.gap
         anchors.verticalCenter: parent.verticalCenter
         spacing: root.tight
 
         IslandGlyph {
-            visible: root.host.network.available
-            quiet: true
+            visible: root.host.network.available && root.atRest("network", root.networkDown)
+            quiet: !root.networkDown
+            // The unread dot rides the last status glyph; with no battery that is this one.
+            signalDot: root.unreadDot && !root.batteryShown
             glyph: root.networkGlyph
-            description: "Network"
-            onClicked: root.openPanel("devices")
+            description: root.wifiWord ? "Network: " + root.wifiWord : "Network"
+            onClicked: root.wifiWord ? root.openSettings("wifi") : root.openPanel("devices")
+        }
+        HoverWord {
+            opacity: root.reveal
+            word: root.wifiWord
+            onClicked: root.wifiWord ? root.openSettings("wifi") : root.openPanel("devices")
         }
         IslandGlyph {
             visible: root.host.audio.privacy.length > 0
@@ -308,7 +370,7 @@ Item {
         Item {
             // From the data, not from the mark: the mark's visibility includes this item's, which would lock both
             // hidden once anything hid the row.
-            visible: !!root.host.power.battery?.available
+            visible: root.batteryShown
             width: battery.width
             height: Design.minHit
             BatteryMark {
@@ -320,6 +382,16 @@ Item {
                 rounded: Design.fluid
                 // A status reading: quiet like the glyphs beside it, unless it is calling for attention.
                 opacity: tone === Design.accent ? 1 : 0.72
+            }
+            // Unread notifications while the bell is not at rest (IslandGlyph's dot, at the mark's corner).
+            Rectangle {
+                visible: root.unreadDot
+                x: battery.x + battery.width - width / 2
+                y: battery.y - height / 2
+                width: Design.baseline
+                height: width
+                radius: width / 2
+                color: Design.accent
             }
         }
         HoverStatus {}
@@ -333,7 +405,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         spacing: root.tight
         IslandGlyph {
-            visible: root.host.notifications.available
+            visible: root.host.notifications.available && root.atRest("inbox", root.unreadCritical)
             glyph: "notifications"
             description: "Inbox"
             signalDot: root.host.notifications.unread > 0

@@ -10,6 +10,7 @@ from pathlib import Path
 from core.command import Commands
 from core.exhibit import Exhibit
 from core.discovery import Discovery
+from core.clips import Clips
 from core.equalizer import Equalizer
 from core.errors import OpError
 from core.genealogy import Genealogy
@@ -73,6 +74,7 @@ class Core:
         self.tasks = Tasks(clock, state_dir)
         self.sessions = Sessions(clock, scheduler, host, state_dir)
         self.island = Island(state_dir)
+        self.clips = Clips(state_dir)  # its recorders only in a session that hands them over (fartd attaches them)
         self.palette = Palette(state_dir)
         # The launcher's apps (S6): the old launcher's counts come from the host profile, once (Z136).
         self.launcher = Launcher(clock, state_dir, imported=getattr(host.profile, "launch_history", lambda: None),
@@ -114,7 +116,7 @@ class Core:
             self.sessions.on_guard = session_guard.changed
 
         for name, owner in (("timers", self.timers), ("tasks", self.tasks), ("notifications", self.inbox),
-                            ("overdrive", self.overdrive), ("session", self.sessions), ("island", self.island), ("palette", self.palette),
+                            ("overdrive", self.overdrive), ("session", self.sessions), ("island", self.island), ("clips", self.clips), ("palette", self.palette),
                             ("wallpaper", self.wallpaper),
                             ("equalizer", self.equalizer), ("launcher", self.launcher), ("view", self.view)):
             server.topic(name, owner.snapshot)
@@ -258,6 +260,8 @@ class Core:
         op("eq.band", lambda peer, index, gain: e.set_band(index, gain))
         op("eq.preset", lambda peer, name: e.apply_preset(name))
         op("eq.mono", lambda peer, on: e.set_mono(on))
+        op("clips.set", lambda peer, key, value: self.clips.set(key, value))
+        op("island.rest", lambda peer, item, mode: self.island.set_rest(**{item: mode}))
         op("exhibit.prepare", lambda peer, reduced=True, metadata=None: self.exhibit.prepare(reduced, metadata))
         op("exhibit.start", lambda peer: self.exhibit.start())
         op("exhibit.stop", lambda peer: self.exhibit.stop())
@@ -642,6 +646,7 @@ class Core:
     async def close(self):
         self.exhibit.stop()
         await self.equalizer.close()  # the owner's routing is back before anything else stops
+        await self.clips.close()
         await self.view.stop()  # the view's end shows DMS's bar again (_view_changed), before DMS stops
         if self.supervisor:
             await self.supervisor.stop()  # after the panel: dms and its whole tree (docs/SUPERVISOR.md §6)

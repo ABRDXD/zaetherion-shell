@@ -52,6 +52,22 @@ function attempt(a, name, kind) {
     return null;
 }
 
+// The island's hover word (docs/NET_BT.md §5): one word beside the Wi-Fi or Bluetooth glyph while something is
+// happening, "" otherwise. Wi-Fi: "wrong password" while a join waits for the password again, "joining" while one
+// runs. Bluetooth: "pairing" while a pair runs (a wrong code too) or the device asks for an answer.
+const RUNNING = ["working", "lost", "wrong-secret"];
+function wifiWord(a, p) {
+    if ((p && p.reason === "wrong-password") || (a && a.phase === "wrong-secret" && (a.action === "join" || a.action === "connect")))
+        return "wrong password";
+    if (a && (a.action === "join" || a.action === "connect") && RUNNING.indexOf(a.phase) >= 0) return "joining";
+    return "";
+}
+function bluetoothWord(attempts, pairing) {
+    if (pairing) return "pairing";
+    const all = attempts ? Object.keys(attempts).map(id => attempts[id]) : [];
+    return all.some(a => a && a.action === "pair" && RUNNING.indexOf(a.phase) >= 0) ? "pairing" : "";
+}
+
 // The password prompt's heading.
 function prompt(p) {
     if (!p) return "";

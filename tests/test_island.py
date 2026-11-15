@@ -31,6 +31,14 @@ class IslandFrameTests(unittest.TestCase):
             "readout sits on the header row", "muted reads MUTED", "dwell follows the last change", "leaves after its dwell", "header readout gone",
             "fold replays no stale osd", "uncovered osd on island", "dock lifts osd into header", "fold hands it back"))
 
+    def test_quick_paste_and_rest_modes(self):
+        """S3: quick paste grows from the island (Z181-Z183) and the rest shows what the owner chose (Z201)."""
+        self.run_fixture("ClipsTest.qml", ("opens as a held face with the keyboard", "leases the history while open",
+            "early enter is held", "held enter copies the first match once loaded", "folds after acting",
+            "shift+enter pastes the chosen clip", "ctrl+tab steps the filter", "a visible image row asks for its thumbnail",
+            "ctrl+o opens the room with the query", "esc folds and lets go of the history", "toggle opens", "toggle folds",
+            "rest B: no bell, status at the edge, unread dot", "no dot when all is read", "default rest unchanged"))
+
     def test_workspace_instrument(self):
         """Z199: the edge-on system: transit, symmetry, crescents, window counts, the short way round, settling."""
         self.run_fixture("WorkspaceTransitTest.qml", ("current world on the star's face", "a transit, never an eclipse", "worlds mirror about the axis",
@@ -66,6 +74,12 @@ class IslandFrameTests(unittest.TestCase):
         self.run_fixture("FluidTest.qml", ("fluid rests compact", "fluid shows media while playing",
             "right-click switches to the clock",
             "fluid hover shows the row", "fluid notification face"))
+
+    def test_hover_word(self):
+        """docs/NET_BT.md §5: one word beside Wi-Fi or Bluetooth while hovered; a click opens that settings section."""
+        self.run_fixture("HoverWordTest.qml", ("no word at rest", "hovered: joining and pairing",
+            "a word opens its settings section", "wrong password, in accent", "nothing once it is done",
+            "without a word the glyphs open Devices as before"))
 
     def run_fixture(self, filename, checks):
         harness = (ROOT / "tests/fixtures/island" / filename).read_text()

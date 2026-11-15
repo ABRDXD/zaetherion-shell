@@ -112,6 +112,11 @@ def supervise(core: Core, scheduler, env: dict, runtime: Path) -> SessionWatch |
     return watch
 
 
+def clip_recorder_wanted(environ) -> bool:
+    """The core records the clipboard only when the session asks (FART_CLIP_RECORDER=1), never as a test core."""
+    return environ.get("FART_CLIP_RECORDER") == "1" and environ.get("FART_HOST") != "fixture"
+
+
 async def serve(runtime: Path, state_dir: Path):
     loop = asyncio.get_running_loop()
     clock = SystemClock()
@@ -134,6 +139,10 @@ async def serve(runtime: Path, state_dir: Path):
     for signum in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
         loop.add_signal_handler(signum, core.stopping.set)
     watch = supervise(core, scheduler, env, runtime)
+    # The clipboard recorders (Z184), once the session has handed them over (its own recorder lines removed).
+    recorders = getattr(host.profile, "clip_recorders", None)
+    if clip_recorder_wanted(os.environ) and recorders:
+        core.clips.attach(recorders)
     if core.dms_bar:
         core.dms_bar.sync(False)  # shown until the view is up, also after a core that was killed with it hidden
     core.view.keep()  # resident view only

@@ -79,6 +79,8 @@ ShellRoot {
         overdriveActive: root.overdrive
         keyboardPeer: panel.holdsKeyboard
         onOpenPanel: room => root.showPanel(room)
+        // A hover word ("joining", "pairing"): FART's settings at that section, over Devices.
+        onOpenSettings: section => { root.showPanel("devices"); Host.openSettings(section); }
         onTogglePanel: room => root.togglePanel(room)
         docked: panel.retained
         onIgnite: root.overdrive = true
@@ -104,6 +106,7 @@ ShellRoot {
         function focus(): void { island.focusIsland(); }
         function tray(): void { island.openTray("sample"); }
         function power(): void { island.openSession(); }
+        function clips(): void { island.toggleClips(); }
         function panel(room: string): void { root.togglePanel(room); }
         function recording(on: bool): void {
             fixture.capture.recording = { active: on, startedAt: Date.now() / 1000 };

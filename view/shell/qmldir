@@ -15,6 +15,7 @@ FartHeaderOsd 1.0 FartHeaderOsd.qml
 HeavyLayer 1.0 HeavyLayer.qml
 singleton Host 1.0 Host.qml
 IndexBand 1.0 IndexBand.qml
+IslandClips 1.0 IslandClips.qml
 IslandEvents 1.0 IslandEvents.qml
 IslandExpansion 1.0 IslandExpansion.qml
 IslandGlyph 1.0 IslandGlyph.qml

@@ -57,7 +57,21 @@ class IslandVerbTests(unittest.IsolatedAsyncioTestCase):
         await run("island floating")
         await run("island screen DP-1")
         self.assertEqual(self.core.island.snapshot(),
-                         {"form": "fluid", "edge": "bottom", "placement": "floating", "screen": "DP-1"})
+                         {"form": "fluid", "edge": "bottom", "placement": "floating", "screen": "DP-1",
+                          "rest": DEFAULTS["rest"]})
         await run("island screen auto")
         self.assertEqual(self.core.island.snapshot()["screen"], "")
         self.assertFalse((await run("island sideways"))["ok"])
+
+    async def test_rest_presets_and_items(self):
+        """Z201: the owner's rest (B) by default; a preset or one item's mode; bad modes refused."""
+        run = lambda line: self.core.commands.run(line, "cli")
+        self.assertEqual(self.core.island.snapshot()["rest"],
+                         {"power": "hover", "network": "always", "battery": "always", "inbox": "dot"})
+        await run("island rest a")
+        self.assertEqual(self.core.island.snapshot()["rest"]["inbox"], "matters")
+        await run("island rest battery always")
+        self.assertEqual(self.core.island.snapshot()["rest"]["battery"], "always")
+        self.assertFalse((await run("island rest power dot"))["ok"])
+        self.assertFalse((await run("island rest clock always"))["ok"])
+        self.assertIn("REST", (await run("island"))["line"])
