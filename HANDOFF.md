@@ -1,3 +1,11 @@
+# 16 November 2026 · Opus (Claude A): three plain rooms get new looks (Z209, Z211, Z212)
+
+- **Owner.** Turned down the "one universe" shared frame: "dont redisign everything, just the ones that are too basic". Of the plain rooms (Workspaces, Devices, Inbox), Performance stays ("insane overdrive look"). Three mocks each on the canvas (rows "Workspaces room", "Devices room", "Inbox room"); picks: Workspaces B orbit, Devices B signal map, Inbox C comets.
+- **Built.** Z209 Workspaces as an orbit (`Workspaces.qml`, `WorkspacePlanet`, `WindowBlade`, `WorkspacesOrbit.js`; genealogy tree, trace and WorkspaceTab removed). Z211 Inbox as the day's sky (`Inbox.qml`, `InboxComet`, `InboxSky.js`; InboxAnswer and the attention band kept). Z212 Devices signal map (`DevicesSky`, `DevicesSkyLayout.js`; every control kept, the mixer is the link panel's first page).
+- **Checks.** `tests/test_workspaces_orbit.py`, `test_inbox_sky.py`, `test_devices_sky.py`; keytest, InboxTest/InboxAnswerTest, DevicesTest, AstraTest pass. Full suite: only the known load flakes (`test_astra_cues` temporal, `test_cmdline_view` escape.during.unfold), both pass alone.
+- **Live.** Merged into `s0-seed`; the live view doesn't hot-reload, so the owner runs `tools/live-restart` (that one restart also covers Claude B's Z207/Z208 core change).
+- **Lesson.** Decision numbers: Claude B took Z210 between my commit and merge; renumber at merge time.
+
 # 15 November 2026 · Opus (Claude B): signing off — Notifications tab merged (not live), keys-to-ZÆTHERION started (Z207, Z208)
 
 **State at sign-off (owner: "I will do all this tomorrow, save everything, make a handoff").**
