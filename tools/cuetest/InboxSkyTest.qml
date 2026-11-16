@@ -6,7 +6,7 @@ import qs.view.shell
 import qs.view.rooms
 import qs.view.ui as UI
 
-// The Inbox as the day's sky (Z210), offscreen on the fixture: one comet per notice, the panel starts on the newest
+// The Inbox as the day's sky (Z211), offscreen on the fixture: one comet per notice, the panel starts on the newest
 // unread, a comet's click reads it, Dismiss dismisses the one read and the panel falls back; urgent comets fly
 // higher than quiet ones and newer ones sit nearer NOW.
 Scope {

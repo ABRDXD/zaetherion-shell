@@ -5,7 +5,7 @@ import qs.view.rooms
 import qs.view.ui as UI
 import qs.view.cues
 
-// Devices' signal map (Z211), offscreen on the fixture: the rings carry the levels, a star per other network (the
+// Devices' signal map (Z212), offscreen on the fixture: the rings carry the levels, a star per other network (the
 // joined one is the satellite), a star's click asks to join it, a stronger signal sits nearer, an unknown strength
 // shows no number; Silent is still and Overdrive pings.
 Scope {

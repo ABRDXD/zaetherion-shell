@@ -138,6 +138,19 @@ ShellRoot {
                            "notification choices go to the core");
                 root.find(prefs, "choice-do-not-disturb-true").clicked();
                 root.check(fixture.notifications.calls.some(c => c.method === "setDnd" && c.args[0] === true), "do-not-disturb goes to the inbox");
+                client.presetsData = { looks: [{ name: "Look 1", wallpaper: "", palette: "", islandForm: "", hostTheme: "", missing: [], paletteName: "", swatch: [] }], preview: null };
+                prefs.section = "presets";
+                break;
+            }
+            case 20: {
+                // Z210: the button works with a blank name, as the first free "Look N".
+                root.sent = [];
+                const save = root.find(prefs, "presetSave");
+                save.clicked();
+                root.find(prefs, "presetName").text = "Rain";
+                save.clicked();
+                const names = root.sent.filter(s => s.op === "presets.save").map(s => s.args.name);
+                root.check(save.enabled && JSON.stringify(names) === JSON.stringify(["Look 2", "Rain"]), "a blank preset name saves as the next look");
                 Qt.quit();
                 break;
             }

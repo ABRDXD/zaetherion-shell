@@ -5,7 +5,7 @@ import QtQuick.Controls
 import QtQuick.Shapes
 import "DevicesSkyLayout.js" as L
 
-// Devices' signal map (Z211, owner's pick "B · The signal map", 16 November 2026). The laptop is a planet lit by
+// Devices' signal map (Z212, owner's pick "B · The signal map", 16 November 2026). The laptop is a planet lit by
 // its battery (the lit side reaches further the fuller it is; warm while charging). Round it, three tilted rings
 // fill with its levels: output volume (outermost), microphone, screen brightness; a muted one goes dim. The joined
 // Wi-Fi network is a satellite, nearer the stronger its signal; other networks the host already lists are faint

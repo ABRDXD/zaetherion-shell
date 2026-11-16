@@ -1,6 +1,6 @@
 .pragma library
 
-// Devices' signal map (Z211): the laptop as a planet, its levels as rings round it, its links as bodies around it.
+// Devices' signal map (Z212): the laptop as a planet, its levels as rings round it, its links as bodies around it.
 // Pure layout, so tests can run it under Node. Radii are shares of the scene's half-size; angles in degrees for
 // Shape arcs (0 = right, clockwise) and radians for positions.
 

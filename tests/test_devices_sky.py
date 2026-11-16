@@ -1,4 +1,4 @@
-"""Devices' signal map (Z211): the layout maths under Node, and the map offscreen on the fixture."""
+"""Devices' signal map (Z212): the layout maths under Node, and the map offscreen on the fixture."""
 import json
 from pathlib import Path
 import shutil

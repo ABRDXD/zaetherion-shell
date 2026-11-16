@@ -63,7 +63,7 @@ Scope {
     Component.onCompleted: after(300, () => {
         fixture.notifications.source = "server";
         fixture.notifications.items = answerable;
-        // The reading panel shows one notice (Z210): read the live one, as a click on its comet would.
+        // The reading panel shows one notice (Z211): read the live one, as a click on its comet would.
         room.selectedId = "live";
         after(300, () => {
             const view = buttons("View"), open = buttons("Open"), field = shown(i => i.placeholderText === "Say something");

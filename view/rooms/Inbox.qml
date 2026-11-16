@@ -6,7 +6,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import "InboxSky.js" as Sky
 
-// The Inbox as the day's sky (Z210, owner's pick "C · The comets", 16 November 2026). Each notification is a comet
+// The Inbox as the day's sky (Z211, owner's pick "C · The comets", 16 November 2026). Each notification is a comet
 // at the time it came: high when urgent, low when quiet, a tail and a glow while unread, warm when critical. NOW is
 // the right edge. Clicking a comet reads it in the panel below: its app and time, the summary large, the body and
 // picture, then its actions or reply (InboxAnswer) and Dismiss. The panel starts on the newest unread. The unread

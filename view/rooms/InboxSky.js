@@ -1,6 +1,6 @@
 .pragma library
 
-// The Inbox as the day's sky (Z210): each notification a comet at the time it came, high when urgent, low when
+// The Inbox as the day's sky (Z211): each notification a comet at the time it came, high when urgent, low when
 // quiet, with a tail while unread. Pure layout, so tests can run it under Node. Times are ms since the epoch.
 
 const HOUR = 3600000;

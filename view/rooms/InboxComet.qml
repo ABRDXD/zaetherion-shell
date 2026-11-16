@@ -3,7 +3,7 @@ import qs.view.cues
 import QtQuick
 import QtQuick.Controls
 
-// One notification in the Inbox's sky (Z210), centred on its x, y: a head, and while unread a tail trailing back
+// One notification in the Inbox's sky (Z211), centred on its x, y: a head, and while unread a tail trailing back
 // along the house angle with a glow. Urgent ones burn warm. The selected one is bigger. Its app is named under it.
 // A click selects it for the reading panel.
 AbstractButton {

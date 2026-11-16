@@ -40,6 +40,17 @@ ColumnLayout {
         });
     }
     function cancel(): void { send("presets.cancel", {}); }
+    // Z210: a blank name still saves, as the first free "Look N", so the button never looks dead.
+    function freeName(): string {
+        const taken = looks.map(look => look.name.toLowerCase());
+        let n = 1;
+        while (taken.includes("look " + n)) n++;
+        return "Look " + n;
+    }
+    function save(): void {
+        const name = nameField.text.trim() || freeName();
+        send("presets.save", { name: name }, () => { nameField.text = ""; root.notice = "Saved " + name; });
+    }
     onActiveChanged: {
         notice = "";
         if (active) {
@@ -66,7 +77,7 @@ ColumnLayout {
             objectName: "presetName"
             Layout.fillWidth: true
             implicitHeight: Design.minHit + Design.baseline * 2
-            placeholderText: "Name the look you have now…"
+            placeholderText: "Name the look you have now (or leave blank)…"
             maximumLength: 48
             color: Design.ink
             placeholderTextColor: Design.muted
@@ -75,7 +86,7 @@ ColumnLayout {
             font.family: Design.sans
             font.pixelSize: Design.body
             background: Rectangle { color: Design.background; border.color: Design.line; border.width: 1 }
-            onAccepted: saveButton.clicked()
+            onAccepted: if (text.trim() !== "") root.save()
             Keys.onDownPressed: { list.forceActiveFocus(); root.previewIndex(Math.max(0, list.currentIndex)); }
             Keys.onEscapePressed: { if (text) text = ""; else root.closeRequested(); }
         }
@@ -83,8 +94,7 @@ ColumnLayout {
             id: saveButton
             objectName: "presetSave"
             label: "Save current look"
-            enabled: nameField.text.trim() !== ""
-            onClicked: root.send("presets.save", { name: nameField.text.trim() }, () => { nameField.text = ""; })
+            onClicked: root.save()
         }
     }
 

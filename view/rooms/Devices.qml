@@ -10,7 +10,7 @@ import "Ports.js" as Ports
 
 // Devices (MONTAGE §5): the two links are the hero, each a whole plane one click from on or off.
 // Under them, the power mode as tabs and the small switches. Then sound and light, ruled; in the middle the signal
-// map (DevicesSky, Z211); and the link panel: the mixer, nearby networks (the scan lease is held only while that list
+// map (DevicesSky, Z212); and the link panel: the mixer, nearby networks (the scan lease is held only while that list
 // is shown) and paired devices. Capture and the address at the foot.
 ColumnLayout {
     id: root
@@ -31,7 +31,7 @@ ColumnLayout {
     // The link planes grow with a tall room (the 1360 × 860 panel), up to 140 px.
     readonly property real linkHeight: Math.round(Math.max(104, Math.min(140, height * 0.17)))
     // The link panel's page: "mixer" (the default, no extra cost), "nearby" or "paired". The middle of the room is the
-    // signal map (Z211), so the mixer is always a page here.
+    // signal map (Z212), so the mixer is always a page here.
     property string panel: "mixer"
     readonly property string page: panel
     property double now: Date.now()
@@ -243,7 +243,7 @@ ColumnLayout {
                 }
             }
         }
-        // The signal map (DevicesSky, Z211): the laptop, its levels as rings, its links as bodies round it.
+        // The signal map (DevicesSky, Z212): the laptop, its levels as rings, its links as bodies round it.
         DevicesSky {
             visible: !root.narrow
             Layout.fillWidth: true

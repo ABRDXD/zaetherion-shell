@@ -36,6 +36,27 @@ class WallpaperMap(unittest.TestCase):
         self.assertEqual(session(json.dumps({"wallpaperPath": 4, "perMonitorWallpaper": "yes"})),
                          {"current": "", "perScreen": False})
 
+    def test_per_screen_reads_the_screens_own_wallpaper(self):
+        # The owner's shape (16 Nov 2026): per-screen on with one screen; wallpaperPath is stale.
+        data = {"wallpaperPath": "/w/rain.jpg", "perMonitorWallpaper": True, "perModeWallpaper": True,
+                "monitorWallpapers": {"eDP-1": "/w/shown.jpg"}, "monitorWallpapersDark": {"eDP-1": "/w/shown.jpg"}}
+        text = json.dumps(data)
+        self.assertEqual(run(f"fromSession({json.dumps(text)}, ['eDP-1'])"), {"current": "/w/shown.jpg", "perScreen": True})
+        self.assertEqual(run(f"fromSession({json.dumps(text)}, ['HDMI-A-1', 'eDP-1'])")["current"], "/w/shown.jpg")
+        self.assertEqual(run(f"fromSession({json.dumps(text)}, ['HDMI-A-1'])")["current"], "/w/rain.jpg")
+        self.assertEqual(run(f"fromSession({json.dumps(text)}, [])")["current"], "/w/rain.jpg")
+        broken = json.dumps({"wallpaperPath": "/w/rain.jpg", "perMonitorWallpaper": True, "monitorWallpapers": ["x"]})
+        self.assertEqual(run(f"fromSession({json.dumps(broken)}, ['eDP-1'])")["current"], "/w/rain.jpg")
+
+    def test_set_commands_cover_both_modes(self):
+        path = "/w/a b.jpg"
+        self.assertEqual(run(f"setCommands({json.dumps(path)}, false, ['eDP-1'])"),
+                         [["dms", "ipc", "call", "wallpaper", "set", path]])
+        self.assertEqual(run(f"setCommands({json.dumps(path)}, true, ['eDP-1', 'HDMI-A-1', ''])"),
+                         [["dms", "ipc", "call", "wallpaper", "setFor", "eDP-1", path],
+                          ["dms", "ipc", "call", "wallpaper", "setFor", "HDMI-A-1", path]])
+        self.assertEqual(run(f"setCommands({json.dumps(path)}, true, [])"), [])
+
     def test_broken_text_is_empty_not_an_error(self):
         for text in ("", "{broken", "[]", "null", "\"x\""):
             with self.subTest(text=text):
