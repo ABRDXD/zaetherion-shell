@@ -6,7 +6,7 @@ folder and session bus, so `dms ipc` can only reach this private DMS. Runs the e
 adapters/dms/DmsWallpaperMap.js and DmsThemeMap.js, then reads back what DMS itself wrote with the same maps.
 The session's own DMS files are checked unchanged at the end. Not part of the unit suite.
 
-    wall_dms_check.py [OUT_DIR]     exit 1 if any check fails; OUT_DIR keeps before/after screenshots
+    [WALL_DMS_UI=<unpacked DMS UI>] wall_dms_check.py [OUT_DIR]     exit 1 if any check fails; OUT_DIR keeps before/after screenshots
 """
 import json
 import os
@@ -35,6 +35,8 @@ def js(module: str, expression: str):
 
 
 def stock_ui() -> Path:
+    if os.environ.get("WALL_DMS_UI"):  # an unpacked DMS UI to use instead, read only (e.g. the session's quiet copy)
+        return Path(os.environ["WALL_DMS_UI"])
     found = sorted(Path("/run/user", str(os.getuid()), "dms-shell").glob("*/DMSShell.qml"), key=lambda p: p.stat().st_mtime)
     if not found:
         raise SystemExit("no unpacked DMS UI under /run/user/<uid>/dms-shell")
@@ -108,6 +110,21 @@ def main():
         read = wait(lambda: (lambda r: r if r["current"] == str(b) else None)(
             js("DmsWallpaperMap.js", f"fromSession({json.dumps(session.read_text())})")), 10)
         check("a second set replaces it", read, read)
+        # One wallpaper per screen (Z210): DMS refuses `set`, our setCommands use `setFor` on every screen instead.
+        monitors = json.loads(subprocess.run(["hyprctl", "--instance", st["sig"], "monitors", "-j"],
+                                            capture_output=True, text=True, timeout=15).stdout or "[]")
+        screens = [m["name"] for m in monitors]
+        check("the nested desktop names its screens", screens, screens)
+        result = ipc(["dms", "ipc", "call", "wallpaper", "setFor", screens[0], str(a)] if screens else ["true"])
+        check("per-screen mode on", "SUCCESS" in result.stdout, result.stdout.strip()[:120])
+        result = ipc(js("DmsWallpaperMap.js", f"setCommand({json.dumps(str(b))})"))
+        check("DMS refuses a plain set per screen (the bug)", "Per-monitor" in result.stdout, result.stdout.strip()[:120])
+        argvs = js("DmsWallpaperMap.js", f"setCommands({json.dumps(str(b))}, true, {json.dumps(screens)})")
+        outs = [ipc(argv).stdout for argv in argvs]
+        check("setFor accepted on every screen", argvs and all("SUCCESS" in o for o in outs), outs)
+        read = wait(lambda: (lambda r: r if r["current"] == str(b) and r["perScreen"] else None)(
+            js("DmsWallpaperMap.js", f"fromSession({json.dumps(session.read_text())}, {json.dumps(screens)})")), 10)
+        check("our map reads the screen's own wallpaper back", read, read)
         time.sleep(2)
         shot("1-amoled")
         # Theme (Z180): DmsHostTheme.set() runs these two in order.

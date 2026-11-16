@@ -17,7 +17,7 @@ CHECKS = ("the owner's rest reads as preset B", "edge and screen read from the c
           "values read from the core and DMS", "clips capture", "quick paste choices go to the core",
           "history choices go to DMS's config", "clear asks twice", "leaving the tab lets go of the settings",
           "notifications read from the core", "notifications capture", "notification choices go to the core",
-          "do-not-disturb goes to the inbox")
+          "do-not-disturb goes to the inbox", "a blank preset name saves as the next look")
 
 
 @unittest.skipUnless(shutil.which("qs"), "Quickshell is not installed")
