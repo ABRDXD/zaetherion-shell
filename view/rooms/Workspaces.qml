@@ -10,7 +10,7 @@ import "WorkspacesOrbit.js" as Orbit
 // Workspaces as an orbit (Z209, owner's pick "B · The orbit", 16 November 2026). The desks ride one tilted ring
 // round a small star; the current desk is swung to the front, big, its windows riding a small orbit round it as
 // named moons. Occupied desks are lit in a star colour that burns hotter with more windows; empty ones are dark
-// discs; a desk emptied today keeps a faint shell. Hover (or keyboard focus) on a desk looks at it: the headline
+// discs; a desk emptied today keeps a faint shell. Hover on a desk looks at it: the headline
 // and the window blades below follow, the ring stays put. A click goes there, and the ring swings the short way
 // round. Below: the inspected desk's windows as blades, then Go there / Focus / Move to….
 // In Overdrive the moons drift on their orbit (one IdleLoop); Silent is still.
@@ -218,19 +218,22 @@ Item {
         anchors.bottom: actions.top
         anchors.bottomMargin: 14
         spacing: 10
-        readonly property int shown: Math.min(root.narrow ? 3 : 5, root.inspectedWindows.length)
+        readonly property int slots: root.narrow ? 3 : 5
+        readonly property int shown: Math.min(slots, root.inspectedWindows.length)
+        // Fixed slots, refilled in place: a live window list must not recreate them (keyboard focus would drop).
         Repeater {
-            model: root.inspectedWindows.slice(0, blades.shown)
+            model: blades.slots
             WindowBlade {
-                required property var modelData
                 required property int index
+                readonly property var window: root.inspectedWindows[index] ?? null
+                visible: index < blades.shown
                 width: (blades.width - (blades.shown - 1) * blades.spacing) / Math.max(1, blades.shown)
                 height: implicitHeight
-                app: modelData.appId || "window"
-                title: modelData.title || ""
+                app: window?.appId || "window"
+                title: window?.title || ""
                 selected: index === root.selectedIndex
                 onClicked: {
-                    if (selected && root.inspected === root.current) root.wm.focusWindow(String(modelData.id));
+                    if (selected && root.inspected === root.current) root.wm.focusWindow(String(window.id));
                     root.picked = index;
                 }
             }

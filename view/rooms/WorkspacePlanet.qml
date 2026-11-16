@@ -6,7 +6,8 @@ import QtQuick.Controls
 // One desk on the Workspaces orbit (Z209), centred on its x, y. An occupied desk is lit from the side facing
 // the ring's centre in its star colour, glowing more the nearer it is; an empty one is a dark disc with a cold
 // rim, and a desk the session remembers (emptied today) keeps a faint dashed shell. Hover asks to look
-// (`look(true)`, then `look(false)`), a click goes there. The number sits under it except at the front,
+// (`look(true)`, then `look(false)`), a click (or Enter) goes there. Keyboard focus does not look: it would rebuild
+// the blades under the keyboard while it walks the ring. The number sits under it except at the front,
 // where the room's headline names it.
 AbstractButton {
     id: root
@@ -33,7 +34,6 @@ AbstractButton {
     focusPolicy: Qt.StrongFocus
     Accessible.name: "Desk " + number + ", " + windows + (windows === 1 ? " window" : " windows") + (current ? ", current" : "")
     onHoveredChanged: look(hovered)
-    onActiveFocusChanged: look(activeFocus)
     onClicked: Feedback.play("ui.click")
     background: Item {
         // Glow, only for an occupied desk; brighter in front.
