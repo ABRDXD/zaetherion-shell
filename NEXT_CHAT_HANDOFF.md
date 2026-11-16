@@ -1,3 +1,34 @@
+# Handoff for tomorrow (written 16 November 2026, evening, by Claude A)
+
+**Start here.** Everything is committed on `s0-seed` and live (the owner ran `tools/live-restart` at the end of the
+day; core, DMS, view up; our view holds org.freedesktop.Notifications; 3 `zaetherion:` shortcuts; view log clean).
+
+## Today
+- The owner turned down the "one universe" shared frame: **"dont redisign everything, just the ones that are too
+  basic"**. Performance stays ("insane overdrive look"). The 15 Nov plan below (shared frame, Fluid for all rooms) is
+  **superseded**.
+- Three plain Angular rooms got new looks, each picked from three mocks on the canvas
+  (https://claude.ai/artifact/TCgDHAMvdkqUHshK9yYEf3, rows "Workspaces room", "Devices room", "Inbox room"):
+  - **Z209 Workspaces · the orbit** (B): desks on a tilted ring, current in front with its windows as moons.
+  - **Z211 Inbox · the comets** (C): each notice a comet at its time, high = urgent, tail = unread; click to read.
+  - **Z212 Devices · the signal map** (B): laptop planet lit by battery, level rings, Wi-Fi satellite, network stars.
+- Owner's verdict at sign-off: "nice i guess". No changes asked yet.
+
+## Tomorrow
+1. Ask the owner how the three rooms feel in daily use; tweak what they name (mock first if it's a look change).
+2. Ask whether any other room now looks too basic by comparison (Clips was never reviewed: never read clipboard
+   contents to judge it).
+3. Claude B's list (HANDOFF top entries) is theirs; check `s0-seed` and decision numbers before merging (B took Z210).
+
+## Notes
+- Known load flakes in the full suite, each passes alone: `test_astra_cues` temporal, `test_cmdline_view`
+  escape.during.unfold, keytest `fly.moon`.
+- Don't screenshot the owner's screen to check a room; it caught their own windows today. Use offscreen harnesses
+  (`tools/cuetest.py`, `*_SHOTS` env) or ask the owner to look.
+- Stars on the Devices map show only while the Nearby tab scans (no scan of its own, by design).
+
+---
+
 # Handoff for tomorrow (written 15 November 2026, evening, by Claude A)
 
 **Start here.** The owner signed off for the day and will pick up tomorrow. Everything below is committed on
