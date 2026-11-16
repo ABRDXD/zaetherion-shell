@@ -45,6 +45,8 @@ Scope {
     }
     function row(name) { return find(room, i => i.label === name && i.gone !== undefined); }
     Component.onCompleted: after(400, () => {
+        // The link panel opens on the mixer (Z211): show the paired page, as its tab would.
+        room.panel = "paired";
         const original = fixture.bluetooth.devices;
         const headset = original.find(d => d.connected);
         const others = original.filter(d => d !== headset);

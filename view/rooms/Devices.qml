@@ -9,9 +9,9 @@ import Quickshell
 import "Ports.js" as Ports
 
 // Devices (MONTAGE §5): the two links are the hero, each a whole plane one click from on or off.
-// Under them, the power mode as tabs and the small switches. Then sound and light, ruled, beside the
-// link panel: nearby networks (the scan lease is held only while that list is shown), paired devices,
-// and the mixer. Capture and the address at the foot.
+// Under them, the power mode as tabs and the small switches. Then sound and light, ruled; in the middle the signal
+// map (DevicesSky, Z211); and the link panel: the mixer, nearby networks (the scan lease is held only while that list
+// is shown) and paired devices. Capture and the address at the foot.
 ColumnLayout {
     id: root
     required property HostAdapter host
@@ -30,11 +30,10 @@ ColumnLayout {
     readonly property bool narrow: width < 730
     // The link planes grow with a tall room (the 1360 × 860 panel), up to 140 px.
     readonly property real linkHeight: Math.round(Math.max(104, Math.min(140, height * 0.17)))
-    // A wide room (the 1360 px panel) gives the mixer its own column; the link panel then has two pages.
-    readonly property bool wide: width >= 1000
-    // The link panel's page: "mixer" (the default, no extra cost), "nearby" or "paired".
+    // The link panel's page: "mixer" (the default, no extra cost), "nearby" or "paired". The middle of the room is the
+    // signal map (Z211), so the mixer is always a page here.
     property string panel: "mixer"
-    readonly property string page: wide && panel === "mixer" ? "paired" : panel
+    readonly property string page: panel
     property double now: Date.now()
     readonly property int recordedSeconds: capture.startedAt > 0 ? Math.max(0, Math.floor(now / 1000 - capture.startedAt)) : 0
     readonly property var profileLabels: ({ "power-saver": "Saver", "balanced": "Balanced", "performance": "Performance" })
@@ -171,7 +170,7 @@ ColumnLayout {
         // Sound and light, ruled. Capped, so a wide room gives its width to the mixer column, not to longer sliders.
         ColumnLayout {
             Layout.fillWidth: true
-            Layout.maximumWidth: 560
+            Layout.maximumWidth: root.narrow ? 560 : 340
             Layout.fillHeight: true
             spacing: 6
             RowLayout {
@@ -244,25 +243,18 @@ ColumnLayout {
                 }
             }
         }
-        // The mixer as its own column, in a wide room.
-        ColumnLayout {
-            visible: root.wide
-            Layout.preferredWidth: 290
-            Layout.maximumWidth: 290
+        // The signal map (DevicesSky, Z211): the laptop, its levels as rings, its links as bodies round it.
+        DevicesSky {
+            visible: !root.narrow
+            Layout.fillWidth: true
             Layout.fillHeight: true
-            spacing: 6
-            RowLayout {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 28
-                FText { text: "MIXER"; technical: true; color: Design.muted }
-                Hairline { Layout.fillWidth: true; Layout.leftMargin: 8; node: 3 }
-            }
-            MixerList {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.minimumHeight: 60
-                model: root.wide ? root.streams : []
-            }
+            Layout.minimumWidth: 260
+            Layout.minimumHeight: 200
+            network: root.network
+            bluetooth: root.bluetooth
+            audio: root.audio
+            power: root.power
+            onJoin: id => root.network.connect(id)
         }
         // The link panel: one page at a time.
         ColumnLayout {
@@ -275,7 +267,7 @@ ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 2
                 Repeater {
-                    model: (root.wide ? [] : [["mixer", "Mixer"]]).concat([["nearby", "Nearby"], ["paired", "Paired"]])
+                    model: [["mixer", "Mixer"], ["nearby", "Nearby"], ["paired", "Paired"]]
                     SheetTab {
                         required property var modelData
                         label: modelData[1]

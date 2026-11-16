@@ -17,6 +17,7 @@ CodexKeys 1.0 CodexKeys.qml
 DayFoldSheet 1.0 DayFoldSheet.qml
 DayRuler 1.0 DayRuler.qml
 Devices 1.0 Devices.qml
+DevicesSky 1.0 DevicesSky.qml
 DiskTide 1.0 DiskTide.qml
 FArchive 1.0 FArchive.qml
 FProfile 1.0 FProfile.qml

@@ -6,6 +6,7 @@ AstraExhibitTest 1.0 AstraExhibitTest.qml
 AstraTest 1.0 AstraTest.qml
 ClipsTest 1.0 ClipsTest.qml
 CueTest 1.0 CueTest.qml
+DevicesSkyTest 1.0 DevicesSkyTest.qml
 DevicesTest 1.0 DevicesTest.qml
 DiscoveryTest 1.0 DiscoveryTest.qml
 FalseRoomTest 1.0 FalseRoomTest.qml
