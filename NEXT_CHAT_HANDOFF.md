@@ -1,3 +1,55 @@
+# Handoff for tomorrow (written 15 November 2026, evening, by Claude A)
+
+**Start here.** The owner signed off for the day and will pick up tomorrow. Everything below is committed on
+`s0-seed` and live; nothing is pending in any worktree.
+
+## Where we are
+- **The open question is the owner's.** They said ZÆTHERION "still doesn't feel one cohesive desktop" and picked
+  **"Space, everywhere"**. Three versions of a shared room frame are on the design canvas
+  (https://claude.ai/artifact/TCgDHAMvdkqUHshK9yYEf3, row **"One universe"**, same Tasks content in each):
+  - **A · One system:** one far sun top-left lights every room; each room is a planet rising at the bottom (its ring
+    = the room's progress); the ten rooms as planets on an orbit across the top.
+  - **B · The hub:** Home's black hole always half in view at the right edge, its disc the light source; rooms are
+    stops on its orbit.
+  - **C · The ecliptic:** one bright line at the same height in every room (and the island/launcher); sky above for
+    the scene and the one number, ground below for reading and acting.
+  Ask which (or a mix). Re-read `project/canvas.json` before publishing; the owner edits the canvas too.
+- **Why it isn't cohesive (found today):** the live form is still **Angular**
+  (`~/.local/state/zaetherion/island.json` `"form": "angular"`), so the owner never sees the Fluid rooms day to day;
+  only 5 of 10 rooms have Fluid versions (Home, Media, Timers, Tasks, Performance; missing Workspaces, Devices,
+  Clipboard, Notifications, Codex); each Fluid room invented its own scene and layout; bar, island, launcher and
+  workspace transit each speak their own dialect.
+
+## Plan once a frame is picked
+1. Build the shared frame (one light, one type and colour set, fixed slots: room name, primary number, content,
+   actions) as a component every Fluid room sits in. Record the decision in docs/DECISIONS.md (next free Z after Z206).
+2. Move the five Fluid rooms onto it; build Fluid versions of the other five (split each like Timers/Tasks/Performance:
+   `XSession` controller + `AngularX` + wrapper with PresentationHost + `view/fluid/FluidX.qml`).
+3. Bring island, launcher, workspace transit into the same language.
+4. Only then switch the default form to Fluid (ask the owner first; it changes the whole look).
+
+## Done today (all live, tested)
+- **Fluid Performance (Z205):** the machine as a star with depth: gravity-well grid (memory), limb-darkened star
+  (temperature colour), light-curve ring with NOW, orbits passing behind and in front, GPU companion, Overdrive core
+  shells and process planets; CPU hero, memory secondary, instruments row. `tests/test_fluid_performance.py`.
+- **Fluid Tasks (Z206):** the star atlas was rejected ("not intuitive enough"); now a readable grouped list
+  (Late · Today · This week · Later · No date · Done today) with urgency stars and a tick per row, Remove on hover,
+  entry on top; then "boring again" → **planet horizon** under it (`TasksHorizon`: warm air while late, ring = the
+  day's done share, sunrise brightens). `tests/test_fluid_tasks.py`, `tests/test_tasks_atlas.py`.
+
+## Lessons from today (also in memory)
+- **Intuitive first** in rooms you act in: obvious reading and visible actions, theme around them. Mock before building.
+- **Look at what the owner actually sees** (`./zaetherion open` / `page <room>` / `close`, `grim -s 0.5`) before
+  judging a look; my screenshots came from Fluid test fixtures, the owner runs Angular.
+- **Merge only on a green run:** check the unittest result line, not the exit code of `tail`.
+- QML traps hit today: `x`/`z`/`top`-style names clash with Item's (FINAL); inside ShapePath use ids, not `parent`;
+  spectral colours are strings (`Qt.color` first); raw `Behavior` breaks the motion rule (use `Tween`); MultiEffect mask
+  on a Flickable rendered nothing.
+- Owner tip given: save the 3 ultrareviews for before the public release (privacy leaks), the core/launcher command
+  paths, and one hard bug.
+
+---
+
 # Handoff for the next chat (written 11 November 2026, ~12:40)
 
 Read this first, then `HANDOFF.md` (top entry). Continue from the files, not from memory.
