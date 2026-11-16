@@ -22,8 +22,6 @@ FArchive 1.0 FArchive.qml
 FProfile 1.0 FProfile.qml
 FWeek 1.0 FWeek.qml
 GenealogyFeed 1.0 GenealogyFeed.qml
-GenealogyTrace 1.0 GenealogyTrace.qml
-GenealogyTree 1.0 GenealogyTree.qml
 GpuRecorder 1.0 GpuRecorder.qml
 GrooveLine 1.0 GrooveLine.qml
 HarmonicType 1.0 HarmonicType.qml
@@ -59,5 +57,6 @@ TemporalContours 1.0 TemporalContours.qml
 ThermalStrata 1.0 ThermalStrata.qml
 Timers 1.0 Timers.qml
 TimersSession 1.0 TimersSession.qml
+WindowBlade 1.0 WindowBlade.qml
+WorkspacePlanet 1.0 WorkspacePlanet.qml
 Workspaces 1.0 Workspaces.qml
-WorkspaceTab 1.0 WorkspaceTab.qml

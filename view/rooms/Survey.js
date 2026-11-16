@@ -167,7 +167,7 @@ function freeRect(keepOut, bounds, w, h, x, y) {
 // The kind of thing measured, from a QML object's name ("FButton_QMLTYPE_12(0x…)"). Unknown things are a "spot":
 // the surveyor has named all of them that (SurveyorNotes, the fifth note).
 const KINDS = { FButton: "BUTTON", FToggle: "SWITCH", FChoice: "SELECTOR", FField: "FIELD", FMenuItem: "ROW", SheetTab: "TAB",
-                LinkRow: "LINK", LinkPlane: "LINK", TaskRow: "TASK", FMeter: "METER", OrbitTile: "TILE", WorkspaceTab: "DESK",
+                LinkRow: "LINK", LinkPlane: "LINK", TaskRow: "TASK", FMeter: "METER", OrbitTile: "TILE", WorkspacePlanet: "DESK", WindowBlade: "WINDOW",
                 FWaveform: "SEEK", TextField: "FIELD", ComboBox: "SELECTOR", Slider: "SLIDER", CheckBox: "BOX", Switch: "SWITCH",
                 TabButton: "TAB", Button: "BUTTON", AbstractButton: "BUTTON" };
 // "SheetTab_QMLTYPE_246_QML_339(0x…)" → SheetTab; "QQuickSlider(0x…)" → Slider.
