@@ -1,3 +1,23 @@
+# 17 November 2026 · Opus (Claude A): plates follow the palette (Z213), typeset any picture (Z215), fixes from real use
+
+- **Wallpapers.** Typographic wallpapers for the rice: `~/Pictures/Wallpapers/zg-01-torii`, `zg-02-city`, `zg-03-dusk`
+  (scenes redrawn in weight-modulated type; the owner "LOVES" them) and the owner's `aether-null-result` are **plates**:
+  their layers live in `~/Pictures/Wallpapers/.typeset/<stem>/` and the core recolours them to the saved palette's accent
+  (Z213, ImageMagick, cached per colour). Every glyph plate carries Z214's light notch (trail = fading rules). The
+  first 18 fixed-colour plates are in `~/Pictures/Wallpapers/zaetherion-type/source/archive/`. Generator:
+  `tools/typeset/` (`glyph.py` scenes or `--auto`, `extract.py` for one-accent images, `build.py` for the owner's set).
+- **Z215.** `wall typeset [name]` / `wallpaper.typeset` and the picker's **Typeset this picture** button: any picture →
+  `<stem>.type.png` + layers, applied in the palette's accent (~9–25 s). Known limit: very dark, flat paintings.
+- **Fixes after looking at the live rooms.** Workspaces named every window "window" (adapters read appId from the IPC
+  cache only; the Wayland toplevel first now). Inbox: 59 real notices smeared — clustered comets with counts, names
+  only where they fit; a blank action label shows Open. Devices: ring labels collided — a fixed legend. RollingDigits'
+  null error (Qt.callLater outliving a torn-down readout) — an owned Timer (the offscreen check can't reproduce the live
+  teardown; confirm in the view log after the restart). Mono font name: "JetBrains Mono Nerd Font" doesn't exist
+  ("JetBrainsMono Nerd Font" does); canvases fell back to a default font (25 Context2D warnings in the live log).
+- **Needs the owner:** `tools/live-restart` to load all of this (core: Z213/Z215; view: the fixes). Then: pick a plate,
+  change the palette → the accent follows; `wall typeset` on a photo.
+- **NULL has no Z214 notch** (Claude B's picture; left to them or the owner).
+
 # 17 November 2026 · Opus (Claude B): wallpaper and presets fixed (Z210, live), keys moved to ZÆTHERION (Z208, live), light notch for wallpapers (Z214)
 
 - **Live since the owner's restart (16 Nov, 20:09).** Z207 (Notifications tab), Z208 (`settings <tab>`, the island's session card) and **Z210**: with DMS's one-wallpaper-per-screen switch on, DMS refuses `wallpaper set`; `DmsWallpaper` now runs `setFor <screen> <path>` on every screen and reads the screen's own entry as current, so "Set as wallpaper" and a preset's wallpaper work. "Save current look" saves with a blank name as the next free "Look N". Checked after the restart: the core reports the wallpaper settable, the notification name is the view's, three `zaetherion:` shortcuts. `tools/wall_dms_check.py` covers per-screen against a real DMS in nested Hyprland (`WALL_DMS_UI=<unpacked DMS>`; the session's quiet copy works).
