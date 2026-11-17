@@ -10,6 +10,7 @@ from pathlib import Path
 
 from core.errors import OpError, bad_args
 from core.store import read_json, write_json
+from core.typeset import face_of
 
 IMAGE = {"jpg", "jpeg", "png", "bmp", "gif", "webp", "jxl", "avif", "heif", "exr", "svg"}
 VIDEO = {"mp4", "webm", "mkv", "mov", "m4v", "avi"}
@@ -29,7 +30,8 @@ class Wallpaper:
         self.on_change = lambda: None
         self.owner = None
         self.preview = None
-        self.host = dict(available=False, current="", perScreen=False, error="")
+        # `current` is the face the picker lists; `applied` the file the host shows (a plate's recoloured copy, Z213).
+        self.host = dict(available=False, current="", applied="", perScreen=False, error="")
         try:
             saved = read_json(self.path, {})
         except ValueError:
@@ -135,7 +137,8 @@ class Wallpaper:
 
     def report(self, available=False, current="", perScreen=False, error="") -> dict:
         """What the view's adapter sees; the host stays the authority for the applied wallpaper."""
-        state = dict(available=bool(available), current=current if isinstance(current, str) else "",
+        shown = current if isinstance(current, str) else ""
+        state = dict(available=bool(available), current=face_of(shown) if shown else "", applied=shown,
                      perScreen=bool(perScreen), error=error if isinstance(error, str) else "")
         if state != self.host:
             self.host = state
@@ -143,11 +146,12 @@ class Wallpaper:
         return self.snapshot()
 
     def applied(self, path: str) -> dict:
-        """After the host set it: remember it, end any preview."""
-        self.recent = [path, *[p for p in self.recent if p != path]][:RECENT]
+        """After the host set it: remember it (as its face, for a plate's copy), end any preview."""
+        face = face_of(path)
+        self.recent = [face, *[p for p in self.recent if p != face]][:RECENT]
         self.preview, self.owner = None, None
         self._save()
-        self.host = {**self.host, "current": path}
+        self.host = {**self.host, "current": face, "applied": path}
         self.on_change()
         return self.snapshot()
 

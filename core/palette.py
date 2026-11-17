@@ -15,6 +15,8 @@ class Palette:
         self.path = state_dir / "palette.json"
         self.entries = catalogue() if entries is None else entries
         self.on_change = lambda: None
+        # Called when the saved palette changes (not on previews): wallpapers that follow it recolour (Z213).
+        self.on_choose = lambda: None
         self.owner = None
         self.preview = None
         try:
@@ -65,9 +67,12 @@ class Palette:
             entry = self.entries[selected]
             made = {"made": {"name": entry["name"], "colors": entry["colors"]}} if selected.startswith(MADE) else {}
             write_json(self.path, {"name": selected, **made})
+        saved = selected != self.name
         self.name, self.preview, self.owner = selected, None, None
         if changed:
             self.on_change()
+        if saved:
+            self.on_choose()
         return self.snapshot()
 
     def preview_name(self, name: str, owner) -> dict:

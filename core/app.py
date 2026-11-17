@@ -20,6 +20,7 @@ from core.island import Island
 from core.launcher import Launcher
 from core.palette import MADE as MADE_PALETTE, Palette
 from core.wallpaper import Wallpaper, kind_of
+from core.typeset import face_of, layers_for as plate_layers
 from core.presets import Presets
 from core.ignite import LOST, Ignite
 from core.notification_mirror import Mirror
@@ -80,6 +81,11 @@ class Core:
         self.launcher = Launcher(clock, state_dir, imported=getattr(host.profile, "launch_history", lambda: None),
                                  session_active=self.sessions.active, verb=lambda text: self.commands.inline(text))
         self.wallpaper = Wallpaper(state_dir)
+        # Typeset plates follow the saved palette's accent (Z213): one lock, so a palette change, a choice and a
+        # preset never apply wallpapers over each other.
+        self.wallpaper_lock = asyncio.Lock()
+        self.wallpaper_follows = set()
+        self.palette.on_choose = self._palette_chosen
         self.presets = Presets(state_dir)
         # The host's own theme as the view's adapter reports it (Z180); only presets use it.
         self.host_theme = dict(available=False, current="", error="")
@@ -456,10 +462,45 @@ class Core:
     async def wallpaper_choose(self, path: str) -> dict:
         """Through the view's adapter; the host stays the authority for what is applied (Z178)."""
         self.wallpaper.can_apply()
-        await self.hostcalls.call("wallpaper", "set", [path], ready="available", hold=0)
-        self.wallpaper.applied(path)
+        await self._apply_wallpaper(path)
         await self._wallpaper_palette(path)
         return self.wallpaper.snapshot()
+
+    async def _apply_wallpaper(self, path: str):
+        """Set a wallpaper on the host; a typeset plate is set as its copy in the saved palette's accent (Z213)."""
+        async with self.wallpaper_lock:
+            target = path
+            layers = plate_layers(path)
+            if layers is not None:
+                from adapters.common import typeset_tint  # ImageMagick is known only there
+                accent = self.palette.entries[self.palette.name]["colors"]["accent"]
+                try:
+                    target = await typeset_tint.recolour(layers, accent)
+                except (RuntimeError, ValueError, OSError) as error:
+                    log.warning("wallpaper plate %s kept its own colour: %s", path, error)
+                    target = face_of(path)  # the plate as drawn, in its own accent
+            await self.hostcalls.call("wallpaper", "set", [target], ready="available", hold=0)
+            self.wallpaper.applied(target)
+
+    def _palette_chosen(self):
+        """The saved palette changed: a typeset plate on the host recolours to it (previews don't, Z213)."""
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            return
+        task = loop.create_task(self._wallpaper_follow())
+        self.wallpaper_follows.add(task)
+        task.add_done_callback(self.wallpaper_follows.discard)
+
+    async def _wallpaper_follow(self):
+        w = self.wallpaper
+        current = w.host["current"]
+        if not current or plate_layers(current) is None or not w.host["available"] or w.host["perScreen"]:
+            return
+        try:
+            await self._apply_wallpaper(current)
+        except OpError as error:
+            log.warning("wallpaper plate did not follow the palette: %s", error)
 
     async def wallpaper_preview(self, peer, name):
         path = self.wallpaper.resolve(name)
@@ -550,8 +591,7 @@ class Core:
         if look["wallpaper"]:
             w = self.wallpaper
             if Path(look["wallpaper"]).is_file() and w.host["available"] and not w.host["perScreen"]:
-                await self.hostcalls.call("wallpaper", "set", [look["wallpaper"]], ready="available", hold=0)
-                w.applied(look["wallpaper"])  # the preset's palette wins over colours from the wallpaper
+                await self._apply_wallpaper(look["wallpaper"])  # the preset's palette wins over colours from the wallpaper
                 applied.append("wallpaper")
             else:
                 skipped.append("wallpaper")
@@ -567,7 +607,8 @@ class Core:
     async def _wallpaper_palette(self, path: str, peer=None):
         """With colours on: a palette from the image, previewed with it (peer) or saved with it (Z179)."""
         w = self.wallpaper
-        if not w.colours or kind_of(Path(path)) != "image":
+        # A typeset plate follows the palette and never makes one (Z213): no loop between the two.
+        if not w.colours or kind_of(Path(path)) != "image" or plate_layers(path) is not None:
             return
         key = MADE_PALETTE + path
         if key not in self.palette.entries:
