@@ -59,3 +59,61 @@ class SlowPeerTests(unittest.IsolatedAsyncioTestCase):
                 finally:
                     writer.close()
                     await writer.wait_closed()
+
+
+class SameConnectionAnswerTests(unittest.IsolatedAsyncioTestCase):
+    """A request from the view that waits on a host call the view answers (wallpaper.choose → wallpaper.set →
+    host.done) must not wait behind itself: host.done is read while the request is still running."""
+
+    async def serve(self, app, script):
+        with tempfile.TemporaryDirectory() as directory:
+            path = str(Path(directory) / "socket")
+            async with await asyncio.start_unix_server(app.handle, path):
+                reader, writer = await asyncio.open_unix_connection(path)
+                try:
+                    return await script(reader, writer)
+                finally:
+                    writer.close()
+
+    def app_with_hello(self):
+        app = Server()
+        def hello(peer):
+            peer.kind = "view"
+        app.op("hello", hello)
+        return app
+
+    async def test_host_done_from_the_same_connection_answers_its_request(self):
+        app = self.app_with_hello()
+        answer = None
+        async def ask(peer):
+            nonlocal answer
+            answer = asyncio.get_running_loop().create_future()
+            return {"read": await asyncio.wait_for(answer, 3)}
+        app.op("ask", ask)
+        app.op("host.done", lambda peer, token, ok, result=None, error=None: answer.set_result(result["read"]))
+
+        async def script(reader, writer):
+            writer.write(b'{"op":"hello","id":1}\n{"op":"ask","id":2}\n')
+            self.assertEqual(json.loads(await asyncio.wait_for(reader.readline(), 2))["id"], 1)
+            await asyncio.sleep(0.05)  # the ask is running, waiting for its answer
+            writer.write(b'{"op":"host.done","args":{"token":1,"ok":true,"result":{"read":"set"}}}\n')
+            reply = json.loads(await asyncio.wait_for(reader.readline(), 1))
+            self.assertEqual((reply["id"], reply["ok"], reply["result"]), (2, True, {"read": "set"}))
+        await self.serve(app, script)
+
+    async def test_other_requests_still_run_one_at_a_time_in_order(self):
+        app = self.app_with_hello()
+        seen = []
+        async def slow(peer, n):
+            seen.append(("start", n))
+            await asyncio.sleep(0.05 if n == 1 else 0)
+            seen.append(("end", n))
+            return {"n": n}
+        app.op("slow", slow)
+
+        async def script(reader, writer):
+            writer.write(b'{"op":"hello","id":1}\n{"op":"slow","id":2,"args":{"n":1}}\n{"op":"slow","id":3,"args":{"n":2}}\n')
+            ids = [json.loads(await asyncio.wait_for(reader.readline(), 2))["id"] for _ in range(3)]
+            self.assertEqual(ids, [1, 2, 3])
+            self.assertEqual(seen, [("start", 1), ("end", 1), ("start", 2), ("end", 2)])
+        await self.serve(app, script)
