@@ -1,3 +1,19 @@
+# 17 November 2026, evening · Opus (Claude B): autonomous block — flaky tests fixed, NULL gets its notch, room keys can toggle (waits)
+
+- **Owner:** "work autonomously for the next 5 hours, fix everything and do everything." Done without the owner: no restarts, no Hyprland or keybind edits, no installs, no pushes; looks and behaviour changes wait on branches.
+- **Merged (`b-fixes`):** the three known suite flakes, each reproduced under 14–22 busy loops, traced and fixed, then re-run under the same load:
+  - `test_astra_cues` `temporal.done.finite`: the done state is set from a grab callback that a loaded machine delivers late. One second of grace. 1/6 → 0/12 failing.
+  - `test_cmdline_view` `escape.during.unfold`: a late frame carries the 140 ms fold from 0.35 straight to 0, which the fixed 0.25 step read as a snap. The allowance is now `max(0.25, 2·dt/fold)`, unchanged at a normal frame. 2/8 → 0/10.
+  - keytest `fly.moon`: no product bug. "go stopwatch" typed before the systems exist is held and lands later in the turn (`onRoomSystemsChanged → callLater`); the test's timer ran first. It now waits for `orbit.seeking` to clear. 2/6 → 0/10.
+  - keytest `tasks.spatial` (a fourth flake): the Tasks room was mapped while its rows were still incubating (23–35 of 37 controls). It waits until the controls' rects agree on two ticks. 2/10 → 0/14.
+  - `PresentationHost`: `if (!root?.alive)` (the same null-`root` teardown as RollingDigits). RollingDigits itself takes Claude A's owned-Timer fix; Claude B's version was dropped at the merge.
+- **Merged (`b-hostcall-deadlock`), the biggest find: a view request waited 5 s behind its own host call.** The core read each client's lines strictly in turn, awaiting each op; a request from the view that makes a host call the view answers on the same connection (the picker's `wallpaper.choose` → `wallpaper.set` → `host.done`; `presets.apply`; `wall typeset`; verbs typed in FART's own command line) waited behind itself until the timeout. The wallpaper changed, but the core logged "host call wallpaper.set got no reply" (22 times on 17 Nov), never recorded it (`wallpaper.json` `recent` stayed empty) and the picker showed "the view did not answer". Requests now run on a per-client worker (still one at a time, in order); `host.done` is dispatched on arrival (`core/protocol.py` `ANSWERS`). `SameConnectionAnswerTests`; M5-COMMAND §2 notes it. Full suite 1207 OK. Needs the core restart.
+- **Merged (`b-wallgen`):** `tools/wallgen/` keeps Claude B's generated wallpapers redrawable (the range: fog, ASCII and survey; the aether posters).
+- **NULL, Z214 (a collision, resolved):** Claude B and Claude A notched NULL minutes apart. B's script (21:27) wrote the notch into the layers *and the face*; A's `extract.py --notch` (21:30) then re-extracted from that face and notched again, so the trail was doubled. Fixed: the untouched face is restored from B's backup and A's `extract.py --notch` re-run. One notch, face untouched, A's way is the only way (B's script dropped). Lesson: check HANDOFF and the plate's file times before touching someone's plate.
+- **Waits for the owner, branch `b-room-toggle`:** `zaetherion page ROOM --toggle` closes that room if it's the one shown, else goes there, as DMS's keys did (`core.view.toggle_target`; plain toggle unchanged). Tests: `ToggleTargetTests`, `tests/test_zaetherion_cli.py`. To use it, the room keys (Super+A/B/O, N, Shift+N, M, Tab) need `--toggle`: a keybind edit, owner's OK first.
+- **Not started: the settings redesign.** Astra is auditing cohesion right now (`~/src/zaetherion-shell-cohesion`, branch `codex/cohesion-audit`, uncommitted `docs/cohesion/`, `tools/cohesion_*`). The equal-weight Island, Clips and Notifications rows should follow Astra's grammar once the owner approves it. Astra or Claude B; say which here first.
+- **Checked, fine:** the core's "dropped an oversized bus message" is the read-only mirror's 4 MiB line limit (an image hint). The live notifications come through our own server; the reader resyncs.
+
 # 17 November 2026 · Opus (Claude A): plates follow the palette (Z213), typeset any picture (Z215), fixes from real use
 
 - **Wallpapers.** Typographic wallpapers for the rice: `~/Pictures/Wallpapers/zg-01-torii`, `zg-02-city`, `zg-03-dusk`
@@ -16,7 +32,7 @@
   ("JetBrainsMono Nerd Font" does); canvases fell back to a default font (25 Context2D warnings in the live log).
 - **Needs the owner:** `tools/live-restart` to load all of this (core: Z213/Z215; view: the fixes). Then: pick a plate,
   change the palette → the accent follows; `wall typeset` on a photo.
-- **NULL has no Z214 notch** (Claude B's picture; left to them or the owner).
+- **NULL has the Z214 notch** on its ink layer (`extract.py --notch`): the copies the desktop shows have it; the picture itself is untouched.
 
 # 17 November 2026 · Opus (Claude B): wallpaper and presets fixed (Z210, live), keys moved to ZÆTHERION (Z208, live), light notch for wallpapers (Z214)
 

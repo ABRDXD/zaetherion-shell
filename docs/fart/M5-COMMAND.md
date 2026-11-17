@@ -29,7 +29,7 @@ You decided DAILY_DRIVER Q5 for the core registry built here (§11 there, 6 Nove
 | `cmd.run` | `{line, fallthrough?, record?}` | `{ok, tone, line, verb, data}`, or `{ok: false, tone, code, line}`. Both flags default to true for the view and false for the CLI. |
 | `cmd.complete` | `{text}` | `{verb, usage, candidates: [{name, usage, summary}], complete}`: the live hint while typing |
 | `cmd.history` | `{prefix?, limit?}` | `{lines}`, newest last |
-| `host.done` | `{token, ok, result?: {read}, error?}` | **View only.** Answers a `view.host` event (§3). |
+| `host.done` | `{token, ok, result?: {read}, error?}` | **View only.** Answers a `view.host` event (§3). Dispatched on arrival, never queued behind the view's own running request, which may be the one waiting for it (17 Nov 2026: the picker's `wallpaper.choose` waited 5 s for its own `wallpaper.set`). |
 | `sfx.play` | `{cue}` | **View only:** `ui.click`, `ui.key`, `ui.switch` or `ui.error`. Reports a moment only the view sees. The core gates it and plays it. Returns the event. |
 | `sfx.stop` | `{cue}` | **View only:** `hold.charge`, the one cue the view may cut short (a hold released early). SIGTERM to the player of the last emit; harmless when nothing plays. Returns `{cue}`. |
 | `sfx.configure` | `{cues: {name: bool}}` | Switches UI cues (`sfx.json`, 0600). Alerts follow `timer.configure {sound}`. |

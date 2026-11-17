@@ -49,6 +49,7 @@ Scope {
     property int step: 0
     property int paints: 0
     property real oldDrive: 0
+    property bool doneSeen: false
     Timer {
         interval: 1000; running: true; repeat: true
         onTriggered: {
@@ -68,10 +69,16 @@ Scope {
                 core.timersData=test.snapshot(true,9,false);
             } else if(test.step===8) {
                 stage.grabToImage(r=>{ r.saveToFile("/tmp/astra-temporal-urgent.png"); core.timersData=test.snapshot(false,0,true); test.check("temporal.done.logical",core.timers.countdownDone); });
-            } else if(test.step===10) {
-                test.check("temporal.done.finite",probe.item && probe.item.completion===0 && Motion.idleLoops===0);
-                stage.grabToImage(r=>r.saveToFile("/tmp/astra-temporal-done.png"));
-                Motion.overdrive=false;
+            } else if((test.step===10 || test.step===11) && !test.doneSeen) {
+                // The done state is set from step 8's grab callback, which a loaded machine delivers late: allow the
+                // finite completion one more second before calling it unfinished.
+                const finished=probe.item && probe.item.completion===0 && Motion.idleLoops===0;
+                if(finished || test.step===11) {
+                    test.doneSeen=true;
+                    test.check("temporal.done.finite",finished);
+                    stage.grabToImage(r=>r.saveToFile("/tmp/astra-temporal-done.png"));
+                    Motion.overdrive=false;
+                }
             } else if(test.step===13) {
                 test.check("temporal.release",Strata.live.length===0 && Motion.idleLoops===0);
                 Motion.reduced=true; Motion.overdrive=true;

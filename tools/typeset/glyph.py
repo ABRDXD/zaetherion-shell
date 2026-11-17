@@ -180,27 +180,32 @@ TRAIL_PITCH = 10
 
 
 def notch(img, cfg, no):
+    """Z214's notch on `img` at any size (the plates are 4K; an extracted picture may be 1080p): sizes scale with it."""
+    w_, h_ = img.size
+    k = w_ / W  # 1 for the 4K plates
     run = math.tan(math.radians(12))
-    h, trail = round(H * NOTCH_H), round(H * TRAIL_H)
-    bottom_w = W * NOTCH_W
-    x0, x1 = (W - bottom_w) / 2, (W + bottom_w) / 2
+    h, trail = round(h_ * NOTCH_H), round(h_ * TRAIL_H)
+    bottom_w = w_ * NOTCH_W
+    x0, x1 = (w_ - bottom_w) / 2, (w_ + bottom_w) / 2
     light = hexrgb(NOTCH)
-    # the trail first: the same 78° sides carried down, its light falling off line by line
-    layer = Image.new("RGBA", (W, h + trail), (0, 0, 0, 0))
+    # the trail first: the same 78° sides carried down; it thins (rules every TRAIL_PITCH, each fainter), never a slab
+    layer = Image.new("RGBA", (w_, h + trail), (0, 0, 0, 0))
     ld = ImageDraw.Draw(layer)
-    # the trail thins: rules every TRAIL_PITCH px, each fainter and further apart in effect, never a solid slab
-    for y in range(h + TRAIL_PITCH, h + trail, TRAIL_PITCH):
+    pitch = max(4, round(TRAIL_PITCH * k))
+    for y in range(h + pitch, h + trail, pitch):
         t = (y - h) / trail
         inset = (y - h) * run
-        ld.line([(x0 + inset, y), (x1 - inset, y)], fill=light + (round(150 * (1 - t) ** 2),), width=2)
+        ld.line([(x0 + inset, y), (x1 - inset, y)], fill=light + (round(150 * (1 - t) ** 2),), width=max(1, round(2 * k)))
     ld.polygon([(x0 - h * run, 0), (x1 + h * run, 0), (x1, h), (x0, h)], fill=light + (255,))
     img.paste(layer, (0, 0), layer)
     # small dark type at the notch's outer ends, where the island never sits
     d = ImageDraw.Draw(img)
-    cap = mono("Bold", 22)
-    d.text((x0 + 40, h - 44), f"ZÆTHERION · G{no:02d}" if no else "ZÆTHERION · TYPESET", font=cap, fill=(20, 19, 21))
+    cap = mono("Bold", max(10, round(22 * k)))
+    left = cfg.get("notch_left") or (f"ZÆTHERION · G{no:02d}" if no else "ZÆTHERION · TYPESET")
     right = cfg["name"].upper() + " · Z214"
-    d.text((x1 - 40 - d.textlength(right, font=cap), h - 44), right, font=cap, fill=(20, 19, 21))
+    pad, rise = 40 * k, 44 * k
+    d.text((x0 + pad, h - rise), left, font=cap, fill=(20, 19, 21))
+    d.text((x1 - pad - d.textlength(right, font=cap), h - rise), right, font=cap, fill=(20, 19, 21))
 
 
 def furniture(img, cfg, no):

@@ -225,8 +225,16 @@ ShellRoot {
             request("view.open", {});
             until(() => view.unfold.value > 0.2 && root.line?.inputFocused, 2000, ok => {
                 const from = view.unfold.value;
-                let jump = 0, last = from;
-                const watch = () => { jump = Math.max(jump, Math.abs(view.unfold.value - last)); last = view.unfold.value; };
+                // A jump is a step faster than the fold can move in the time that passed: at a normal frame that is
+                // 0.25 as before; a frame a loaded machine delivers late may carry the fold further, as it runs on time.
+                let jump = 0, last = from, lastAt = Date.now();
+                const watch = () => {
+                    const now = Date.now();
+                    const allowed = Math.max(0.25, 2 * (now - lastAt) / Math.max(1, Motion.fold));
+                    jump = Math.max(jump, Math.abs(view.unfold.value - last) / allowed * 0.25);
+                    last = view.unfold.value;
+                    lastAt = now;
+                };
                 view.unfold.valueChanged.connect(watch);
                 line.cancel();
                 openState(false, folded => {

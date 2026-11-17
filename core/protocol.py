@@ -22,6 +22,11 @@ def encode(message: dict) -> bytes:
     return json.dumps(message, separators=(",", ":"), ensure_ascii=False).encode("utf-8", errors="backslashreplace") + b"\n"
 
 
+# Ops that answer the core rather than ask it (fire-and-forget, no id); they skip the client's request queue.
+ANSWERS = {"host.done"}
+ANSWER = b"host.done"
+
+
 class Client:
     def __init__(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         self.reader, self.writer = reader, writer
@@ -97,6 +102,11 @@ class Server:
             writer.close()
             return
         self.clients.add(client)
+        # One client's requests still run one at a time, in order, but on a worker, so the reader keeps reading:
+        # a request from the view may wait on a host call that the view answers on this same connection
+        # (wallpaper.choose → wallpaper.set → host.done), and that answer must not queue behind it.
+        queue: asyncio.Queue = asyncio.Queue()
+        worker = asyncio.get_running_loop().create_task(self._work(client, queue))
         try:
             while not client.closed:
                 try:
@@ -108,12 +118,38 @@ class Server:
                     break
                 if not line.endswith(b"\n"):
                     break  # EOF, including an incomplete last frame
-                await self.dispatch(client, line)
+                if self._answer(line):
+                    await self.dispatch(client, line)
+                else:
+                    queue.put_nowait(line)
         finally:
-            self.clients.discard(client)
-            client.close()
-            for callback in self.on_disconnect:
-                callback(client)
+            queue.put_nowait(None)
+            try:
+                await worker  # as before: a request already running finishes before the client is let go
+            except asyncio.CancelledError:
+                worker.cancel()
+                raise
+            finally:
+                self.clients.discard(client)
+                client.close()
+                for callback in self.on_disconnect:
+                    callback(client)
+
+    async def _work(self, client: Client, queue: asyncio.Queue):
+        while (line := await queue.get()) is not None:
+            if not client.closed:
+                await self.dispatch(client, line)
+
+    @staticmethod
+    def _answer(line: bytes) -> bool:
+        """A reply the core may be waiting for while this client's own request runs: dispatched on arrival."""
+        if ANSWER not in line:
+            return False
+        try:
+            message = json.loads(line)
+        except ValueError:
+            return False
+        return isinstance(message, dict) and message.get("op") in ANSWERS and "id" not in message
 
     async def dispatch(self, client: Client, line: bytes):
         try:
