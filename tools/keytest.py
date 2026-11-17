@@ -294,6 +294,18 @@ Scope {
         Fart.Plane { id: planeClear; width: 120; height: 40; role: "clear"; backing: true; visible: false }
     }
     property int roomWait: 0
+    property int settleWait: 0
+    property string lastLayout: ""
+    // The room's controls and where they are, rounded; the room is settled when this is the same on two ticks.
+    function settled() {
+        const layout = dashboard.focusables(dashboard.shownSlot.item, []).map(item => {
+            const r = dashboard.rectIn(item);
+            return [Math.round(r.x), Math.round(r.y), Math.round(r.width), Math.round(r.height)].join(",");
+        }).join(";");
+        const same = layout === lastLayout && Motion.active === 0;
+        lastLayout = layout;
+        return same;
+    }
     Timer {
         interval: 300; running: true; repeat: true
         onTriggered: {
@@ -328,7 +340,13 @@ Scope {
                 check("plane.cut", !planeCut.sheared && planeCut.polygon.length === 8 && Qt.colorEqual(planeCut.textColor, Fart.Design.onInk ?? Fart.Design.background),
                       { sheared: planeCut.sheared, points: planeCut.polygon.length });
                 check("plane.backing.opaque", planeClear.effectiveRole === "paper", { role: planeClear.effectiveRole });
+            } else if (dashboard.loadedPage === pages[cursor] && !settled() && ++settleWait < 10) {
+                // Loaded, but a busy machine may still be creating and placing its rows (a list's delegates incubate
+                // asynchronously): the walk maps every control's rect, so wait until two ticks agree (up to 3 s).
+                return;
             } else if (dashboard.loadedPage === pages[cursor]) {
+                settleWait = 0;
+                lastLayout = "";
                 // How long the room took past the first tick, so a slow room still shows without failing the walk.
                 if (roomWait > 0) console.log("KEY_SLOW " + pages[cursor] + " " + (roomWait * 300) + " ms");
                 roomWait = 0;
