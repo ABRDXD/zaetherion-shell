@@ -176,6 +176,7 @@ def field(cfg, scene):
 # about 0.8 luminance; below it a trail that thins into the picture over TRAIL_H, so deeper island cards keep an edge.
 NOTCH_W, NOTCH_H, TRAIL_H = 0.51, 0.08, 0.16
 NOTCH = "#c9ced6"
+TRAIL_PITCH = 10
 
 
 def notch(img, cfg, no):
@@ -187,16 +188,17 @@ def notch(img, cfg, no):
     # the trail first: the same 78° sides carried down, its light falling off line by line
     layer = Image.new("RGBA", (W, h + trail), (0, 0, 0, 0))
     ld = ImageDraw.Draw(layer)
-    for y in range(h, h + trail):
+    # the trail thins: rules every TRAIL_PITCH px, each fainter and further apart in effect, never a solid slab
+    for y in range(h + TRAIL_PITCH, h + trail, TRAIL_PITCH):
         t = (y - h) / trail
         inset = (y - h) * run
-        ld.line([(x0 + inset, y), (x1 - inset, y)], fill=light + (round(110 * (1 - t) ** 2),))
+        ld.line([(x0 + inset, y), (x1 - inset, y)], fill=light + (round(150 * (1 - t) ** 2),), width=2)
     ld.polygon([(x0 - h * run, 0), (x1 + h * run, 0), (x1, h), (x0, h)], fill=light + (255,))
     img.paste(layer, (0, 0), layer)
     # small dark type at the notch's outer ends, where the island never sits
     d = ImageDraw.Draw(img)
     cap = mono("Bold", 22)
-    d.text((x0 + 40, h - 44), f"ZÆTHERION · G{no:02d}", font=cap, fill=(20, 19, 21))
+    d.text((x0 + 40, h - 44), f"ZÆTHERION · G{no:02d}" if no else "ZÆTHERION · TYPESET", font=cap, fill=(20, 19, 21))
     right = cfg["name"].upper() + " · Z214"
     d.text((x1 - 40 - d.textlength(right, font=cap), h - 44), right, font=cap, fill=(20, 19, 21))
 
@@ -345,6 +347,13 @@ def compose(ink, mask, accent):
     return ImageChops.add(ink, ImageChops.multiply(solid, Image.merge("RGB", (mask, mask, mask))))
 
 
+def stale(directory):
+    """New layers make every recoloured copy (<hex>.png) beside them stale: they go."""
+    for old in directory.glob("*.png"):
+        if old.name not in ("ink.png", "signal.png"):
+            old.unlink()
+
+
 def main():
     args = sys.argv[1:]
     layers = None
@@ -367,6 +376,7 @@ def main():
     compose(ink, mask, cfg["signal"]).save(args[1], optimize=True)
     if layers:
         layers.mkdir(parents=True, exist_ok=True)
+        stale(layers)
         ink.save(layers / "ink.png", optimize=True)
         mask.save(layers / "signal.png", optimize=True)
         (layers / "plate.json").write_text(json.dumps(dict(name=cfg["name"], kind="glyph", source=cfg["src"], face=Path(args[1]).name,

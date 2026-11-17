@@ -55,3 +55,53 @@ function unreadLine(items) {
     for (const n of items) if (!n.read && apps.indexOf(n.appName) < 0) apps.push(n.appName);
     return apps.length ? apps.join(", ") : "all caught up";
 }
+
+const RANK = { critical: 2, normal: 1, low: 0 };
+
+// Notices that would sit on one spot become one comet (Z211, after real use: 59 notices smeared into one blur).
+// Within one urgency, a notice closer than `bin` (a share of the sky's width) to the cluster's newest joins it.
+// Each cluster: { ids (newest first), id (the newest), time, urgency, unread (any), count, appName (the newest's), row }.
+function clusters(items, s, bin) {
+    const sorted = items.slice().sort((a, b) => ms(a.time) - ms(b.time));
+    const open = {};   // urgency → the cluster still taking notices
+    const out = [];
+    for (const n of sorted) {
+        const u = RANK[n.urgency] !== undefined ? n.urgency : "normal";
+        const at = along(n.time, s);
+        const c = open[u];
+        if (c && at - c.at <= bin) {
+            c.ids.unshift(n.id);
+            c.id = n.id; c.time = n.time; c.at = at; c.appName = n.appName;
+            c.unread = c.unread || !n.read;
+            c.count += 1;
+        } else {
+            const fresh = { ids: [n.id], id: n.id, time: n.time, at: at, urgency: u, unread: !n.read, count: 1, appName: n.appName, row: 0 };
+            out.push(fresh);
+            open[u] = fresh;
+        }
+    }
+    // alternate rows within a band so neighbouring comets don't share a line
+    const seen = {};
+    for (const c of out) { c.row = seen[c.urgency] || 0; seen[c.urgency] = 1 - c.row; }
+    return out;
+}
+
+// Which clusters get a name under them: the newest first, each only if no named neighbour in its band and row is
+// nearer than `gap` (a share of the width); the chosen one always.
+function labelled(list, gap, chosenId) {
+    const named = [];
+    const keep = {};
+    const order = list.slice().sort((a, b) => ms(b.time) - ms(a.time));
+    for (const c of order) {
+        const isChosen = c.ids.indexOf(chosenId) >= 0;
+        const clash = named.some(o => o.urgency === c.urgency && o.row === c.row && Math.abs(o.at - c.at) < gap);
+        if (isChosen || !clash) { keep[c.id] = true; named.push(c); }
+    }
+    return keep;
+}
+
+// The next notice to read when a cluster is clicked: its newest, or (already reading one of it) the next older, wrapping.
+function step(cluster, currentId) {
+    const i = cluster.ids.indexOf(currentId);
+    return i < 0 ? cluster.ids[0] : cluster.ids[(i + 1) % cluster.ids.length];
+}

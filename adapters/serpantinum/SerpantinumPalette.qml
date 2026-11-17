@@ -28,7 +28,7 @@ PaletteDomain {
     opacity: liquid ? 0.1 : Math.min(1, Math.max(0, (theme.elementOpacity ?? 94) / 100))
     radius: Math.max(0, theme.borderRadius ?? 24)
     blur: theme.blurBackground === true
-    monoFamily: theme.fontFamily || "JetBrains Mono Nerd Font"
+    monoFamily: theme.fontFamily || "JetBrainsMono Nerd Font"
     function readColors(view, previous) {
         try {
             const data = JSON.parse(view.text());

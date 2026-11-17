@@ -34,4 +34,5 @@ TasksTest 1.0 TasksTest.qml
 TemporalTest 1.0 TemporalTest.qml
 TitleTest 1.0 TitleTest.qml
 ViewTest 1.0 ViewTest.qml
+WallpaperTypesetTest 1.0 WallpaperTypesetTest.qml
 WorkspacesTest 1.0 WorkspacesTest.qml

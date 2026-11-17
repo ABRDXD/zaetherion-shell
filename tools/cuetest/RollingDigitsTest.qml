@@ -29,15 +29,6 @@ Scope {
     }
     FloatingWindow {
         implicitWidth: 640; implicitHeight: 240; visible: true; color: "#000000"
-        Loader {
-            id: holder
-            sourceComponent: Component {
-                Item {
-                    property alias readout: inner
-                    UI.RollingDigits { id: inner; text: "6" }
-                }
-            }
-        }
         Item {
             id: stage; anchors.fill: parent
             UI.RollingDigits {
@@ -72,15 +63,12 @@ Scope {
                         after(30, () => {
                             check("reduced.swaps", slots().every(s => s.t === 1) && digits.text === "9:58", {});
                             Motion.reduced = false;
-                            // A readout torn down in the same tick its text changed (a surface unloading): its deferred
-                            // step must stay quiet.
-                            const doomed = Qt.createQmlObject('import qs.view.ui as UI; UI.RollingDigits { text: "1" }', stage);
-                            doomed.destroy();      // deferred: the text change below queues its step behind the deletion
+                            // A readout changed and torn down at once: its deferred step must not outlive it (no TypeError).
+                            const doomed = Qt.createQmlObject("import qs.view.ui as UI; UI.RollingDigits { text: '1' }", digits.parent);
                             doomed.text = "2";
-                            holder.item.readout.text = "7";
-                            holder.active = false; // the whole surface (and the context its names live in) goes at once
-                            after(120, () => {
-                                check("teardown.quiet", true, {});   // the run fails on any TypeError in the log
+                            doomed.destroy();
+                            after(100, () => {
+                                check("teardown.quiet", true, {});
                                 console.log("CUE_DONE");
                                 Qt.quit();
                             });

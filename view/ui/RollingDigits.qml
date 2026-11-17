@@ -37,11 +37,10 @@ Item {
     // only moves on once every slot has seen the change.
     function numeric(value: string): real { return Number(value.replace(/[^0-9]/g, "")) || 0; }
     property real lastNumber: numeric(text)
-    // The deferred step may run after the readout is gone (a surface torn down): it then does nothing. By then `root`
-    // itself can resolve to null (its context went with the surface), hence `root?.`.
-    property bool alive: true
-    Component.onDestruction: alive = false
-    onTextChanged: Qt.callLater(() => { if (root?.alive) root.lastNumber = root.numeric(root.text); })
+    // The step is deferred to a zero-delay timer owned by this readout, so it dies with it: a Qt.callLater closure
+    // outlived a torn-down readout and read `root` as null ("Cannot read property 'alive' of null", 17 Nov 2026).
+    Timer { id: settle; interval: 0; onTriggered: root.lastNumber = root.numeric(root.text) }
+    onTextChanged: settle.restart()
     function directionNow(): int { return trend !== 0 ? trend : numeric(text) < lastNumber ? -1 : 1; }
 
     Repeater {

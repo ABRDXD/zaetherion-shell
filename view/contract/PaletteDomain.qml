@@ -7,5 +7,5 @@ HostDomain {
     property real opacity: 0.94
     property int radius: 24
     property bool blur: false
-    property string monoFamily: "JetBrains Mono Nerd Font"
+    property string monoFamily: "JetBrainsMono Nerd Font"
 }

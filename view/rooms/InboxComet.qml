@@ -13,6 +13,8 @@ AbstractButton {
     property bool unread: false
     property bool urgent: false
     property bool chosen: false
+    // Whether its name shows under it (the room thins names so they never overlap).
+    property bool named: true
     readonly property color tone: urgent ? Design.warm : unread ? Design.coldStar : Design.line
     readonly property real head: chosen ? 18 : unread ? 12 : 8
     readonly property real tail: unread ? 70 : 0
@@ -60,6 +62,7 @@ AbstractButton {
     }
     contentItem: Item {
         FText {
+            visible: root.named || root.chosen || root.hovered || root.activeFocus
             anchors.horizontalCenter: parent.horizontalCenter
             y: parent.height / 2 + root.head / 2 + 8
             text: root.app

@@ -60,6 +60,28 @@ class SkyLayout(unittest.TestCase):
         self.assertEqual(run('unreadLine([{appName:"Mail",read:true}])'), "all caught up")
 
 
+    def test_close_notices_of_one_urgency_cluster_newest_first(self):
+        now = 1_800_000_000_000
+        items = ",".join(f'{{id:"{i}",time:{now - m * 60000},urgency:"{u}",read:{r},appName:"{a}"}}'
+                         for i, m, u, r, a in [("a", 300, "normal", "true", "Mail"), ("b", 299, "normal", "false", "Mail"),
+                                               ("c", 298, "critical", "true", "Pager"), ("d", 60, "normal", "true", "Chat")])
+        c = run(f"clusters([{items}], {{from: {now - 6 * H}, to: {now}}}, 0.02)")
+        normal = [x for x in c if x["urgency"] == "normal"]
+        self.assertEqual([x["ids"] for x in normal], [["b", "a"], ["d"]])
+        self.assertEqual((normal[0]["count"], normal[0]["unread"], normal[0]["id"]), (2, True, "b"))
+        self.assertEqual([x["ids"] for x in c if x["urgency"] == "critical"], [["c"]])
+
+    def test_names_thin_out_but_the_chosen_keeps_its_own(self):
+        c = '[{id:"x",ids:["x"],at:0.50,time:3,urgency:"normal",row:0},{id:"y",ids:["y"],at:0.52,time:2,urgency:"normal",row:0},' \
+            '{id:"z",ids:["z"],at:0.51,time:1,urgency:"normal",row:1}]'
+        self.assertEqual(run(f'labelled({c}, 0.1, "")'), {"x": True, "z": True})
+        self.assertEqual(run(f'labelled({c}, 0.1, "y")'), {"x": True, "y": True, "z": True})
+
+    def test_a_cluster_steps_newest_then_older_and_wraps(self):
+        c = '{ids:["n","m","o"]}'
+        self.assertEqual(run(f'[step({c}, ""), step({c}, "n"), step({c}, "m"), step({c}, "o")]'), ["n", "m", "o", "n"])
+
+
 class SkyRoom(unittest.TestCase):
     def test_room(self):
         output = cuetest.run("InboxSkyTest.qml", timeout=90)

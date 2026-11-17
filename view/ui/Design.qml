@@ -129,7 +129,7 @@ Singleton {
     readonly property int headline: 52
     readonly property int display: 86 // hero numerals and glyphs
     readonly property string sans: "Roboto Condensed"
-    readonly property string mono: theme.mono ?? "JetBrains Mono Nerd Font"
+    readonly property string mono: theme.mono ?? "JetBrainsMono Nerd Font"
     readonly property bool geometric: Config.options.appearance.geometric
     readonly property bool italic: Config.options.appearance.fonts.italicMain
     // The one angle family: −12° shear and its 78° perpendicular. No other angle in rooms.

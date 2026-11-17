@@ -275,6 +275,27 @@ ColumnLayout {
                 font.pixelSize: Design.caption
                 wrapMode: Text.Wrap
             }
+            // Z215: the shown picture redrawn in type, saved beside it and set; a plate already follows the palette (Z213).
+            FButton {
+                objectName: "wallpaperTypeset"
+                Layout.fillWidth: true
+                visible: root.shown?.kind === "image" && root.shown?.plate !== true
+                enabled: !root.wall.typesetting
+                label: root.wall.typesetting ? "Typesetting… about half a minute" : "Typeset this picture"
+                onClicked: root.core.request("wallpaper.typeset", { name: root.shown.path }, (ok, result) => {
+                    root.error = ok ? "" : result.message;
+                    if (ok) root.load();
+                })
+            }
+            FText {
+                Layout.fillWidth: true
+                visible: text !== ""
+                text: root.shown?.plate === true ? "A typeset plate: its accent follows the palette"
+                    : root.wall.typesetError ? "Not typeset: " + root.wall.typesetError : ""
+                color: root.wall.typesetError && root.shown?.plate !== true ? Design.danger : Design.muted
+                font.pixelSize: Design.caption
+                wrapMode: Text.Wrap
+            }
             Item { Layout.fillHeight: true }
         }
     }

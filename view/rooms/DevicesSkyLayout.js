@@ -27,11 +27,8 @@ function ring(index) { return RINGS[index]; }
 // A ring's arc for a level 0–1: { start, sweep } in degrees.
 function arc(level) { return { start: ARC_START, sweep: 360 * Math.max(0, Math.min(1, Number(level) || 0)) }; }
 
-// Where the arc's end sits for a level, as { x, y } on a unit circle (for its label).
-function arcEnd(level) {
-    const a = (ARC_START + 360 * Math.max(0, Math.min(1, Number(level) || 0))) * Math.PI / 180;
-    return { x: Math.cos(a), y: Math.sin(a) };
-}
+// A ring's stroke width in px: the outermost (output) is the heaviest.
+function stroke(index) { return 10 - 2 * index; }
 
 // The satellite's distance (share of the half-size) for a signal strength.
 function satellite(strength) { return FAR - (FAR - NEAR) * unit(strength); }

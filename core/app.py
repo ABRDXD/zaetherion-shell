@@ -20,7 +20,7 @@ from core.island import Island
 from core.launcher import Launcher
 from core.palette import MADE as MADE_PALETTE, Palette
 from core.wallpaper import Wallpaper, kind_of
-from core.typeset import face_of, layers_for as plate_layers
+from core.typeset import face_of, layers_for as plate_layers, typeset_targets
 from core.presets import Presets
 from core.ignite import LOST, Ignite
 from core.notification_mirror import Mirror
@@ -253,6 +253,7 @@ class Core:
         op("wallpaper.folder", lambda peer, folder: w.set_folder(folder))
         op("wallpaper.choose", lambda peer, name: self.wallpaper_choose(w.resolve(name)))
         op("wallpaper.report", self.wallpaper_report)
+        op("wallpaper.typeset", self.wallpaper_typeset)
         op("hosttheme.report", self.host_theme_report)
         p = self.presets
         op("presets.save", lambda peer, name: (p.save(name, self.current_look()), self.presets_snapshot())[1])
@@ -465,6 +466,33 @@ class Core:
         await self._apply_wallpaper(path)
         await self._wallpaper_palette(path)
         return self.wallpaper.snapshot()
+
+    async def wallpaper_typeset(self, peer=None, name=None) -> dict:
+        """Typeset a picture (the named one, else the current) into a plate beside it and show it (Z215)."""
+        w = self.wallpaper
+        source = w.resolve(name) if name else w.host["current"]
+        if not source:
+            raise OpError("refused", "no wallpaper to typeset; name one")
+        if kind_of(Path(source)) != "image":
+            raise OpError("refused", "only pictures can be typeset")
+        if plate_layers(source) is not None:
+            raise OpError("refused", "this is already a typeset plate; it follows the palette")
+        if w.typesetting:
+            raise OpError("refused", "already typesetting " + Path(w.typesetting).name)
+        face, layers = typeset_targets(source)
+        from adapters.common import typeset_make  # the generator is known only there
+        w.typeset_state(source)
+        try:
+            await typeset_make.make(source, face, layers)
+        except RuntimeError as error:
+            w.typeset_state("", str(error))
+            raise OpError("failed", str(error))
+        w.typeset_state("")
+        if w.host["available"] and not w.host["perScreen"]:
+            await self._apply_wallpaper(str(face))
+        else:
+            w.on_change()  # the folder has a new file even when the host can't show it
+        return w.snapshot()
 
     async def _apply_wallpaper(self, path: str):
         """Set a wallpaper on the host; a typeset plate is set as its copy in the saved palette's accent (Z213)."""

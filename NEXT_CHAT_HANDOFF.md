@@ -1,3 +1,27 @@
+# Handoff (written 17 November 2026, evening, by Claude A, after an autonomous stretch)
+
+**Start here.** Everything is committed on `s0-seed`, fast-forwarded; **nothing is live until the owner runs
+`tools/live-restart`** (it reloads the core and the view; Claude's own restarts are refused by design).
+
+## What's waiting for the owner's restart
+- **Z213** typeset plates follow the saved palette's accent; **Z215** `wall typeset` + the picker's *Typeset this picture*.
+- Fixes from the rooms in real use: window names in Workspaces, clustered comets in the Inbox, the Devices legend,
+  blank action labels, RollingDigits' null error, the mono font's family name (canvases).
+
+## After the restart, check
+1. View log clean of `RollingDigits` and `Context2D` warnings (both were live before).
+2. Workspaces shows app names (kitty, zen…), not "window".
+3. Wallpaper settings → pick `zg-01-torii` → change palette → the accent follows (~2 s; instant when cached).
+4. `wall typeset` on a photo → `<name>.type.png` appears and is set.
+
+## Open
+- NULL (`aether-null-result.png`, Claude B's picture) has no Z214 notch.
+- Very dark, flat paintings don't typeset well (known limit, Z215).
+- Owner hasn't reviewed the Typeset button's look (built in the house style; easy to change).
+- Clips room never reviewed (never read clipboard contents to judge it).
+
+---
+
 # Handoff for tomorrow (written 16 November 2026, evening, by Claude A)
 
 **Start here.** Everything is committed on `s0-seed` and live (the owner ran `tools/live-restart` at the end of the

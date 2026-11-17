@@ -14,6 +14,8 @@ from pathlib import Path
 
 from PIL import Image, ImageChops, ImageFilter, ImageOps
 
+from glyph import stale  # tools/typeset/ is on the path when run as a script
+
 # Saturation (0–1) below this is grey; the share rises to 1 over the next RAMP.
 FLOOR = 0.18
 RAMP = 0.22
@@ -52,6 +54,7 @@ def main():
     src, out = Path(args[0]).expanduser(), Path(args[1]).expanduser()
     ink, signal, accent = layers(Image.open(src), floor, soft)
     out.mkdir(parents=True, exist_ok=True)
+    stale(out)
     ink.save(out / "ink.png", optimize=True)
     signal.save(out / "signal.png", optimize=True)
     (out / "plate.json").write_text(json.dumps(dict(name=src.stem.upper(), kind="extracted", source=str(src), face=src.name, accent=accent)) + "\n")
