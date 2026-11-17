@@ -81,6 +81,9 @@ def view_env(environ, **extra) -> dict:
     env = dict(environ, **extra)
     for name in ("FART_SUPERVISE", "FART_SUPERVISE_FIXTURE"):
         env.pop(name, None)
+    # Grey text smoothing: Qt Quick's distance-field text otherwise picks sub-pixel smoothing from the screen, which
+    # fringes small mono type blue and orange (owner, 17 Nov 2026, the Clips room). The host's own choice wins.
+    env.setdefault("QSG_DISTANCEFIELD_ANTIALIASING", "gray")
     return env
 
 

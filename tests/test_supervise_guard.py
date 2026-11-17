@@ -23,7 +23,11 @@ class GuardTest(unittest.TestCase):
 
     def test_view_env_drops_supervision(self):
         env = fartd.view_env({"FART_SUPERVISE": "dms", "FART_SUPERVISE_FIXTURE": "1", "PATH": "/bin"}, FART_X="1")
-        self.assertEqual(env, {"PATH": "/bin", "FART_X": "1"})
+        self.assertEqual(env, {"PATH": "/bin", "FART_X": "1", "QSG_DISTANCEFIELD_ANTIALIASING": "gray"})
+
+    def test_view_text_is_grey_smoothed_unless_the_host_says_otherwise(self):
+        self.assertEqual(fartd.view_env({})["QSG_DISTANCEFIELD_ANTIALIASING"], "gray")
+        self.assertEqual(fartd.view_env({"QSG_DISTANCEFIELD_ANTIALIASING": "subpixel"})["QSG_DISTANCEFIELD_ANTIALIASING"], "subpixel")
 
     def test_inherited_env_strips_fart(self):
         saved = dict(os.environ)
