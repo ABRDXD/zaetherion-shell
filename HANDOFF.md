@@ -16,7 +16,7 @@
   ("JetBrainsMono Nerd Font" does); canvases fell back to a default font (25 Context2D warnings in the live log).
 - **Needs the owner:** `tools/live-restart` to load all of this (core: Z213/Z215; view: the fixes). Then: pick a plate,
   change the palette → the accent follows; `wall typeset` on a photo.
-- **NULL has no Z214 notch** (Claude B's picture; left to them or the owner).
+- **NULL has the Z214 notch** on its ink layer (`extract.py --notch`): the copies the desktop shows have it; the picture itself is untouched.
 
 # 17 November 2026 · Opus (Claude B): wallpaper and presets fixed (Z210, live), keys moved to ZÆTHERION (Z208, live), light notch for wallpapers (Z214)
 
