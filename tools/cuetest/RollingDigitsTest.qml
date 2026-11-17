@@ -34,7 +34,7 @@ Scope {
             sourceComponent: Component {
                 Item {
                     property alias readout: inner
-                    UI.RollingDigits { id: inner; text: "6"; font.pixelSize: 20 }
+                    UI.RollingDigits { id: inner; text: "6" }
                 }
             }
         }
