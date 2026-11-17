@@ -171,7 +171,38 @@ def field(cfg, scene):
     return out
 
 
+# The light notch behind the island (Z214): the island is one matte dark fill (Z151), so every plate keeps its ground
+# light. Top centre, flush with the edge, at least NOTCH_W of the width and NOTCH_H of the height, sides at 78°,
+# about 0.8 luminance; below it a trail that thins into the picture over TRAIL_H, so deeper island cards keep an edge.
+NOTCH_W, NOTCH_H, TRAIL_H = 0.51, 0.08, 0.16
+NOTCH = "#c9ced6"
+
+
+def notch(img, cfg, no):
+    run = math.tan(math.radians(12))
+    h, trail = round(H * NOTCH_H), round(H * TRAIL_H)
+    bottom_w = W * NOTCH_W
+    x0, x1 = (W - bottom_w) / 2, (W + bottom_w) / 2
+    light = hexrgb(NOTCH)
+    # the trail first: the same 78° sides carried down, its light falling off line by line
+    layer = Image.new("RGBA", (W, h + trail), (0, 0, 0, 0))
+    ld = ImageDraw.Draw(layer)
+    for y in range(h, h + trail):
+        t = (y - h) / trail
+        inset = (y - h) * run
+        ld.line([(x0 + inset, y), (x1 - inset, y)], fill=light + (round(110 * (1 - t) ** 2),))
+    ld.polygon([(x0 - h * run, 0), (x1 + h * run, 0), (x1, h), (x0, h)], fill=light + (255,))
+    img.paste(layer, (0, 0), layer)
+    # small dark type at the notch's outer ends, where the island never sits
+    d = ImageDraw.Draw(img)
+    cap = mono("Bold", 22)
+    d.text((x0 + 40, h - 44), f"ZÆTHERION · G{no:02d}", font=cap, fill=(20, 19, 21))
+    right = cfg["name"].upper() + " · Z214"
+    d.text((x1 - 40 - d.textlength(right, font=cap), h - 44), right, font=cap, fill=(20, 19, 21))
+
+
 def furniture(img, cfg, no):
+    notch(img, cfg, no)
     d = ImageDraw.Draw(img, "RGBA")
     muted = hexrgb("#8d96a3")
     ink = hexrgb("#e6f0ff")
