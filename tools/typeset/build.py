@@ -25,7 +25,7 @@ def main():
     for name in EXTRACTED:
         path = folder / name
         if path.is_file():
-            subprocess.run([sys.executable, str(HERE / "extract.py"), str(path), str(folder / ".typeset" / path.stem)], check=True)
+            subprocess.run([sys.executable, str(HERE / "extract.py"), str(path), str(folder / ".typeset" / path.stem), "--notch"], check=True)
             print("extracted", path.stem)
 
 

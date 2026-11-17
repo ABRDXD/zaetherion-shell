@@ -6,7 +6,7 @@ pixel is its saturation above a floor (softened), the accent layer carries that 
 and the ink is the picture in grey with the accent's light taken out. Recoloured, ink + accent × signal gives back
 the picture in the new colour; with the original accent it gives back the original, near enough.
 
-    extract.py <image> <layers-dir> [--floor 0.18] [--soft 1.5]
+    extract.py <image> <layers-dir> [--floor 0.18] [--soft 1.5] [--notch]
 """
 import json
 import sys
@@ -14,7 +14,7 @@ from pathlib import Path
 
 from PIL import Image, ImageChops, ImageFilter, ImageOps
 
-from glyph import stale  # tools/typeset/ is on the path when run as a script
+from glyph import notch, stale  # tools/typeset/ is on the path when run as a script
 
 # Saturation (0–1) below this is grey; the share rises to 1 over the next RAMP.
 FLOOR = 0.18
@@ -53,6 +53,10 @@ def main():
     soft = float(args[args.index("--soft") + 1]) if "--soft" in args else 1.5
     src, out = Path(args[0]).expanduser(), Path(args[1]).expanduser()
     ink, signal, accent = layers(Image.open(src), floor, soft)
+    if "--notch" in args:
+        # Z214 on the ink only: the copies the desktop shows get the light notch; the source picture is untouched
+        notch(ink, {"name": src.stem.replace("-", " ").replace("_", " "), "notch_left": "ZÆTHERION · PLATE"}, 0)
+        signal.paste(0, (0, 0, signal.width, round(signal.height * 0.08)))
     out.mkdir(parents=True, exist_ok=True)
     stale(out)
     ink.save(out / "ink.png", optimize=True)
