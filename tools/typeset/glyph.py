@@ -75,6 +75,18 @@ def field(cfg, scene):
     cols, rows = int(W / cw), int(H / ch)
     small = scene.resize((cols, rows), Image.BOX)
     lum = ImageOps.grayscale(small)
+    if cfg.get("edges"):
+        # edge mode (flat pictures): a cell's weight is how much shape passes through it, so outlines are set heavy
+        # and fills fade; a little of the light is kept so large shapes still read
+        g = ImageOps.grayscale(scene).filter(ImageFilter.GaussianBlur(9))  # wide: shapes, not brush texture
+        edges = g.filter(ImageFilter.FIND_EDGES)
+        # the picture's own border is not an edge: FIND_EDGES marks it, so it is cleared
+        ImageDraw.Draw(edges).rectangle([0, 0, edges.width - 1, edges.height - 1], outline=0, width=24)
+        edges = edges.resize((cols, rows), Image.BOX)
+        hist = edges.histogram()
+        top = next((i for i in range(255, 0, -1) if sum(hist[i:]) >= 0.02 * cols * rows), 1)
+        edges = edges.point(lambda p: min(255, round(p * 255 / max(1, top))))
+        lum = Image.blend(ImageOps.autocontrast(lum, cutoff=2), edges, cfg["edges"])
     if cfg.get("invert"):
         lum = ImageOps.invert(lum)
     lo, hi, gamma = cfg.get("levels", [0, 255, 1.0])
@@ -234,6 +246,61 @@ def furniture(img, cfg, no):
     d.text((int(lx) + 8 if side != "right" else int(tx + gw - d.textlength(t["sub"].upper(), font=cap)), int(bottom + 24 + lh + 10)), t["sub"].upper(), font=cap, fill=signal)
 
 
+# The auto voices, far to near: the house's own lines (Z213).
+AUTO_TEXTS = ["at rest nothing moves · the far layer is thin · ", "one angle family · the host owns the colours · ",
+              "SILENT IS STILL · NOTHING ELSE LEANS · ", "ZÆTHERION · FART // ANGULAR · "]
+AUTO_INKS = ["#26323d", "#5e7184", "#a9bccd", "#e6f0ff"]
+
+
+def quantile(hist, q):
+    total, run = sum(hist), 0
+    for i, n in enumerate(hist):
+        run += n
+        if run >= q * total:
+            return i / 255
+    return 1.0
+
+
+def auto_config(path, name=None):
+    """A scene for any picture, no hand tuning: the bands sit at the picture's own light quantiles; a bright picture
+    is inverted (its dark shapes become the type, its sky the void); a flat one (narrow middle spread) is set by its
+    edges; a dominant saturated hue, if the picture has one, becomes the accent."""
+    src = Image.open(Path(path).expanduser()).convert("RGB")
+    probe = cover(src, (0.5, 0.5)).resize((384, 216), Image.BOX)
+    grey = ImageOps.grayscale(probe)
+    hist = grey.histogram()
+    q25, q50, q75 = (quantile(hist, q) for q in (0.25, 0.5, 0.75))
+    invert = q50 > 0.55
+    flat = (q75 - q25) < 0.16
+    if invert:
+        hist = ImageOps.invert(grey).histogram()
+    # bands at the picture's own quantiles: the darkest third stays void, the rest split into four voices
+    cuts = [quantile(hist, q) for q in (0.34, 0.55, 0.75, 0.9)] if not flat else [0.18, 0.36, 0.56, 0.76]
+    weights = [[0, 1], [2, 3], [4, 5], [6, 7]]
+    bands = [[round(c, 3), w, ink, text] for c, w, ink, text in zip(cuts, weights, AUTO_INKS, AUTO_TEXTS)]
+    # the accent: the most common hue among clearly saturated, lit pixels, if there are enough of them
+    hues = [0] * 36
+    for h, s_, v in probe.convert("HSV").get_flattened_data():
+        if s_ >= 90 and v >= 70:
+            hues[h * 36 // 256] += 1
+    best = max(range(36), key=lambda i: hues[i])
+    warm = None
+    accent = "#8fd6f5"
+    # an accent is a minority: enough to matter, too little to be the sky (a blue sky is not an accent)
+    if 0.004 * 384 * 216 <= hues[best] and sum(hues) <= 0.08 * 384 * 216:
+        centre = (best + 0.5) * 10
+        warm = [90, (centre - 25) % 360, (centre + 25) % 360]
+        import colorsys
+        accent = "#%02x%02x%02x" % tuple(round(c * 255) for c in colorsys.hsv_to_rgb(centre / 360, 0.65, 1.0))
+    stem = (name or Path(path).stem).upper()[:24]
+    return dict(no=0, name=stem, src=str(path), focus=[0.5, 0.5], zoom=1.0, cell=18, invert=invert,
+                levels=[0, 255, 1.0], edges=0.8 if flat else 0, bands=bands, warm=warm, signal=accent, text="·",
+                reading=f"TYPESET — {stem}\nTHE PICTURE'S LIGHT, SET IN FOUR VOICES.\nTHE DARK IS LEFT UNWRITTEN.",
+                aside="any picture can be read.", colophon="JETBRAINS MONO THIN → EXTRABOLD · 18 PX CELL · AUTO",
+                title=dict(cjk="活字", latin="KATSUJI", sub="movable type · set by the core", size=300, top=260,
+                           side="right", latin_size=100))
+
+
 def render(cfg, scene, signal):
     cfg = dict(cfg, signal=signal)
     img = field(cfg, scene)
@@ -254,7 +321,11 @@ def main():
         i = args.index("--layers")
         layers = Path(args[i + 1]).expanduser()
         del args[i:i + 2]
-    cfg = json.loads(Path(args[0]).read_text())
+    if "--auto" in args:
+        args.remove("--auto")
+        cfg = auto_config(args[0])
+    else:
+        cfg = json.loads(Path(args[0]).read_text())
     src = Image.open(Path(cfg["src"]).expanduser()).convert("RGB")
     scene = cover(src, cfg.get("focus", [0.5, 0.5]), cfg.get("zoom", 1.0))
     if cfg.get("mirror"):
