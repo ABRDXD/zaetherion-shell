@@ -32,9 +32,7 @@ class SkyLayout(unittest.TestCase):
     def test_arc_follows_level(self):
         self.assertEqual(run("[arc(0), arc(0.5), arc(1), arc(2)]"),
                          [{"start": -90, "sweep": 0}, {"start": -90, "sweep": 180}, {"start": -90, "sweep": 360}, {"start": -90, "sweep": 360}])
-        top = run("arcEnd(0)")
-        self.assertAlmostEqual(top["x"], 0, places=6)
-        self.assertAlmostEqual(top["y"], -1, places=6)
+        self.assertEqual(run("[stroke(0), stroke(1), stroke(2)]"), [10, 8, 6])
 
     def test_rings_nest_outermost_first(self):
         r = run("[ring(0), ring(1), ring(2)]")

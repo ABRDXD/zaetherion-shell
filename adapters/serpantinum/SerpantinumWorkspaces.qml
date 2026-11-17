@@ -17,7 +17,7 @@ WorkspacesDomain {
         active: w.active, windowCount: w.toplevels.values.length }))
     windows: Hyprland.toplevels.values.map(t => {
         const ipc = t.lastIpcObject ?? {};
-        return { id: t.address, title: t.title, appId: ipc.class || "", workspaceId: t.workspace ? String(t.workspace.id) : "",
+        return { id: t.address, title: t.title, appId: t.wayland?.appId || ipc.class || "", workspaceId: t.workspace ? String(t.workspace.id) : "",
             monitor: t.monitor?.name ?? monitorNames[ipc.monitor] ?? "",
             x: ipc.at?.[0] ?? 0, y: ipc.at?.[1] ?? 0, width: ipc.size?.[0] ?? 0, height: ipc.size?.[1] ?? 0,
             floating: ipc.floating === true, fullscreen: !!ipc.fullscreen, focused: t === Hyprland.activeToplevel };

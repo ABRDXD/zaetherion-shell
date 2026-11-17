@@ -63,8 +63,15 @@ Scope {
                         after(30, () => {
                             check("reduced.swaps", slots().every(s => s.t === 1) && digits.text === "9:58", {});
                             Motion.reduced = false;
-                            console.log("CUE_DONE");
-                            Qt.quit();
+                            // A readout changed and torn down at once: its deferred step must not outlive it (no TypeError).
+                            const doomed = Qt.createQmlObject("import qs.view.ui as UI; UI.RollingDigits { text: '1' }", digits.parent);
+                            doomed.text = "2";
+                            doomed.destroy();
+                            after(100, () => {
+                                check("teardown.quiet", true, {});
+                                console.log("CUE_DONE");
+                                Qt.quit();
+                            });
                         });
                     });
                 });

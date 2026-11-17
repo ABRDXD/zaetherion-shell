@@ -56,7 +56,7 @@ Item {
             required property int index
             readonly property real r: root.half * L.ring(index)
             readonly property var arc: L.arc(modelData.level)
-            readonly property real stroke: 10 - 2 * index
+            readonly property real stroke: L.stroke(index)
             anchors.fill: parent
             preferredRendererType: Shape.CurveRenderer
             opacity: modelData.available ? 1 : 0.35
@@ -75,19 +75,32 @@ Item {
             }
         }
     }
-    // Each ring's label where its arc ends.
-    Repeater {
-        model: root.levels
-        FText {
-            required property var modelData
-            required property int index
-            readonly property var end: L.arcEnd(modelData.level)
-            readonly property real r: root.half * L.ring(index) + 14
-            x: root.centre.x + r * end.x + (end.x < 0 ? -width - 4 : 4)
-            y: root.centre.y + r * root.tilt * end.y - height / 2
-            text: modelData.label + " " + L.percent(modelData.level, modelData.available) + (modelData.muted ? " · MUTED" : "")
-            technical: true
-            color: modelData.muted ? Design.faint : modelData.tone
+    // The rings' legend, fixed at the scene's left: labels at the arcs' ends collided whenever two levels ended near
+    // one angle (a full microphone and a dark screen both end at the top). Each row: the ring's stroke, its name, value.
+    Column {
+        id: legend
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        spacing: 10
+        Repeater {
+            model: root.levels
+            Row {
+                required property var modelData
+                required property int index
+                spacing: 10
+                opacity: modelData.available ? 1 : 0.4
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 28
+                    height: L.stroke(index)
+                    color: modelData.muted ? Qt.alpha(modelData.tone, 0.3) : modelData.tone
+                }
+                FText {
+                    text: modelData.label + " " + L.percent(modelData.level, modelData.available) + (modelData.muted ? " · MUTED" : "")
+                    technical: true
+                    color: modelData.muted ? Design.faint : Design.ink
+                }
+            }
         }
     }
 

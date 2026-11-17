@@ -7,7 +7,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import cuetest  # noqa: E402
 
 CHECKS = ("digits.share.width", "changed.digits.roll", "separator.stays", "rising.rolls.up", "settles",
-          "falling.rolls.down", "reduced.swaps")
+          "falling.rolls.down", "reduced.swaps", "teardown.quiet")
 
 
 class RollingDigits(unittest.TestCase):

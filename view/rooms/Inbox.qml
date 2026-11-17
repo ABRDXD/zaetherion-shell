@@ -109,22 +109,29 @@ ColumnLayout {
             technical: true
             color: Design.accent
         }
+        // Notices that would share a spot are one comet with a count; a click reads its newest, the next click the
+        // next older (Sky.clusters, Sky.step). Names show only where they fit (Sky.labelled).
+        readonly property var groups: Sky.clusters(root.items, root.sky, skyArea.cometWidth / Math.max(1, skyArea.span))
+        readonly property var named: Sky.labelled(groups, skyArea.labelWidth / Math.max(1, skyArea.span), root.selected?.id ?? "")
+        readonly property real cometWidth: 26
+        readonly property real labelWidth: 150
         Repeater {
-            model: root.items
+            model: skyArea.groups
             Item {
                 id: slot
                 required property var modelData
-                required property int index
-                x: skyArea.inset + skyArea.span * Sky.along(modelData.time, root.sky)
-                y: skyArea.height * Sky.height(modelData.urgency, index)
-                z: slot.modelData.id === root.selected?.id ? 2 : 1
+                readonly property bool holdsChosen: modelData.ids.indexOf(root.selected?.id ?? "") >= 0
+                x: skyArea.inset + skyArea.span * modelData.at
+                y: skyArea.height * Sky.height(modelData.urgency, modelData.row)
+                z: holdsChosen ? 2 : 1
                 InboxComet {
-                    app: slot.modelData.appName || "app"
-                    summary: slot.modelData.summary || ""
-                    unread: !slot.modelData.read
+                    app: (slot.modelData.appName || "app") + (slot.modelData.count > 1 ? " ×" + slot.modelData.count : "")
+                    summary: slot.modelData.count > 1 ? slot.modelData.count + " notices" : (root.items.find(n => n.id === slot.modelData.id)?.summary ?? "")
+                    unread: slot.modelData.unread
                     urgent: slot.modelData.urgency === "critical"
-                    chosen: slot.modelData.id === root.selected?.id
-                    onClicked: root.selectedId = slot.modelData.id
+                    chosen: slot.holdsChosen
+                    named: !!skyArea.named[slot.modelData.id]
+                    onClicked: root.selectedId = Sky.step(slot.modelData, root.selected?.id ?? "")
                 }
             }
         }

@@ -26,7 +26,7 @@ Flow {
         model: root.actions
         FButton {
             required property var modelData
-            label: modelData.label || "Open"
+            label: String(modelData.label ?? "").trim() || "Open"  // a blank label (" ") is no label
             onClicked: root.inbox.invoke(root.item.id, modelData.id, "")
         }
     }
