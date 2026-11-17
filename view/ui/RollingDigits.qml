@@ -37,10 +37,11 @@ Item {
     // only moves on once every slot has seen the change.
     function numeric(value: string): real { return Number(value.replace(/[^0-9]/g, "")) || 0; }
     property real lastNumber: numeric(text)
-    // The deferred step may run after the readout is gone (a surface torn down): it then does nothing.
+    // The deferred step may run after the readout is gone (a surface torn down): it then does nothing. By then `root`
+    // itself can resolve to null (its context went with the surface), hence `root?.`.
     property bool alive: true
     Component.onDestruction: alive = false
-    onTextChanged: Qt.callLater(() => { if (root.alive) root.lastNumber = root.numeric(root.text); })
+    onTextChanged: Qt.callLater(() => { if (root?.alive) root.lastNumber = root.numeric(root.text); })
     function directionNow(): int { return trend !== 0 ? trend : numeric(text) < lastNumber ? -1 : 1; }
 
     Repeater {

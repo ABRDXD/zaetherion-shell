@@ -53,7 +53,7 @@ Item {
     function ready(slot) {
         // Defer to let geometry/bindings settle and coalesce rapid changes in the same turn.
         Qt.callLater(() => {
-            if (!root.alive) return;
+            if (!root?.alive) return;  // `root` itself is null once the room's context is gone
             if (slot !== root.pending || slot.status !== Loader.Ready || slot.sourceComponent !== root.presentation) return;
             const window = root.Window.window;
             const focus = window?.activeFocusItem;
