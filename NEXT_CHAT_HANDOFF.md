@@ -15,7 +15,6 @@
 4. `wall typeset` on a photo → `<name>.type.png` appears and is set.
 
 ## Open
-- NULL (`aether-null-result.png`, Claude B's picture) has no Z214 notch.
 - Very dark, flat paintings don't typeset well (known limit, Z215).
 - Owner hasn't reviewed the Typeset button's look (built in the house style; easy to change).
 - Clips room never reviewed (never read clipboard contents to judge it).
