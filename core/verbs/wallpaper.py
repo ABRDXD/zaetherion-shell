@@ -3,7 +3,7 @@ from pathlib import Path
 
 from core.verbs.base import Result, Usage, Verb
 
-USAGE = "wall [<name> | list | next | prev]"
+USAGE = "wall [<name> | list | next | prev | typeset [<name>]]"
 
 
 async def wall(ctx, words):
@@ -16,6 +16,10 @@ async def wall(ctx, words):
             return Result(f"> NO WALLPAPERS · {w.folder}", "info")
         current = w.host["current"]
         return Result("\n".join(("● " if e["path"] == current else "  ") + e["file"] for e in entries), "info")
+    if words[0] == "typeset":
+        # Z215: a picture redrawn in type, beside it, then shown; about half a minute
+        await ctx.core.wallpaper_typeset(name=" ".join(words[1:]) or None)
+        return Result("> TYPESET · " + Path(w.host["current"]).name, "ok")
     if words in (["next"], ["prev"]):
         path = w.step(1 if words == ["next"] else -1)
     else:
@@ -31,5 +35,5 @@ async def theme(ctx, words):
 
 
 VERBS = [Verb("wall", "modes", USAGE, "opens FART's wallpaper picker, or sets one by name",
-              ("wall", "wall list", "wall next", "wall rain"), wall),
+              ("wall", "wall list", "wall next", "wall rain", "wall typeset"), wall),
          Verb("theme", "modes", "theme", "opens FART's palette picker", ("theme",), theme)]

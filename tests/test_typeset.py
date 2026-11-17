@@ -91,7 +91,9 @@ class Recolour(unittest.IsolatedAsyncioTestCase):
             self.assertFalse(list(layers.glob(".*.tmp.png")))
 
 
-class CoreFollowsThePalette(unittest.IsolatedAsyncioTestCase):
+class PlateCore(unittest.IsolatedAsyncioTestCase):
+    """A core on a folder with one plate (torii) and one photo (rain); the host's set calls and recolours recorded."""
+
     async def asyncSetUp(self):
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)
@@ -137,6 +139,9 @@ class CoreFollowsThePalette(unittest.IsolatedAsyncioTestCase):
     async def settle(self):
         while self.core.wallpaper_follows:
             await asyncio.gather(*list(self.core.wallpaper_follows))
+
+
+class CoreFollowsThePalette(PlateCore):
 
     async def test_choosing_a_plate_applies_its_copy_in_the_saved_accent_and_lists_the_face(self):
         accent = self.accent(self.core.palette.name)
@@ -197,6 +202,76 @@ class CoreFollowsThePalette(unittest.IsolatedAsyncioTestCase):
         await self.settle()
         self.assertEqual(self.sets[-1], str(copy_path(self.layers, self.accent(target))))
         self.assertTrue(all(s == self.sets[-1] for s in self.sets))
+
+
+class TypesetAnyPicture(PlateCore):
+    """Z215: a picture typeset into a plate beside it, then shown in the saved palette's accent."""
+
+    async def asyncSetUp(self):
+        await super().asyncSetUp()
+        (self.folder / "loop.mp4").write_bytes(b"x")
+        self.made = []
+        self.gate = None
+
+        async def make(source, face, layers):
+            self.made.append(source)
+            if self.gate:
+                await self.gate.wait()
+            if "broken" in source:
+                raise RuntimeError("typesetting failed: cannot identify image file")
+            layers.mkdir(parents=True)
+            for name in ("ink.png", "signal.png"):
+                (layers / name).write_bytes(b"x")
+            face.write_bytes(b"x")
+            return str(face)
+        patcher = patch("adapters.common.typeset_make.make", make)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    async def test_typeset_writes_beside_and_shows_it_following_the_palette(self):
+        snap = await self.ops["wallpaper.typeset"](object(), name="rain")
+        face = self.folder / "rain.type.png"
+        layers = self.folder / ".typeset" / "rain.type"
+        self.assertEqual(self.made, [str(self.photo)])
+        self.assertEqual(self.sets, [str(copy_path(layers, self.accent(self.core.palette.name)))])
+        self.assertEqual((snap["current"], snap["typesetting"], snap["typesetError"]), (str(face), "", ""))
+        listing = {e["file"]: e["plate"] for e in self.ops["wallpaper.list"](object())["entries"]}
+        self.assertEqual(listing, {"rain.jpg": False, "rain.type.png": True, "zg-01-torii.png": True, "loop.mp4": False})
+
+    async def test_typeset_defaults_to_the_current_wallpaper(self):
+        await self.ops["wallpaper.choose"](object(), name="rain")
+        await self.ops["wallpaper.typeset"](object())
+        self.assertEqual(self.made, [str(self.photo)])
+
+    async def test_refusals(self):
+        from core.errors import OpError
+        for name, message in (("torii", "already a typeset plate"), ("loop", "only pictures")):
+            with self.assertRaisesRegex(OpError, message):
+                await self.ops["wallpaper.typeset"](object(), name=name)
+        with self.assertRaisesRegex(OpError, "no wallpaper"):
+            await self.ops["wallpaper.typeset"](object())
+        self.gate = asyncio.Event()
+        first = asyncio.ensure_future(self.ops["wallpaper.typeset"](object(), name="rain"))
+        await asyncio.sleep(0)
+        self.assertEqual(self.core.wallpaper.snapshot()["typesetting"], str(self.photo))
+        with self.assertRaisesRegex(OpError, "already typesetting rain.jpg"):
+            await self.ops["wallpaper.typeset"](object(), name="rain")
+        self.gate.set()
+        await first
+        self.assertEqual(self.made, [str(self.photo)])
+
+    async def test_a_failure_is_reported_and_nothing_is_set(self):
+        from core.errors import OpError
+        (self.folder / "broken.jpg").write_bytes(b"x")
+        with self.assertRaisesRegex(OpError, "cannot identify"):
+            await self.ops["wallpaper.typeset"](object(), name="broken")
+        snap = self.core.wallpaper.snapshot()
+        self.assertEqual((snap["typesetting"], snap["typesetError"]), ("", "typesetting failed: cannot identify image file"))
+        self.assertEqual(self.sets, [])
+
+    async def test_the_wall_verb(self):
+        result = await self.core.commands.run("wall typeset rain", "cli")
+        self.assertIn("TYPESET · rain.type.png", str(result))
 
 
 if __name__ == "__main__":

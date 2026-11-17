@@ -10,7 +10,7 @@ from pathlib import Path
 
 from core.errors import OpError, bad_args
 from core.store import read_json, write_json
-from core.typeset import face_of
+from core.typeset import face_of, layers_for
 
 IMAGE = {"jpg", "jpeg", "png", "bmp", "gif", "webp", "jxl", "avif", "heif", "exr", "svg"}
 VIDEO = {"mp4", "webm", "mkv", "mov", "m4v", "avi"}
@@ -44,6 +44,9 @@ class Wallpaper:
         # Colours from the wallpaper (Z179): off unless asked for.
         self.colours = saved.get("colours") is True
         self.colours_error = ""
+        # Typesetting a picture (Z215): the source being typeset ("" when none), and the last failure.
+        self.typesetting = ""
+        self.typeset_error = ""
 
     # The folder
 
@@ -66,7 +69,8 @@ class Wallpaper:
                     except OSError:
                         continue
                     entries.append(dict(name=path.stem, file=item.name, path=str(path), kind=kind,
-                                        size=stat.st_size, mtime=round(stat.st_mtime * 1000)))
+                                        size=stat.st_size, mtime=round(stat.st_mtime * 1000),
+                                        plate=kind == "image" and layers_for(str(path)) is not None))
         except OSError:
             return []
         return sorted(entries, key=lambda e: e["file"].casefold())
@@ -133,7 +137,13 @@ class Wallpaper:
 
     def snapshot(self) -> dict:
         return dict(folder=self.folder, exists=self.folder_path().is_dir(), recent=list(self.recent),
-                    preview=self.preview, colours=self.colours, coloursError=self.colours_error, **self.host)
+                    preview=self.preview, colours=self.colours, coloursError=self.colours_error,
+                    typesetting=self.typesetting, typesetError=self.typeset_error, **self.host)
+
+    def typeset_state(self, source: str = "", error: str = ""):
+        if (source, error) != (self.typesetting, self.typeset_error):
+            self.typesetting, self.typeset_error = source, error
+            self.on_change()
 
     def report(self, available=False, current="", perScreen=False, error="") -> dict:
         """What the view's adapter sees; the host stays the authority for the applied wallpaper."""

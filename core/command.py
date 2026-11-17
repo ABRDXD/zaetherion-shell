@@ -35,7 +35,7 @@ PAGE_CHOICES = {
     "power": ("perf", "bal", "save"),
     "wifi": ("on", "off"),
     "bt": ("on", "off"),
-    "wall": ("list", "next", "prev"),
+    "wall": ("list", "next", "prev", "typeset"),
     "look": ("list",),
     "palette": ("list",),
     "go": ("home", "media", "performance", "workspaces", "devices", "tasks", "timers", "clipboard", "notifications", "codex"),

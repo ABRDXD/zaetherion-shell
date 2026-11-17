@@ -68,3 +68,14 @@ def lift(accent: str) -> str:
 def copy_path(layers: Path, accent: str) -> Path:
     """Where the copy in this (lifted) accent lives."""
     return layers / (lift(accent)[1:] + ".png")
+
+
+# Typesetting any picture (Z215): the new plate sits beside its source as "<stem>.type.png".
+TYPESET_SUFFIX = ".type"
+
+
+def typeset_targets(source: str) -> tuple[Path, Path]:
+    """Where typesetting `source` writes: its face in the same folder and the face's layer directory."""
+    p = Path(source)
+    stem = p.stem + TYPESET_SUFFIX
+    return p.parent / (stem + ".png"), p.parent / LAYERS / stem
