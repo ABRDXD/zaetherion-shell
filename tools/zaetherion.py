@@ -323,7 +323,9 @@ def parser() -> argparse.ArgumentParser:
         placed = sub.add_parser(name)
         placed.add_argument("--from", dest="rect", type=rect, help="clock rect x,y,width,height")
         placed.add_argument("--screen", type=screen, help="the clock's output name; the panel opens there")
-    sub.add_parser("page").add_argument("room", choices=(*PAGES, *ALIASES))
+    page = sub.add_parser("page")
+    page.add_argument("room", choices=(*PAGES, *ALIASES))
+    page.add_argument("--toggle", action="store_true", help="close if this room is the one shown, else go there")
     sub.add_parser("key", help="the Super+` edges (DAILY_DRIVER §4.6); the bind is not installed").add_argument(
         "edge", choices=("down", "up"))
     for name in ("close", "status", "start", "stop", "restart", "update"):
@@ -364,7 +366,8 @@ def run(args):
     if action == "open":
         return connection.request("view.open", page="home", **placement(args))
     if action == "page":
-        return connection.request("view.open", page=ALIASES.get(args.room, args.room))
+        room = ALIASES.get(args.room, args.room)
+        return connection.request("view.toggle" if args.toggle else "view.open", page=room)
     if action == "toggle":
         return connection.request("view.toggle", **placement(args))
     raise ValueError(action)

@@ -381,3 +381,20 @@ class SpawnEnvTests(unittest.IsolatedAsyncioTestCase):
     async def test_an_owner_value_wins(self):
         seen = await self.spawned_env({"MALLOC_CONF": "narenas:2"})
         self.assertEqual(seen["MALLOC_CONF"], "narenas:2")
+
+
+class ToggleTargetTests(unittest.TestCase):
+    """core.view.toggle_target: what a toggle does, for the plain toggle and a room key's."""
+
+    def test_plain_toggle_closes_an_open_panel_and_opens_where_it_was(self):
+        from core.view import toggle_target
+        self.assertIsNone(toggle_target(True, "media", None))
+        self.assertEqual(toggle_target(False, "media", None), "media")
+        self.assertEqual(toggle_target(False, "", None), "home")
+
+    def test_a_room_key_closes_its_own_room_and_switches_from_another(self):
+        from core.view import toggle_target
+        self.assertIsNone(toggle_target(True, "devices", "devices"))
+        self.assertEqual(toggle_target(True, "home", "devices"), "devices")
+        self.assertEqual(toggle_target(False, "devices", "devices"), "devices")
+        self.assertEqual(toggle_target(False, "", "media"), "media")
