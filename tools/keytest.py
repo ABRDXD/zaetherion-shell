@@ -266,7 +266,7 @@ Scope {
         const orbit = dashboard.orbit;
         const s = orbit.keySystem;
         check("fly.moon", dashboard.orbitOpen && orbit.systemFocus === "timers" && s && s.moons[s.keyIndex]?.name === "STOPWATCH",
-              { open: dashboard.orbitOpen, focus: orbit.systemFocus, key: s ? s.keyIndex : null });
+              { open: dashboard.orbitOpen, focus: orbit.systemFocus, key: s ? s.keyIndex : null, missed: orbit.missed, built: Object.keys(orbit.systems).filter(id => !!orbit.systems[id]).length });
         dashboard.flyTo("workspaces 3");
         const d = orbit.keySystem;
         check("fly.room.number", orbit.systemFocus === "workspaces" && d && d.moons[d.keyIndex]?.number === "03",
@@ -301,7 +301,10 @@ Scope {
                 // A step that needs the orbit's systems waits for them (up to 12 s, for a loaded machine); the others run at once.
                 const step = after[0];
                 const needs = [systemChecks, moonAct, sunAct, flyChecks].includes(step);
-                if (needs && !systemsReady() && ++waited < 40) return;
+                // A fly typed before the systems were built waits for them, then runs later in that turn (OrbitSystem's
+                // onRoomSystemsChanged); a loaded machine can bring this timer first, so wait for the seek to land too.
+                const settled = step !== flyChecks || (dashboard.orbit?.seeking ?? "") === "";
+                if (needs && !(systemsReady() && settled) && ++waited < 40) return;
                 if (needs && !systemsReady()) check("system.built", false, { orbit: !!dashboard.orbit });
                 else step();
                 after.shift();
