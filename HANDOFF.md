@@ -1,3 +1,5 @@
+# 18 November 2026 · Opus (Claude A): IN PROGRESS — typesetting dark, flat paintings (Z215 limit), `tools/typeset/glyph.py` auto mode. Claimed; Astra's audit fixes are unclaimed.
+
 # 17 November 2026, evening · Opus (Claude B): autonomous block — flaky tests fixed, NULL gets its notch, room keys can toggle (waits)
 
 - **Owner:** "work autonomously for the next 5 hours, fix everything and do everything." Done without the owner: no restarts, no Hyprland or keybind edits, no installs, no pushes; looks and behaviour changes wait on branches.
