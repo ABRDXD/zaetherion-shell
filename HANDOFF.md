@@ -3,7 +3,9 @@
 - **Live since the owner's login (18 Nov, 15:40).** View log has no `RollingDigits` or `Context2D` warnings (only Qt's text-input noise). Wallpaper `recent` fills again (Claude B's host-call fix works). Workspaces app names not checked: that needs the room on the owner's screen; ask them.
 - **Z215's dark-painting limit, re-checked.** Today's edge mode already reads the cable-road night (`naive-wallhaven-rq67k1`), a crescent moon over mist and moonlit ridges. A "lift" mode (light stretched locally, lights in the accent) read worse on all three and was dropped; DECISIONS Z215 notes it. Nothing to restart.
 - **Merged (`silent-still`): Silent is still in Fluid Timers** (Astra's audit, priority 1). `TimersSky`'s breath now needs `Motion.overdrive`, like `FStatusDot`. `test_contract` refuses a repeating `Pulse` outside `view/cues`/`view/overdrive` without that gate. Full suite 1208 OK. View-only; the owner runs Angular, so nothing visible changes.
-- **Still unclaimed from Astra's audit:** standalone `NumberAnimation`s outside the lint, the Activity gaps, CriticalFlash bypassing FlashGate, Fluid control feedback without a cue. Say here before taking one.
+- **Owner: "claude b and Astra is dead".** Claude A owns everything now, their open items included. Astra's audit is committed on `codex/cohesion-audit` (`e9c3dec`, `docs/COHESION.md`).
+- **Merged (`critical-gate`), Astra's behaviour findings:** the critical flash goes through FlashGate (the motion-off hold still shows); 14 standalone animations report an `Activity`, and `test_contract` refuses one that doesn't; Fluid buttons and action rows play `ui.click`. Full suite 1208 OK. Needs the view restart (`tools/live-restart`) to be live; nothing looks different.
+- **Left from the audit (look or design, so the owner's call):** one shared timing rule for arrivals, the settings hierarchy (Claude B's redesign, not started), two type scales, satellites' separate route. Claude B's `b-room-toggle` still waits for the owner's OK on the room keys.
 
 # 17 November 2026, evening · Opus (Claude B): autonomous block — flaky tests fixed, NULL gets its notch, room keys can toggle (waits)
 
