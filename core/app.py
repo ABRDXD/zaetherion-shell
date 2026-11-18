@@ -39,7 +39,7 @@ from core.sfx import Sfx
 from core.tasks import Tasks
 from core.timers import Timers
 from core.track import Track
-from core.view import ViewManager
+from core.view import ViewManager, toggle_target
 
 log = logging.getLogger("fart.core")
 VERSION = "0.2.0"
@@ -455,10 +455,11 @@ class Core:
 
     async def view_toggle(self, peer, page=None, screen=None, **extra):
         self._only(extra, "from")
-        if self.view.state == "ready" and self.view.open:
+        target = toggle_target(self.view.state == "ready" and self.view.open, self.view.page, page)
+        if target is None:
             return await self.view.command("close")
         self._before_open()
-        return await self.view.command("open", page or self.view.page or "home", extra.get("from"), screen=screen or None)
+        return await self.view.command("open", target, extra.get("from"), screen=screen or None)
 
     async def wallpaper_choose(self, path: str) -> dict:
         """Through the view's adapter; the host stays the authority for what is applied (Z178)."""

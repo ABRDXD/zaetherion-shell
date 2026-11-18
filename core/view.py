@@ -26,6 +26,15 @@ RESPAWN_AFTER = 1.0  # resident view: seconds before a restart, times the quick 
 PSI_TRIGGER = b"some 150000 2000000\0"  # 150 ms stalled within 2 s; unprivileged windows are multiples of 2 s
 
 
+def toggle_target(is_open: bool, shown: str, page: str | None) -> str | None:
+    """What a toggle does: None closes, a page opens or switches. A plain toggle closes an open panel; a room's
+    toggle (a room key, `zaetherion page ROOM --toggle`) closes only when that room is the one shown, else goes
+    there, as DMS's per-surface keys did."""
+    if is_open and (not page or page == shown):
+        return None
+    return page or shown or "home"
+
+
 def descends(pid: int, ancestor: int) -> bool:
     for _ in range(8):
         if pid == ancestor:
