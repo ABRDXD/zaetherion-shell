@@ -37,6 +37,7 @@ Item {
     onOpenChanged: { lift.to = open ? 1 : 0; lift.restart(); }
     Component.onCompleted: rise = open ? 1 : 0
     NumberAnimation { id: lift; target: root; property: "rise"; duration: Motion.scaled(1400); easing.type: Motion.standard }
+    Activity { name: "falseroom.lift"; running: lift.running }
     readonly property var p: orbit ? Orbit.project(orbit.outer * at.r, at.theta, orbit.cx, orbit.cy, orbit.camView, orbit.lift * rise) : null
     readonly property real w: orbit && p ? orbit.tileW * 0.82 * p.scale : 0
     readonly property real h: orbit && p ? orbit.tileH * 0.82 * p.scale : 0

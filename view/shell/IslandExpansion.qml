@@ -344,6 +344,7 @@ Item {
                 easing.type: away ? Easing.InCubic : Easing.OutBack
                 onFinished: if (away) { card.flick = 0; root.dismiss(); }
             }
+            Activity { name: "island.settle"; running: settle.running }
 
             MouseArea {
                 anchors.fill: parent

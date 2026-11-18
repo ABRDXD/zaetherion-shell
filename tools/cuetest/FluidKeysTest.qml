@@ -36,8 +36,14 @@ Scope {
         check("arrows.stop.at.the.end", Keys_.sibling(b, 1) === null && Keys_.sibling(a, -1) === null, {});
         r1.forceActiveFocus(Qt.TabFocusReason);
         check("down.moves.along.a.list", Keys_.along(r1, true) === r2 && Keys_.along(r2, false) === r1, {});
+        const sounds = [];
+        const hear = name => sounds.push(name);
+        UI.Feedback.cue.connect(hear);
         b.click();
         check("enter.presses", root.pressed === 1, root.pressed);
+        r1.click();
+        UI.Feedback.cue.disconnect(hear);
+        check("press.sounds.once", sounds.length === 2 && sounds.every(n => n === "ui.click"), sounds);
         console.log("CUE_DONE");
         Qt.quit();
     })

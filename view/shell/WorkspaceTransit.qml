@@ -34,6 +34,7 @@ Item {
         duration: Motion.scaled(Layout.turnMs)
         easing.type: Easing.OutCubic
     }
+    Activity { name: "transit.turn"; running: turning.running }
     onCurrentChanged: {
         if (!ready || count < 2) return;
         let step = (current - ((turn % count) + count) % count) % count;
@@ -149,6 +150,7 @@ Item {
         duration: Motion.scaled(Layout.glintMs)
         easing.type: Easing.InOutSine
     }
+    Activity { name: "transit.glint"; running: glinting.running }
     Rectangle {
         x: root.cx - 2 * Layout.starRadius
         y: Layout.planeY

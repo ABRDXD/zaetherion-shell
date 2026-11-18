@@ -1422,6 +1422,7 @@ FocusScope {
             duration: Motion.settle
             easing.type: Easing.OutCubic
         }
+        Activity { name: "orbit.slide"; running: slideIn.running }
         visible: root.interactive
         x: root.compact ? 16 : 24
         y: root.compact ? root.height - height - 8 : (root.height - height) / 2

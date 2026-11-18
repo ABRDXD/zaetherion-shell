@@ -296,6 +296,7 @@ FocusScope {
         readonly property real target: root.gateNotches * 5
         onTargetChanged: { gap.to = target; gap.restart(); }
         NumberAnimation { id: gap; target: planes; property: "apart"; duration: Motion.scaled(160); easing.type: Motion.standard }
+        Activity { name: "command.gap"; running: gap.running }
         Repeater {
             model: 2
             FText {

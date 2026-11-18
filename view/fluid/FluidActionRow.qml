@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import qs.view.ui
 import "FluidKeys.js" as Keys_
 
 // A shared action on the continuous surface; separators carry the grouping.
@@ -13,6 +14,8 @@ Button {
     // Radix-style focus: the ring is for the keyboard only (a click does not take focus), Enter presses as Space
     // does, and ←/→ move along a row of sibling controls.
     focusPolicy: Qt.TabFocus
+    // The same acknowledgement as Angular's FButton: the host's click sound, through the core's gate (Feedback).
+    onClicked: Feedback.play("ui.click")
     Keys.onReturnPressed: root.click()
     Keys.onEnterPressed: root.click()
     Keys.onLeftPressed: event => { const to = Keys_.sibling(root, -1); if (to) to.forceActiveFocus(Qt.TabFocusReason); else event.accepted = false; }

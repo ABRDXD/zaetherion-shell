@@ -7,7 +7,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import cuetest  # noqa: E402
 
 CHECKS = ("keyboard.only.focus", "ring.when.focused", "arrows.skip.hidden.and.disabled", "arrows.stop.at.the.end",
-          "down.moves.along.a.list", "enter.presses")
+          "down.moves.along.a.list", "enter.presses", "press.sounds.once")
 
 
 class FluidKeys(unittest.TestCase):

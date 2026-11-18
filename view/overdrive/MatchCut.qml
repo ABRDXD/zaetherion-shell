@@ -96,6 +96,7 @@ Item {
         duration: Motion.scaled(820)
         onFinished: root.finished()
     }
+    Activity { name: "matchcut.cut"; running: cut.running }
 
     // The ghosts of the box on its way.
     Repeater {

@@ -282,6 +282,31 @@ Scope {
             };
             tick(8);
         },
+        // The critical flash shares the limit: with the gate full it stays dark; the still hold shows anyway.
+        done => {
+            let clock = 0;
+            const now = FlashGate.now;
+            FlashGate.now = () => clock;
+            FlashGate.grants = [0, 0, 0];
+            const flash = make("import qs.view.shell; CriticalFlash {}");
+            const hold = make("import qs.view.shell; CriticalFlash { still: true; holdMs: 200 }");
+            flash.fire();
+            hold.fire();
+            after(60, () => {
+                const dropped = flash.value === 0, held = hold.value === 1;
+                clock = 2000;
+                flash.fire();
+                after(60, () => {
+                    check("critical.flash.gate", dropped && held && flash.value > 0,
+                          { dropped: dropped, held: held, later: flash.value });
+                    FlashGate.now = now;
+                    FlashGate.grants = [];
+                    flash.destroy();
+                    hold.destroy();
+                    done();
+                });
+            });
+        },
         // Timeline: reversing retraces every track; the later track leaves first.
         done => {
             const timeline = make("Timeline { name: 'test.timeline'; enter: Motion.unfold; Track { start: 0; end: 0.6 } Track { start: 0.3; end: 1 } }");

@@ -41,6 +41,7 @@ Item {
         easing.type: Easing.OutBack
         easing.overshoot: Motion.overshoot
     }
+    Activity { name: "launcher.birth"; running: birth.running }
     Timer {
         id: stagger
         interval: root.rank * Layout.birthStagger

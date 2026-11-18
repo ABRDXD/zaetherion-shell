@@ -58,6 +58,7 @@ Item {
         easing.type: Easing.OutBack
         easing.overshoot: Motion.overshoot
     }
+    Activity { name: "launcher.swing"; running: swing.running }
     property var shownResults: null
     onTurnChanged: {
         if (results !== shownResults || !Motion.live(root)) {
@@ -93,8 +94,10 @@ Item {
     // One-shot cues: the orbit drawing in, the ring's flare and the headline's rise.
     property real drawn: 0
     NumberAnimation on drawn { id: drawIn; running: false; from: 0; to: 1; duration: Motion.scaled(Layout.drawMs); easing.type: Easing.OutCubic }
+    Activity { name: "launcher.draw"; running: drawIn.running }
     property real flared: 1
     NumberAnimation on flared { id: flaring; running: false; from: 0; to: 1; duration: Motion.scaled(Layout.revealMs); easing.type: Easing.OutCubic }
+    Activity { name: "launcher.flare"; running: flaring.running }
     function flare(): void {
         if (!Motion.live(root)) { flared = 1; return; }
         flaring.restart();

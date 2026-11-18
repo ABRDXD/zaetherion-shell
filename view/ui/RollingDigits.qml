@@ -68,6 +68,7 @@ Item {
                 roll.restart();
             }
             NumberAnimation { id: roll; target: slot; property: "t"; from: 0; to: 1; duration: Motion.scaled(root.duration); easing.type: Easing.OutCubic }
+            Activity { name: "digits.roll"; running: roll.running }
 
             Text {
                 text: slot.leaving

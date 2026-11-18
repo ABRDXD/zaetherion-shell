@@ -9,7 +9,7 @@ import cuetest  # noqa: E402
 
 COMPONENT_TESTS = ('cue.retrigger', 'cue.reverse.0.25', 'cue.reverse.0.5', 'cue.reverse.0.75', 'cue.cancel', 'cue.scope',
                    'cue.reduced', 'cue.destroy', 'cue.burst', 'cue.replay', 'cue.created', 'pulse.repeat.off', 'pulse.retrigger', 'pulse.cancel', 'pulse.repeat',
-                   'flash.gate', 'flash.pulse', 'timeline.reverse', 'tween.retarget')
+                   'flash.gate', 'flash.pulse', 'critical.flash.gate', 'timeline.reverse', 'tween.retarget')
 VIEW_TESTS = ('view.navigate.burst', 'view.entrance.interrupt', 'view.entrance.reduced', 'motion.profile', 'overlay.unfold.stagger', 'overlay.unfold.burst', 'overlay.unfold.reverse',
               'calendar.shift.burst', 'view.click.during.entrance', 'button.fill.retarget', 'creature.press.retrigger',
               'view.idle.rooms', 'view.idle.playing', 'heat.scale', 'quiet.heard', 'clock.occultation', 'archive.matchcut', 'desks.sheet', 'home.sky', 'performance.orrery', 'orbit.alive', 'orbit.laws', 'overdrive.language', 'overdrive.ignite.release', 'overdrive.guards')

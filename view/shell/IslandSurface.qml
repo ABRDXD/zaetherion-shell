@@ -239,6 +239,7 @@ FocusScope {
     property real pullTravel: 0
     readonly property bool pullCommits: Rubber.committed(pullTravel)
     NumberAnimation { id: pullBack; target: root; property: "pull"; to: 0; duration: Motion.scaled(Rubber.springMs); easing.type: Easing.OutBack }
+    Activity { name: "island.pull"; running: pullBack.running }
     function pullBy(travel: real): void {
         pullBack.stop();
         pullTravel = Math.max(0, travel);
@@ -541,6 +542,7 @@ FocusScope {
         onActiveChanged: if (!active) root.endFold()
     }
     NumberAnimation { id: foldBack; target: root; property: "foldTravel"; to: 0; duration: Motion.scaled(Rubber.springMs); easing.type: Easing.OutBack }
+    Activity { name: "island.fold"; running: foldBack.running }
     function endFold(): void {
         if (Rubber.committed(foldTravel)) { foldTravel = 0; closeLauncher(); return; }
         if (Motion.live(root)) foldBack.restart(); else foldTravel = 0;

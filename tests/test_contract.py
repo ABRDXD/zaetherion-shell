@@ -67,6 +67,8 @@ QS_IMPORTS = {"view": re.compile(r"^qs\.(view|core\.client)\b"),
 RAW_MOTION = re.compile(r"\b(SequentialAnimation|ParallelAnimation|ScriptAction|PauseAnimation)\b|^\s*Behavior\s+on\b|loops:\s*Animation\.Infinite", re.M)
 SHADERS = re.compile(r"\b(ShaderEffect|ShaderEffectSource|MultiEffect)\b")
 SPRING_IN_TWEEN = re.compile(r"Tween on \w+\s*\{\s*(?:scope:[^\n]*\s*)?SpringAnimation\b")
+NAMED_ANIMATION = re.compile(r"\b(?:Number|Color|Rotation)Animation(?:\s+on\s+\w+)?\s*\{\s*id:\s*(\w+)|"
+                             r"\b(?:Number|Color|Rotation)Animation(?:\s+on\s+\w+)?\s*\{\s*\n\s*id:\s*(\w+)")
 LOOPING_CUE = re.compile(r"\bPulse\s*\{[^{}]*?\brepeat:\s*([^\n;]+)")
 CUE_IDS = re.compile(r"\b(?:Cue|Pulse|Timeline)\s*\{\s*id:\s*(\w+)")
 # Host knowledge stays in adapters/<host>/core.py; core/ itself is host-agnostic.
@@ -119,6 +121,11 @@ class ContractTests(unittest.TestCase):
             if not rel.startswith(("view/cues/", "view/overdrive/")):
                 for loop in LOOPING_CUE.finditer(text):
                     self.assertIn("Motion.overdrive", loop.group(1), f"{rel}: a looping cue that runs in Silent")
+            # Every named animation outside a cue reports itself (Activity), so "settled" means nothing moves (rule 3).
+            if not rel.startswith("view/cues/"):
+                for name in (a or b for a, b in NAMED_ANIMATION.findall(text)):
+                    reported = re.search(rf"Activity\s*\{{[^}}]*running:[^}}\n]*\b{name}\.running", text)
+                    self.assertTrue(reported, f"{rel}: animation {name} is not reported by an Activity")
             # Input never waits for motion: no control is gated on a running cue.
             for cue in CUE_IDS.findall(text):
                 gate = re.search(rf"\b(enabled|visible)\s*:[^\n;}}]*\b{cue}\.running\b", text)
