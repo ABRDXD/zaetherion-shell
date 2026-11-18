@@ -181,12 +181,13 @@ Item {
             }
         }
     }
-    // The breath: only while a timer runs (a cue, so reduced motion and hidden rooms hold it still).
+    // The breath: only while a timer runs, and only in Overdrive (Silent is still, Z146); a cue, so reduced motion
+    // and hidden rooms hold it still too.
     Pulse {
         id: breath
         scope: root
         name: "timers.light"
-        repeat: root.running && root.lit
+        repeat: root.running && root.lit && Motion.overdrive
         attack: Sky.beaconMs
         release: Sky.beaconMs
     }
