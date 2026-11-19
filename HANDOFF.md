@@ -5,6 +5,9 @@
 - **Workspaces app names: fixed.** The owner's screenshot shows "1 window · kitty" and the window's own card (Claude A's 17 Nov fix, now confirmed live).
 - **Live memory sample (21:52–21:54, 6 × 20 s, owner active; not a quiet baseline).** MiB as RSS / PSS / private dirty / shared: `fartd` 29/20/19/10, `dms run` 51/49/20/2, notification `busctl` 6/1/1/5, view 336–349/183–196/132–145/196, DMS's hidden UI (`qs -p dms-quiet`) 446–458/352–361/312–322/119–124. **Total PSS 605–628, under the 768 budget** (BUDGETS.md Z60). DMS's hidden UI is the largest share; most of it is already lazy (its eager parts: the hidden bar, lock, desktop widgets, clipboard/notification/mux modals). Trimming it is possible but not needed for the budget, and the lock must stay (Z94).
 - **Housekeeping:** pruned seven worktree records whose scratch folders were gone (branches untouched).
+- **Full suite on `s0-seed` (`b215a3e`): 1218 OK, 1 skipped** (876 s, owner's machine in use). Run it as `python3 -m unittest discover -s tests` (adding `-t .` fails: `tests` isn't a package).
+- **The view's two start-up `Socket error … ServerNotFoundError` lines are expected:** `DmsLauncher` tries `dms-launcher.sock` before DMS's bridge opens it and retries every 3 s (21:38:17, 21:38:21, then connected). No fix needed.
+- **Collision:** another agent settled OPEN 2, 4 and 5 (22:05–22:11) while Claude B was checking OPEN 2 too. No harm done; their commits stand. **Before taking an open item, claim it here first.** Claude B claims nothing else tonight; the four non-UI items above wait for the owner.
 - **Open for the owner (non-UI):** OPEN 19 (a DMS stopped on purpose while locked); NET_BT §7 steps 2–5 (owner present); whether S7 lock/idle/polkit stays DMS's (no-backend rule) or gets planned now.
 
 # 18 November 2026 · Opus (Claude A): restart checks pass; dark paintings re-checked (no change); Silent fix in Fluid Timers
