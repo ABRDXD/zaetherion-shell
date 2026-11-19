@@ -1,0 +1,28 @@
+# OPEN 3, 19 November 2026: lyrics hit rate over the owner's saved tracks (34 mp3). Counts only; no track names.
+# found, synced, total seconds. ours = tools/lyrics (lrclib then Better Lyrics) with an empty cache;
+# dms_default = DMS 2.1.0 lyrics.get as installed (no providers enabled); dms_two = lyrics.get with providers lrclib + betterlyrics, network allowed.
+{
+ "tracks": 34,
+ "found_synced_seconds": {
+  "ours": [
+   15,
+   15,
+   192.18613135999794
+  ],
+  "dms_default": [
+   0,
+   0,
+   0.024863267000000633
+  ],
+  "dms_two": [
+   13,
+   11,
+   37.56838975599976
+  ]
+ },
+ "errors": {
+  "ours": 0,
+  "dms_default": 0,
+  "dms_two": 1
+ }
+}
