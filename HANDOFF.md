@@ -1,3 +1,10 @@
+# 19 November 2026, late · Opus (Claude A): OPEN 3 decided (Z217); wellbeing run started; 26 worktrees removed
+
+- **Owner said yes to all three asks.** Removed 26 merged, clean worktrees (plus kilo's 3 empty pool folders); branches kept. Left: `zaetherion-settings-studies` and `zaetherion-shell-ai` (unsaved work), and the 5 unmerged ones.
+- **OPEN 3 / Z217: our lyrics lookup stays; DMS `lyrics.get` not used.** 34 saved tracks: ours 15 (all synced), DMS as installed 0 (providers all off), DMS with lrclib and Better Lyrics 13 (11 synced). Ours is slower (5.6 s against 1.1 s a track): a follow-up. Counts only in `docs/measurements/lyrics-hit-rate-b87d05e.txt`.
+- **OPEN 1 running until 21 Nov 22:25** as user units `zae-wb-serp`, `zae-wb-idle` (hypridle, marker file only, sleep hold off), `zae-wb-sample`; data in the private state folder `wellbeing-ab/` (`costs.jsonl`, `totals.jsonl`, `reference.json`). They stop on their own after 2 days, or at a reboot or logout (then restart them and say so).
+- **Next task:** on 21 Nov after 22:25, compare cost (PSS, CPU, wakeups), history and accuracy against `reference.json`, decide Z51 (record the next free Z number), and tell the owner in one line. Meanwhile merge Astra's branches as they come; NET_BT §7 still needs the owner and the phone.
+
 # 19 November 2026, night · Opus (Claude A): OPEN 2, 4 and 5 settled; worktree list ready; no Astra branch yet
 
 - **Roles (owner, 19 Nov):** Astra owns all creative UI (settings redesign, arrival timing, Clips room, satellites into the island, type roles, *Typeset this picture*). Claude A owns behaviour, plumbing, tests, measurements and every merge into `s0-seed`. No Astra branch says "ready to merge" yet (`codex/settings-studies` and `codex/cohesion-audit` are docs/studies, already handled).
