@@ -1,3 +1,12 @@
+# 19 November 2026 · Opus (Claude B): back; UI goes to Astra; live checks after the owner's login
+
+- **Owner: "all the UI work will be done by GPT 6 Astra".** Astra is back (this replaces 18 Nov's "Claude B and Astra is dead"). Astra owns the settings redesign (the three canvas mocks, row "Settings"), the cohesion grammar and every look; Claude B takes the core, CLI, adapters, reliability and tests. Claude B can't open the design canvas from its session (artifact not found).
+- **Live since the owner's login (19 Nov, 21:38), all of `s0-seed` (Z216 included).** Core, DMS (supervised) and view up; view log has only Qt's text-input and portal noise; core log clean; `hyprctl configerrors` empty.
+- **Workspaces app names: fixed.** The owner's screenshot shows "1 window · kitty" and the window's own card (Claude A's 17 Nov fix, now confirmed live).
+- **Live memory sample (21:52–21:54, 6 × 20 s, owner active; not a quiet baseline).** MiB as RSS / PSS / private dirty / shared: `fartd` 29/20/19/10, `dms run` 51/49/20/2, notification `busctl` 6/1/1/5, view 336–349/183–196/132–145/196, DMS's hidden UI (`qs -p dms-quiet`) 446–458/352–361/312–322/119–124. **Total PSS 605–628, under the 768 budget** (BUDGETS.md Z60). DMS's hidden UI is the largest share; most of it is already lazy (its eager parts: the hidden bar, lock, desktop widgets, clipboard/notification/mux modals). Trimming it is possible but not needed for the budget, and the lock must stay (Z94).
+- **Housekeeping:** pruned seven worktree records whose scratch folders were gone (branches untouched).
+- **Open for the owner (non-UI):** OPEN 19 (a DMS stopped on purpose while locked); NET_BT §7 steps 2–5 (owner present); whether S7 lock/idle/polkit stays DMS's (no-backend rule) or gets planned now.
+
 # 18 November 2026 · Opus (Claude A): restart checks pass; dark paintings re-checked (no change); Silent fix in Fluid Timers
 
 - **Live since the owner's login (18 Nov, 15:40).** View log has no `RollingDigits` or `Context2D` warnings (only Qt's text-input noise). Wallpaper `recent` fills again (Claude B's host-call fix works). Workspaces app names not checked: that needs the room on the owner's screen; ask them.
