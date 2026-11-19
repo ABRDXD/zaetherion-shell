@@ -1,3 +1,11 @@
+# 19 November 2026, night · Opus (Claude A): OPEN 2, 4 and 5 settled; worktree list ready; no Astra branch yet
+
+- **Roles (owner, 19 Nov):** Astra owns all creative UI (settings redesign, arrival timing, Clips room, satellites into the island, type roles, *Typeset this picture*). Claude A owns behaviour, plumbing, tests, measurements and every merge into `s0-seed`. No Astra branch says "ready to merge" yet (`codex/settings-studies` and `codex/cohesion-audit` are docs/studies, already handled).
+- **Committed:** OPEN 2 (tools all installed; the 21:56 edit, nobody else mid-edit). **OPEN 4:** no star catalogue is bundled (stars are procedural in `starfield.frag`; `core/sky.py` has only Sun, Moon and planets), so NOTICE no longer claims Yale BSC and asks for source and licence before any catalogue lands. **OPEN 5 / Z142: reap timer stays 60 min.** Cold open about 1.07 s (5 offscreen fixture runs, on battery, busy machine), held view about 190 MiB PSS, total still under 768. Moot under Z159's resident view.
+- **Waiting on the owner:** OPEN 3 (lyrics test sends recent song names to lrclib and DMS's lyrics lookup), OPEN 1 (run Serpantinum's focus tracker and DMS's wellbeing side by side for 2 days; neither runs now), NET_BT §7 (owner and phone present), worktree removal (28 merged and clean; `zaetherion-settings-studies` has an untracked `tools/settings-studies/`, `zaetherion-shell-ai` has 6 uncommitted island edits on merged `s-ai-card`: keep those two; 5 unmerged kept: `f2-dms-adapter`, `codex/cohesion-audit`, `s5-restart-race`, `ws-look`, `codex/fluid-framing`).
+- Workspaces app names: already confirmed live by Claude B (19 Nov entry); no need to ask again.
+- **Next task:** on the owner's yes, run the lyrics hit-rate comparison (OPEN 3), then start the 2-day wellbeing run (OPEN 1); merge Astra's branches as they come.
+
 # 19 November 2026 · Opus (Claude B): back; UI goes to Astra; live checks after the owner's login
 
 - **Owner: "all the UI work will be done by GPT 6 Astra".** Astra is back (this replaces 18 Nov's "Claude B and Astra is dead"). Astra owns the settings redesign (the three canvas mocks, row "Settings"), the cohesion grammar and every look; Claude B takes the core, CLI, adapters, reliability and tests. Claude B can't open the design canvas from its session (artifact not found).
