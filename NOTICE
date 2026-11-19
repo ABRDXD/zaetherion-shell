@@ -29,8 +29,11 @@ Planned third-party use
   vendored. If any of its QML services are adapted (notifications, lock/PAM,
   idle, polkit), the MIT notice will be reproduced here, with each derived file
   listed.
-- Yale Bright Star Catalogue (public domain) for the sky. Confirmed at
-  milestone S8.
+- Star catalogue for the night sky (DECISIONS Z42): not bundled. Checked
+  19 November 2026: the stars on screen are procedural
+  (view/strata/shaders/starfield.frag) and core/sky.py computes only the Sun,
+  Moon and planets from published formulas (Meeus). If a real catalogue is
+  added, its source and licence are recorded here before it is committed.
 
 Read at runtime, not distributed
 --------------------------------
