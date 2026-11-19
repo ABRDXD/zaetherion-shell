@@ -15,7 +15,7 @@ Only these remain open. Each is settled by the named test, and the result goes b
 | 2 | Whether tesseract, zbarimg and satty are installed | Read-only package check. Any install needs the owner's approval. | S0 | **Checked 19 November 2026: all installed, nothing to install.** tesseract 5.5.4 (with `tesseract-data-eng`), zbar 0.23.95 (`zbarimg`), satty 0.22.0, gpu-screen-recorder 6.1.6 (Z48's recorder); grim, slurp, wf-recorder and wl-copy also present. |
 | 3 | Lyrics source order: DMS `lyrics` or FART's lrclib cache | Compare hit rates over the owner's recent tracks | S2 |
 | 4 | Star catalogue file and licence (Yale Bright Star, public domain) | Confirm the source and licence; record it in NOTICE | S8 | **Checked 19 November 2026: no catalogue is bundled, so there is no licence to record.** The stars are procedural (`starfield.frag`); `core/sky.py` has only the Sun, Moon and planets. NOTICE now says so and asks for the source and licence before any catalogue is committed. |
-| 5 | Panel reap timer (Z142) | Measure cold-open cost against held memory, at 10 min and at 60 min | S2 |
+| 5 | Panel reap timer (Z142) | Measure cold-open cost against held memory, at 10 min and at 60 min | S2 | **Decided 19 November 2026: 60 min** (cold open about 1.07 s against about 190 MiB held, total still under budget; DECISIONS Z142). |
 | 6 | Installing the SDDM session file (root) | Owner's approval | S1 |
 | 7 | Exact binds for island focus, display reset, overview and draw | Check `hyprctl binds` for free keys and ask the owner | S3, S10 | **Island focus chosen: Super+Shift+I.** Other binds remain open. |
 | 8 | Boot flavour lines | About 6 original lines drafted in the system voice, with no quotes from any game; owner's approval | S10 |

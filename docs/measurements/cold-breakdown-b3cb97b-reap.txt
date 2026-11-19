@@ -1,0 +1,14 @@
+offscreen/software, settle 1 s; profile low-power, EPP power, AC False, load 3.13 2.42 1.86 3/2270 49708
+~/src/zaetherion-shell: 5/5 complete runs (ms)
+  core        median     1.7   min     0.5   max     1.8
+  exec        median    52.0   min    33.0   max    81.0
+  load        median   734.0   min   504.0   max   852.0
+  hello       median     4.0   min     3.0   max     6.0
+  open        median   254.0   min   197.0   max   372.0
+  frame       median    14.0   min    11.0   max    16.0
+  open.shell  median   249.0   min   192.0   max   364.0
+  frame.swap  median    14.0   min    11.0   max    16.0
+  frame.active median     1.0   min     1.0   max     1.0
+  frame.focus median     0.0   min     0.0   max     0.0
+  frame.room  median   114.0   min   101.0   max   126.0
+  total       median  1071.3   min   754.8   max  1326.7

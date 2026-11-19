@@ -200,7 +200,7 @@ ZÆTHERION inherits FART-next's D-series decisions (D1–D23) except where [Inhe
 | Z139 | **Launcher open ≤ 100 ms** from key press to typing accepted. Keys typed during creation are buffered, never lost. If it can't meet that on demand, it is **kept warm** and the memory cost is reported. This replaces an earlier "≤ 1 frame warm" draft. |
 | Z140 | **Video wallpaper:** paused when covered, and shown as a **still frame on battery**. |
 | Z141 | **Per-surface budgets.** Each of these gets a measured delta and a limit, enforced by a `check-budgets` gate: island rest, island hover, launcher open, widgets loaded, video wallpaper, lock, overview. The limits are set from measurements at the milestone that builds each surface. |
-| Z142 | **Panel reap timer:** chosen at **S2** by measuring cold-open cost against held memory (candidates 10 min and 60 min). |
+| Z142 | **Panel reap timer:** chosen at **S2** by measuring cold-open cost against held memory (candidates 10 min and 60 min). **Settled 19 November 2026 (Claude A): 60 min** (`REAP_AFTER`, unchanged since FART's 7 Nov approval); memory pressure (PSI) still reaps after the 5 s settle. A cold open now costs about 1.07 s (median of 5 offscreen fixture runs, 0.75–1.33 s, on battery and under load; `docs/measurements/cold-breakdown-b3cb97b-reap.txt`), about twice the 7 Nov figure. Holding the closed view costs about 190 MiB PSS, and with it held the total stays at 605–628 MiB, under Z60's 768. At 10 min, most daily opens would pay the second; at 60 min the memory fits the budget. Moot while Z159's resident view is in use (never reaped); it applies once Z12's disposable panel returns. |
 
 ## S3 mock-up review (11 November 2026)
 
