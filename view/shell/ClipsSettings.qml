@@ -157,13 +157,14 @@ ColumnLayout {
                 text: "CLEAR NOW"
                 technical: true
             }
-            FConfirmButton {
+            SettingsAction {
                 objectName: "clipsClear"
                 danger: true
-                verb: "Clear history"
-                armedVerb: "Clear all but pins?"
-                implicitHeight: Design.minHit
-                onConfirmed: root.clipboard.clearHistory()
+                label: "Clear history"
+                armedLabel: "Clear all but pins? Confirm"
+                confirm: true
+                enabled: root.clipboard.available
+                onActivated: root.clipboard.clearHistory()
             }
             Item {
                 Layout.fillWidth: true

@@ -90,7 +90,8 @@ ColumnLayout {
     }
     GridLayout {
         Layout.fillWidth: true
-        columns: width >= Design.baseline * 110 ? 2 : 1
+        // Edge, placement and screen in one row of three (Z219): no setting left alone on a row.
+        columns: width >= Design.baseline * 150 ? 3 : width >= Design.baseline * 110 ? 2 : 1
         columnSpacing: Design.baseline * 8
         rowSpacing: Design.baseline * 4
         SettingChoices {
@@ -106,7 +107,7 @@ ColumnLayout {
             Layout.fillWidth: true
             label: "PLACEMENT"
             prominent: true
-            note: "notch hugs the edge"
+            note: root.island?.placement === "floating" ? "a gap from the edge" : "notch hugs the edge"
             enabled: root.island !== null
             options: [["notch", "Notch"], ["floating", "Floating"]]
             value: root.island?.placement
@@ -115,6 +116,7 @@ ColumnLayout {
         SettingChoices {
             Layout.fillWidth: true
             label: "SCREEN"
+            prominent: true
             enabled: root.island !== null
             options: [["", "Focused"]].concat(Quickshell.screens.filter(screen => screen.name).map(screen => [screen.name, screen.name]))
             value: root.island?.screen

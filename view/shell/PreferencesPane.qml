@@ -85,9 +85,7 @@ Item {
                     contentWidth: width
                     contentHeight: paletteOptions.implicitHeight
                     boundsBehavior: Flickable.StopAtBounds
-                    ScrollBar.vertical: ScrollBar {
-                        policy: paletteScroll.contentHeight > paletteScroll.height ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
-                    }
+                    ScrollBar.vertical: SettingsScrollBar { flick: paletteScroll }
                     ColumnLayout {
                         id: paletteOptions
                         width: parent.width - Design.baseline * 4
@@ -186,9 +184,7 @@ Item {
                     contentWidth: width
                     contentHeight: settingsColumn.implicitHeight
                     boundsBehavior: Flickable.StopAtBounds
-                    ScrollBar.vertical: ScrollBar {
-                        policy: settingScroll.contentHeight > settingScroll.height ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
-                    }
+                    ScrollBar.vertical: SettingsScrollBar { flick: settingScroll }
                     Connections {
                         target: root
                         function onSectionChanged() {

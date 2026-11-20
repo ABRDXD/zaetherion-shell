@@ -3,6 +3,7 @@ module qs.view.ui
 singleton Clock 1.0 Clock.qml
 ColdPlanet 1.0 ColdPlanet.qml
 ColdStar 1.0 ColdStar.qml
+ConfirmArm 1.0 ConfirmArm.qml
 CoverDisc 1.0 CoverDisc.qml
 CutCornerFrame 1.0 CutCornerFrame.qml
 CutTitle 1.0 CutTitle.qml

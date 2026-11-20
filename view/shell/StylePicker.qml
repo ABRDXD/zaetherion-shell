@@ -41,22 +41,24 @@ ColumnLayout {
         }
     }
     FText { text: "DESIGN STYLE"; technical: true; color: Design.accent }
+    // The same chips as every other Settings choice (Z219): the chosen form stays a white cut, faded when offline.
     RowLayout {
         Layout.fillWidth: true
-        FButton {
+        spacing: Design.baseline * 2
+        SettingChip {
             objectName: "style.angular"
-            Layout.fillWidth: true
             label: "Angular"
             selected: root.selected === "angular"
             enabled: root.core.connected
+            opacity: enabled ? 1 : 0.45
             onClicked: root.choose("angular")
         }
-        FButton {
+        SettingChip {
             objectName: "style.fluid"
-            Layout.fillWidth: true
             label: "Fluid"
             selected: root.selected === "fluid"
             enabled: root.core.connected
+            opacity: enabled ? 1 : 0.45
             onClicked: root.choose("fluid")
         }
     }

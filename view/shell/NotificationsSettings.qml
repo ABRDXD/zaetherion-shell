@@ -86,6 +86,7 @@ ColumnLayout {
             prominent: true
             note: root.notifications.dnd ? "critical ones still come through" : ""
             enabled: root.notifications.available
+            available: root.notifications.available
             options: [[false, "Off"], [true, "On"]]
             value: root.notifications.available ? root.notifications.dnd : undefined
             onPicked: value => root.notifications.setDnd(value)
@@ -123,101 +124,109 @@ ColumnLayout {
         Layout.fillWidth: true
     }
 
-    // ---- Private apps.
-    FText {
-        text: "PRIVATE APPS · NO PICTURES KEPT"
-        technical: true
-        color: Design.accent
-    }
-    RowLayout {
+    // ---- Private apps and the inbox, side by side under the grid (one column when narrow), as the grid's own
+    // two columns (Z219). While the inbox is offline every action here is off, and the line under says why.
+    readonly property bool inboxUp: notifications.available
+    GridLayout {
         Layout.fillWidth: true
-        spacing: Design.baseline * 2
-        FText {
-            Layout.preferredWidth: 200
-            text: root.privateApps.length ? "PRIVATE" : "NONE YET"
-            technical: true
-        }
-        Flow {
+        columns: width >= Design.baseline * 110 ? 2 : 1
+        columnSpacing: Design.baseline * 8
+        rowSpacing: Design.baseline * 5
+        ColumnLayout {
             Layout.fillWidth: true
+            Layout.preferredWidth: 1
+            Layout.alignment: Qt.AlignTop
             spacing: Design.baseline * 2
-            Repeater {
-                model: root.privateApps
-                FButton {
-                    required property string modelData
-                    objectName: "private-" + modelData
-                    label: modelData + "  ×"
-                    hint: "Keep pictures from " + modelData + " again"
-                    selected: true
-                    implicitHeight: Design.minHit
-                    onClicked: root.readPrivate(root.privateApps.filter(app => app !== modelData))
+            FText { text: "PRIVATE APPS · NO PICTURES KEPT"; technical: true; color: Design.accent }
+            FText {
+                visible: root.privateApps.length === 0
+                text: "None yet"
+                technical: true
+                font.pixelSize: Design.body
+                font.capitalization: Font.MixedCase
+            }
+            Flow {
+                Layout.fillWidth: true
+                visible: root.privateApps.length > 0
+                spacing: Design.baseline * 4
+                Repeater {
+                    model: root.privateApps
+                    SettingsAction {
+                        required property string modelData
+                        objectName: "private-" + modelData
+                        label: modelData
+                        glyph: "×"
+                        enabled: root.inboxUp
+                        Accessible.description: "Keep pictures from " + modelData + " again"
+                        onActivated: root.readPrivate(root.privateApps.filter(app => app !== modelData))
+                    }
+                }
+            }
+            Flow {
+                Layout.fillWidth: true
+                visible: root.seenApps.length > 0
+                spacing: Design.baseline * 4
+                FText {
+                    height: Design.minHit + Design.baseline * 2
+                    verticalAlignment: Text.AlignVCenter
+                    text: "ADD"
+                    technical: true
+                    color: Design.muted
+                }
+                Repeater {
+                    model: root.seenApps
+                    SettingsAction {
+                        required property string modelData
+                        objectName: "seen-" + modelData
+                        label: modelData
+                        glyph: "+"
+                        enabled: root.inboxUp
+                        Accessible.description: "Keep no pictures from " + modelData
+                        onActivated: root.readPrivate(root.privateApps.concat([modelData]))
+                    }
+                }
+            }
+        }
+        ColumnLayout {
+            Layout.fillWidth: true
+            Layout.preferredWidth: 1
+            Layout.alignment: Qt.AlignTop
+            spacing: Design.baseline * 2
+            FText { text: "INBOX"; technical: true; color: Design.accent }
+            FText {
+                objectName: "inboxCount"
+                text: root.inboxUp ? root.notifications.items.length + " kept · " + root.notifications.unread + " unread" : "Offline"
+                technical: true
+                font.pixelSize: Design.body
+                font.capitalization: Font.MixedCase
+                color: root.inboxUp ? Design.ink : Design.muted
+            }
+            Flow {
+                Layout.fillWidth: true
+                spacing: Design.baseline * 6
+                SettingsAction {
+                    objectName: "notifReadAll"
+                    label: "Mark all read"
+                    enabled: root.inboxUp && root.notifications.unread > 0
+                    onActivated: root.notifications.markAllRead()
+                }
+                SettingsAction {
+                    objectName: "notifClear"
+                    label: "Clear inbox"
+                    armedLabel: "Clear every notification? Confirm"
+                    confirm: true
+                    enabled: root.inboxUp && root.notifications.items.length > 0
+                    onActivated: root.core.request("notif.clear", {}, (ok, reply) => root.failed(ok, reply))
                 }
             }
         }
     }
-    RowLayout {
-        Layout.fillWidth: true
-        visible: root.seenApps.length > 0
-        spacing: Design.baseline * 2
-        FText {
-            Layout.preferredWidth: 200
-            text: "ADD"
-            technical: true
-            color: Design.muted
-        }
-        Flow {
-            Layout.fillWidth: true
-            spacing: Design.baseline * 2
-            Repeater {
-                model: root.seenApps
-                FButton {
-                    required property string modelData
-                    objectName: "seen-" + modelData
-                    label: "+ " + modelData
-                    hint: "Keep no pictures from " + modelData
-                    implicitHeight: Design.minHit
-                    onClicked: root.readPrivate(root.privateApps.concat([modelData]))
-                }
-            }
-        }
-    }
-
-    FRule {
-        Layout.fillWidth: true
-    }
-
-    // ---- The inbox.
     FText {
-        text: "INBOX"
+        visible: !root.inboxUp && root.error === ""
+        text: "The inbox is offline. Its settings come back with it."
         technical: true
-        color: Design.accent
-    }
-    RowLayout {
-        Layout.fillWidth: true
-        spacing: Design.baseline * 2
-        FText {
-            Layout.preferredWidth: 200
-            text: root.notifications.items.length + " KEPT · " + root.notifications.unread + " UNREAD"
-            technical: true
-        }
-        FButton {
-            objectName: "notifReadAll"
-            label: "Mark all read"
-            enabled: root.notifications.unread > 0
-            implicitHeight: Design.minHit
-            onClicked: root.notifications.markAllRead()
-        }
-        FConfirmButton {
-            objectName: "notifClear"
-            danger: true
-            verb: "Clear inbox"
-            armedVerb: "Clear every notification?"
-            enabled: root.notifications.items.length > 0
-            implicitHeight: Design.minHit
-            onConfirmed: root.core.request("notif.clear", {}, (ok, reply) => root.failed(ok, reply))
-        }
-        Item {
-            Layout.fillWidth: true
-        }
+        font.capitalization: Font.MixedCase
+        color: Design.muted
     }
     FText {
         visible: root.error !== ""

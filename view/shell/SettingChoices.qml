@@ -14,6 +14,9 @@ ColumnLayout {
     property bool prominent: false
     property bool compact: false
     property bool expanded: false
+    // false when the source is gone (offline); an unknown value then reads OFFLINE, otherwise READING (Z219).
+    property bool available: true
+    readonly property bool unknown: value === undefined || value === null && !options.some(o => o[0] === null)
     readonly property string key: label.toLowerCase().replace(/[^a-z0-9]+/g, "-")
     property string choiceNamePrefix: "choice-" + key + "-"
     readonly property int currentIndex: options.findIndex(option => {
@@ -68,11 +71,12 @@ ColumnLayout {
         Layout.preferredWidth: Math.min(root.width, implicitWidth)
         label: root.label
         valueLabel: root.currentLabel
+        missing: root.unknown ? (root.available ? "READING" : "OFFLINE") : ""
         note: root.note
         prominent: root.prominent
         compact: root.compact
         expanded: root.expanded
-        enabled: root.enabled && root.options.length > 0
+        enabled: root.enabled && root.options.length > 0 && !root.unknown
         onClicked: root.expanded = !root.expanded
     }
 
@@ -98,24 +102,39 @@ ColumnLayout {
                 width: alternatives.width
                 spacing: Design.baseline * 2
 
+                // The current choice takes focus on open; arrows, Home and End move between them (Z219).
+                Component.onCompleted: Qt.callLater(() => chips.itemAt(Math.max(0, root.currentIndex))?.forceActiveFocus())
+                function step(from, by) {
+                    const n = chips.count;
+                    chips.itemAt(by === "home" ? 0 : by === "end" ? n - 1 : (from + by + n) % n)?.forceActiveFocus();
+                }
+
                 Repeater {
+                    id: chips
                     model: root.options
 
-                    FButton {
+                    SettingChip {
                         required property var modelData
+                        required property int index
 
                         objectName: root.choiceNamePrefix + String(modelData[0])
                         label: modelData[1]
-                        hint: root.label + ": " + modelData[1]
                         width: Math.min(implicitWidth, root.width)
                         selected: root.value === modelData[0]
                         enabled: root.enabled
-                        implicitHeight: Design.minHit + Design.baseline * 2
                         onClicked: {
                             if (root.value !== modelData[0])
                                 root.picked(modelData[0]);
 
                             root.dismiss();
+                        }
+                        Keys.onLeftPressed: parent.step(index, -1)
+                        Keys.onUpPressed: parent.step(index, -1)
+                        Keys.onRightPressed: parent.step(index, 1)
+                        Keys.onDownPressed: parent.step(index, 1)
+                        Keys.onPressed: event => {
+                            if (event.key === Qt.Key_Home) { parent.step(index, "home"); event.accepted = true; }
+                            else if (event.key === Qt.Key_End) { parent.step(index, "end"); event.accepted = true; }
                         }
                     }
                 }
