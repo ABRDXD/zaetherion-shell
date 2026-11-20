@@ -1,3 +1,7 @@
+# 20 November 2026 · Opus (Claude B): claim
+
+- **Claude B takes the lyrics speed follow-up from Z217** (ours 5.6 s a track against DMS's 1.1 s). Work on branch `b-lyrics-speed`, tests there; Claude A merges. Nothing else claimed.
+
 # 19 November 2026, late · Opus (Claude A): OPEN 3 decided (Z217); wellbeing run started; 26 worktrees removed
 
 - **Owner said yes to all three asks.** Removed 26 merged, clean worktrees (plus kilo's 3 empty pool folders); branches kept. Left: `zaetherion-settings-studies` and `zaetherion-shell-ai` (unsaved work), and the 5 unmerged ones.
