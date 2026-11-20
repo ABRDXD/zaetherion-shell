@@ -939,3 +939,62 @@ in a fresh worktree from current main. This preparation adds no UI or runtime ch
 2. Seed this repo from a tagged FART-next commit.
 3. Record and scrub the DMS fixtures.
 4. Measure the quiet baseline.
+
+## Astra — 2026-11-20 — Native Angular Settings / Cutline
+
+Ready for Claude A to review and merge: `codex/settings-redesign`.
+Implementation: `c0deb27`, based on fresh `s0-seed` at `85ea9e9`.
+The owner's open preview had A / Cutline selected when they said "YES, IMPLEMENT".
+They also asked for the Settings sidebar to match the existing FART style.
+
+Implemented:
+- All eight sections share a native numbered index with FART's type, cut geometry,
+  palette tokens, focus marks and existing feedback cue. The selected section gets
+  the ink plane; this replaces the crowded horizontal tab row.
+- `SettingChoices` leads with the current reading. Alternatives load only while
+  open and are destroyed when closed. Opening, cancelling and reselecting the
+  current value never writes. Selection uses the existing authoritative handler,
+  dismisses the choices and returns focus. Unknown values remain unknown; an
+  Island rest mix reads Custom. Long values retain their full tooltip/name.
+- Notifications, Island and Clips use paired readings with leading values on cuts.
+  Long sections scroll. Palette's shell choices use compact readings; palette's
+  effective value leads its list. Wi-Fi preference uses the same disclosure;
+  network/device status is larger. Wallpaper/preset pickers retain their content
+  and preview handlers under the common native section header.
+- Clear/forget controls are visually separate and retain their original confirmation.
+- Native capture: `docs/captures/settings-cutline.png`; NOTICE records its source.
+  An additional full-FART fixture capture was made locally, with the actual Home
+  and shell frame behind PreferencesPane. No owner reference images or private
+  runtime data were committed.
+- Behaviour and visual scope recorded as Z218. Recheck the number before merging
+  if another branch has added a decision. This is the approved Angular design;
+  a distinct Fluid composition still needs its own visual choice.
+
+Verification:
+- `QT_LOGGING_RULES='qml.debug=true' python -m unittest discover -s tests -p 'test_*.py'`:
+  `Ran 1219 tests in 729.737s` / `OK (skipped=1)`.
+  QML debug logging makes the harness PASS/DONE markers observable. The previous
+  study checkpoint's missing-marker failure did not recur with this invocation.
+- Targeted Settings tests: `Ran 2 tests in 8.287s` / `OK`. Covers original adapter
+  writes and the new navigation/disclosure lifecycle. The old fixture now opens
+  alternatives before choosing them rather than calling invisible buttons.
+- Settings cuetest: 42 PASS (32 checks plus 10 captures), 0 FAIL, CUE_DONE.
+  Includes all eight tabs, config-lease scope, authoritative writes, no-op selection,
+  focus, unknown/custom state, compact width, palette cancellation and settled motion.
+- Wallpaper Typeset cuetest: 6 PASS and CUE_DONE; existing action preserved.
+- Palette preview test: 1 test OK; Island settings tests: 3 tests OK;
+  static layout tests: 9 tests OK.
+- Explicit Qt 6 qmllint on changed QML: 0 `syntax*` diagnostics. Runtime `qs.*`
+  resolution diagnostics are not counted. Used Qt 6 qmlformat for the new/grouped code.
+- Offscreen all-room smoke: FART_SMOKE_DONE, FART_CALLS [0,0,0,0].
+  No binding loops, ReferenceError, TypeError or Unable-to-assign messages in the
+  Settings cue, smoke or full-FART capture logs. Expected offscreen window-mask
+  warnings and the missing portrait in the contextual fixture are not regressions.
+- `hyprctl configerrors`: empty. Git whitespace checks clean; added diff checked
+  for home paths and email addresses. No installs, live restart, Hyprland changes,
+  real network/playback/power/lock actions, merge or push.
+
+Next exact task: Claude A reviews and merges this branch, checking Z218 numbering;
+owner restarts the shell when ready. Next UI work is the three arrival-grammar
+motion studies. Fluid Settings remains an unapproved design follow-up, not rounded
+Angular. No GitHub acceptance issue was closed ahead of Claude A's review/merge.
