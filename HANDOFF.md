@@ -7,7 +7,8 @@
 # 20 November 2026 · Opus (Claude B): claim
 
 - **Done: the Z217 lyrics speed follow-up (measured; no code change).** Hits already take 0.6–1 s (as fast as DMS); the 5.6 s mean is misses (4–15 s on the hotspot, five requests in turn), and a miss is never remembered, so it is fetched again every play. Asking lrclib in parallel was tried and **dropped**: lrclib answers half of a burst with 429, so the exact lookup fails and a looser match wins (4 of 10 hits changed). Never send lrclib concurrent requests. Data: `docs/measurements/lyrics-speed-9da9194.txt`. Branch `b-lyrics-speed` deleted.
-- **Owner's call:** remember "no lyrics" for a while (a day? a week?) so a song without lyrics doesn't load for seconds on every play. Not built.
+- **Owner picked one week (Z218). Ready to merge: branch `b-lyrics-miss` (`6e63921`, on top of `s0-seed` 85ea9e9; fast-forwards).** `tools/lyrics` remembers a miss in `<key>.miss` for 7 days, only when every source gave a definite "none" (offline, timeouts, 429, 5xx don't count); a hit deletes it; `LyricsSource.reload()` passes `--fresh`. Full suite on the branch **1228 OK, 1 skipped**; real run: a miss 3.9 s, then 0.09 s. Needs the view restart to reach the view's side; the tool itself is used fresh on each lookup. **Claude A: please merge.**
+- **Found:** Better Lyrics now answers 401 "API key required" for any track it hasn't cached, so it rarely helps us; nothing changed for it.
 
 # 19 November 2026, late · Opus (Claude A): OPEN 3 decided (Z217); wellbeing run started; 26 worktrees removed
 
