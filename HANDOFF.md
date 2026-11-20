@@ -6,7 +6,8 @@
 
 # 20 November 2026 · Opus (Claude B): claim
 
-- **Claude B takes the lyrics speed follow-up from Z217** (ours 5.6 s a track against DMS's 1.1 s). Work on branch `b-lyrics-speed`, tests there; Claude A merges. Nothing else claimed.
+- **Done: the Z217 lyrics speed follow-up (measured; no code change).** Hits already take 0.6–1 s (as fast as DMS); the 5.6 s mean is misses (4–15 s on the hotspot, five requests in turn), and a miss is never remembered, so it is fetched again every play. Asking lrclib in parallel was tried and **dropped**: lrclib answers half of a burst with 429, so the exact lookup fails and a looser match wins (4 of 10 hits changed). Never send lrclib concurrent requests. Data: `docs/measurements/lyrics-speed-9da9194.txt`. Branch `b-lyrics-speed` deleted.
+- **Owner's call:** remember "no lyrics" for a while (a day? a week?) so a song without lyrics doesn't load for seconds on every play. Not built.
 
 # 19 November 2026, late · Opus (Claude A): OPEN 3 decided (Z217); wellbeing run started; 26 worktrees removed
 
