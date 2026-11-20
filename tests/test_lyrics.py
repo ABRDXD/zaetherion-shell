@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+import urllib.error
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location("lyrics", ROOT / "tools/lyrics/lyrics.py")
@@ -36,11 +37,53 @@ class LyricsTests(unittest.TestCase):
         self.assertEqual(len(self.calls), 1)
         self.assertEqual(list(self.cache.iterdir()), [self.cache / f"{lyrics.cache_key('Title', 'Artist')}.json"])
 
-    def test_falls_through_fetchers_and_caches_nothing_on_a_miss(self):
-        result = lyrics.lookup("Title", "Artist", 0, self.cache, [self.fetcher([]), self.fetcher([])])
+    def test_falls_through_fetchers_and_remembers_only_the_miss(self):
+        result = lyrics.lookup("Title", "Artist", 0, self.cache, [self.fetcher([]), self.fetcher([])], now=1000)
         self.assertEqual(result, {"status": "none", "lines": []})
         self.assertEqual(len(self.calls), 2)
+        key = lyrics.cache_key("Title", "Artist")
+        self.assertEqual(list(self.cache.iterdir()), [self.cache / f"{key}.miss"])
+
+    def unsure(self, title, artist, duration):
+        self.calls.append((title, artist, duration))
+        raise lyrics.Unsure("offline")
+
+    def test_a_remembered_miss_is_not_asked_again_for_a_week(self):
+        week = lyrics.MISS_SECONDS
+        self.assertEqual(week, 7 * 24 * 3600)
+        lyrics.lookup("Title", "Artist", 0, self.cache, [self.fetcher([])], now=1000)
+        again = lyrics.lookup("Title", "Artist", 0, self.cache, [self.fetcher([{"time": 0, "text": "x"}])], now=1000 + week - 1)
+        self.assertEqual(again, {"status": "none", "source": "remembered-miss", "lines": []})
+        self.assertEqual(len(self.calls), 1)
+        later = lyrics.lookup("Title", "Artist", 0, self.cache, [self.fetcher([{"time": 0, "text": "x"}])], now=1000 + week)
+        self.assertEqual(later["source"], "fetch")
+        self.assertEqual(list(self.cache.iterdir()), [self.cache / f"{lyrics.cache_key('Title', 'Artist')}.json"])
+
+    def test_a_reload_asks_despite_a_remembered_miss(self):
+        lyrics.lookup("Title", "Artist", 0, self.cache, [self.fetcher([])], now=1000)
+        fresh = lyrics.lookup("Title", "Artist", 0, self.cache, [self.fetcher([{"time": 0, "text": "x"}])], fresh=True, now=1001)
+        self.assertEqual(fresh["source"], "fetch")
+        self.assertFalse((self.cache / f"{lyrics.cache_key('Title', 'Artist')}.miss").exists())
+
+    def test_a_miss_behind_an_unsure_source_is_not_remembered(self):
+        result = lyrics.lookup("Title", "Artist", 0, self.cache, [self.unsure, self.fetcher([])], now=1000)
+        self.assertEqual(result["status"], "none")
         self.assertFalse(self.cache.exists())
+        lyrics.lookup("Title", "Artist", 0, self.cache, [self.fetcher([])], now=1001)
+        self.assertEqual(len(self.calls), 3)
+
+    def test_an_unsure_source_still_falls_through_to_the_next(self):
+        result = lyrics.lookup("Title", "Artist", 0, self.cache, [self.unsure, self.fetcher([{"time": 0, "text": "x"}])])
+        self.assertEqual(result["source"], "fetch")
+
+    def test_a_clock_moved_back_or_a_broken_marker_asks_again(self):
+        self.cache.mkdir(parents=True)
+        key = lyrics.cache_key("Title", "Artist")
+        (self.cache / f"{key}.miss").write_text('{"at": 5000}')
+        self.assertEqual(lyrics.lookup("Title", "Artist", 0, self.cache, [self.fetcher([])], now=1000)["status"], "none")
+        (self.cache / f"{key}.miss").write_text("{broken")
+        lyrics.lookup("Title", "Artist", 0, self.cache, [self.fetcher([])], now=1000)
+        self.assertEqual(len(self.calls), 2)
 
     def test_missing_artist_is_no_track_without_fetching(self):
         self.assertEqual(lyrics.lookup("Title", " ", 0, self.cache, [self.fetcher([{"time": 0, "text": "x"}])])["status"], "no-track")
@@ -136,3 +179,41 @@ class TtmlTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SourceAnswerTests(unittest.TestCase):
+    """Which failures count as the service's answer (a miss to remember) and which may clear up."""
+    def http(self, code):
+        return urllib.error.HTTPError("https://example.invalid", code, "x", {}, None)
+
+    def test_not_found_and_refused_are_answers(self):
+        for code in (400, 401, 403, 404):
+            self.assertTrue(lyrics._definite(self.http(code)), code)
+
+    def test_rate_limits_timeouts_and_server_errors_are_unsure(self):
+        for error in (self.http(429), self.http(408), self.http(500), self.http(503),
+                      urllib.error.URLError("offline"), TimeoutError(), ValueError("bad json")):
+            self.assertFalse(lyrics._definite(error), error)
+
+    def fetch_with(self, fetch, errors):
+        calls = []
+        def urlopen(request, timeout=None):
+            calls.append(request)
+            raise errors[min(len(calls), len(errors)) - 1]
+        original = lyrics.urllib.request.urlopen
+        lyrics.urllib.request.urlopen = urlopen
+        self.addCleanup(setattr, lyrics.urllib.request, "urlopen", original)
+        return fetch("Title", "Artist", 200), calls
+
+    def test_lrclib_not_found_everywhere_is_a_plain_miss(self):
+        lines, calls = self.fetch_with(lyrics.fetch_lrclib, [self.http(404)])
+        self.assertEqual((lines, len(calls)), ([], 3))
+
+    def test_lrclib_rate_limited_once_is_unsure(self):
+        with self.assertRaises(lyrics.Unsure):
+            self.fetch_with(lyrics.fetch_lrclib, [self.http(404), self.http(429), self.http(404)])
+
+    def test_better_lyrics_without_a_key_is_a_plain_miss_and_offline_is_unsure(self):
+        self.assertEqual(self.fetch_with(lyrics.fetch_boidu, [self.http(401)])[0], [])
+        with self.assertRaises(lyrics.Unsure):
+            self.fetch_with(lyrics.fetch_boidu, [urllib.error.URLError("offline")])
