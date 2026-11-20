@@ -81,7 +81,6 @@ ColumnLayout {
         function onConnectedChanged() { if (root.active && root.core.connected) root.load(); }
     }
 
-    FText { text: "WALLPAPER"; technical: true; color: Design.accent }
     FText {
         Layout.fillWidth: true
         text: root.highlighted && root.highlighted !== root.wall.current ? "Preview · " + root.name(root.highlighted)

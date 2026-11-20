@@ -79,7 +79,7 @@ ColumnLayout {
                 elide: Text.ElideRight
                 headline: true
                 font.capitalization: Font.MixedCase
-                font.pixelSize: Design.readout
+                font.pixelSize: Design.figure
                 text: !root.network.available ? "Offline"
                     : root.network.kind === "wifi" ? root.network.name
                     : root.network.connecting !== "" ? "Joining " + root.network.connecting + "…"
@@ -101,21 +101,15 @@ ColumnLayout {
             enabled: !root.busy
             onClicked: root.network.disconnect()
         }
-        RowLayout {
+        SettingChoices {
+            Layout.preferredWidth: Design.baseline * 48
             visible: root.network.preference !== ""
-            spacing: Design.baseline
-            FText { text: "PREFER"; technical: true; color: Design.muted }
-            Repeater {
-                model: [["auto", "AUTO"], ["wifi", "WI-FI"], ["ethernet", "WIRED"]]
-                FButton {
-                    required property var modelData
-                    objectName: "prefer-" + modelData[0]
-                    label: modelData[1]
-                    implicitHeight: Design.minHit + Design.baseline * 2
-                    selected: root.network.preference === modelData[0]
-                    onClicked: root.network.setPreference(modelData[0])
-                }
-            }
+            compact: true
+            label: "PREFER"
+            options: [["auto", "Auto"], ["wifi", "Wi-Fi"], ["ethernet", "Wired"]]
+            value: root.network.preference
+            choiceNamePrefix: "prefer-"
+            onPicked: value => root.network.setPreference(value)
         }
     }
 
@@ -293,6 +287,7 @@ ColumnLayout {
                     }
                     FConfirmButton {
                         verb: "Forget"
+                        danger: true
                         implicitHeight: Design.minHit + Design.baseline * 2
                         enabled: !root.busy
                         onConfirmed: root.network.forget(saved.modelData.id)

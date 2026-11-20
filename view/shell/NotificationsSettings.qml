@@ -17,85 +17,118 @@ ColumnLayout {
 
     property string error: ""
     function failed(ok, reply) {
-        if (!ok || reply?.ok === false) root.error = reply?.message || reply?.line || "Could not change that setting";
+        if (!ok || reply?.ok === false)
+            root.error = reply?.message || reply?.line || "Could not change that setting";
     }
     function run(line) {
         error = "";
-        core.request("cmd.run", { line: line, record: false }, (ok, reply) => root.failed(ok, reply));
+        core.request("cmd.run", {
+            line: line,
+            record: false
+        }, (ok, reply) => root.failed(ok, reply));
     }
 
     readonly property int noticeMs: core.islandData?.noticeMs ?? 0
     readonly property var cues: core.sfxData?.cues ?? []
-    function cueOn(name) { return cues.find(c => c.name === name)?.enabled; }
+    function cueOn(name) {
+        return cues.find(c => c.name === name)?.enabled;
+    }
     function setCue(name, on) {
         error = "";
-        core.request("sfx.configure", { cues: { [name]: on } }, (ok, reply) => root.failed(ok, reply));
+        core.request("sfx.configure", {
+            cues: {
+                [name]: on
+            }
+        }, (ok, reply) => root.failed(ok, reply));
     }
 
     // The private apps are read when the tab opens, and again after each change.
     property var privateApps: []
     function readPrivate(apps) {
-        core.request("notif.privateApps", apps === undefined ? {} : { apps: apps }, (ok, reply) => {
-            if (ok && Array.isArray(reply?.apps)) root.privateApps = reply.apps;
-            else root.failed(ok, reply);
+        core.request("notif.privateApps", apps === undefined ? {} : {
+            apps: apps
+        }, (ok, reply) => {
+            if (ok && Array.isArray(reply?.apps))
+                root.privateApps = reply.apps;
+            else
+                root.failed(ok, reply);
         });
     }
-    onActiveChanged: if (active) readPrivate()
-    Component.onCompleted: if (active) readPrivate()
+    onActiveChanged: if (active)
+        readPrivate()
+    Component.onCompleted: if (active)
+        readPrivate()
     // Apps seen in the inbox that are not private yet: the ones worth offering.
     readonly property var seenApps: {
         const names = [];
         for (const item of notifications.items) {
             const name = item.appName ?? "";
-            if (name && !names.some(n => n.toLowerCase() === name.toLowerCase())
-                    && !privateApps.some(p => p.toLowerCase() === name.toLowerCase()))
+            if (name && !names.some(n => n.toLowerCase() === name.toLowerCase()) && !privateApps.some(p => p.toLowerCase() === name.toLowerCase()))
                 names.push(name);
         }
         return names.sort((a, b) => a.localeCompare(b)).slice(0, 8);
     }
 
     // ---- Quiet.
-    FText { text: "QUIET"; technical: true; color: Design.accent }
-    SettingChoices {
-        Layout.fillWidth: true
-        label: "DO NOT DISTURB"
-        note: root.notifications.dnd ? "critical ones still come through" : ""
-        enabled: root.notifications.available
-        options: [[false, "Off"], [true, "On"]]
-        value: root.notifications.available ? root.notifications.dnd : undefined
-        onPicked: value => root.notifications.setDnd(value)
+    FText {
+        text: "QUIET"
+        technical: true
+        color: Design.accent
     }
-    SettingChoices {
+    GridLayout {
         Layout.fillWidth: true
-        label: "ON THE ISLAND"
-        note: "critical: until dismissed"
-        enabled: root.noticeMs > 0
-        options: [[1000, "1 s"], [2000, "2 s"], [3000, "3 s"], [5000, "5 s"]]
-        value: root.noticeMs > 0 ? root.noticeMs : undefined
-        onPicked: value => root.run("island notice " + value / 1000)
-    }
-    SettingChoices {
-        Layout.fillWidth: true
-        label: "SOUND"
-        enabled: root.cueOn("notify.normal") !== undefined
-        options: [[true, "On"], [false, "Off"]]
-        value: root.cueOn("notify.normal")
-        onPicked: value => root.setCue("notify.normal", value)
-    }
-    SettingChoices {
-        Layout.fillWidth: true
-        label: "CRITICAL SOUND"
-        note: "even in do-not-disturb"
-        enabled: root.cueOn("notify.critical") !== undefined
-        options: [[true, "On"], [false, "Off"]]
-        value: root.cueOn("notify.critical")
-        onPicked: value => root.setCue("notify.critical", value)
+        columns: width >= Design.baseline * 110 ? 2 : 1
+        columnSpacing: Design.baseline * 8
+        rowSpacing: Design.baseline * 5
+        SettingChoices {
+            Layout.fillWidth: true
+            label: "DO NOT DISTURB"
+            prominent: true
+            note: root.notifications.dnd ? "critical ones still come through" : ""
+            enabled: root.notifications.available
+            options: [[false, "Off"], [true, "On"]]
+            value: root.notifications.available ? root.notifications.dnd : undefined
+            onPicked: value => root.notifications.setDnd(value)
+        }
+        SettingChoices {
+            Layout.fillWidth: true
+            label: "ON THE ISLAND"
+            prominent: true
+            note: "critical: until dismissed"
+            enabled: root.noticeMs > 0
+            options: [[1000, "1 s"], [2000, "2 s"], [3000, "3 s"], [5000, "5 s"]]
+            value: root.noticeMs > 0 ? root.noticeMs : undefined
+            onPicked: value => root.run("island notice " + value / 1000)
+        }
+        SettingChoices {
+            Layout.fillWidth: true
+            label: "SOUND"
+            enabled: root.cueOn("notify.normal") !== undefined
+            options: [[true, "On"], [false, "Off"]]
+            value: root.cueOn("notify.normal")
+            onPicked: value => root.setCue("notify.normal", value)
+        }
+        SettingChoices {
+            Layout.fillWidth: true
+            label: "CRITICAL SOUND"
+            note: "even in do-not-disturb"
+            enabled: root.cueOn("notify.critical") !== undefined
+            options: [[true, "On"], [false, "Off"]]
+            value: root.cueOn("notify.critical")
+            onPicked: value => root.setCue("notify.critical", value)
+        }
     }
 
-    FRule { Layout.fillWidth: true }
+    FRule {
+        Layout.fillWidth: true
+    }
 
     // ---- Private apps.
-    FText { text: "PRIVATE APPS · NO PICTURES KEPT"; technical: true; color: Design.accent }
+    FText {
+        text: "PRIVATE APPS · NO PICTURES KEPT"
+        technical: true
+        color: Design.accent
+    }
     RowLayout {
         Layout.fillWidth: true
         spacing: Design.baseline * 2
@@ -148,10 +181,16 @@ ColumnLayout {
         }
     }
 
-    FRule { Layout.fillWidth: true }
+    FRule {
+        Layout.fillWidth: true
+    }
 
     // ---- The inbox.
-    FText { text: "INBOX"; technical: true; color: Design.accent }
+    FText {
+        text: "INBOX"
+        technical: true
+        color: Design.accent
+    }
     RowLayout {
         Layout.fillWidth: true
         spacing: Design.baseline * 2
@@ -169,13 +208,16 @@ ColumnLayout {
         }
         FConfirmButton {
             objectName: "notifClear"
+            danger: true
             verb: "Clear inbox"
             armedVerb: "Clear every notification?"
             enabled: root.notifications.items.length > 0
             implicitHeight: Design.minHit
             onConfirmed: root.core.request("notif.clear", {}, (ok, reply) => root.failed(ok, reply))
         }
-        Item { Layout.fillWidth: true }
+        Item {
+            Layout.fillWidth: true
+        }
     }
     FText {
         visible: root.error !== ""
@@ -183,5 +225,7 @@ ColumnLayout {
         technical: true
         color: Design.danger
     }
-    Item { Layout.fillHeight: true }
+    Item {
+        Layout.fillHeight: true
+    }
 }
