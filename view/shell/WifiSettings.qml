@@ -79,7 +79,7 @@ ColumnLayout {
                 elide: Text.ElideRight
                 headline: true
                 font.capitalization: Font.MixedCase
-                font.pixelSize: Design.readout
+                font.pixelSize: Design.figure
                 text: !root.network.available ? "Offline"
                     : root.network.kind === "wifi" ? root.network.name
                     : root.network.connecting !== "" ? "Joining " + root.network.connecting + "…"
@@ -95,27 +95,21 @@ ColumnLayout {
                        root.network.wired.connected ? "WIRED · " + root.network.wired.name : "NO CABLE"].filter(s => s).join("  ·  ")
             }
         }
-        FButton {
+        SettingsAction {
             visible: root.network.kind === "wifi"
             label: "Leave"
             enabled: !root.busy
-            onClicked: root.network.disconnect()
+            onActivated: root.network.disconnect()
         }
-        RowLayout {
+        SettingChoices {
+            Layout.preferredWidth: Design.baseline * 48
             visible: root.network.preference !== ""
-            spacing: Design.baseline
-            FText { text: "PREFER"; technical: true; color: Design.muted }
-            Repeater {
-                model: [["auto", "AUTO"], ["wifi", "WI-FI"], ["ethernet", "WIRED"]]
-                FButton {
-                    required property var modelData
-                    objectName: "prefer-" + modelData[0]
-                    label: modelData[1]
-                    implicitHeight: Design.minHit + Design.baseline * 2
-                    selected: root.network.preference === modelData[0]
-                    onClicked: root.network.setPreference(modelData[0])
-                }
-            }
+            compact: true
+            label: "PREFER"
+            options: [["auto", "Auto"], ["wifi", "Wi-Fi"], ["ethernet", "Wired"]]
+            value: root.network.preference
+            choiceNamePrefix: "prefer-"
+            onPicked: value => root.network.setPreference(value)
         }
     }
 
@@ -154,10 +148,11 @@ ColumnLayout {
                 onSubmitted: secret => root.network.answerPrompt(root.network.prompt.id, secret)
                 onCancelled: root.network.cancelPrompt(root.network.prompt.id)
             }
-            FButton {
+            SettingsAction {
                 visible: root.network.prompt?.kind === "unsupported"
                 label: "Cancel"
-                onClicked: root.network.cancelPrompt(root.network.prompt.id)
+                glyph: ""
+                onActivated: root.network.cancelPrompt(root.network.prompt.id)
             }
         }
     }
@@ -182,7 +177,7 @@ ColumnLayout {
                 clip: true
                 spacing: 0
                 model: root.nearby
-                ScrollBar.vertical: ScrollBar {}
+                ScrollBar.vertical: SettingsScrollBar { flick: nearbyList }
                 delegate: ColumnLayout {
                     id: entry
                     required property var modelData
@@ -221,12 +216,13 @@ ColumnLayout {
                     text: !root.network.available ? "DMS is offline." : root.network.wifiEnabled ? "listening for networks…" : "wi-fi is off. nothing to hear."
                 }
             }
-            FButton {
+            SettingsAction {
                 objectName: "joinHidden"
                 visible: !root.hiddenForm
-                label: "Join a hidden network…"
+                label: "Join a hidden network"
+                glyph: "+"
                 enabled: root.network.available && root.network.wifiEnabled && !root.busy
-                onClicked: { root.joining = ""; root.hiddenForm = true; hiddenName.forceActiveFocus(); }
+                onActivated: { root.joining = ""; root.hiddenForm = true; hiddenName.forceActiveFocus(); }
             }
             RowLayout {
                 visible: root.hiddenForm
@@ -263,12 +259,13 @@ ColumnLayout {
             spacing: Design.baseline
             FText { text: "SAVED"; technical: true; color: Design.muted }
             ListView {
+                id: savedList
                 objectName: "wifiSaved"
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 clip: true
                 model: root.network.saved
-                ScrollBar.vertical: ScrollBar {}
+                ScrollBar.vertical: SettingsScrollBar { flick: savedList }
                 delegate: RowLayout {
                     id: saved
                     required property var modelData
@@ -283,19 +280,22 @@ ColumnLayout {
                         text: saved.modelData.ssid
                         color: saved.modelData.connected ? Design.accent : Design.ink
                     }
-                    FButton {
-                        label: "AUTO-JOIN"
-                        hint: saved.modelData.autoconnect ? "Joins by itself when in range" : "Joins only when you pick it"
-                        implicitHeight: Design.minHit + Design.baseline * 2
+                    SettingChip {
+                        label: "Auto-join"
+                        Accessible.description: saved.modelData.autoconnect ? "Joins by itself when in range" : "Joins only when you pick it"
                         selected: saved.modelData.autoconnect
                         enabled: !root.busy
+                        opacity: enabled ? 1 : 0.45
                         onClicked: root.network.setAutoconnect(saved.modelData.id, !saved.modelData.autoconnect)
                     }
-                    FConfirmButton {
-                        verb: "Forget"
-                        implicitHeight: Design.minHit + Design.baseline * 2
+                    SettingsAction {
+                        label: "Forget"
+                        armedLabel: "Forget this network? Confirm"
+                        confirm: true
+                        danger: true
+                        glyph: ""
                         enabled: !root.busy
-                        onConfirmed: root.network.forget(saved.modelData.id)
+                        onActivated: root.network.forget(saved.modelData.id)
                     }
                 }
                 FText {
@@ -322,12 +322,11 @@ ColumnLayout {
                         color: vpn.modelData.state === "on" ? Design.accent : Design.ink
                     }
                     FText { technical: true; color: Design.muted; text: vpn.modelData.state.toUpperCase() }
-                    FButton {
+                    SettingsAction {
                         objectName: "vpn-" + vpn.modelData.id
                         label: vpn.modelData.state === "off" ? "Start" : "Stop"
-                        implicitHeight: Design.minHit + Design.baseline * 2
                         enabled: !(root.vpnWords?.busy ?? false)
-                        onClicked: root.network.setVpn(vpn.modelData.id, vpn.modelData.state === "off")
+                        onActivated: root.network.setVpn(vpn.modelData.id, vpn.modelData.state === "off")
                     }
                 }
             }

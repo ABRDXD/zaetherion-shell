@@ -14,14 +14,22 @@ ColumnLayout {
     property bool active: false
     spacing: Design.baseline * 3
 
-    HostLease { domain: root.clipboard; feature: "config"; active: root.active }
+    HostLease {
+        domain: root.clipboard
+        feature: "config"
+        active: root.active
+    }
     readonly property var quick: core.clipsData ?? null
     readonly property var history: clipboard.config
     property string error: ""
     function setQuick(key, value) {
         error = "";
-        core.request("clips.set", { key: key, value: value }, (ok, reply) => {
-            if (!ok) root.error = reply?.message ?? "Could not change that setting";
+        core.request("clips.set", {
+            key: key,
+            value: value
+        }, (ok, reply) => {
+            if (!ok)
+                root.error = reply?.message ?? "Could not change that setting";
         });
     }
 
@@ -32,47 +40,68 @@ ColumnLayout {
     readonly property var pinOptions: [[10, "10"], [25, "25"], [50, "50"], [100, "100"]]
 
     // ---- Quick paste (Super+V).
-    FText { text: "QUICK PASTE · SUPER+V"; technical: true; color: Design.accent }
-    SettingChoices {
-        Layout.fillWidth: true
-        label: "ENTER"
-        note: "Shift+Enter: the other"
-        enabled: root.quick !== null
-        options: [[false, "Copies"], [true, "Pastes"]]
-        value: root.quick?.enterPastes
-        onPicked: value => root.setQuick("enterPastes", value)
+    FText {
+        text: "QUICK PASTE · SUPER+V"
+        technical: true
+        color: Design.accent
     }
-    SettingChoices {
+    GridLayout {
         Layout.fillWidth: true
-        label: "ROWS"
-        enabled: root.quick !== null
-        options: [[4, "4"], [6, "6"], [8, "8"], [10, "10"]]
-        value: root.quick?.rows
-        onPicked: value => root.setQuick("rows", value)
-    }
-    SettingChoices {
-        Layout.fillWidth: true
-        label: "PICTURES"
-        enabled: root.quick !== null
-        options: [[true, "Shown"], [false, "Hidden"]]
-        value: root.quick?.showImages
-        onPicked: value => root.setQuick("showImages", value)
+        columns: width >= Design.baseline * 110 ? 2 : 1
+        columnSpacing: Design.baseline * 8
+        rowSpacing: Design.baseline * 4
+        SettingChoices {
+            Layout.fillWidth: true
+            label: "ENTER"
+            prominent: true
+            note: "Shift+Enter: the other"
+            enabled: root.quick !== null
+            options: [[false, "Copies"], [true, "Pastes"]]
+            value: root.quick?.enterPastes
+            onPicked: value => root.setQuick("enterPastes", value)
+        }
+        SettingChoices {
+            Layout.fillWidth: true
+            label: "ROWS"
+            prominent: true
+            enabled: root.quick !== null
+            options: [[4, "4"], [6, "6"], [8, "8"], [10, "10"]]
+            value: root.quick?.rows
+            onPicked: value => root.setQuick("rows", value)
+        }
+        SettingChoices {
+            Layout.fillWidth: true
+            label: "PICTURES"
+            enabled: root.quick !== null
+            options: [[true, "Shown"], [false, "Hidden"]]
+            value: root.quick?.showImages
+            onPicked: value => root.setQuick("showImages", value)
+        }
     }
 
-    FRule { Layout.fillWidth: true }
+    FRule {
+        Layout.fillWidth: true
+    }
 
     // ---- The history (DMS's).
-    FText { text: "HISTORY · KEPT BY DMS"; technical: true; color: Design.accent }
+    FText {
+        text: "HISTORY · KEPT BY DMS"
+        technical: true
+        color: Design.accent
+    }
     FText {
         visible: root.history === null
         text: root.clipboard.available ? "Reading DMS's clipboard settings…" : "DMS's clipboard is offline"
         technical: true
         color: Design.muted
     }
-    ColumnLayout {
+    GridLayout {
+        id: historyGrid
+        columns: width >= Design.baseline * 110 ? 2 : 1
+        columnSpacing: Design.baseline * 8
+        rowSpacing: Design.baseline * 4
         visible: root.history !== null
         Layout.fillWidth: true
-        spacing: Design.baseline * 3
         SettingChoices {
             Layout.fillWidth: true
             label: "RECORDING"
@@ -121,20 +150,25 @@ ColumnLayout {
         }
         RowLayout {
             Layout.fillWidth: true
+            Layout.columnSpan: historyGrid.columns
             spacing: Design.baseline * 2
             FText {
                 Layout.preferredWidth: 200
                 text: "CLEAR NOW"
                 technical: true
             }
-            FConfirmButton {
+            SettingsAction {
                 objectName: "clipsClear"
-                verb: "Clear history"
-                armedVerb: "Clear all but pins?"
-                implicitHeight: Design.minHit
-                onConfirmed: root.clipboard.clearHistory()
+                danger: true
+                label: "Clear history"
+                armedLabel: "Clear all but pins? Confirm"
+                confirm: true
+                enabled: root.clipboard.available
+                onActivated: root.clipboard.clearHistory()
             }
-            Item { Layout.fillWidth: true }
+            Item {
+                Layout.fillWidth: true
+            }
         }
     }
     FText {
@@ -143,5 +177,7 @@ ColumnLayout {
         technical: true
         color: Design.danger
     }
-    Item { Layout.fillHeight: true }
+    Item {
+        Layout.fillHeight: true
+    }
 }

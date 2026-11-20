@@ -176,3 +176,10 @@ FLUID Home (14 November 2026)
 - docs/captures/fluid-home/ contains nested Hyprland captures of these
   presentations and Settings, plus the Angular Home baseline from e6c86ea.
   All displayed tasks, identity, media and service data are synthetic.
+
+Native Settings Cutline (view/shell/SettingsCut.qml, SettingReadout.qml,
+SettingsNavigation.qml and SettingChoices.qml) uses this project's existing
+Angular type, geometry and cue primitives. No third-party assets are included.
+docs/captures/settings-cutline.png is derived from the native PreferencesPane
+with synthetic data in tools/cuetest/SettingsTest.qml, rendered offscreen.
+The owner's reference screenshots and private runtime data are not included.

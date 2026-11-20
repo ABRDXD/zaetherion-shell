@@ -52,10 +52,11 @@ ColumnLayout {
         target: root.core
         function onConnectedChanged() { if (root.active && root.core.connected) root.load(); }
     }
-    FText { text: "PALETTE"; technical: true; color: Design.accent }
     FText {
         Layout.fillWidth: true
         text: (root.core.paletteData?.preview ? "Preview · " : "Saved · ") + root.currentName
+        headline: true
+        font.pixelSize: Design.figure
         elide: Text.ElideRight
     }
     TextField {

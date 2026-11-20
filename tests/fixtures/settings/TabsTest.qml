@@ -23,6 +23,11 @@ ShellRoot {
         }
         return null;
     }
+    function pick(name, key) {
+        const reading = root.find(prefs, "current-" + key);
+        if (!reading.expanded) reading.clicked();
+        root.find(prefs, name).clicked();
+    }
     function lines(): var { return root.sent.filter(s => s.op === "cmd.run").map(s => s.args.line); }
 
     FixtureAdapter { id: fixture }
@@ -73,37 +78,36 @@ ShellRoot {
         onTriggered: {
             switch (root.step++) {
             case 6:
-                root.check(root.find(prefs, "rest-preset-b")?.selected === true
-                           && root.find(prefs, "rest-preset-a")?.selected === false, "the owner's rest reads as preset B");
-                root.check(root.find(prefs, "choice-edge-top")?.selected === true
-                           && root.find(prefs, "choice-screen-")?.selected === true, "edge and screen read from the core");
+                root.check(root.find(prefs, "current-at-rest")?.valueLabel.startsWith("B ·") === true, "the owner's rest reads as preset B");
+                root.check(root.find(prefs, "current-edge")?.valueLabel === "Top"
+                           && root.find(prefs, "current-screen")?.valueLabel === "Focused", "edge and screen read from the core");
                 root.check(!fixture.clipboard.holds("config"), "the clipboard settings are not read on another tab");
                 scene.grabToImage(r => root.check(r.saveToFile(Quickshell.env("TABS_SHOT_ISLAND")), "island capture"));
                 break;
             case 7:
-                root.find(prefs, "rest-preset-a").clicked();
-                root.find(prefs, "choice-power-always").clicked();
-                root.find(prefs, "choice-edge-bottom").clicked();
-                root.find(prefs, "choice-screen-").clicked();          // already chosen: nothing sent
+                root.pick("rest-preset-a", "at-rest");
+                root.pick("choice-power-always", "power");
+                root.pick("choice-edge-bottom", "edge");
+                root.pick("choice-screen-", "screen");          // already chosen: nothing sent
                 root.check(JSON.stringify(root.lines()) === JSON.stringify(["island rest a", "island rest power always", "island bottom"]),
                            "island choices go through the island verb");
                 prefs.section = "clips";
                 break;
             case 10:
                 root.check(fixture.clipboard.holds("config"), "the clips tab reads DMS's clipboard settings");
-                root.check(root.find(prefs, "choice-enter-false")?.selected === true
-                           && root.find(prefs, "choice-keep-1000")?.selected === true, "values read from the core and DMS");
+                root.check(root.find(prefs, "current-enter")?.valueLabel === "Copies"
+                           && root.find(prefs, "current-keep")?.valueLabel === "1 000", "values read from the core and DMS");
                 scene.grabToImage(r => root.check(r.saveToFile(Quickshell.env("TABS_SHOT_CLIPS")), "clips capture"));
                 break;
             case 11: {
                 root.sent = [];
-                root.find(prefs, "choice-enter-true").clicked();
-                root.find(prefs, "choice-rows-8").clicked();
+                root.pick("choice-enter-true", "enter");
+                root.pick("choice-rows-8", "rows");
                 const quick = root.sent.filter(s => s.op === "clips.set").map(s => s.args);
                 root.check(JSON.stringify(quick) === JSON.stringify([{ key: "enterPastes", value: true }, { key: "rows", value: 8 }]),
                            "quick paste choices go to the core");
-                root.find(prefs, "choice-keep-500").clicked();
-                root.find(prefs, "choice-auto-clear-7").clicked();
+                root.pick("choice-keep-500", "keep");
+                root.pick("choice-auto-clear-7", "auto-clear");
                 const set = fixture.clipboard.calls.filter(c => c.method === "setConfig").map(c => c.args);
                 root.check(JSON.stringify(set) === JSON.stringify([["maxHistory", 500], ["autoClearDays", 7]]),
                            "history choices go to DMS's config");
@@ -121,22 +125,22 @@ ShellRoot {
                 prefs.section = "notifications";
                 break;
             case 16: {
-                root.check(root.find(prefs, "choice-on-the-island-1000")?.selected === true
-                           && root.find(prefs, "choice-sound-true")?.selected === true
+                root.check(root.find(prefs, "current-on-the-island")?.valueLabel === "1 s"
+                           && root.find(prefs, "current-sound")?.valueLabel === "On"
                            && !!root.find(prefs, "private-Fixture Secrets"), "notifications read from the core");
                 scene.grabToImage(r => root.check(r.saveToFile(Quickshell.env("TABS_SHOT_NOTIFICATIONS")), "notifications capture"));
                 break;
             }
             case 17: {
                 root.sent = [];
-                root.find(prefs, "choice-on-the-island-3000").clicked();
-                root.find(prefs, "choice-critical-sound-false").clicked();
+                root.pick("choice-on-the-island-3000", "on-the-island");
+                root.pick("choice-critical-sound-false", "critical-sound");
                 root.find(prefs, "private-Fixture Secrets").clicked();
                 const ops = root.sent.map(s => s.op === "cmd.run" ? s.args.line : s.op === "sfx.configure" ? JSON.stringify(s.args.cues)
                                                 : s.op === "notif.privateApps" ? "private:" + JSON.stringify(s.args.apps) : s.op);
                 root.check(JSON.stringify(ops) === JSON.stringify(["island notice 3", '{"notify.critical":false}', 'private:[]']),
                            "notification choices go to the core");
-                root.find(prefs, "choice-do-not-disturb-true").clicked();
+                root.pick("choice-do-not-disturb-true", "do-not-disturb");
                 root.check(fixture.notifications.calls.some(c => c.method === "setDnd" && c.args[0] === true), "do-not-disturb goes to the inbox");
                 client.presetsData = { looks: [{ name: "Look 1", wallpaper: "", palette: "", islandForm: "", hostTheme: "", missing: [], paletteName: "", swatch: [] }], preview: null };
                 prefs.section = "presets";

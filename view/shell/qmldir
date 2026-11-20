@@ -46,7 +46,13 @@ RoomSheet 1.0 RoomSheet.qml
 RoomSlot 1.0 RoomSlot.qml
 RoomSystems 1.0 RoomSystems.qml
 SecretRow 1.0 SecretRow.qml
+SettingChip 1.0 SettingChip.qml
 SettingChoices 1.0 SettingChoices.qml
+SettingReadout 1.0 SettingReadout.qml
+SettingsAction 1.0 SettingsAction.qml
+SettingsCut 1.0 SettingsCut.qml
+SettingsNavigation 1.0 SettingsNavigation.qml
+SettingsScrollBar 1.0 SettingsScrollBar.qml
 SheetCockle 1.0 SheetCockle.qml
 SheetWear 1.0 SheetWear.qml
 Shell 1.0 Shell.qml

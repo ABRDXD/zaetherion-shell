@@ -62,7 +62,7 @@ ColumnLayout {
                 elide: Text.ElideRight
                 headline: true
                 font.capitalization: Font.MixedCase
-                font.pixelSize: Design.readout
+                font.pixelSize: Design.figure
                 readonly property int linked: root.bluetooth.devices.filter(d => d.connected).length
                 text: !root.bluetooth.available ? "Offline" : !root.bluetooth.enabled ? "Bluetooth is off"
                     : linked === 0 ? "Nothing connected" : linked === 1 ? root.bluetooth.primary?.name ?? "1 connected" : linked + " connected"
@@ -176,6 +176,7 @@ ColumnLayout {
                         }
                         FConfirmButton {
                             verb: "Forget"
+                            danger: true
                             implicitHeight: Design.minHit + Design.baseline * 2
                             enabled: root.bluetooth.available && !root.busy(modelData.id)
                             onConfirmed: root.bluetooth.forget(modelData.id)

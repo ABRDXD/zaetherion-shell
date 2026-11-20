@@ -29,6 +29,7 @@ PerformanceTest 1.0 PerformanceTest.qml
 RollingDigitsTest 1.0 RollingDigitsTest.qml
 SatTest 1.0 SatTest.qml
 SessionTest 1.0 SessionTest.qml
+SettingsTest 1.0 SettingsTest.qml
 SurveyorTest 1.0 SurveyorTest.qml
 TasksTest 1.0 TasksTest.qml
 TemporalTest 1.0 TemporalTest.qml

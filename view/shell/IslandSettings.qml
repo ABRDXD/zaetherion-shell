@@ -29,7 +29,10 @@ ColumnLayout {
             return;
         }
         busy = true;
-        core.request("cmd.run", { line: line, record: false }, (ok, reply) => {
+        core.request("cmd.run", {
+            line: line,
+            record: false
+        }, (ok, reply) => {
             root.busy = false;
             const next = root.queued;
             root.queued = "";
@@ -41,67 +44,84 @@ ColumnLayout {
     }
 
     // ---- At rest.
-    FText { text: "AT REST · HOVER SHOWS EVERYTHING"; technical: true; color: Design.accent }
-    RowLayout {
+    FText {
+        text: "AT REST · HOVER SHOWS EVERYTHING"
+        technical: true
+        color: Design.accent
+    }
+    SettingChoices {
         Layout.fillWidth: true
-        spacing: Design.baseline * 2
+        label: "AT REST"
+        value: root.preset
+        unlistedLabel: root.rest !== null ? "Custom" : "—"
+        options: ["today", "a", "b", "c"].map(preset => [preset, (preset === "today" ? "All" : preset.toUpperCase()) + " · " + Rest.PRESET_NOTES[preset]])
+        choiceNamePrefix: "rest-preset-"
+        enabled: root.rest !== null
+        onPicked: value => root.run("island rest " + value)
+    }
+    GridLayout {
+        Layout.fillWidth: true
+        columns: width >= Design.baseline * 110 ? 2 : 1
+        columnSpacing: Design.baseline * 8
+        rowSpacing: Design.baseline * 4
         Repeater {
-            model: ["today", "a", "b", "c"]
-            FButton {
-                required property string modelData
-                objectName: "rest-preset-" + modelData
+            model: [["power", "POWER"], ["network", "WI-FI"], ["battery", "BATTERY"], ["inbox", "NOTIFICATIONS"]]
+            SettingChoices {
+                required property var modelData
                 Layout.fillWidth: true
-                Layout.preferredWidth: 1
-                label: (modelData === "today" ? "All" : modelData.toUpperCase()) + " · " + Rest.PRESET_NOTES[modelData]
-                selected: root.preset === modelData
+                label: modelData[1]
+                note: "matters: " + Rest.MATTERS[modelData[0]]
                 enabled: root.rest !== null
-                implicitHeight: Design.minHit
-                onClicked: if (root.preset !== modelData) root.run("island rest " + modelData)
+                options: Rest.options(modelData[0])
+                value: root.rest?.[modelData[0]]
+                onPicked: value => root.run("island rest " + modelData[0] + " " + value)
             }
         }
     }
-    Repeater {
-        model: [["power", "POWER"], ["network", "WI-FI"], ["battery", "BATTERY"], ["inbox", "NOTIFICATIONS"]]
-        SettingChoices {
-            required property var modelData
-            Layout.fillWidth: true
-            label: modelData[1]
-            note: "matters: " + Rest.MATTERS[modelData[0]]
-            enabled: root.rest !== null
-            options: Rest.options(modelData[0])
-            value: root.rest?.[modelData[0]]
-            onPicked: value => root.run("island rest " + modelData[0] + " " + value)
-        }
+    FRule {
+        Layout.fillWidth: true
     }
-
-    FRule { Layout.fillWidth: true }
 
     // ---- Where it sits.
-    FText { text: "PLACE"; technical: true; color: Design.accent }
-    SettingChoices {
-        Layout.fillWidth: true
-        label: "EDGE"
-        enabled: root.island !== null
-        options: [["top", "Top"], ["bottom", "Bottom"]]
-        value: root.island?.edge
-        onPicked: value => root.run("island " + value)
+    FText {
+        text: "PLACE"
+        technical: true
+        color: Design.accent
     }
-    SettingChoices {
+    GridLayout {
         Layout.fillWidth: true
-        label: "PLACEMENT"
-        note: "notch hugs the edge"
-        enabled: root.island !== null
-        options: [["notch", "Notch"], ["floating", "Floating"]]
-        value: root.island?.placement
-        onPicked: value => root.run("island " + value)
-    }
-    SettingChoices {
-        Layout.fillWidth: true
-        label: "SCREEN"
-        enabled: root.island !== null
-        options: [["", "Focused"]].concat(Quickshell.screens.filter(screen => screen.name).map(screen => [screen.name, screen.name]))
-        value: root.island?.screen
-        onPicked: value => root.run("island screen " + (value === "" ? "auto" : value))
+        // Edge, placement and screen in one row of three (Z219): no setting left alone on a row.
+        columns: width >= Design.baseline * 150 ? 3 : width >= Design.baseline * 110 ? 2 : 1
+        columnSpacing: Design.baseline * 8
+        rowSpacing: Design.baseline * 4
+        SettingChoices {
+            Layout.fillWidth: true
+            label: "EDGE"
+            prominent: true
+            enabled: root.island !== null
+            options: [["top", "Top"], ["bottom", "Bottom"]]
+            value: root.island?.edge
+            onPicked: value => root.run("island " + value)
+        }
+        SettingChoices {
+            Layout.fillWidth: true
+            label: "PLACEMENT"
+            prominent: true
+            note: root.island?.placement === "floating" ? "a gap from the edge" : "notch hugs the edge"
+            enabled: root.island !== null
+            options: [["notch", "Notch"], ["floating", "Floating"]]
+            value: root.island?.placement
+            onPicked: value => root.run("island " + value)
+        }
+        SettingChoices {
+            Layout.fillWidth: true
+            label: "SCREEN"
+            prominent: true
+            enabled: root.island !== null
+            options: [["", "Focused"]].concat(Quickshell.screens.filter(screen => screen.name).map(screen => [screen.name, screen.name]))
+            value: root.island?.screen
+            onPicked: value => root.run("island screen " + (value === "" ? "auto" : value))
+        }
     }
     FText {
         visible: root.error !== ""
@@ -109,5 +129,7 @@ ColumnLayout {
         technical: true
         color: Design.danger
     }
-    Item { Layout.fillHeight: true }
+    Item {
+        Layout.fillHeight: true
+    }
 }
