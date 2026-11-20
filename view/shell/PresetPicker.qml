@@ -68,7 +68,6 @@ ColumnLayout {
     }
     Component.onDestruction: if (active) cancel()
 
-    FText { text: "PRESETS"; technical: true; color: Design.accent }
     RowLayout {
         Layout.fillWidth: true
         spacing: Design.baseline * 2
