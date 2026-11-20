@@ -5,6 +5,8 @@ import os
 from pathlib import Path
 import sys
 import tempfile
+import time
+import urllib.error
 import urllib.request
 import urllib.parse
 import json
@@ -17,6 +19,18 @@ _WORD_STAMP = re.compile(r"<(\d+):(\d{1,2}(?:[.:]\d+)?)>|\[(\d+):(\d{1,2}(?:[.:]
 _OFFSET = re.compile(r"^\[offset:\s*([+-]?\d+)\s*\]$", re.I)
 # A last word with no closing stamp is held at most this long (seconds).
 LAST_WORD_HOLD = 2.0
+# A track every source answered "none" for isn't asked again for this long (owner, 20 November 2026: one week).
+MISS_SECONDS = 7 * 24 * 3600
+
+
+class Unsure(Exception):
+    """A source couldn't answer (offline, timeout, rate limit, server error). A miss behind it isn't remembered."""
+
+
+def _definite(error: Exception) -> bool:
+    """A 4xx other than 408 and 429 is the service's answer (lrclib's 404, Better Lyrics' 401 for an uncached
+    track); anything else may clear up on its own."""
+    return isinstance(error, urllib.error.HTTPError) and 400 <= error.code < 500 and error.code not in (408, 429)
 
 
 def _stamp_seconds(minutes: str, seconds: str) -> float:
@@ -109,6 +123,8 @@ def fetch_lrclib(title: str, artist: str, duration: float) -> list:
         f"https://lrclib.net/api/search?track_name={urllib.parse.quote(title)}&artist_name={urllib.parse.quote(artist)}",
         f"https://lrclib.net/api/search?q={urllib.parse.quote(title + ' ' + artist)}",
     ]
+    unsure = False
+    # One request at a time: lrclib answers bursts with 429 (docs/measurements/lyrics-speed-9da9194.txt).
     for url in urls:
         try:
             with urllib.request.urlopen(url, timeout=15) as r:
@@ -119,8 +135,10 @@ def fetch_lrclib(title: str, artist: str, duration: float) -> list:
                 lines = _parse_lrc(data["syncedLyrics"])
                 if lines:
                     return lines
-        except Exception:
-            continue
+        except Exception as error:
+            unsure = unsure or not _definite(error)
+    if unsure:
+        raise Unsure("lrclib")
     return []
 
 def _ttml_seconds(value: str) -> float:
@@ -179,6 +197,7 @@ def fetch_boidu(title: str, artist: str, duration: float) -> list:
     query = f"/getLyrics?s={urllib.parse.quote(title)}&a={urllib.parse.quote(artist)}"
     if duration > 0:
         query += f"&d={int(duration)}"
+    unsure = False
     for base in BOIDU_BASES:
         try:
             req = urllib.request.Request(base + query, headers={"User-Agent": "Mozilla/5.0"})
@@ -187,8 +206,10 @@ def fetch_boidu(title: str, artist: str, duration: float) -> list:
             lines = _parse_ttml(data.get("ttml") or "")
             if len(lines) >= 3:
                 return lines
-        except Exception:
-            continue
+        except Exception as error:
+            unsure = unsure or not _definite(error)
+    if unsure:
+        raise Unsure("betterlyrics")
     return []
 
 def cache_key(title: str, artist: str) -> str:
@@ -204,32 +225,71 @@ def read_cache(directory: Path, key: str) -> list:
     return lines if isinstance(lines, list) and lines else []
 
 
-def write_cache(directory: Path, key: str, lines: list) -> None:
+def _write(directory: Path, name: str, value) -> None:
     """Atomic write; a failed write only costs a refetch."""
     try:
         directory.mkdir(parents=True, exist_ok=True)
-        fd, tmp = tempfile.mkstemp(dir=directory, prefix=f".{key}.")
+        fd, tmp = tempfile.mkstemp(dir=directory, prefix=f".{name}.")
         with os.fdopen(fd, "w") as handle:
-            json.dump(lines, handle, ensure_ascii=False)
-        os.replace(tmp, directory / f"{key}.json")
+            json.dump(value, handle, ensure_ascii=False)
+        os.replace(tmp, directory / name)
     except OSError:
         pass
 
 
-def lookup(title: str, artist: str, duration: float, cache_dir: Path | None, fetchers=None) -> dict:
+def write_cache(directory: Path, key: str, lines: list) -> None:
+    _write(directory, f"{key}.json", lines)
+    forget_miss(directory, key)
+
+
+def remember_miss(directory: Path, key: str, now: float) -> None:
+    """`<key>.miss` holds when every source last said "none"; deleting it asks again on the next play."""
+    _write(directory, f"{key}.miss", {"at": now})
+
+
+def forget_miss(directory: Path, key: str) -> None:
+    try:
+        (directory / f"{key}.miss").unlink()
+    except OSError:
+        pass
+
+
+def miss_remembered(directory: Path, key: str, now: float) -> bool:
+    try:
+        at = float(json.loads((directory / f"{key}.miss").read_text())["at"])
+    except (OSError, ValueError, KeyError, TypeError):
+        return False
+    return 0 <= now - at < MISS_SECONDS
+
+
+def lookup(title: str, artist: str, duration: float, cache_dir: Path | None, fetchers=None,
+           fresh: bool = False, now: float | None = None) -> dict:
+    """Cached lyrics, else the first source that has them. A miss every source answered for is remembered for
+    MISS_SECONDS; `fresh` (a reload) asks anyway."""
     if not title.strip() or not artist.strip():
         return {"status": "no-track", "lines": []}
     key = cache_key(title, artist)
+    now = time.time() if now is None else now
     if cache_dir:
         cached = read_cache(cache_dir, key)
         if cached:
             return {"status": "ok", "source": "fart-cache", "lines": cached}
+        if not fresh and miss_remembered(cache_dir, key, now):
+            return {"status": "none", "source": "remembered-miss", "lines": []}
+    unsure = False
     for fetch in fetchers or (fetch_lrclib, fetch_boidu):
-        lines = [{"time": l["time"], "text": l["text"], "words": l.get("words") or []} for l in fetch(title, artist, duration)]
+        try:
+            found = fetch(title, artist, duration)
+        except Unsure:
+            unsure = True
+            continue
+        lines = [{"time": l["time"], "text": l["text"], "words": l.get("words") or []} for l in found]
         if lines:
             if cache_dir:
                 write_cache(cache_dir, key, lines)
             return {"status": "ok", "source": "fetch", "lines": lines}
+    if cache_dir and not unsure:
+        remember_miss(cache_dir, key, now)
     return {"status": "none", "lines": []}
 
 
@@ -239,6 +299,7 @@ def main():
     parser.add_argument("artist", nargs="?", default="")
     parser.add_argument("duration", type=float, nargs="?", default=0)
     parser.add_argument("--cache-dir", type=Path)
+    parser.add_argument("--fresh", action="store_true", help="ask the sources even if a miss is remembered (a reload)")
     parser.add_argument("--file", type=Path, help="parse a local .lrc or .ttml file instead (no network, no cache)")
     args = parser.parse_args()
     if args.file:
@@ -248,7 +309,7 @@ def main():
             lines = []
         print(json.dumps({"status": "ok" if lines else "none", "source": "local", "lines": lines}, ensure_ascii=False), flush=True)
         return
-    print(json.dumps(lookup(args.title, args.artist, args.duration, args.cache_dir), ensure_ascii=False), flush=True)
+    print(json.dumps(lookup(args.title, args.artist, args.duration, args.cache_dir, fresh=args.fresh), ensure_ascii=False), flush=True)
 
 
 if __name__ == "__main__":

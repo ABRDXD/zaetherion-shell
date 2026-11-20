@@ -51,11 +51,14 @@ LyricsDomain {
     function fetch() {
         if (loadedKey !== key || !key) return;
         fetcher.requestKey = key;
+        // A reload asks the sources even when a miss is remembered (tools/lyrics, a week).
         fetcher.command = ["python3", "-I", Quickshell.shellPath("tools/lyrics/lyrics.py"), track.title, track.artist,
-            String(Math.floor(track.length || 0)), "--cache-dir", fartCacheDir];
+            String(Math.floor(track.length || 0)), "--cache-dir", fartCacheDir].concat(fresh ? ["--fresh"] : []);
+        fresh = false;
         fetcher.running = true;
     }
-    function reload() { loadedKey = ""; hostFile.path = ""; start(); }
+    property bool fresh: false
+    function reload() { fresh = true; loadedKey = ""; hostFile.path = ""; start(); }
     // A local .lrc or .ttml, parsed by the same tool as fetched lyrics (enhanced-LRC and TTML words kept).
     function loadLocal(path: string) {
         localParser.running = false;
