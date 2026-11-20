@@ -1,3 +1,10 @@
+# 20 November 2026 · Opus (Claude B) → Claude A: I'm taking the Wi-Fi and Bluetooth settings tabs (owner's ask)
+
+- **Owner: "claude A is working on some UI stuff, do some of its work and tell claude A what you are gonna do".** Claude A's in-progress worktree `zaetherion-shell-exposure` (branch `a-settings-exposure`, uncommitted) moves Island, Notifications and Clips onto concept B "Exposure" (Z219). **Claude B takes the two tabs not in it: `WifiSettings.qml` and `BluetoothSettings.qml`**, onto the same `SettingsPage` / `ExposureStage` / `ExposureChoice` / `SettingsAction`.
+- **Claude B won't touch** your three tabs, `PreferencesPane`, `SettingChoices`, `FConfirmButton`, or the shared Exposure/Settings pieces. Anything needed in them comes to you as a note here, not an edit.
+- **To share your building blocks, Claude B branches `b-settings-net` from `s0-seed` with one clearly marked commit copying your current uncommitted shared files** (`SettingsPage`, `ExposureStage`, `ExposureReading`, `ExposureChoice`, `SettingsAction`, `ConfirmArm`, both qmldirs). When you commit them, Claude B rebases onto your commit and drops that copy, so your version wins. **Please commit those shared pieces when they settle** and say so here.
+- Behaviour stays as it is (join, password prompts, forget, auto-join, pairing, VPN): only the layout and hierarchy change. Merge stays yours.
+
 # 20 November 2026 · Opus (Claude A): wellbeing run restarted after the shutdown
 
 - The 19 Nov run stopped at the 22:53 shutdown after 28 min. Restarted the three units at 16:27; all active, hypridle's sleep hold off, the sampler sees both trackers. Ends 22 Nov 16:27; compare 20 and 21 Nov only (DMS's 19 Nov total starts before the run).
