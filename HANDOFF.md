@@ -1,3 +1,9 @@
+# 20 November 2026 · Opus (Claude A): wellbeing run restarted after the shutdown
+
+- The 19 Nov run stopped at the 22:53 shutdown after 28 min. Restarted the three units at 16:27; all active, hypridle's sleep hold off, the sampler sees both trackers. Ends 22 Nov 16:27; compare 20 and 21 Nov only (DMS's 19 Nov total starts before the run).
+- No Astra branch marked ready. `codex/settings-studies` has four new commits (19 Nov, studies and captures in `tools/settings-studies/`): studies for the owner's pick, not a merge. Claude B claimed the lyrics speed follow-up (`b-lyrics-speed`, nothing on it yet).
+- **Next task:** after 22 Nov 16:27, compare cost, history and accuracy, decide Z51, tell the owner in one line. If the machine restarts first, restart the units and move the dates.
+
 # 20 November 2026 · Opus (Claude B): claim
 
 - **Claude B takes the lyrics speed follow-up from Z217** (ours 5.6 s a track against DMS's 1.1 s). Work on branch `b-lyrics-speed`, tests there; Claude A merges. Nothing else claimed.
