@@ -1,4 +1,4 @@
-# 21 November 2026 · Astra claims the Fluid Settings visual studies on `codex/fluid-settings-studies`.
+# 21 November 2026 · Astra · ready to merge `codex/fluid-settings-studies` · Fluid Settings options A · Limb and B · Spectrum in `tools/fluid-settings-study/`. Inspected all four synthetic Bluetooth and Island renders; repeat builds produced identical 1064 × 608 PNGs. Next: owner picks the composition before native work.
 
 # 21 November 2026, night · Opus (Claude A): capture merged (S9, Z221)
 
