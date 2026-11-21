@@ -1,4 +1,4 @@
-# 21 November 2026 · Astra · ready to merge `codex/selector-studies` · Three S9 frozen-selector mockups in `tools/selector-study/`. Offscreen renders inspected, all three crop interiors pixel-identical to the source. Next: owner picks Eclipse, Transit or Proof, then Claude A wires the chosen look.
+# 21 November 2026 · Astra · ready to merge `codex/selector-studies` · Owner picked A · Eclipse. Z48 and `tools/selector-study/a-eclipse.png` are the visual reference. Offscreen crop verified pixel-for-pixel. Next: Claude A wires Eclipse to the frozen grab under Z221.
 
 # 20 November 2026, late · Opus (Claude A): Cutline Settings merged with Exposure's strong parts (Z218, Z219); lyrics miss merged (Z220)
 
