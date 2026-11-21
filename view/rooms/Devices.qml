@@ -24,8 +24,11 @@ ColumnLayout {
     readonly property var sinks: audio.outputs
     readonly property var sources: audio.inputs
     readonly property var streams: audio.streams
-    readonly property var capture: host.hostActions.recording
-    readonly property bool recording: capture.active
+    // The core captures and records (Z221); a host's own recorder still shows when the core reports none.
+    readonly property var core: shell.core
+    readonly property var capture: core?.captureData?.recording ?? host.hostActions.recording
+    readonly property bool recording: !!capture?.active
+    function captureLine(line) { core?.request("cmd.run", { line: line, record: false }); }
     readonly property bool active: root.visible && (root.QsWindow.window?.visible ?? false) && root.shell.panelOpen
     readonly property bool narrow: width < 730
     // The link planes grow with a tall room (the 1360 × 860 panel), up to 140 px.
@@ -35,7 +38,7 @@ ColumnLayout {
     property string panel: "mixer"
     readonly property string page: panel
     property double now: Date.now()
-    readonly property int recordedSeconds: capture.startedAt > 0 ? Math.max(0, Math.floor(now / 1000 - capture.startedAt)) : 0
+    readonly property int recordedSeconds: (capture?.startedAt ?? 0) > 0 ? Math.max(0, Math.floor(now / 1000 - capture.startedAt)) : 0
     readonly property var profileLabels: ({ "power-saver": "Saver", "balanced": "Balanced", "performance": "Performance" })
     readonly property var nearby: network.networks.slice().sort((a, b) => (b.connected - a.connected) || (b.known - a.known) || (b.strength - a.strength))
     // The weather's reports (core/weather.py), for the battery ledger: asked once each time the room is shown.
@@ -357,18 +360,22 @@ ColumnLayout {
     RowLayout {
         Layout.fillWidth: true
         spacing: 10
-        FButton { label: "Capture"; symbol: "screenshot_region"; implicitHeight: 34; onClicked: { root.shell.close(); root.host.hostActions.capture(); } }
+        FButton { label: "Capture"; symbol: "screenshot_region"; implicitHeight: 34; onClicked: { root.shell.close(); root.core ? root.captureLine("shot region") : root.host.hostActions.capture(); } }
         FButton {
             label: root.recording ? "Stop recording" : "Record"
             symbol: root.recording ? "stop_circle" : "screen_record"
             danger: root.recording
             implicitHeight: 34
-            onClicked: { root.shell.close(); root.host.hostActions.setRecording(!root.recording); }
+            onClicked: {
+                root.shell.close();
+                if (root.core) root.captureLine(root.recording ? "record stop" : "record");
+                else root.host.hostActions.setRecording(!root.recording);
+            }
         }
         FStatusDot { visible: root.recording; color: Design.recording; pulse: root.recording }
         FText {
             visible: root.recording
-            text: "REC " + (root.capture.startedAt > 0 ? root.recordingTime(root.recordedSeconds) : "TIMER UNAVAILABLE")
+            text: "REC " + ((root.capture?.startedAt ?? 0) > 0 ? root.recordingTime(root.recordedSeconds) : "TIMER UNAVAILABLE")
             technical: true
             color: Design.recording
         }

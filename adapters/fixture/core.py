@@ -38,8 +38,8 @@ class HostProfile:
     def play_file_command(self, path, gain):
         return None  # generated exhibition audio is inert in fixtures
 
-    def notify_command(self, summary, body):
-        return ["notify", summary, body]
+    def notify_command(self, summary, body, image=None):
+        return ["notify", summary, body] + ([image] if image else [])
 
     def focus(self, start_ms, end_ms):
         return self.focus_spans

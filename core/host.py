@@ -128,8 +128,9 @@ class Host:
         out = [[str(c)[:32], int(s)] for c, s in found if isinstance(c, str) and isinstance(s, (int, float)) and s > 0]
         return sorted(out, key=lambda r: -r[1])[:4]
 
-    def alert(self, summary: str, body: str, cue: str | None = None, sound: bool | None = None):
-        """Notify always; the cue goes through the sfx gate (core/sfx.py). `sound` overrides FART's setting."""
-        self.run(self.profile.notify_command(summary, body))
+    def alert(self, summary: str, body: str, cue: str | None = None, sound: bool | None = None, image: str | None = None):
+        """Notify always; the cue goes through the sfx gate (core/sfx.py). `sound` overrides FART's setting; `image`
+        is a picture file to show with it."""
+        self.run(self.profile.notify_command(summary, body, image) if image else self.profile.notify_command(summary, body))
         if cue:
             self.sfx.emit(cue, sound)

@@ -23,7 +23,8 @@ Scope {
                                         notification: noticeMs })
     // Z175: the island shows a non-critical notification for at most this long, whatever its sender asked for.
     readonly property int notificationCap: Math.max(Timing.notificationCap, noticeMs)
-    readonly property var recording: host.capture.available ? host.capture.recording : null
+    // The core records (Z221); a host's own recorder still shows when the core has no recording to report.
+    readonly property var recording: core?.captureData?.recording ?? (host.capture.available ? host.capture.recording : null)
     readonly property var battery: host.power.battery
     property var previousBattery: null
     property var workspaceIds: []

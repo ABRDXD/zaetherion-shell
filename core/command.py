@@ -14,11 +14,12 @@ from pathlib import Path
 
 from core.errors import OpError
 from core.store import read_json, write_json
-from core.verbs import clips, equalizer, exhibit, hostactions, island, palette, media, modes, rooms, system, tasks, timers, wallpaper, presets
+from core.verbs import capture, clips, equalizer, exhibit, hostactions, island, palette, media, modes, rooms, system, tasks, timers, wallpaper, presets
 from core.verbs.base import Result, Usage, Verb
 
 log = logging.getLogger("fart.command")
-DOMAINS = (rooms, timers, tasks, modes, island, palette, wallpaper, presets, equalizer, exhibit, media, system, clips, hostactions)
+DOMAINS = (rooms, timers, tasks, modes, island, palette, wallpaper, presets, equalizer, exhibit, media, system, clips, capture,
+           hostactions)
 MAX_LINE = 1000
 HISTORY = 100
 # Launcher pages (after cmdk, owner 15 November 2026): Enter on a bare verb in the launcher opens its choices as moons.

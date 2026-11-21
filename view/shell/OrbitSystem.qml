@@ -109,7 +109,7 @@ FocusScope {
     Component { id: mediaFace; MediaFace { host: root.host } }
     Component { id: performanceFace; PerformanceFace { host: root.host } }
     Component { id: workspacesFace; WorkspacesFace { host: root.host } }
-    Component { id: devicesFace; DevicesFace { host: root.host } }
+    Component { id: devicesFace; DevicesFace { host: root.host; core: root.core } }
     Component { id: tasksFace; TasksFace { core: root.core } }
     Component { id: timersFace; TimersFace { core: root.core } }
     Component { id: clipboardFace; ClipboardFace { host: root.host } }

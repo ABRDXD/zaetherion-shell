@@ -229,7 +229,7 @@ class VerbTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_help_lists_every_domain(self):
         domains = (await self.ok("?"))["data"]["domains"]
-        self.assertEqual(list(domains), ["rooms", "timers", "tasks", "modes", "media", "system", "clips", "host", "help"])
+        self.assertEqual(list(domains), ["rooms", "timers", "tasks", "modes", "media", "system", "clips", "capture", "host", "help"])
         self.assertIn("vol", domains["system"])
 
     async def test_host_errors_become_results(self):

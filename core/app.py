@@ -10,6 +10,7 @@ from pathlib import Path
 from core.command import Commands
 from core.exhibit import Exhibit
 from core.discovery import Discovery
+from core.capture import Capture
 from core.clips import Clips
 from core.equalizer import Equalizer
 from core.errors import OpError
@@ -90,6 +91,9 @@ class Core:
         # The host's own theme as the view's adapter reports it (Z180); only presets use it.
         self.host_theme = dict(available=False, current="", error="")
         self.equalizer = Equalizer(state_dir)  # its chain only in a session that runs it (fartd attaches it)
+        # Screenshots, OCR, QR, Lens and recording (S9, Z221); its frozen grabs live in the runtime dir, never on disk.
+        self.capture = Capture(Path(os.environ.get("XDG_RUNTIME_DIR") or state_dir) / "zaetherion",
+                               alert=lambda summary, body, image=None: host.alert(summary, body, image=image))
         self.sessions.tasks_done = self.tasks.done_between
         self.sessions.music = self._session_music
         self.discovery = Discovery(state_dir, clock)
@@ -124,7 +128,7 @@ class Core:
         for name, owner in (("timers", self.timers), ("tasks", self.tasks), ("notifications", self.inbox),
                             ("overdrive", self.overdrive), ("session", self.sessions), ("island", self.island), ("clips", self.clips), ("palette", self.palette),
                             ("wallpaper", self.wallpaper),
-                            ("equalizer", self.equalizer), ("launcher", self.launcher), ("view", self.view)):
+                            ("equalizer", self.equalizer), ("launcher", self.launcher), ("capture", self.capture), ("view", self.view)):
             server.topic(name, owner.snapshot)
             if name != "view":
                 owner.on_change = partial(server.publish, name)
@@ -716,6 +720,7 @@ class Core:
 
     async def close(self):
         self.exhibit.stop()
+        await self.capture.stop()  # a running recording is finished, not lost
         await self.equalizer.close()  # the owner's routing is back before anything else stops
         await self.view.stop()  # the view's end shows DMS's bar again (_view_changed), before DMS stops
         if self.supervisor:

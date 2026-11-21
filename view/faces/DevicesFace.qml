@@ -12,7 +12,9 @@ Face {
     required property HostAdapter host
     readonly property var network: host.network
     readonly property var bluetooth: host.bluetooth
-    readonly property bool recording: host.hostActions.recording.active
+    property var core: null
+    // The core's recording first (Z221), else the host's own recorder.
+    readonly property bool recording: !!(core?.captureData?.recording?.active ?? host.hostActions.recording.active)
     readonly property var output: host.audio.outputs.find(o => o.isDefault) ?? null
     readonly property bool wired: network.kind === "ethernet"
     readonly property bool btOn: bluetooth.available && bluetooth.enabled

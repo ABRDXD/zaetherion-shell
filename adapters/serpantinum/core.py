@@ -131,8 +131,10 @@ class HostProfile:
         props = json.dumps({"application.id": "fart-sfx", "application.name": "FART", "media.role": "event"})
         return ["pw-play", "-P", props, f"--volume={max(0.0, min(2.0, gain)):.3f}", str(path)]
 
-    def notify_command(self, summary: str, body: str):
-        return ["notify-send", "-a", "FART", summary, body]
+    def notify_command(self, summary: str, body: str, image: str | None = None):
+        """A notice through our notification server; `image` (a file) shows as its picture (capture, Z221)."""
+        picture = ["-i", image, "-h", f"string:image-path:{image}"] if image else []
+        return ["notify-send", "-a", "FART", *picture, summary, body]
 
     def before_open_command(self):
         """A native calendar or music popup sits above FART's layer: close it, without starting the host."""
