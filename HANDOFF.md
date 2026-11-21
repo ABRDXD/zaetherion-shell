@@ -1,3 +1,5 @@
+# 21 November 2026 · Astra claims the S9 frozen-screen selector mockups on `codex/selector-studies` for the owner’s visual pick.
+
 # 20 November 2026, late · Opus (Claude A): Cutline Settings merged with Exposure's strong parts (Z218, Z219); lyrics miss merged (Z220)
 
 - **Owner's pick: A Cutline (Astra's), "try to add the strong parts of your design into Astra's Cutline".** Merged `codex/settings-redesign` (Z218) and, on top, `a-cutline-plus` (Z219): every Settings choice is a `SettingChip` (current = white cut at 78°), quiet actions are `SettingsAction` (mono words over a hairline; Clear and Forget ask twice via `ConfirmArm`, now shared with FConfirmButton, with a Cancel), hairline `SettingsScrollBar`, unknown values read READING / OFFLINE with a hatch, an offline inbox turns every inbox action off and says so, Notifications' private apps and inbox are the grid's two columns, Island's Edge/Placement/Screen share a row, the design-style pair is chips, Wi-Fi's Leave/Join hidden/Forget/VPN/Cancel are quiet actions and Auto-join a chip. Opening a choice focuses the current one; arrows/Home/End move.
