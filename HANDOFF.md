@@ -1,4 +1,4 @@
-# 21 November 2026 · Astra claims the S9 frozen-screen selector mockups on `codex/selector-studies` for the owner’s visual pick.
+# 21 November 2026 · Astra · ready to merge `codex/selector-studies` · Three S9 frozen-selector mockups in `tools/selector-study/`. Offscreen renders inspected, all three crop interiors pixel-identical to the source. Next: owner picks Eclipse, Transit or Proof, then Claude A wires the chosen look.
 
 # 20 November 2026, late · Opus (Claude A): Cutline Settings merged with Exposure's strong parts (Z218, Z219); lyrics miss merged (Z220)
 
