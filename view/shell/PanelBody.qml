@@ -42,8 +42,10 @@ Item {
     property bool islandMorph: false
     property rect morphRect: Qt.rect(0, 0, width, height)
     // Grown from the island, the header and the room arrive as the panel drops.
-    readonly property real morphHeader: Math.max(0, Math.min(1, (unfold.body.progress - 0.5) / 0.4))
-    readonly property real morphRoom: Math.max(0, Math.min(1, (unfold.body.progress - 0.62) / 0.38))
+    readonly property real morphHeader: !Fart.Design.fluid ? Math.min(1, unfold.value * 2.2)
+        : Math.max(0, Math.min(1, (unfold.body.progress - 0.5) / 0.4))
+    readonly property real morphRoom: !Fart.Design.fluid ? morphHeader
+        : Math.max(0, Math.min(1, (unfold.body.progress - 0.62) / 0.38))
     readonly property Shell shell: dashboard.item
     readonly property real bodyScale: unfold.bodyScale
     // Overdrive's black hole (docs/OVERDRIVE.md §8): with the engine on, the panel falls into the clock it came

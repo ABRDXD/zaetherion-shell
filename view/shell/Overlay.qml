@@ -42,13 +42,22 @@ Scope {
         && !islandHasKeyboard
     // The panel opens like a host popup and folds from wherever it is; a reversal takes the
     // time left (docs/CUES.md §9, §15). No scope: the surface's visibility depends on it.
-    // Grown from the island, the open is slower than a popup so the bar can widen and then drop (owner,
-    // 12 November): 560 ms in, 320 ms back, through the host's time scale and motion levels.
+    readonly property bool cutPanel: islandMorph && !Fart.Design.fluid
+    // A single driver keeps the input mask, silhouette and reading together on reversal.
     Unfold {
         id: unfold
         on: root.opened
-        enter: root.islandMorph ? Cues.Motion.scaled(560) : Cues.Motion.unfold
-        exit: root.islandMorph ? Cues.Motion.scaled(320) : Cues.Motion.fold
+        readonly property real widthChange: Math.abs(surface.implicitWidth - surface.fromRect.width)
+        readonly property real heightChange: Math.abs(surface.implicitHeight - surface.fromRect.height)
+        readonly property real travel: Math.max(widthChange / 2, heightChange)
+        readonly property real sizeChange: Math.max(widthChange / Math.max(1, surface.implicitWidth, surface.fromRect.width),
+                                                   heightChange / Math.max(1, surface.implicitHeight, surface.fromRect.height))
+        enter: root.cutPanel ? Cues.Motion.cutDuration(travel, sizeChange, false)
+            : root.islandMorph ? Cues.Motion.scaled(560) : Cues.Motion.unfold
+        exit: root.cutPanel ? Cues.Motion.cutDuration(travel, sizeChange, true)
+            : root.islandMorph ? Cues.Motion.scaled(320) : Cues.Motion.fold
+        easing: root.cutPanel ? Cues.Motion.cutIn : Cues.Motion.linear
+        exitEasing: root.cutPanel ? Cues.Motion.cutOut : Cues.Motion.linear
     }
     readonly property bool retained: opened || unfold.value > 0
     Binding { target: Cues.Motion; property: "reduced"; value: !ViewState.motionEnabled }
@@ -386,15 +395,14 @@ Scope {
 
         // The island growing, in two eased phases over the body track: the bar first widens to the panel's width,
         // keeping its 84° ends, then the panel drops straight down from it. Folding retraces both.
-        readonly property real growP: unfold.body.progress
-        readonly property real growT: Math.max(0, Math.min(1, unfold.body.value))
+        readonly property real growP: root.cutPanel ? unfold.value : unfold.body.progress
         function easeOut(p: real): real { const q = 1 - Math.max(0, Math.min(1, p)); return 1 - q * q * q; }
         function easeInOut(p: real): real {
             const t = Math.max(0, Math.min(1, p));
             return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
         }
-        readonly property real widen: easeOut(growP / 0.4)
-        readonly property real drop: easeInOut((growP - 0.3) / 0.7)
+        readonly property real widen: root.cutPanel ? Math.min(1, growP / 0.4) : easeOut(growP / 0.4)
+        readonly property real drop: root.cutPanel ? Math.max(0, (growP - 0.3) / 0.7) : easeInOut((growP - 0.3) / 0.7)
         readonly property rect fromRect: {
             const r = root.islandFrom ?? root.islandRect;
             if (!r) return Qt.rect(width / 2 - 210, body.edge === "bottom" ? height - 36 : 0, 420, 36);

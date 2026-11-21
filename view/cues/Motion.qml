@@ -107,6 +107,14 @@ Singleton {
         return result;
     }
     function scaled(ms) { return root.reduced ? 0 : Math.round(ms * root.timeScale); }
+    // Angular Cut. Travel is the moving edge's distance in logical pixels.
+    readonly property int cutIn: Easing.OutQuart
+    readonly property int cutOut: Easing.InCubic
+    function cutDuration(travel: real, sizeChange: real, departing: bool): int {
+        const distance = Math.abs(travel) + 240 * Math.abs(sizeChange);
+        const arrival = Math.max(200, Math.min(460, 160 + 12 * Math.sqrt(distance)));
+        return scaled(arrival * (departing ? 0.72 : 1));
+    }
     // Effective durations: 0 when reduced.
     readonly property int feedback: scaled(roles.feedback.duration)
     readonly property int navigate: scaled(roles.navigate.duration)
