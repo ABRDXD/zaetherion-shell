@@ -222,6 +222,185 @@ class PromptsInPlaceTest(unittest.TestCase):
             self.assertEqual((copy / "DMSShell.qml").read_text(), shell)     # checked before anything is written
 
 
+TRIM_SHELL = """import QtQuick
+import qs.Modals.DLauncherV2
+
+Item {
+    id: root
+
+    DesktopWidgetLayer {}
+
+    DesktopWidgetEditor {}
+
+    DesktopContextMenu {
+        Component.onCompleted: PopoutService.desktopContextMenu = this
+    }
+
+    Lock {
+        id: lock
+    }
+
+    Variants {
+        model: root.notificationPopupScreens
+
+        delegate: NotificationPopupManager {}
+    }
+
+    LazyLoader {
+        id: controlCenterLoader
+        property var modalRef: colorPickerModal
+    }
+
+    MuxModal {
+        id: muxModal
+    }
+
+    ClipboardHistoryModal {
+        id: clipboardHistoryModalPopup
+    }
+
+    NotificationModal {
+        id: notificationModal
+
+        Component.onCompleted: {
+            PopoutService.notificationModal = notificationModal; // a } in a comment
+        }
+    }
+
+    ColorPickerModal {
+        id: colorPickerModal
+        property string hint: "{ not a brace"
+    }
+
+    Variants {
+        id: notepadSlideoutVariants
+        model: SettingsData.getFilteredScreens("notepad")
+    }
+
+    Variants {
+        model: SettingsData.getFilteredScreens("toast")
+
+        delegate: Toast {}
+    }
+
+    Loader {
+        id: osdSurfacesLoader
+        active: root.osdSurfacesLoaded
+    }
+
+    Connections {
+        target: NetworkService
+
+        function onCredentialsNeeded(token, ssid, setting, fields, hints, reason, connType, connName, vpnService, fieldsInfo) {
+            wifiPasswordModalLoader.active = true;
+        }
+    }
+}
+"""
+
+
+def active(text):
+    """The lines QML would still run: not a trim's commented-out ones."""
+    return "\n".join(line for line in text.split("\n") if not line.startswith("//ZT "))
+
+
+class TrimTest(unittest.TestCase):
+    """Opt-in trims of DMS's always-on UI: only what is named, undone exactly, refused on an unknown shape."""
+
+    def copy(self, base):
+        copy = Path(base) / "copy"
+        copy.mkdir()
+        (copy / "DMSShell.qml").write_text(TRIM_SHELL)
+        (copy / dms_quiet.MARKER).write_text("rev\n")
+        return copy
+
+    def test_each_trim_takes_out_its_part_and_undoes_exactly(self):
+        gone = {"popups": "model: root.notificationPopupScreens", "notifications": "NotificationModal {",
+                "toasts": 'getFilteredScreens("toast")', "osd": "active: root.osdSurfacesLoaded",
+                "notepad": 'getFilteredScreens("notepad")', "mux": "MuxModal {", "desktop": "DesktopContextMenu {",
+                "colorpicker": "ColorPickerModal {"}
+        self.assertEqual(set(gone), set(dms_quiet.TRIMS))
+        for name, needle in gone.items():
+            out = dms_quiet.apply_trim(TRIM_SHELL, name)
+            self.assertNotIn(needle, active(out), name)
+            self.assertEqual(dms_quiet.trims_in(out), [name])
+            self.assertEqual(dms_quiet.apply_trim(out, name), out)  # idempotent
+            self.assertEqual(dms_quiet.remove_trim(out, name), TRIM_SHELL)
+            kept = active(out)
+            root = kept.index("Item {")  # the root still closes at the very end: no brace left dangling
+            self.assertEqual(dms_quiet.block_end(kept, root), len(kept.rstrip()), name)
+            for other in ("Lock {", "ClipboardHistoryModal {", "onCredentialsNeeded"):
+                self.assertIn(other, kept, name)  # lock, quick paste and the prompts are never trimmed
+
+    def test_a_dropped_block_goes_whole_and_its_strings_and_comments_do_not_confuse_it(self):
+        out = active(dms_quiet.apply_trim(TRIM_SHELL, "notifications"))
+        self.assertNotIn("notificationModal", out)
+        self.assertIn("ColorPickerModal {", out)
+        out = active(dms_quiet.apply_trim(TRIM_SHELL, "colorpicker"))
+        self.assertNotIn("not a brace", out)
+        self.assertIn("property var modalRef: null", out)  # its one outside reference, so nothing is undefined
+        self.assertIn("Variants {\n        id: notepadSlideoutVariants", out)
+
+    def test_set_trims_makes_exactly_the_named_set_and_none_restores(self):
+        with tempfile.TemporaryDirectory() as d:
+            copy = self.copy(d)
+            self.assertEqual(dms_quiet.set_trims(copy, ["mux", "osd"]), ["osd", "mux"])
+            self.assertEqual((copy / dms_quiet.TRIMMED).read_text().split(), ["osd", "mux"])
+            self.assertEqual(dms_quiet.set_trims(copy, ["popups", "mux"]), ["popups", "mux"])
+            self.assertIn("active: root.osdSurfacesLoaded", active((copy / "DMSShell.qml").read_text()))
+            self.assertEqual(dms_quiet.set_trims(copy, []), [])
+            self.assertEqual((copy / "DMSShell.qml").read_text(), TRIM_SHELL)
+            self.assertFalse((copy / dms_quiet.TRIMMED).exists())
+
+    def test_refuses_unknown_names_a_foreign_folder_and_an_unknown_shape_without_writing(self):
+        with tempfile.TemporaryDirectory() as d:
+            copy = self.copy(d)
+            with self.assertRaises(SystemExit):
+                dms_quiet.set_trims(copy, ["bar"])
+            (copy / "DMSShell.qml").write_text(TRIM_SHELL.replace("    MuxModal {", "    MuxModal2 {"))
+            before = (copy / "DMSShell.qml").read_text()
+            with self.assertRaises(ValueError):
+                dms_quiet.set_trims(copy, ["osd", "mux"])  # mux no longer matches: osd isn't written either
+            self.assertEqual((copy / "DMSShell.qml").read_text(), before)
+            (copy / dms_quiet.MARKER).unlink()
+            with self.assertRaises(SystemExit):
+                dms_quiet.set_trims(copy, ["osd"])
+        doubled = TRIM_SHELL.replace("    Lock {", "    MuxModal {\n    }\n\n    Lock {")
+        with self.assertRaises(ValueError):
+            dms_quiet.apply_trim(doubled, "mux")
+
+    def test_build_applies_only_the_named_trims(self):
+        with tempfile.TemporaryDirectory() as d:
+            source, out = Path(d) / "src", Path(d) / "out"
+            (source / "Services").mkdir(parents=True)
+            (source / "Services/NotificationService.qml").write_text(SERVICE)
+            (source / "Modules/DBar").mkdir(parents=True)
+            (source / "Modules/DBar/DBarBody.qml").write_text(BAR_LINE)
+            write_prompts(source)
+            (source / "DMSShell.qml").write_text(TRIM_SHELL)
+            dms_quiet.build(source, out)
+            self.assertEqual(dms_quiet.trims_in((out / "DMSShell.qml").read_text()), [])  # none unless asked
+            self.assertFalse((out / dms_quiet.TRIMMED).exists())
+            dms_quiet.build(source, out, ["toasts"])
+            shell = (out / "DMSShell.qml").read_text()
+            self.assertEqual(dms_quiet.trims_in(shell), ["toasts"])
+            self.assertIn(dms_quiet.PROMPT_NOTE, shell)
+            self.assertIn(dms_quiet.BRIDGE_LINE, shell)
+            self.assertEqual(dms_quiet.check(out), [])
+            self.assertEqual(dms_quiet.set_trims(out, []), [])
+            self.assertIn(dms_quiet.BRIDGE_LINE, (out / "DMSShell.qml").read_text())  # undoing keeps the other patches
+            with self.assertRaises(SystemExit):
+                dms_quiet.build(source, Path(d) / "x", ["nope"])
+
+    def test_the_session_copy_has_every_part_the_trims_take(self):
+        copy = dms_quiet.default_out()
+        if not (copy / "DMSShell.qml").is_file():
+            self.skipTest("no quiet copy on this machine")
+        text = (copy / "DMSShell.qml").read_text()  # read only
+        for name in dms_quiet.TRIMS:
+            self.assertEqual(dms_quiet.remove_trim(dms_quiet.apply_trim(text, name), name), text, name)
+
+
 class FitsTest(unittest.TestCase):
     """The copy runs at login only with the `dms` program it was made from."""
 
