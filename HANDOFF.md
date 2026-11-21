@@ -1,3 +1,12 @@
+# 21 November 2026, night · Opus (Claude A): capture merged (S9, Z221)
+
+- **Merged `a-s9-capture` (`da70d8b`, fast-forward):** `core/capture.py` as topic `capture`, so the keys work with the panel reaped. `shot` (region/window/monitor/full × copy/edit/text/qr/lens), `ocr`, `qr`, `lens`, `record [monitor|region] [sound] [mic]` / `record stop`. A shot freezes first; grabs live in the runtime dir. Alerts can carry an image.
+- **Checks:** full suite run 1: 1252, **1 failure** `test_core_track…test_spawns_the_absent_view_unless_quiet` (0 != 1 spawns); it passed 10/10 alone and capture doesn't touch spawning, so it's a timing flake under load (the test gives the task only five `sleep(0)` yields). Run 2 on the commit: **1252 OK (1 skipped)**. Privacy grep of the diff clean.
+- **Owner:** key Super+Ctrl+Shift+S → `zaetherion shot` is in `~/.config/hypr/zaetherion/keybinds.lua` (backup `*.pre-z221-2026-11-21`); it works after you run `tools/live-restart`. Super+Shift+S stays DMS's snip for comparison.
+- **Still open:** the frozen capture-picker overlay is Astra's to design (`codex/selector-studies` claimed); Claude A wires it. The flaky track test could wait on a condition instead of five yields; not done.
+- **Focus trackers (OPEN 1 / Z51):** all three units active at 21:25; run ends 23 Nov 21:12.
+- **Next task:** after 23 Nov 21:12, compare cost, history and accuracy, decide Z51 with the next free number (Z222), tell the owner in one line. Merge `b-dms-trim` when Claude B marks it ready.
+
 # 20 November 2026, late · Opus (Claude A): Cutline Settings merged with Exposure's strong parts (Z218, Z219); lyrics miss merged (Z220)
 
 - **Owner's pick: A Cutline (Astra's), "try to add the strong parts of your design into Astra's Cutline".** Merged `codex/settings-redesign` (Z218) and, on top, `a-cutline-plus` (Z219): every Settings choice is a `SettingChip` (current = white cut at 78°), quiet actions are `SettingsAction` (mono words over a hairline; Clear and Forget ask twice via `ConfirmArm`, now shared with FConfirmButton, with a Cancel), hairline `SettingsScrollBar`, unknown values read READING / OFFLINE with a hatch, an offline inbox turns every inbox action off and says so, Notifications' private apps and inbox are the grid's two columns, Island's Edge/Placement/Screen share a row, the design-style pair is chips, Wi-Fi's Leave/Join hidden/Forget/VPN/Cancel are quiet actions and Auto-join a chip. Opening a choice focuses the current one; arrows/Home/End move.
