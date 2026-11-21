@@ -1,6 +1,6 @@
 # Fluid Settings
 
-The owner is choosing the composition for Fluid Settings. Both studies show the same synthetic Bluetooth state and Island preferences. The eight section names follow their native order. Text uses Fluid’s Inter type scale. Lavender illustrates the palette accent.
+**Owner pick, 21 November 2026 · A · Limb.** The native implementation is on `codex/fluid-limb`. Both studies show the same synthetic Bluetooth state and Island preferences. The eight section names follow their native order. Text uses Fluid’s Inter type scale. Lavender illustrates the palette accent.
 
 | A · Limb | B · Spectrum |
 | --- | --- |
