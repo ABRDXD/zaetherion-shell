@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import qs.core.client
+import qs.view.fluid
 import qs.view.ui
 
 // The wallpaper section of FART's settings (Z177). Hover or arrows show a wallpaper in the large plane; the desktop
@@ -81,7 +82,7 @@ ColumnLayout {
         function onConnectedChanged() { if (root.active && root.core.connected) root.load(); }
     }
 
-    FText {
+    SettingsText {
         Layout.fillWidth: true
         text: root.highlighted && root.highlighted !== root.wall.current ? "Preview · " + root.name(root.highlighted)
             : root.wall.current ? "On the desktop · " + root.name(root.wall.current) : "On the desktop · no image"
@@ -98,10 +99,10 @@ ColumnLayout {
         placeholderTextColor: Design.muted
         selectionColor: Design.accent
         selectedTextColor: Design.background
-        font.family: Design.sans
-        font.pixelSize: Design.body
+        font.family: Design.fluid ? FluidTokens.sans : Design.sans
+        font.pixelSize: Design.fluid ? FluidTokens.body : Design.body
         onTextChanged: root.query = text
-        background: Rectangle { color: Design.background; border.color: Design.line; border.width: 1 }
+        background: Rectangle { radius: Design.fluid ? FluidTokens.controlRadius : 0; color: Design.background; border.color: Design.line; border.width: 1 }
         Keys.onDownPressed: { grid.forceActiveFocus(); root.previewIndex(Math.max(0, grid.currentIndex)); }
         Keys.onReturnPressed: { grid.forceActiveFocus(); root.previewIndex(0); }
         Keys.onEscapePressed: { if (text) text = ""; else root.closeRequested(); }
@@ -113,12 +114,12 @@ ColumnLayout {
         Layout.fillHeight: true
         visible: !root.listing.exists || (root.listing.entries ?? []).length === 0
         spacing: Design.baseline * 2
-        FText {
+        SettingsText {
             Layout.fillWidth: true
             text: (root.listing.exists ? "NO WALLPAPERS IN " : "NO FOLDER AT ") + root.listing.folder
             wrapMode: Text.Wrap
         }
-        FText { Layout.fillWidth: true; aside: true; text: "Point FART at the folder that holds them."; color: Design.muted }
+        SettingsText { Layout.fillWidth: true; aside: true; text: "Point FART at the folder that holds them."; color: Design.muted }
         TextField {
             id: folderField
             objectName: "wallpaperFolder"
@@ -128,9 +129,9 @@ ColumnLayout {
             color: Design.ink
             selectionColor: Design.accent
             selectedTextColor: Design.background
-            font.family: Design.mono
-            font.pixelSize: Design.body
-            background: Rectangle { color: Design.background; border.color: Design.line; border.width: 1 }
+            font.family: Design.fluid ? FluidTokens.sans : Design.mono
+            font.pixelSize: Design.fluid ? FluidTokens.body : Design.body
+            background: Rectangle { radius: Design.fluid ? FluidTokens.controlRadius : 0; color: Design.background; border.color: Design.line; border.width: 1 }
             onAccepted: root.core.request("wallpaper.folder", { folder: text }, (ok, result) => {
                 root.error = ok ? "" : result.message;
                 if (ok) root.load();
@@ -183,6 +184,7 @@ ColumnLayout {
                 onHoveredChanged: if (hovered && root.active) root.previewIndex(index)
                 onClicked: { grid.currentIndex = index; root.applyCurrent(); }
                 background: Rectangle {
+                    radius: Design.fluid ? FluidTokens.controlRadius : 0
                     color: Design.surface
                     border.width: grid.currentIndex === tile.index ? 2 : 1
                     border.color: grid.currentIndex === tile.index ? Design.accent : Design.line
@@ -199,14 +201,14 @@ ColumnLayout {
                         asynchronous: true
                         cache: false
                     }
-                    FText {
+                    SettingsText {
                         anchors.centerIn: parent
                         visible: !thumb.visible
                         text: tile.modelData.kind === "video" ? "VIDEO" : thumb.status === Image.Error ? "UNREADABLE" : ""
                         technical: true
                         color: Design.muted
                     }
-                    FText {
+                    SettingsText {
                         anchors.right: parent.right
                         anchors.top: parent.top
                         anchors.margins: Design.baseline
@@ -242,7 +244,7 @@ ColumnLayout {
                     asynchronous: true
                     cache: false
                 }
-                FText {
+                SettingsText {
                     anchors.centerIn: parent
                     visible: !large.visible || large.status !== Image.Ready
                     text: root.shown?.kind === "video" ? "VIDEO · NO PREVIEW" : large.status === Image.Loading ? "LOADING" : !root.shown ? "NOTHING SHOWN" : "UNREADABLE"
@@ -250,7 +252,7 @@ ColumnLayout {
                     color: Design.muted
                 }
             }
-            FText {
+            SettingsText {
                 Layout.fillWidth: true
                 text: root.shown ? root.shown.file + " · " + (root.shown.size / 1048576).toFixed(1) + " MB" : ""
                 technical: true
@@ -258,24 +260,24 @@ ColumnLayout {
                 elide: Text.ElideMiddle
             }
             // Z179: off by default. On, the highlighted image also previews a palette made from it; setting saves both.
-            FButton {
+            SettingsButton {
                 objectName: "wallpaperColours"
                 Layout.fillWidth: true
                 label: root.wall.colours === true ? "Colours from this wallpaper: on" : "Colours from this wallpaper: off"
                 selected: root.wall.colours === true
                 onClicked: root.send("wallpaper.colours", { on: root.wall.colours !== true })
             }
-            FText {
+            SettingsText {
                 Layout.fillWidth: true
                 visible: text !== ""
                 text: root.wall.coloursError ? "No colours: " + root.wall.coloursError
                     : root.wall.colours === true && root.shown?.kind === "video" ? "Videos keep the current colours" : ""
                 color: root.wall.coloursError ? Design.danger : Design.muted
-                font.pixelSize: Design.caption
+                font.pixelSize: Design.fluid ? FluidTokens.caption : Design.caption
                 wrapMode: Text.Wrap
             }
             // Z215: the shown picture redrawn in type, saved beside it and set; a plate already follows the palette (Z213).
-            FButton {
+            SettingsButton {
                 objectName: "wallpaperTypeset"
                 Layout.fillWidth: true
                 visible: root.shown?.kind === "image" && root.shown?.plate !== true
@@ -286,35 +288,35 @@ ColumnLayout {
                     if (ok) root.load();
                 })
             }
-            FText {
+            SettingsText {
                 Layout.fillWidth: true
                 visible: text !== ""
                 text: root.shown?.plate === true ? "A typeset plate: its accent follows the palette"
                     : root.wall.typesetError ? "Not typeset: " + root.wall.typesetError : ""
                 color: root.wall.typesetError && root.shown?.plate !== true ? Design.danger : Design.muted
-                font.pixelSize: Design.caption
+                font.pixelSize: Design.fluid ? FluidTokens.caption : Design.caption
                 wrapMode: Text.Wrap
             }
             Item { Layout.fillHeight: true }
         }
     }
-    FText {
+    SettingsText {
         Layout.fillWidth: true
         visible: root.error !== "" || (root.listing.entries ?? []).length > 0
         text: root.error || root.blocked || "Hover or arrows preview · click or Enter sets it · typing filters"
         color: root.error ? Design.danger : Design.muted
-        font.pixelSize: Design.caption
+        font.pixelSize: Design.fluid ? FluidTokens.caption : Design.caption
         wrapMode: Text.Wrap
     }
     RowLayout {
         visible: (root.listing.entries ?? []).length > 0
-        FButton {
+        SettingsButton {
             objectName: "wallpaperApply"
             label: "Set as wallpaper"
             Layout.fillWidth: true
             enabled: root.canApply && grid.currentIndex >= 0 && root.filtered[grid.currentIndex]?.path !== root.wall.current
             onClicked: root.applyCurrent()
         }
-        FButton { label: "Back to current"; enabled: root.highlighted !== ""; onClicked: { root.cancel(); root.load(); } }
+        SettingsButton { label: "Back to current"; enabled: root.highlighted !== ""; onClicked: { root.cancel(); root.load(); } }
     }
 }

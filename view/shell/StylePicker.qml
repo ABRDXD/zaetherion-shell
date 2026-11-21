@@ -40,7 +40,7 @@ ColumnLayout {
             root.queuedForm = "";
         }
     }
-    FText { text: "DESIGN STYLE"; technical: true; color: Design.accent }
+    SettingsText { text: "DESIGN STYLE"; technical: true; color: Design.accent }
     // The same chips as every other Settings choice (Z219): the chosen form stays a white cut, faded when offline.
     RowLayout {
         Layout.fillWidth: true
@@ -62,5 +62,5 @@ ColumnLayout {
             onClicked: root.choose("fluid")
         }
     }
-    FText { Layout.fillWidth: true; visible: root.error !== ""; text: root.error; wrapMode: Text.Wrap; color: Design.danger }
+    SettingsText { Layout.fillWidth: true; visible: root.error !== ""; text: root.error; wrapMode: Text.Wrap; color: Design.danger }
 }

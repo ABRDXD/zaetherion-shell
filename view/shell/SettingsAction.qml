@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import qs.view.cues
+import qs.view.fluid
 import qs.view.ui
 
 // A quiet action in a Settings section (Cutline, Z218; Z219): mono words over a hairline, with an arrow. Hover
@@ -40,7 +41,7 @@ AbstractButton {
             width: words.implicitWidth
             height: 1
             color: root.tone
-            opacity: root.enabled ? 1 : 0.5
+            opacity: Design.fluid && !root.hovered && !root.visualFocus ? 0 : root.enabled ? 1 : 0.5
             Tween on color { scope: root; ColorAnimation { duration: Motion.feedback; easing.type: Motion.roles.feedback.easing } }
         }
         Rectangle {
@@ -54,12 +55,12 @@ AbstractButton {
         }
     }
     contentItem: Item {
-        FText {
+        SettingsText {
             id: words
             anchors.verticalCenter: parent.verticalCenter
             text: (root.armed ? root.armedLabel : root.label) + (root.glyph ? "  " + root.glyph : "")
             technical: true
-            font.pixelSize: Design.body
+            font.pixelSize: Design.fluid ? FluidTokens.body : Design.body
             font.capitalization: Font.MixedCase
             color: root.tone
             Tween on color { scope: root; ColorAnimation { duration: Motion.feedback; easing.type: Motion.roles.feedback.easing } }
@@ -78,12 +79,12 @@ AbstractButton {
         Accessible.role: Accessible.Button
         Accessible.name: "Cancel"
         onClicked: { Feedback.play("ui.click"); arm.cancel(); root.forceActiveFocus(); }
-        contentItem: FText {
+        contentItem: SettingsText {
             id: cancelWords
             verticalAlignment: Text.AlignVCenter
             text: "Cancel"
             technical: true
-            font.pixelSize: Design.body
+            font.pixelSize: Design.fluid ? FluidTokens.body : Design.body
             font.capitalization: Font.MixedCase
             color: cancel.hovered || cancel.visualFocus ? Design.ink : Design.muted
         }

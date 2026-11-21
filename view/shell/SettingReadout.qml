@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import qs.view.cues
+import qs.view.fluid
 import qs.view.ui
 
 // A reading is the entrance to its alternatives. No state is written on open.
@@ -20,9 +21,9 @@ AbstractButton {
 
     hoverEnabled: true
     implicitWidth: Math.max(Design.baseline * 28, readout.implicitWidth + (unit.visible ? unit.implicitWidth + Design.baseline * 2 : 0) + Design.baseline * 16)
-    implicitHeight: (compact ? Design.readout : prominent ? Design.headline : Design.figure) + Design.baseline * 4
-    leftPadding: Design.baseline * 5
-    rightPadding: Design.baseline * 5
+    implicitHeight: Design.fluid ? FluidTokens.controlHeight : (compact ? Design.readout : prominent ? Design.headline : Design.figure) + Design.baseline * 4
+    leftPadding: Design.fluid ? 0 : Design.baseline * 5
+    rightPadding: Design.fluid ? FluidTokens.unit : Design.baseline * 5
     topPadding: Design.baseline
     bottomPadding: Design.baseline
     opacity: enabled ? 1 : 0.45
@@ -34,7 +35,22 @@ AbstractButton {
     ToolTip.delay: 600
 
     background: Item {
+        Rectangle {
+            visible: Design.fluid
+            anchors.fill: parent
+            radius: FluidTokens.controlRadius
+            color: root.hovered || root.down ? FluidTokens.control : "transparent"
+            border.width: root.visualFocus ? 1 : 0
+            border.color: FluidTokens.accent
+            Rectangle {
+                anchors.bottom: parent.bottom
+                width: parent.width
+                height: 1
+                color: root.expanded ? FluidTokens.accent : FluidTokens.rule
+            }
+        }
         SettingsCut {
+            visible: !Design.fluid
             anchors.fill: parent
             color: root.prominent ? Design.selected : root.hovered || root.down ? Design.hover : "transparent"
 
@@ -50,7 +66,7 @@ AbstractButton {
 
         Reticle {
             anchors.fill: parent
-            visible: root.activeFocus
+            visible: !Design.fluid && root.activeFocus
         }
     }
 
@@ -85,31 +101,34 @@ AbstractButton {
 
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignBaseline
-            text: root.numberAndUnit ? root.numberAndUnit[1] : root.valueLabel
+            text: !Design.fluid && root.numberAndUnit ? root.numberAndUnit[1] : root.valueLabel
             headline: true
-            font.pixelSize: root.compact ? Design.readout : root.prominent ? Design.headline : Design.figure
+            font.family: Design.fluid ? FluidTokens.sans : Design.sans
+            font.capitalization: Design.fluid ? Font.MixedCase : Font.AllUppercase
+            sheared: !Design.fluid && font.pixelSize >= Design.figure && /[0-9]/.test(text)
+            font.pixelSize: Design.fluid ? FluidTokens.heading : root.compact ? Design.readout : root.prominent ? Design.headline : Design.figure
             font.weight: Font.DemiBold
-            horizontalAlignment: Text.AlignHCenter
-            color: root.prominent ? Design.background : Design.ink
+            horizontalAlignment: Design.fluid ? Text.AlignLeft : Text.AlignHCenter
+            color: !Design.fluid && root.prominent ? Design.background : Design.ink
         }
 
         FText {
             id: unit
 
             Layout.alignment: Qt.AlignBaseline
-            visible: root.numberAndUnit !== null && root.missing === ""
+            visible: !Design.fluid && root.numberAndUnit !== null && root.missing === ""
             text: root.numberAndUnit ? root.numberAndUnit[2] : ""
             font.pixelSize: root.compact ? Design.caption : Design.readout
             font.capitalization: Font.MixedCase
-            color: root.prominent ? Design.background : Design.ink
+            color: !Design.fluid && root.prominent ? Design.background : Design.ink
         }
 
         FText {
             Layout.alignment: Qt.AlignVCenter
             visible: root.missing === ""
-            text: root.expanded ? "−" : "+"
+            text: Design.fluid ? (root.expanded ? "⌃" : "⌄") : root.expanded ? "−" : "+"
             technical: true
-            color: root.prominent ? Design.background : Design.muted
+            color: !Design.fluid && root.prominent ? Design.background : Design.muted
         }
     }
 }

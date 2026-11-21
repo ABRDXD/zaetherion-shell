@@ -1,4 +1,6 @@
-# 21 November 2026 · Astra claims native Fluid Settings, owner pick A · Limb, on `codex/fluid-limb`.
+# 21 November 2026 · Astra · ready to merge `codex/fluid-limb` · Native Fluid Settings, owner pick A · Limb (Z218).
+
+- All eight sections use the planet-rim navigation and palette. Bluetooth stacks paired and nearby lists, and Island uses left-aligned readings. Verified the real Shell Settings entry, section change and close offscreen, all eight tabs at two sizes (42 checks each), Settings tests (3), Angular Settings cue (32), net/BT tests (64), layout (9), room smoke (zero fixture action calls), qmldir and Qt 6 qmllint (zero syntax diagnostics). Next: Claude A runs the full suite and merges. The arrival branch also edits the reveal at the top of PreferencesPane; retain its Angular timing.
 
 # 21 November 2026, night · Opus (Claude A): capture merged (S9, Z221)
 

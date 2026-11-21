@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import qs.core.client
+import qs.view.fluid
 import qs.view.ui
 
 ColumnLayout {
@@ -52,11 +53,11 @@ ColumnLayout {
         target: root.core
         function onConnectedChanged() { if (root.active && root.core.connected) root.load(); }
     }
-    FText {
+    SettingsText {
         Layout.fillWidth: true
         text: (root.core.paletteData?.preview ? "Preview · " : "Saved · ") + root.currentName
         headline: true
-        font.pixelSize: Design.figure
+        font.pixelSize: Design.fluid ? FluidTokens.title : Design.figure
         elide: Text.ElideRight
     }
     TextField {
@@ -68,10 +69,10 @@ ColumnLayout {
         placeholderTextColor: Design.muted
         selectionColor: Design.accent
         selectedTextColor: Design.background
-        font.family: Design.sans
-        font.pixelSize: Design.body
+        font.family: Design.fluid ? FluidTokens.sans : Design.sans
+        font.pixelSize: Design.fluid ? FluidTokens.body : Design.body
         onTextChanged: root.query = text
-        background: Rectangle { color: Design.background; border.color: Design.line; border.width: 1 }
+        background: Rectangle { radius: Design.fluid ? FluidTokens.controlRadius : 0; color: Design.background; border.color: Design.line; border.width: 1 }
         Keys.onDownPressed: { list.forceActiveFocus(); root.previewIndex(Math.max(0, list.currentIndex)); }
         Keys.onEscapePressed: root.closeRequested()
     }
@@ -103,6 +104,7 @@ ColumnLayout {
             }
             onClicked: root.choose(modelData.id)
             background: Rectangle {
+                radius: Design.fluid ? FluidTokens.controlRadius : 0
                 color: Design.surface
                 border.width: 1
                 border.color: list.currentIndex === index ? Design.accent : Design.line
@@ -110,26 +112,26 @@ ColumnLayout {
             contentItem: RowLayout {
                 spacing: Design.baseline * 2
                 Rectangle { width: Design.body; height: width; color: modelData.accent }
-                FText { text: modelData.name; Layout.fillWidth: true; elide: Text.ElideRight }
-                FText { text: modelData.study ? "STUDY" : modelData.source; technical: true; color: Design.muted }
-                FText { text: root.core.paletteData?.name === modelData.id ? "●" : ""; color: Design.accent }
+                SettingsText { text: modelData.name; Layout.fillWidth: true; elide: Text.ElideRight }
+                SettingsText { text: modelData.study ? "STUDY" : modelData.source; technical: true; color: Design.muted }
+                SettingsText { text: root.core.paletteData?.name === modelData.id ? "●" : ""; color: Design.accent }
             }
         }
     }
-    FText {
+    SettingsText {
         Layout.fillWidth: true
         text: root.error || "Hover or ↑ ↓ previews · click or Enter saves"
         color: root.error ? Design.danger : Design.muted
-        font.pixelSize: Design.caption
+        font.pixelSize: Design.fluid ? FluidTokens.caption : Design.caption
         wrapMode: Text.Wrap
     }
     RowLayout {
-        FButton {
+        SettingsButton {
             label: "Use palette"
             Layout.fillWidth: true
             enabled: list.currentIndex >= 0
             onClicked: root.chooseCurrent()
         }
-        FButton { label: "Undo preview"; enabled: root.core.paletteData?.preview ?? false; onClicked: root.cancel() }
+        SettingsButton { label: "Undo preview"; enabled: root.core.paletteData?.preview ?? false; onClicked: root.cancel() }
     }
 }

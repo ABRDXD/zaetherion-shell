@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import qs.view.contract
+import qs.view.fluid
 import qs.view.ui
 import "NetWords.js" as Words
 
@@ -13,7 +14,7 @@ ColumnLayout {
     required property BluetoothDomain bluetooth
     property bool active: false
     property bool scanning: false
-    spacing: Design.baseline * 3
+    spacing: Design.fluid ? FluidTokens.gap : Design.baseline * 3
 
     HostLease { domain: root.bluetooth; feature: "scan"; active: root.active && root.scanning && root.bluetooth.enabled }
     onActiveChanged: if (!active) scanning = false
@@ -46,8 +47,24 @@ ColumnLayout {
     RowLayout {
         Layout.fillWidth: true
         spacing: Design.baseline * 4
+        FluidText {
+            visible: Design.fluid
+            Layout.fillWidth: true
+            text: "Bluetooth"
+            font.pixelSize: FluidTokens.title
+            font.weight: Font.DemiBold
+        }
+        LimbSwitch {
+            visible: Design.fluid
+            objectName: visible ? "btToggle" : ""
+            label: "Bluetooth"
+            selected: root.bluetooth.enabled
+            enabled: root.bluetooth.available
+            onClicked: root.bluetooth.setEnabled(!root.bluetooth.enabled)
+        }
         FToggle {
-            objectName: "btToggle"
+            visible: !Design.fluid
+            objectName: visible ? "btToggle" : ""
             label: "BLUETOOTH"
             symbol: root.bluetooth.enabled ? "bluetooth" : "bluetooth_disabled"
             selected: root.bluetooth.enabled
@@ -55,34 +72,37 @@ ColumnLayout {
             onClicked: root.bluetooth.setEnabled(!root.bluetooth.enabled)
         }
         ColumnLayout {
+            visible: !Design.fluid
             Layout.fillWidth: true
             spacing: Design.baseline
-            FText {
+            SettingsText {
                 Layout.fillWidth: true
                 elide: Text.ElideRight
                 headline: true
                 font.capitalization: Font.MixedCase
-                font.pixelSize: Design.figure
+                font.pixelSize: Design.fluid ? FluidTokens.title : Design.figure
                 readonly property int linked: root.bluetooth.devices.filter(d => d.connected).length
                 text: !root.bluetooth.available ? "Offline" : !root.bluetooth.enabled ? "Bluetooth is off"
                     : linked === 0 ? "Nothing connected" : linked === 1 ? root.bluetooth.primary?.name ?? "1 connected" : linked + " connected"
                 color: linked > 0 ? Design.accent : Design.ink
             }
-            FText {
+            SettingsText {
                 technical: true
                 color: Design.muted
                 text: root.bluetooth.discovering ? "SCANNING" : root.bluetooth.devices.length + " PAIRED"
             }
         }
-        FButton {
-            objectName: "btScan"
-            label: root.scanning ? "Stop scanning" : "Scan for devices"
-            symbol: "radar"
-            selected: root.scanning
-            enabled: root.bluetooth.available && root.bluetooth.enabled
-            onClicked: root.scanning = !root.scanning
-        }
+        ScanButton { visible: !Design.fluid }
     }
+    component ScanButton: SettingsButton {
+        objectName: visible ? "btScan" : ""
+        label: root.scanning ? "Stop scanning" : "Scan for devices"
+        symbol: "radar"
+        selected: root.scanning
+        enabled: root.bluetooth.available && root.bluetooth.enabled
+        onClicked: root.scanning = !root.scanning
+    }
+    Hairline { endNode: !Design.fluid; Layout.fillWidth: true; visible: Design.fluid; color: FluidTokens.rule }
 
     // ---- BlueZ asks something while pairing.
     Rectangle {
@@ -98,16 +118,16 @@ ColumnLayout {
             anchors.fill: parent
             anchors.margins: Design.baseline * 3
             spacing: Design.baseline * 2
-            FText {
+            SettingsText {
                 Layout.fillWidth: true
                 wrapMode: Text.Wrap
                 aside: true
                 text: root.asking?.line ?? ""
             }
-            FText {
+            SettingsText {
                 visible: (root.bluetooth.pairing?.passkey ?? "") !== ""
                 text: root.bluetooth.pairing?.passkey ?? ""
-                font.pixelSize: Design.figure
+                font.pixelSize: Design.fluid ? FluidTokens.title : Design.figure
                 font.letterSpacing: Design.baseline
                 color: Design.accent
             }
@@ -124,29 +144,39 @@ ColumnLayout {
             RowLayout {
                 visible: (root.asking?.field ?? "") === ""
                 spacing: Design.baseline * 2
-                FButton {
+                SettingsButton {
                     visible: (root.asking?.yes ?? "") !== ""
                     label: root.asking?.yes ?? ""
                     primary: true
                     onClicked: root.bluetooth.answerPairing(root.bluetooth.pairing.id, "")
                 }
-                FButton { label: root.asking?.no ?? "Cancel"; onClicked: root.bluetooth.cancelPairing(root.bluetooth.pairing.id) }
+                SettingsButton { label: root.asking?.no ?? "Cancel"; onClicked: root.bluetooth.cancelPairing(root.bluetooth.pairing.id) }
             }
         }
     }
 
-    RowLayout {
+    GridLayout {
         Layout.fillWidth: true
         Layout.fillHeight: true
-        spacing: Design.baseline * 6
+        columns: Design.fluid ? 1 : 2
+        columnSpacing: Design.baseline * 6
+        rowSpacing: FluidTokens.gap
 
         // ---- Paired: connected first, then audio (the domain's order).
         ColumnLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.preferredWidth: 3
-            spacing: Design.baseline
-            FText { text: "PAIRED"; technical: true; color: Design.muted }
+            Layout.preferredHeight: Design.fluid ? 1 : -1
+            Layout.verticalStretchFactor: Design.fluid ? 1 : -1
+            spacing: Design.fluid ? FluidTokens.gap : Design.baseline
+            SettingsText { visible: !Design.fluid; text: "PAIRED"; technical: true; color: Design.muted }
+            RowLayout {
+                visible: Design.fluid
+                Layout.fillWidth: true
+                FluidText { Layout.fillWidth: true; text: "Paired"; font.pixelSize: FluidTokens.heading }
+                FluidText { text: root.bluetooth.devices.length + " paired"; color: FluidTokens.secondary }
+            }
             ListView {
                 objectName: "btPaired"
                 Layout.fillWidth: true
@@ -159,31 +189,44 @@ ColumnLayout {
                     width: ListView.view.width
                     device: modelData
                     RowLayout {
+                        Layout.fillWidth: Design.fluid
                         spacing: Design.baseline * 2
-                        FButton {
+                        SettingsButton {
                             label: modelData.connected ? "Disconnect" : "Connect"
-                            implicitHeight: Design.minHit + Design.baseline * 2
+                            Layout.preferredHeight: Design.fluid ? FluidTokens.controlHeight : Design.minHit + Design.baseline * 2
                             enabled: root.bluetooth.enabled && !root.busy(modelData.id)
                             onClicked: modelData.connected ? root.bluetooth.disconnect(modelData.id) : root.bluetooth.connect(modelData.id)
                         }
-                        FButton {
-                            label: "TRUSTED"
+                        SettingsButton {
+                            label: Design.fluid ? (modelData.trusted ? "✓  Trusted" : "Trust") : "TRUSTED"
                             hint: modelData.trusted ? "Connects without asking" : "Asks before it connects"
-                            implicitHeight: Design.minHit + Design.baseline * 2
+                            Layout.preferredHeight: Design.fluid ? FluidTokens.controlHeight : Design.minHit + Design.baseline * 2
                             selected: modelData.trusted === true
                             enabled: root.bluetooth.enabled && !root.busy(modelData.id)
                             onClicked: root.bluetooth.trust(modelData.id, !modelData.trusted)
                         }
+                        Item { visible: Design.fluid; Layout.fillWidth: true }
+                        SettingsAction {
+                            visible: Design.fluid
+                            label: "Forget…"
+                            armedLabel: "Forget?"
+                            confirm: true
+                            danger: true
+                            glyph: ""
+                            enabled: root.bluetooth.available && !root.busy(modelData.id)
+                            onActivated: root.bluetooth.forget(modelData.id)
+                        }
                         FConfirmButton {
+                            visible: !Design.fluid
                             verb: "Forget"
                             danger: true
-                            implicitHeight: Design.minHit + Design.baseline * 2
+                            Layout.preferredHeight: Design.fluid ? FluidTokens.controlHeight : Design.minHit + Design.baseline * 2
                             enabled: root.bluetooth.available && !root.busy(modelData.id)
                             onConfirmed: root.bluetooth.forget(modelData.id)
                         }
                     }
                 }
-                FText {
+                SettingsText {
                     visible: root.bluetooth.devices.length === 0
                     width: parent.width
                     aside: true
@@ -207,8 +250,22 @@ ColumnLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.preferredWidth: 2
-            spacing: Design.baseline
-            FText { text: "NEARBY"; technical: true; color: Design.muted }
+            Layout.preferredHeight: Design.fluid ? 1 : -1
+            Layout.verticalStretchFactor: Design.fluid ? 1 : -1
+            spacing: Design.fluid ? FluidTokens.gap : Design.baseline
+            Hairline { endNode: !Design.fluid; Layout.fillWidth: true; visible: Design.fluid; color: FluidTokens.rule }
+            SettingsText { visible: !Design.fluid; text: "NEARBY"; technical: true; color: Design.muted }
+            RowLayout {
+                visible: Design.fluid
+                Layout.fillWidth: true
+                FluidText { Layout.fillWidth: true; text: "Nearby"; font.pixelSize: FluidTokens.heading }
+                ScanButton {}
+            }
+            FluidText {
+                visible: Design.fluid && root.bluetooth.discovering
+                text: "Scanning for devices"
+                color: FluidTokens.secondary
+            }
             ListView {
                 objectName: "btNearby"
                 Layout.fillWidth: true
@@ -220,14 +277,14 @@ ColumnLayout {
                     required property var modelData
                     width: ListView.view.width
                     device: modelData
-                    FButton {
+                    SettingsButton {
                         label: "Pair"
-                        implicitHeight: Design.minHit + Design.baseline * 2
+                        Layout.preferredHeight: Design.fluid ? FluidTokens.controlHeight : Design.minHit + Design.baseline * 2
                         enabled: root.bluetooth.enabled && !root.busy(modelData.id) && root.bluetooth.pairing === null
                         onClicked: root.bluetooth.pair(modelData.id)
                     }
                 }
-                FText {
+                SettingsText {
                     visible: !root.scanning || root.bluetooth.nearby.length === 0
                     width: parent.width
                     wrapMode: Text.Wrap
@@ -245,41 +302,59 @@ ColumnLayout {
         property var device: ({})
         default property alias controls: slot.data
         spacing: Design.baseline
-        RowLayout {
+        GridLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: Design.minHit + Design.baseline * 5
-            spacing: Design.baseline * 2
-            MaterialSymbol {
-                text: row.device.kind ?? "bluetooth"
-                iconSize: Design.readout
-                color: row.device.connected ? Design.accent : Design.ink
+            columns: Design.fluid && row.device.paired ? 2 : 3
+            columnSpacing: Design.fluid ? FluidTokens.gap : Design.baseline * 2
+            rowSpacing: FluidTokens.unit
+            Rectangle {
+                implicitWidth: Design.fluid ? 40 : Design.readout
+                implicitHeight: Design.fluid ? 40 : Design.minHit + Design.baseline * 5
+                radius: width / 2
+                color: Design.fluid ? Qt.tint(FluidTokens.base, Qt.alpha(FluidTokens.accent, 0.12)) : "transparent"
+                MaterialSymbol {
+                    anchors.centerIn: parent
+                    text: row.device.kind ?? "bluetooth"
+                    iconSize: Design.readout
+                    color: row.device.connected ? Design.accent : Design.ink
+                }
             }
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 0
-                FText {
+                SettingsText {
                     Layout.fillWidth: true
                     elide: Text.ElideRight
                     font.capitalization: Font.MixedCase
+                    font.pixelSize: Design.fluid ? FluidTokens.heading : Design.body
                     text: row.device.name ?? ""
-                    color: row.device.connected ? Design.accent : Design.ink
+                    color: Design.fluid ? FluidTokens.ink : row.device.connected ? Design.accent : Design.ink
                 }
-                FText {
+                SettingsText {
                     Layout.fillWidth: true
                     elide: Text.ElideRight
                     technical: true
                     color: Design.muted
-                    text: [row.device.connected ? "LINKED" : "", row.device.audio ? "AUDIO" : "",
+                    font.capitalization: Design.fluid ? Font.MixedCase : Font.AllUppercase
+                    text: Design.fluid ? [row.device.connected ? "Connected" : row.device.paired ? "Paired" : "Available to pair",
+                        row.device.battery >= 0 ? Words.percent(row.device.battery) + " battery" : ""].filter(Boolean).join(" · ")
+                        : [row.device.connected ? "LINKED" : "", row.device.audio ? "AUDIO" : "",
                            Words.percent(row.device.battery ?? -1)].filter(s => s).join(" · ")
                 }
             }
-            RowLayout { id: slot; spacing: Design.baseline * 2 }
+            RowLayout {
+                id: slot
+                Layout.fillWidth: Design.fluid && row.device.paired
+                Layout.columnSpan: Design.fluid && row.device.paired ? 2 : 1
+                Layout.leftMargin: Design.fluid && row.device.paired ? 40 + FluidTokens.gap : 0
+                spacing: Design.baseline * 2
+            }
         }
         AttemptBanner {
             words: root.words(row.device.id)
             onRetry: root.retry(row.device.id)
             onDismiss: root.bluetooth.dismissAttempt(row.device.id)
         }
-        Hairline { Layout.fillWidth: true; color: Design.line }
+        Hairline { endNode: !Design.fluid; Layout.fillWidth: true; color: Design.line }
     }
 }
