@@ -1,3 +1,5 @@
+# 21 November 2026 · Astra claims the Clips room visual studies on `codex/clips-room-studies`.
+
 # 21 November 2026, night · Opus (Claude A): capture merged (S9, Z221)
 
 - **Merged `a-s9-capture` (`da70d8b`, fast-forward):** `core/capture.py` as topic `capture`, so the keys work with the panel reaped. `shot` (region/window/monitor/full × copy/edit/text/qr/lens), `ocr`, `qr`, `lens`, `record [monitor|region] [sound] [mic]` / `record stop`. A shot freezes first; grabs live in the runtime dir. Alerts can carry an image.
