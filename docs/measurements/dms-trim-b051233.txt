@@ -1,0 +1,60 @@
+# Trimming quiet DMS's hidden UI (Claude B, 21 November 2026; base s0-seed b051233). Measurement only: nothing live
+# changed. Tools: tools/dms_trim_measure.py (nested Hyprland, private HOME/XDG/runtime/session bus, no system bus,
+# the owner's DMS settings copied in read only); trims: tools/dms_quiet.py `trim`.
+#
+# Live reference (19 Nov, HANDOFF): the session's `qs -p dms-quiet` was 352-361 MiB PSS. Nested numbers run ~30-40 MiB
+# higher (cold QML disk cache each run, one 1920x1080 headless output); compare the "saved" column, not absolutes.
+# Each private run's DMS backend logs 3 harmless errors: the bench's WAYLAND_DISPLAY is absolute, so DMS's Go side
+# can't open its own Wayland helpers. The same in every variant; the qs process (what is measured) is unaffected.
+# The owner's settings.json changed once during the first run: the live DMS saved a refresh rate when the charger
+# went in (21:36:40, its own log); the private runs had their own HOME and no system bus. Each run asserts that.
+
+## 1. Every part alone (2 rounds). Single parts of 3-13 MiB are inside the noise (±5-20 MiB); see 2 for the group.
+## Negative "saved" = noise. lock, clipboard and bridge are measured for scale only: they stay (Z94, quick paste, Z197).
+## notepad here was removed outright, which also breaks DMSShellIPC (a required property): read notepad0 in 2.
+variant          RSS     PSS PrivDirty  PssAnon  PssFile   saved  rounds  log   what
+quiet          699.2   393.3     339.5    337.5     50.7     0.0  2 ±5.2  3 error lines  the quiet copy as it runs live (baseline)
+desktop        710.1   405.3     349.2    348.0     52.5   -12.0  2 ±5.9  3 error lines  desktop widget layer, editor and right-click menu
+lock           691.2   384.7     331.9    329.6     50.8     8.6  2 ±17.1  3 error lines  the lock screen (stays: Z94; measured for scale)
+popups         695.9   390.3     336.2    334.2     50.9     3.1  2 ±2.4  3 error lines  notification popups, per screen (ours shows them)
+mux            685.7   381.6     332.7    330.3     46.2    11.8  2 ±1.6  3 error lines  terminal multiplexer modal
+clipboard      690.2   384.5     331.6    329.4     50.4     8.9  2 ±12.1  3 error lines  clipboard history modal (stays: quick paste; measured for scale)
+notifmodal     706.0   399.5     345.2    343.7     50.6    -6.2  2 ±12.4  3 error lines  notification centre modal (ours is the inbox)
+colorpicker    687.4   380.4     327.9    325.9     49.5    12.9  2 ±2.6  3 error lines  colour picker modal
+notepad        689.4   382.5     329.7    327.7     49.8    10.8  2 ±9.1  3 error lines  notepad slide-out, per screen
+toast          696.6   390.1     337.8    335.4     49.8     3.2  2 ±2.7  3 error lines  toasts, per screen
+osd            692.1   387.1     332.4    330.3     51.7     6.3  2 ±12.1  3 error lines  on-screen displays (volume, brightness ...), per screen
+bridge         700.0   394.0     341.0    338.6     50.7    -0.6  2 ±3.2  3 error lines  ZÆTHERION's launcher bridge (stays: Z197; measured for scale)
+bar            630.2   331.5     283.4    281.6     46.5    61.8  2 ±20.3  3 error lines  the hidden bar, as a setting: the first bar config disabled
+trimmable      590.2   292.7     246.0    244.8     44.4   100.7  2 ±9.5  3 error lines  every trimmable part together: desktop, popups, mux, notifmodal, colorpicker, notepad, toast, osd, bar
+
+## 2. Groups (4 rounds). small = the eight trims dms_quiet.py offers; bar = the hidden Main Bar never made;
+## bar-later = the bar made, then turned off once DMS is up (what the core could do instead of hiding it).
+variant          RSS     PSS PrivDirty  PssAnon  PssFile   saved  rounds  log   what
+quiet          698.1   391.4     337.7    336.0     50.3     0.0  4 ±14.3  3 error lines  the quiet copy as it runs live (baseline)
+bar            631.8   334.3     285.0    283.2     45.7    57.0  4 ±29.3  3 error lines  the hidden bar, as a setting: the first bar config disabled
+bar-later      675.4   377.8     327.4    323.3     50.8    13.6  4 ±6.0  3 error lines  the bar made, then turned off after the settle (DMS reloads settings.json); settles again
+small          666.2   363.0     313.5    311.7     46.9    28.4  4 ±1.2  3 error lines  together: desktop, popups0, mux, notifmodal, colorpicker, notepad0, toast0, osd0
+trimmable      592.3   296.2     247.8    246.6     46.1    95.1  4 ±12.5  3 error lines  together: desktop, popups0, mux, notifmodal, colorpicker, notepad0, toast0, osd0, bar
+
+
+## 3. Function check: every trim on, against the untrimmed copy, menus opened over DMS's IPC (no audio,
+## brightness, lock or power). Logs = dms.log and Quickshell's own log; the control run proves QML errors are seen.
+control (notepad removed outright) logs 2 new warnings: the check sees QML errors
+  WARN qml: [WallpaperBackground:N] no frame swapped on WAYLAND-N since last invalidate, re-attaching surface
+  WARN scene: @DMSShell.qml[N:-N]: ReferenceError: notepadSlideoutVariants is not defined
+PSS MiB: plain 450.8, trimmed 428.3
+SAME ipc spotlight toggle: plain rc=0 'SPOTLIGHT_TOGGLE_SUCCESS' | trimmed rc=0 'SPOTLIGHT_TOGGLE_SUCCESS'
+SAME ipc spotlight toggle: plain rc=0 'SPOTLIGHT_TOGGLE_SUCCESS' | trimmed rc=0 'SPOTLIGHT_TOGGLE_SUCCESS'
+SAME ipc clipboard toggle: plain rc=0 'CLIPBOARD_TOGGLE_SUCCESS' | trimmed rc=0 'CLIPBOARD_TOGGLE_SUCCESS'
+SAME ipc clipboard toggle: plain rc=0 'CLIPBOARD_TOGGLE_SUCCESS' | trimmed rc=0 'CLIPBOARD_TOGGLE_SUCCESS'
+SAME ipc control-center toggle: plain rc=0 'CONTROL_CENTER_TOGGLE_SUCCESS' | trimmed rc=0 'CONTROL_CENTER_TOGGLE_SUCCESS'
+SAME ipc control-center toggle: plain rc=0 'CONTROL_CENTER_TOGGLE_SUCCESS' | trimmed rc=0 'CONTROL_CENTER_TOGGLE_SUCCESS'
+SAME ipc powermenu toggle: plain rc=0 '' | trimmed rc=0 ''
+SAME ipc powermenu toggle: plain rc=0 '' | trimmed rc=0 ''
+SAME ipc settings toggle: plain rc=0 'SETTINGS_TOGGLE_SUCCESS' | trimmed rc=0 'SETTINGS_TOGGLE_SUCCESS'
+SAME ipc settings toggle: plain rc=0 'SETTINGS_TOGGLE_SUCCESS' | trimmed rc=0 'SETTINGS_TOGGLE_SUCCESS'
+SAME ipc dash toggle overview: plain rc=0 'DASH_TOGGLE_SUCCESS' | trimmed rc=0 'DASH_TOGGLE_SUCCESS'
+SAME ipc dash toggle overview: plain rc=0 'DASH_TOGGLE_SUCCESS' | trimmed rc=0 'DASH_TOGGLE_SUCCESS'
+warnings only the trimmed copy logs: 0
+result: PASS

@@ -15,6 +15,8 @@ supervisor at it with FART_RESIDENT_DIR, which reaches `dms run` as DMS_SHELL_DI
     tools/dms_quiet.py check DIR                           # exit 0 if DIR is a quiet copy
     tools/dms_quiet.py fits DIR                            # exit 0 if DIR was made for the installed `dms`
     tools/dms_quiet.py bridge [DIR]                        # add the launcher bridge to an existing copy (Z197)
+    tools/dms_quiet.py trim [--dir DIR] [NAME ...]         # opt-in trims of DMS's always-on UI; none = undo all
+    tools/dms_quiet.py trim --list                         # what each trim takes out
 
 The copy also carries ZÆTHERION's launcher bridge (adapters/dms/bridge, Z197): DMS's own launcher engine, served to
 the star chart over a private socket. `bridge` adds it to a copy made before it, without rebuilding.
@@ -22,6 +24,10 @@ the star chart over a private socket. `bridge` adds it to a copy made before it,
 `dms version` names no UI revision, and the UI is extracted only when DMS runs, so at login (before DMS) an upgrade
 can't be seen by revision. `build` therefore also records the installed `dms` program (path, size, mtime);
 `fits` compares it, so tools/session-start turns ours on only for the DMS the copy was made from.
+
+`trim` takes parts of DMS's always-on UI out of a copy, only those named (TRIMS; measured in
+docs/measurements/dms-trim-*.txt). Nothing is trimmed unless asked. It edits the copy in place and can always undo
+itself (`trim` with no names). A running DMS notices the edit and reloads its UI; restart it for the memory to fall.
 """
 from __future__ import annotations
 
@@ -172,6 +178,112 @@ def bridge_problems(directory: Path) -> list[str]:
     return problems
 
 
+# Opt-in trims of DMS's always-on UI (docs/measurements/dms-trim-*.txt). None is on by default; the owner picks. Each
+# is a list of edits to DMSShell.qml: ("drop", opening, contains) comments out the one top-level block that opens with
+# `opening` (and contains `contains`); ("swap", old, new) keeps the line commented out and adds it with old → new.
+# Every changed line carries the trim's name, so `trim` can undo exactly what it did, with no stock DMS needed.
+TRIMS = {
+    "popups": ("DMS's notification popups (they never fire: the quiet copy has no notification server)",
+               [("swap", "model: root.notificationPopupScreens", "model: []")]),
+    "notifications": ("DMS's notification centre and its `notifications` IPC (empty here; ours is the inbox)",
+                      [("drop", "NotificationModal {", None)]),
+    "toasts": ("DMS's own toasts (its error and status messages)",
+               [("swap", 'model: SettingsData.getFilteredScreens("toast")', "model: []")]),
+    "osd": ("DMS's on-screen displays (caps lock, idle inhibitor, touchpad, audio output ...; volume and brightness"
+            " are already off in the owner's settings)", [("swap", "active: root.osdSurfacesLoaded", "active: false")]),
+    "notepad": ("DMS's notepad slide-out and its `notepad` IPC",
+                [("swap", 'model: SettingsData.getFilteredScreens("notepad")', "model: []")]),
+    "mux": ("DMS's terminal-session (tmux/zellij) picker and its `mux` IPC", [("drop", "MuxModal {", None)]),
+    "desktop": ("DMS's desktop widgets, their editor and the desktop right-click menu",
+                [("drop", "DesktopWidgetLayer {}", None), ("drop", "DesktopWidgetEditor {}", None),
+                 ("drop", "DesktopContextMenu {", None)]),
+    "colorpicker": ("DMS's colour picker (DMS's own Settings can then no longer open a colour)",
+                    [("drop", "ColorPickerModal {", None),
+                     ("swap", "property var modalRef: colorPickerModal", "property var modalRef: null")]),
+}
+TRIMMED = ".zaetherion-trim"
+
+
+def _tag(name: str) -> str:
+    return f"//ZT {name}| "
+
+
+def _added(name: str) -> str:
+    return f" //ZT+ {name}"
+
+
+def block_lines(text: str, opening: str, contains: str | None) -> tuple[int, int]:
+    """Line numbers [first, last] of the one top-level (4-space) block opening with `opening`."""
+    lines = text.split("\n")
+    hits = []
+    for i, line in enumerate(lines):
+        if line == "    " + opening or (opening.endswith("{") and line == "    " + opening.rstrip()):
+            start = sum(len(l) + 1 for l in lines[:i])
+            end = block_end(text, start)
+            last = text.count("\n", 0, end)
+            if text[end:end + 1] not in ("\n", "") or (contains and contains not in text[start:end]):
+                continue
+            hits.append((i, last))
+    if len(hits) != 1:
+        raise ValueError(f"{SHELL}: expected one top-level '{opening}' block, found {len(hits)}")
+    return hits[0]
+
+
+def apply_trim(text: str, name: str) -> str:
+    """The shell text with trim `name` applied. Refuses (before changing anything) a DMS whose shape differs."""
+    if _tag(name) in text:
+        return text
+    lines = text.split("\n")
+    for kind, a, b in TRIMS[name][1]:
+        joined = "\n".join(lines)
+        if kind == "drop":
+            first, last = block_lines(joined, a, b)
+            lines[first:last + 1] = [_tag(name) + line for line in lines[first:last + 1]]
+        else:
+            found = [i for i, line in enumerate(lines) if a in line and not line.lstrip().startswith("//")]
+            if len(found) != 1:
+                raise ValueError(f"{SHELL}: expected one line with '{a}', found {len(found)}")
+            i = found[0]
+            lines[i:i + 1] = [_tag(name) + lines[i], lines[i].replace(a, b) + _added(name)]
+    return "\n".join(lines)
+
+
+def remove_trim(text: str, name: str) -> str:
+    """The shell text with trim `name` undone exactly."""
+    out = []
+    for line in text.split("\n"):
+        if line.endswith(_added(name)):
+            continue
+        out.append(line[len(_tag(name)):] if line.startswith(_tag(name)) else line)
+    return "\n".join(out)
+
+
+def trims_in(text: str) -> list[str]:
+    return [name for name in TRIMS if _tag(name) in text]
+
+
+def set_trims(directory: Path, names: list[str]) -> list[str]:
+    """Makes exactly `names` the copy's trims (in place; only a copy this tool made). [] undoes them all.
+    Everything is computed before the file is written. A running DMS reloads its UI when the file changes."""
+    if not (directory / MARKER).is_file():
+        raise SystemExit(f"dms_quiet: {directory} is not a quiet copy; not touching it")
+    unknown = [n for n in names if n not in TRIMS]
+    if unknown:
+        raise SystemExit(f"dms_quiet: no trim named {', '.join(unknown)} (known: {', '.join(TRIMS)})")
+    original = (directory / SHELL).read_text()
+    text = original
+    for name in trims_in(text):
+        if name not in names:
+            text = remove_trim(text, name)
+    for name in names:
+        text = apply_trim(text, name)
+    if text != original:
+        (directory / SHELL).write_text(text)
+    now = trims_in(text)
+    (directory / TRIMMED).write_text("".join(f"{n}\n" for n in now)) if now else (directory / TRIMMED).unlink(missing_ok=True)
+    return now
+
+
 def running_source() -> Path:
     """The UI folder the running DMS's Quickshell was started with (`qs -p <dir>`)."""
     out = subprocess.run(["pgrep", "-a", "-x", "qs"], capture_output=True, text=True).stdout
@@ -213,7 +325,7 @@ def fits(directory: Path, program: str | None = None) -> list[str]:
     return problems
 
 
-def build(source: Path, out: Path) -> Path:
+def build(source: Path, out: Path, trims: list[str] | None = None) -> Path:
     if (source / MARKER).exists() or source.resolve() == out.resolve():
         raise SystemExit(f"dms_quiet: {source} is a quiet copy; build from DMS's stock UI")
     text = (source / SERVICE).read_text()
@@ -221,6 +333,10 @@ def build(source: Path, out: Path) -> Path:
     bar = hidden_bar_reserves_nothing((source / BAR).read_text())
     prompts = {path: prompt_left_to_fart((source / path).read_text(), path, opening) for path, opening in PROMPTS}
     prompts[SHELL] = with_bridge(prompts.get(SHELL, (source / SHELL).read_text()))
+    for name in trims or []:
+        if name not in TRIMS:
+            raise SystemExit(f"dms_quiet: no trim named {name} (known: {', '.join(TRIMS)})")
+        prompts[SHELL] = apply_trim(prompts[SHELL], name)
     if out.exists():
         if not (out / MARKER).is_file():
             raise SystemExit(f"dms_quiet: {out} exists and is not a quiet copy; not touching it")
@@ -237,6 +353,8 @@ def build(source: Path, out: Path) -> Path:
     shutil.copyfile(BRIDGE_SOURCE, out / BRIDGE)
     (out / MARKER).write_text(revision(source) + "\n")
     (out / PROGRAM).write_text(program_stamp() + "\n")
+    if trims:
+        (out / TRIMMED).write_text("".join(f"{n}\n" for n in trims_in(prompts[SHELL])))
     return out
 
 
@@ -276,19 +394,32 @@ def main(argv=None) -> int:
     b = sub.add_parser("build")
     b.add_argument("--source", type=Path)
     b.add_argument("--out", type=Path)
+    b.add_argument("--trim", default="", help="comma-separated trims (see `trim --list`); default none")
     c = sub.add_parser("check")
     c.add_argument("directory", type=Path)
     f = sub.add_parser("fits")
     f.add_argument("directory", type=Path)
     g = sub.add_parser("bridge")
     g.add_argument("directory", type=Path, nargs="?")
+    t = sub.add_parser("trim")
+    t.add_argument("--dir", type=Path)
+    t.add_argument("--list", action="store_true")
+    t.add_argument("names", nargs="*")
     p = sub.add_parser("prompts")
     p.add_argument("directory", type=Path, nargs="?")
     args = parser.parse_args(argv)
     if args.command == "build":
         source = args.source or running_source()
-        out = build(source, args.out or default_out())
+        out = build(source, args.out or default_out(), [n for n in args.trim.split(",") if n])
         print(f"quiet DMS UI (revision {revision(source)}): {out}")
+        return 0
+    if args.command == "trim":
+        if args.list:
+            for name, (what, _) in TRIMS.items():
+                print(f"{name:<14} {what}")
+            return 0
+        now = set_trims(args.dir or default_out(), args.names)
+        print("trimmed: " + (", ".join(now) if now else "nothing (DMS's UI as the quiet copy ships it)"))
         return 0
     if args.command == "prompts":
         done = add_prompts(args.directory or default_out())
@@ -305,6 +436,9 @@ def main(argv=None) -> int:
         print("dms_quiet: warning:", warning, "(rebuild the copy to leave it to FART)", file=sys.stderr)
     for warning in bridge_problems(args.directory):
         print("dms_quiet: warning:", warning, file=sys.stderr)
+    shell = args.directory / SHELL
+    if shell.is_file() and trims_in(shell.read_text()):
+        print("dms_quiet: trimmed:", ", ".join(trims_in(shell.read_text())), file=sys.stderr)
     return 1 if problems else 0
 
 
