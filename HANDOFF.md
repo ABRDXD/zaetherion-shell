@@ -1,4 +1,4 @@
-# 22 November 2026 · Astra · ready to merge `codex/eclipse-states` · Pilot light and Corner signals mock the missing Eclipse states on synthetic displays. Re-rendered both identically and checked the drag and hovered-window interiors against source pixels. Next: owner selects, then Claude A wires the states on `a-eclipse`.
+# 22 November 2026 · Astra · ready to merge `codex/eclipse-states` · Owner picked A · Pilot light for the missing Eclipse states. The full-size reference and wiring notes are in tools/selector-study/STATES.md. Earlier offscreen checks verified repeat renders and exact source pixels in the drag and hovered window. Next: Claude A wires Pilot light on `a-eclipse`.
 
 # 22 November 2026 · Opus (Claude A): claim, merging five ready branches; trackers restarted
 

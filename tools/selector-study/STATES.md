@@ -1,5 +1,7 @@
 # Eclipse · missing selector states
 
+**Owner pick, 22 November 2026 · A · Pilot light.** Use the Pilot light column and its full-size sheet for the native selector.
+
 Open [Pilot light](a-pilot-light.png) or [Corner signals](b-corner-signals.png). Each sheet shows the same two invented desktops. The last row shows the two displays together during a drag.
 
 | Moment | A · Pilot light | B · Corner signals |
