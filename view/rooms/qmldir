@@ -10,6 +10,7 @@ AttentionBand 1.0 AttentionBand.qml
 BatteryLedger 1.0 BatteryLedger.qml
 BusSchematic 1.0 BusSchematic.qml
 ClipPins 1.0 ClipPins.qml
+ClipPlate 1.0 ClipPlate.qml
 Clips 1.0 Clips.qml
 Codex 1.0 Codex.qml
 CodexElements 1.0 CodexElements.qml

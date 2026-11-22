@@ -1,12 +1,10 @@
 import qs.view.contract
 import qs.view.shell
-import qs.view.strata
 import qs.view.ui
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
-import "ClipKinds.js" as ClipKinds
 
 ColumnLayout {
     id: root
@@ -39,175 +37,123 @@ ColumnLayout {
         interval: 1400
         onTriggered: root.copied = ""
     }
-    spacing: 14
-    RowLayout {
+    readonly property var page: matches.slice(0, limit)
+    readonly property var retainedPins: ViewState.clipFilter === "pinned"
+        ? pins.missing(clipboard.entries, search).slice(0, 3) : []
+    spacing: 10
+
+    GridLayout {
         Layout.fillWidth: true
+        columns: root.width < 520 ? 1 : 2
+        rowSpacing: 4
+        columnSpacing: 16
         FField {
             id: query
             Layout.fillWidth: true
+            Layout.minimumWidth: 0
             text: ViewState.clipQuery
-            placeholderText: "SEARCH ARCHIVE"
+            placeholderText: "Search archive"
+            background: Rectangle {
+                color: "transparent"
+                Rectangle {
+                    anchors.bottom: parent.bottom
+                    width: parent.width
+                    height: query.activeFocus ? 2 : 1
+                    color: query.activeFocus ? Design.accent : Design.line
+                }
+            }
             onTextEdited: {
                 ViewState.clipQuery = text;
                 debounce.restart();
             }
         }
-        Repeater {
-            model: ["all", "pinned", "images"]
-            FButton {
-                required property string modelData
-                label: modelData === "all" ? "All" : modelData === "pinned" ? "Pinned" : "Images"
-                selected: ViewState.clipFilter === modelData
-                onClicked: ViewState.clipFilter = modelData
+        Row {
+            spacing: 4
+            Repeater {
+                model: ["all", "pinned", "images"]
+                SettingChip {
+                    required property string modelData
+                    label: modelData === "all" ? "All" : modelData === "pinned" ? "Pinned" : "Images"
+                    selected: ViewState.clipFilter === modelData
+                    onClicked: ViewState.clipFilter = modelData
+                }
             }
         }
     }
     RowLayout {
         Layout.fillWidth: true
+        spacing: 12
         FText {
-            text: "REF"
+            readonly property int total: root.matches.length + root.retainedPins.length
+            text: total + (total === 1 ? " RECORD" : " RECORDS")
             technical: true
-            color: Design.faint
-            Layout.preferredWidth: 70
+            color: Design.muted
         }
-        FText {
-            text: "EXCERPT"
-            technical: true
-            color: Design.faint
-            Layout.fillWidth: true
-        }
-        FText {
-            text: root.matches.length + " RECORDS"
-            technical: true
-            color: Design.faint
-        }
+        Rectangle { Layout.fillWidth: true; height: 1; color: Design.line }
     }
     ListView {
-        id: list
+        id: sheet
         Layout.fillWidth: true
         Layout.fillHeight: true
         clip: true
         reuseItems: true
-        model: root.matches.slice(0, root.limit)
+        readonly property int columns: width >= 680 ? 2 : 1
+        readonly property var records: root.page.concat(root.retainedPins)
+        // The shell scrolls and focuses one visual row at a time.
+        model: Math.ceil(records.length / columns)
         ScrollBar.vertical: ScrollBar {}
-        delegate: Item {
-            id: entry
-            required property var modelData
+        delegate: Row {
+            id: row
             required property int index
-            width: ListView.view.width
-            height: 82
-            Rectangle {
-                anchors.fill: parent
-                color: root.copied === entry.modelData.id ? Design.hover : "transparent"
-            }
-            FRule {
-                anchors.bottom: parent.bottom
-                width: parent.width
-            }
-            RowLayout {
-                anchors.fill: parent
-                spacing: 14
-                ColumnLayout {
-                    Layout.preferredWidth: 66
-                    spacing: 4
-                    FText {
-                        text: entry.modelData.id
-                        technical: true
-                        color: Design.muted
-                        font.pixelSize: Design.caption
-                    }
-                    // Its kind, and the kind's mark (MIME taxonomy, atlas #31).
-                    FText {
-                        text: ClipKinds.kind(entry.modelData)
-                        technical: true
-                        color: Design.faint
-                        font.pixelSize: Design.caption
-                    }
-                    KindMark {
-                        kind: ClipKinds.kind(entry.modelData)
-                        swatch: ClipKinds.colour(entry.modelData)
-                    }
-                }
-                FText {
-                    id: preview
-                    Layout.fillWidth: true
-                    text: entry.modelData.isImage ? entry.modelData.text : entry.modelData.text.slice(0, 450)
-                    font.pixelSize: Design.body
-                    wrapMode: Text.Wrap
-                    maximumLineCount: 3
-                    // Overdrive: set as the photocopy generation its place in the history makes it (§49).
-                    Stratum {
-                        anchors.fill: parent
-                        z: -1
-                        name: "clips.copy." + entry.index
-                        gpu: false
-                        scope: entry
-                        wanted: entry.index > 0
-                        sourceComponent: PhotocopyLayer { target: preview; index: entry.index; seed: String(entry.modelData.id) }
-                    }
-                }
-                FButton {
-                    symbol: pins.isPinned(entry.modelData) ? "keep_off" : "keep"
-                    selected: pins.isPinned(entry.modelData)
-                    hint: "Pin / unpin"
-                    onClicked: pins.toggle(entry.modelData)
-                }
-                FButton {
-                    symbol: root.copied === entry.modelData.id ? "check" : "content_copy"
-                    hint: "Copy"
-                    onClicked: {
-                        root.clipboard.copy(entry.modelData.id);
-                        root.copied = entry.modelData.id;
+            readonly property int first: index * sheet.columns
+            width: sheet.width
+            height: 154
+            spacing: 6
+            Repeater {
+                model: sheet.records.slice(row.first, row.first + sheet.columns)
+                ClipPlate {
+                    required property var modelData
+                    required property int index
+                    width: Math.floor(sheet.width / sheet.columns) - row.spacing
+                    height: row.height - 8
+                    record: modelData
+                    position: row.first + index
+                    retained: position >= root.page.length
+                    pinned: retained || pins.isPinned(record)
+                    copied: root.copied === record.id
+                    onCopyRequested: {
+                        if (retained)
+                            root.clipboard.copyText(record.content || record.text);
+                        else
+                            root.clipboard.copy(record.id);
+                        root.copied = record.id;
                         copiedTimer.restart();
                     }
-                }
-                FButton {
-                    symbol: "delete_outline"
-                    hint: "Delete entry"
-                    onClicked: root.clipboard.remove(entry.modelData.id)
+                    onPinRequested: {
+                        if (retained) pins.remove(record);
+                        else pins.toggle(record);
+                    }
+                    onDeleteRequested: root.clipboard.remove(record.id)
                 }
             }
         }
         footer: FButton {
             visible: root.matches.length > root.limit
-            width: list.width
+            width: sheet.width
+            height: visible ? implicitHeight : 0
             label: "Load another 100 records"
             onClicked: root.limit += 100
         }
         FText {
             anchors.centerIn: parent
-            visible: root.matches.length === 0
-            text: root.search ? "NO MATCHES" :
-                                "ARCHIVE EMPTY"
+            visible: sheet.count === 0
+            text: root.search ? "NO MATCHES" : "ARCHIVE EMPTY"
             color: Design.muted
-        }
-    }
-    // Pins can outlive the host history's own retention limit.
-    Repeater {
-        model: ViewState.clipFilter === "pinned" ? pins.missing(root.clipboard.entries, root.search).slice(0, 3) : []
-        RowLayout {
-            required property var modelData
-            Layout.fillWidth: true
-            FText {
-                text: modelData.text.slice(0, 120)
-                Layout.fillWidth: true
-            }
-            FButton {
-                symbol: "content_copy"
-                hint: "Copy saved pin"
-                onClicked: root.clipboard.copyText(modelData.content || modelData.text)
-            }
-            FButton {
-                symbol: "keep_off"
-                hint: "Remove saved pin"
-                onClicked: pins.remove(modelData)
-            }
         }
     }
     FText {
         text: root.copied ? "COPIED " + root.copied : "LOCAL ARCHIVE · PINS RETAINED"
         technical: true
-        font.pixelSize: Design.caption
         color: Design.faint
     }
 }

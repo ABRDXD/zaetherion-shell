@@ -397,6 +397,10 @@ class TrimTest(unittest.TestCase):
         if not (copy / "DMSShell.qml").is_file():
             self.skipTest("no quiet copy on this machine")
         text = (copy / "DMSShell.qml").read_text()  # read only
+        # The owner may have trims on: check against the copy as it is with none.
+        for name in dms_quiet.trims_in(text):
+            text = dms_quiet.remove_trim(text, name)
+        self.assertEqual(dms_quiet.trims_in(text), [])
         for name in dms_quiet.TRIMS:
             self.assertEqual(dms_quiet.remove_trim(dms_quiet.apply_trim(text, name), name), text, name)
 
