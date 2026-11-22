@@ -104,6 +104,15 @@ ShellRoot {
             deep: Qt.darker(root.state.background ?? "#151c24", 2.4)
             well: root.orbit ? ({ x: (root.state.cx ?? 0) / Math.max(1, width), y: (root.state.cy ?? 0) / Math.max(1, height), r: (root.state.radius ?? 120) / Math.max(1, height), pull: 0.5, spin: 0.9 }) : null
             light: root.orbit ? Qt.point((root.state.cx ?? 0) / Math.max(1, width), (root.state.cy ?? 0) / Math.max(1, height)) : Qt.point(0.2, 0)
+            // The orbit (the overview, where the black hole bends it) gets thicker smoke with deeper folds and brighter ridges
+            // (owner, 22 Nov: "this intensity is too little"), whatever room or music is on; the rooms keep the old light.
+            ambient: root.orbit ? 4 : 1
+            relief: root.orbit ? 3 : 1.1
+            shade: root.orbit ? 0.24 : 0.46
+            gain: root.orbit ? 1.2 : 1
+            Behavior on relief { NumberAnimation { duration: 600; easing.type: Easing.InOutQuad } }
+            Behavior on shade { NumberAnimation { duration: 600; easing.type: Easing.InOutQuad } }
+            Behavior on gain { NumberAnimation { duration: 600; easing.type: Easing.InOutQuad } }
         }
         ShaderEffectSource { id: mediumSight; sourceItem: medium.sight; live: root.orbit; hideSource: root.orbit; smooth: true; width: 1; height: 1; opacity: 0 }
         BlackHole {

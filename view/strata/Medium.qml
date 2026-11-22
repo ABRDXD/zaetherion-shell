@@ -13,6 +13,9 @@ Item {
     property real ambient: 1
     property real dustBirth: 0.0009
     property real gain: 1
+    // How the smoke is lit (shaders/medium.frag): the slopes' pull on the light, and the light on flat smoke.
+    property real relief: 1.1
+    property real shade: 0.46
     property bool sky: true
     property point light: Qt.point(0.2, 0)
     property color accent: "#a5cfdf"
@@ -129,6 +132,8 @@ Item {
         readonly property real time: root.time
         readonly property real sky: root.sky ? 1 : 0
         readonly property real gain: root.gain
+        readonly property real relief: root.relief
+        readonly property real shade: root.shade
         readonly property point light: root.light
         readonly property color accent: root.accent
         readonly property color second: root.second

@@ -15,6 +15,8 @@ layout(std140, binding = 0) uniform buf {
     vec4 second;
     vec4 hot;
     vec4 deep;
+    float relief;       // how strongly the smoke's slopes catch the light (1.1; more in the orbit: deeper folds, brighter ridges)
+    float shade;        // the light on flat smoke (0.46; less in the orbit)
 };
 layout(binding = 1) uniform sampler2D dye;
 layout(binding = 2) uniform sampler2D dust;
@@ -29,13 +31,13 @@ void main() {
     float thickness = d.r + d.b + 0.4 * d.g;
     vec2 slope = vec2(dr.r + dr.b - dl.r - dl.b, dt.r + dt.b - db.r - db.b);
     vec2 toLight = normalize((light - uv) * vec2(aspect, 1.0) + 1e-5);
-    float relief = dot(slope, toLight);
+    float slopeLight = dot(slope, toLight);
 
     float density = 1.0 - exp(-max(0.0, thickness - 0.05) * 1.7);
     float mixB = clamp(d.b / max(1e-4, d.r + d.b), 0.0, 1.0);
     vec3 body = mix(accent.rgb, second.rgb, mixB);
     vec3 soot = mix(body, deep.rgb, 0.55 * d.a);
-    vec3 lit = soot * (0.46 + clamp(relief * 1.1, -0.34, 0.9));
+    vec3 lit = soot * max(0.0, shade + clamp(slopeLight * relief, -0.34 * relief / 1.1, 0.9 * relief / 1.1));
     // Fire: through the theme's accent to its text colour, then white.
     float heat = clamp(d.g, 0.0, 2.0);
     vec3 flame = heat < 0.6 ? mix(vec3(0.0), body * 1.4, heat / 0.6) : mix(body * 1.4, mix(hot.rgb, vec3(1.0), 0.4), clamp((heat - 0.6) / 0.9, 0.0, 1.0));
