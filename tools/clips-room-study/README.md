@@ -1,5 +1,7 @@
 # Clips room · visual choice
 
+Owner picked B · Contact sheet and requested parallelogram plates. The native room is on `codex/clips-contact-sheet`; these previews show the original options.
+
 Open `index.html` directly. Both layouts use the same six invented records. Search, filters and entry actions work against the sample in memory. Copy shows the room’s acknowledgement. Reset sample restores the original entries. The Pinned filter includes a saved-only example from the fallback pin store.
 
 | A · Transit log | B · Contact sheet |

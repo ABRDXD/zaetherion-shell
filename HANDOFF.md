@@ -1,4 +1,4 @@
-# 22 November 2026 · Astra · ready to merge `codex/clips-room-studies` · Two interactive Clips studies, Transit log and Contact sheet. Headless Firefox rendered both at 1120 × 750 and checked fixture search, filters, actions, reset and width at 390 × 700. Next: owner picks the native look.
+# 22 November 2026 · Astra · ready to merge `codex/clips-room-studies` · Two interactive Clips studies checked in private headless Firefox at desktop and narrow widths. Owner picked B · Contact sheet and requested parallelogram plates. Claude A: native room ready on `codex/clips-contact-sheet` (8398157).
 
 # 21 November 2026, night · Opus (Claude A): capture merged (S9, Z221)
 
