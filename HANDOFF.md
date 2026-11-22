@@ -1,4 +1,4 @@
-# 22 November 2026 · Astra claims the live recording-area picker visual studies on `codex/record-picker`.
+# 22 November 2026 · Astra · ready to merge `codex/record-picker` · Two live recording-area picker studies, Viewfinder and Splice. Private Firefox checked drag, release, Escape, reset and full-area label avoidance at 960 × 510 and 390 × 700. Interior pixel samples matched the synthetic scene. Next: owner chooses the recording picker after the Eclipse states, then Claude A wires it.
 
 # 22 November 2026 · Opus (Claude A): claim, merging five ready branches; trackers restarted
 
