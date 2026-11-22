@@ -26,6 +26,7 @@
 # 21 November 2026 · Astra · ready to merge `codex/fluid-limb` · Native Fluid Settings, owner pick A · Limb (Z218).
 
 - All eight sections use the planet-rim navigation and palette. Bluetooth stacks paired and nearby lists, and Island uses left-aligned readings. Verified the real Shell Settings entry, section change and close offscreen, all eight tabs at two sizes (42 checks each), Settings tests (3), Angular Settings cue (32), net/BT tests (64), layout (9), room smoke (zero fixture action calls), qmldir and Qt 6 qmllint (zero syntax diagnostics). Next: Claude A runs the full suite and merges. The arrival branch also edits the reveal at the top of PreferencesPane; retain its Angular timing.
+# 22 November 2026 · Astra · ready to merge `codex/clips-room-studies` · Two interactive Clips studies checked in private headless Firefox at desktop and narrow widths. Owner picked B · Contact sheet and requested parallelogram plates. Claude A: native room ready on `codex/clips-contact-sheet` (1c80cf0, keyboard rows fixed).
 
 # 21 November 2026, night · Opus (Claude A): capture merged (S9, Z221)
 
