@@ -59,6 +59,7 @@ Each surface gets a measured memory delta and a frame budget. The limits are fix
 | Widgets loaded | S10 | Unloaded whenever a window is on the workspace (Z85) |
 | Video wallpaper | S8 | Paused when covered; still frame on battery (Z140) |
 | Sky wallpaper | S8 | ≤ 1 redraw per minute in Silent |
+| Capture selector | S9 | Exists only while choosing (Z222); ≤ 0.6 s key → overlay shown; ≤ 160 MiB PSS on one 1080p screen (22 Nov: 0.47 s, 136 MiB, nested Hyprland; an empty Quickshell window is 98) |
 | Lock | S7 | Surfaces exist only while locked |
 | Overview | S11 | Thumbnails only in Overdrive |
 | Panel | carried over | Cold start target ≤ 450 ms; p99 ≤ 6.9 ms on open, navigation and command line; reap timer set at S2 (Z142) |

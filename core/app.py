@@ -93,7 +93,8 @@ class Core:
         self.equalizer = Equalizer(state_dir)  # its chain only in a session that runs it (fartd attaches it)
         # Screenshots, OCR, QR, Lens and recording (S9, Z221); its frozen grabs live in the runtime dir, never on disk.
         self.capture = Capture(Path(os.environ.get("XDG_RUNTIME_DIR") or state_dir) / "zaetherion",
-                               alert=lambda summary, body, image=None: host.alert(summary, body, image=image))
+                               alert=lambda summary, body, image=None: host.alert(summary, body, image=image),
+                               selector=Path(__file__).resolve().parents[1] / "shell-selector.qml")
         self.sessions.tasks_done = self.tasks.done_between
         self.sessions.music = self._session_music
         self.discovery = Discovery(state_dir, clock)

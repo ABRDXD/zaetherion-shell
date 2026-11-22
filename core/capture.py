@@ -2,8 +2,9 @@
 work with the panel reaped. Published as `capture` (the island's recording timer reads it).
 
 A shot freezes first: the whole layout is grabbed (`grim`) the moment it is asked for, the area is chosen after
-(`slurp`, over the live screen until Astra's frozen overlay lands), and the picture is cut from the frozen grab, so
-what you get is what was on screen when you pressed the key. Then one action: copy (always, and saved under
+over that frozen picture (`shell-selector.qml`, Astra's Eclipse, Z48; `slurp` over the live screen when Quickshell
+can't show it), and the picture is cut from the frozen grab, so what you get is what was on screen when you pressed
+the key. Then one action: copy (always, and saved under
 Pictures/Screenshots), edit (satty), text (tesseract, copied), qr (zbarimg, copied), lens (Google Lens in the
 browser, the owner's pick of 20 November 2026). A cancelled selection does nothing. One shot at a time.
 
@@ -29,7 +30,7 @@ log = logging.getLogger("fart.capture")
 SHOT_MODES = ("region", "window", "monitor", "full")
 ACTIONS = ("copy", "edit", "text", "qr", "lens")
 RECORD_MODES = ("monitor", "region")
-TOOLS = ("grim", "slurp", "magick", "wl-copy", "satty", "tesseract", "zbarimg", "gpu-screen-recorder", "xdg-open",
+TOOLS = ("grim", "qs", "slurp", "magick", "wl-copy", "satty", "tesseract", "zbarimg", "gpu-screen-recorder", "xdg-open",
          "hyprctl")
 OCR_LANGS = "eng"
 STOP_WAIT = 10.0          # seconds a stopping recorder gets to finish its file before it is killed
@@ -38,9 +39,12 @@ LENS_UPLOAD = "https://lens.google.com/v3/upload"
 Run = Callable[..., Awaitable[tuple[int, bytes, bytes]]]
 
 
-async def run_process(argv: list[str], stdin: bytes | None = None, timeout: float | None = 120) -> tuple[int, bytes, bytes]:
+async def run_process(argv: list[str], stdin: bytes | None = None, timeout: float | None = 120,
+                      env: dict | None = None) -> tuple[int, bytes, bytes]:
+    """`env` adds to the core's environment."""
     process = await asyncio.create_subprocess_exec(*argv, stdin=asyncio.subprocess.PIPE if stdin is not None else asyncio.subprocess.DEVNULL,
-                                                   stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+                                                   stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+                                                   env={**os.environ, **env} if env else None)
     try:
         out, err = await asyncio.wait_for(process.communicate(stdin), timeout)
     except asyncio.TimeoutError:
@@ -110,15 +114,30 @@ def geometry(text: str) -> tuple[int, int, int, int]:
     return x, y, w, h
 
 
+def grab_frame(monitors: list[dict]) -> tuple[int, int, float]:
+    """Where `grim -l` of the whole layout starts (its top-left monitor) and the scale it renders at (the largest)."""
+    x0 = min((int(m.get("x", 0)) for m in monitors), default=0)
+    y0 = min((int(m.get("y", 0)) for m in monitors), default=0)
+    scale = max((float(m.get("scale") or 1) for m in monitors), default=1.0)
+    return x0, y0, scale
+
+
+def box(text: str) -> dict:
+    x, y, w, h = geometry(text)
+    return {"x": x, "y": y, "width": w, "height": h}
+
+
 class Capture:
     def __init__(self, runtime_dir: Path, pictures: Path | None = None, videos: Path | None = None, run: Run = run_process,
                  spawn=spawn_process, upload=lens_upload, clock=time.time, which=which,
-                 alert: Callable[..., None] = lambda summary, body, image=None: None):
+                 alert: Callable[..., None] = lambda summary, body, image=None: None, selector: Path | None = None):
         self.work = runtime_dir / "capture"
         self.pictures = (pictures or user_dir("PICTURES", "Pictures")) / "Screenshots"
         self.videos = (videos or user_dir("VIDEOS", "Videos")) / "Recordings"
         self.run, self.spawn, self.upload, self.clock, self.which = run, spawn, upload, clock, which
         self.alert = alert  # the host's notice (core/host.py alert), so the core names no host program
+        # The frozen selector's Quickshell entry; None (tests, a missing qs) chooses with slurp instead.
+        self.selector = selector
         self.on_change = lambda: None
         self.busy = False
         self.recording: dict | None = None
@@ -173,9 +192,10 @@ class Capture:
                 boxes.append(f"{x},{y} {w}x{h}")
         return boxes
 
-    async def select(self, mode: str, monitors: list[dict]) -> tuple[int, int, int, int] | None:
-        """The area to cut, in layout coordinates, or None for the whole grab. Raises Cancelled when the owner
-        dismisses the selection."""
+    async def select(self, mode: str, monitors: list[dict], frozen: Path | None = None) -> tuple[int, int, int, int] | None:
+        """The area to cut, in layout coordinates, or None for the whole grab. Chosen over the `frozen` grab when
+        there is one (a shot: Eclipse), over the live screen otherwise (a recording: Viewfinder); slurp when the
+        selector can't show. Raises Cancelled when the owner dismisses the selection."""
         if mode == "full":
             return None
         if mode == "monitor":
@@ -185,16 +205,51 @@ class Capture:
             scale = float(focused.get("scale") or 1)
             return (int(focused.get("x", 0)), int(focused.get("y", 0)),
                     round(focused.get("width", 0) / scale), round(focused.get("height", 0) / scale))
-        argv, stdin = ["slurp", "-d"], None
+        boxes = []
         if mode == "window":
             boxes = await self.window_boxes(monitors)
             if not boxes:
                 raise RuntimeError("no window to capture")
+        if self.selector is not None and self.which("qs"):
+            answer = await self.choose(mode, monitors, frozen, boxes)
+            if answer is not None:
+                return answer
+        argv, stdin = ["slurp", "-d"], None
+        if mode == "window":
             argv, stdin = ["slurp", "-r"], ("\n".join(boxes) + "\n").encode()
         code, out, _ = await self.run(argv, stdin=stdin, timeout=None)
         if code != 0 or not out.strip():
             raise Cancelled()
         return geometry(out.decode())
+
+    async def choose(self, mode: str, monitors: list[dict], frozen: Path | None, boxes: list[str]):
+        """The selector (shell-selector.qml): Eclipse over the `frozen` grab, or Viewfinder over the live screen
+        without one (mode "record"). The chosen area, or None when it couldn't run (then slurp chooses). Raises
+        Cancelled when the owner dismisses it. It has quit before this returns, so a recording never shows it."""
+        x0, y0, scale = grab_frame(monitors)
+        token = os.urandom(8).hex()
+        spec, answer = self.work / f"select-{token}.json", self.work / f"select-{token}.txt"
+        try:
+            self.work.mkdir(parents=True, exist_ok=True)
+            spec.write_text(json.dumps({"frozen": str(frozen) if frozen else None, "origin": {"x": x0, "y": y0},
+                                        "scale": scale, "mode": mode if frozen else "record",
+                                        "scales": {m["name"]: float(m.get("scale") or 1) for m in monitors if m.get("name")},
+                                        "screens": [m.get("name") for m in monitors if m.get("name")],
+                                        "active": next((m.get("name") for m in monitors if m.get("focused")), None),
+                                        "windows": [box(b) for b in boxes], "out": str(answer)}))
+            code, _, err = await self.run(["qs", "-n", "--no-color", "-p", str(self.selector)], timeout=None,
+                                          env={"ZAE_SELECTOR_SPEC": str(spec)})
+            text = answer.read_text().strip() if answer.exists() else ""
+            if text == "cancel":
+                raise Cancelled()
+            if text:
+                return geometry(text)
+            log.warning("selector gave no answer (exit %s): %s; choosing with slurp", code,
+                        err.decode(errors="replace").strip()[-200:])
+            return None
+        finally:
+            spec.unlink(missing_ok=True)
+            answer.unlink(missing_ok=True)
 
     # ---- Shots
 
@@ -220,7 +275,7 @@ class Capture:
             code, _, err = await self.run(["grim", "-l", "0", str(frozen)], timeout=15)
             if code != 0:
                 raise RuntimeError("grim: " + err.decode(errors="replace").strip()[:200])
-            area = await self.select(mode, monitors)
+            area = await self.select(mode, monitors, frozen)
             picture = frozen
             if area is not None:
                 picture = cut
@@ -239,10 +294,7 @@ class Capture:
             self._changed()
 
     async def crop(self, frozen: Path, out: Path, area: tuple[int, int, int, int], monitors: list[dict]) -> None:
-        """grim -l of the whole layout starts at its top-left monitor and renders at the largest scale."""
-        x0 = min((int(m.get("x", 0)) for m in monitors), default=0)
-        y0 = min((int(m.get("y", 0)) for m in monitors), default=0)
-        scale = max((float(m.get("scale") or 1) for m in monitors), default=1.0)
+        x0, y0, scale = grab_frame(monitors)
         x, y, w, h = area
         box = f"{round(w * scale)}x{round(h * scale)}+{round((x - x0) * scale)}+{round((y - y0) * scale)}"
         code, _, err = await self.run(["magick", str(frozen), "-crop", box, "+repage", str(out)], timeout=15)

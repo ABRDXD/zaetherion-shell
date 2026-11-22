@@ -40,16 +40,25 @@ class FakeProcess:
 class Tools:
     """Answers each program as configured and records every call."""
     def __init__(self, monitors=MONITORS, slurp=b"10,20 300x200\n", clients=(), tesseract=b"hello world\n",
-                 zbar=b"https://example.org\n", grim_code=0):
+                 zbar=b"https://example.org\n", grim_code=0, selector=None):
         self.calls, self.stdin, self.spawned, self.alerts = [], {}, [], []
+        # What the frozen selector writes to its answer file ("x,y wxh" or "cancel"); None writes nothing.
+        self.selector, self.specs = selector, []
         self.monitors, self.slurp, self.clients = monitors, slurp, list(clients)
         self.tesseract, self.zbar, self.grim_code = tesseract, zbar, grim_code
         self.recorder = FakeProcess()
 
-    async def run(self, argv, stdin=None, timeout=None):
+    async def run(self, argv, stdin=None, timeout=None, env=None):
         self.calls.append(argv)
         self.stdin[argv[0]] = stdin
         name = argv[0]
+        if name == "qs":
+            spec = json.loads(Path(env["ZAE_SELECTOR_SPEC"]).read_text())
+            self.specs.append(spec)
+            if self.selector is None:
+                return 255, b"", b"No PanelWindow backend loaded."
+            Path(spec["out"]).write_text(self.selector + "\n")
+            return 0, b"", b""
         if name == "hyprctl":
             return 0, json.dumps(self.monitors if argv[1] == "monitors" else self.clients).encode(), b""
         if name == "grim":
@@ -82,16 +91,113 @@ class Tools:
         self.alerts.append((summary, image))
 
 
-def make(tools, tmp, uploads=None):
+def make(tools, tmp, uploads=None, selector=None, missing=()):
     upload = (lambda path: uploads.append(path.read_bytes()) or "https://lens.example/results") if uploads is not None else None
     return Capture(Path(tmp) / "run", pictures=Path(tmp) / "Pictures", videos=Path(tmp) / "Videos", run=tools.run,
                    spawn=tools.spawn, upload=upload or (lambda path: "https://lens.example/results"),
-                   clock=lambda: 1795000000.0, which=lambda tool: "/usr/bin/" + tool, alert=tools.alert)
+                   clock=lambda: 1795000000.0, which=lambda tool: None if tool in missing else "/usr/bin/" + tool,
+                   alert=tools.alert, selector=selector)
+
+
+ENTRY = ROOT / "shell-selector.qml"
 
 
 async def settle(capture):
     while capture.tasks:
         await asyncio.gather(*list(capture.tasks))
+
+
+class FrozenSelector(unittest.IsolatedAsyncioTestCase):
+    """Z48: a shot's area is chosen over the frozen grab (Eclipse), not over the live screen."""
+    MONITORS = [{"name": "A", "x": -1920, "y": 0, "width": 1920, "height": 1080, "scale": 1, "activeWorkspace": {"id": 1}},
+                {"name": "B", "x": 0, "y": 0, "width": 3840, "height": 2160, "scale": 2, "focused": True,
+                 "activeWorkspace": {"id": 2}}]
+
+    def test_the_entry_exists(self):
+        self.assertTrue(ENTRY.is_file())
+
+    async def test_a_region_is_chosen_over_the_frozen_grab_and_cut_from_it(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tools = Tools(monitors=self.MONITORS, selector="10,20 300x200")
+            capture = make(tools, tmp, selector=ENTRY)
+            capture.shoot("region", "copy")
+            await settle(capture)
+            names = tools.names()
+            self.assertLess(names.index("grim"), names.index("qs"), "the screen freezes before the selection")
+            self.assertNotIn("slurp", names)
+            self.assertEqual(tools.calls[names.index("qs")], ["qs", "-n", "--no-color", "-p", str(ENTRY)])
+            spec = tools.specs[0]
+            grab = next(c for c in tools.calls if c[0] == "grim")[-1]
+            self.assertEqual(spec["frozen"], grab, "the selector shows the very grab that is cut")
+            self.assertEqual((spec["origin"], spec["scale"], spec["mode"], spec["screens"], spec["active"], spec["windows"]),
+                             ({"x": -1920, "y": 0}, 2.0, "region", ["A", "B"], "B", []))
+            crop = next(c for c in tools.calls if c[0] == "magick")
+            self.assertEqual(crop[3], "600x400+3860+40")
+            self.assertEqual(tools.notes(), ["Screenshot copied"])
+            self.assertEqual(list((Path(tmp) / "run/capture").iterdir()), [], "no grab, spec or answer stays")
+
+    async def test_window_mode_hands_the_selector_the_shown_windows(self):
+        clients = [{"at": [0, 0], "size": [800, 600], "workspace": {"id": 1}, "mapped": True}]
+        with tempfile.TemporaryDirectory() as tmp:
+            tools = Tools(clients=clients, selector="0,0 800x600")
+            capture = make(tools, tmp, selector=ENTRY)
+            capture.shoot("window")
+            await settle(capture)
+            self.assertEqual(tools.specs[0]["mode"], "window")
+            self.assertEqual(tools.specs[0]["windows"], [{"x": 0, "y": 0, "width": 800, "height": 600}])
+            self.assertNotIn("slurp", tools.names())
+
+    async def test_dismissing_the_selector_does_nothing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tools = Tools(selector="cancel")
+            capture = make(tools, tmp, selector=ENTRY)
+            capture.shoot("region", "copy")
+            await settle(capture)
+            self.assertNotIn("slurp", tools.names())
+            self.assertNotIn("wl-copy", tools.names())
+            self.assertEqual(tools.notes(), [])
+            self.assertEqual(list((Path(tmp) / "run/capture").iterdir()), [])
+
+    async def test_a_selector_that_cannot_show_falls_back_to_slurp(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tools = Tools(selector=None)
+            capture = make(tools, tmp, selector=ENTRY)
+            with self.assertLogs("fart.capture", "WARNING"):
+                capture.shoot("region", "copy")
+                await settle(capture)
+            self.assertLess(tools.names().index("qs"), tools.names().index("slurp"))
+            self.assertEqual(tools.notes(), ["Screenshot copied"])
+
+    async def test_without_quickshell_slurp_chooses(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tools = Tools(selector="10,20 300x200")
+            capture = make(tools, tmp, selector=ENTRY, missing=("qs",))
+            capture.shoot("region", "copy")
+            await settle(capture)
+            self.assertNotIn("qs", tools.names())
+            self.assertIn("slurp", tools.names())
+
+    async def test_a_recording_region_is_chosen_with_viewfinder_over_the_live_screen(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tools = Tools(monitors=self.MONITORS, slurp=b"9,9 9x9\n", selector="100,50 640x480")
+            capture = make(tools, tmp, selector=ENTRY)
+            await capture.record_start("region")
+            names = tools.names()
+            self.assertNotIn("grim", names, "nothing is frozen for a recording")
+            self.assertNotIn("slurp", names)
+            spec = tools.specs[0]
+            self.assertEqual((spec["mode"], spec["frozen"], spec["scales"]), ("record", None, {"A": 1.0, "B": 2.0}))
+            self.assertEqual(tools.spawned[0][1:5], ["-w", "region", "-region", "640x480+100+50"])
+            await capture.record_stop()
+            await settle(capture)
+
+    async def test_a_dismissed_viewfinder_records_nothing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tools = Tools(selector="cancel")
+            capture = make(tools, tmp, selector=ENTRY)
+            out = await capture.record_start("region")
+            self.assertEqual(out["status"], "cancelled")
+            self.assertEqual(tools.spawned, [])
 
 
 class Shots(unittest.IsolatedAsyncioTestCase):
@@ -345,7 +451,7 @@ class RealTools(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(code, 0, err)
             copied = []
 
-            async def run(argv, stdin=None, timeout=None):
+            async def run(argv, stdin=None, timeout=None, env=None):
                 if argv[0] == "hyprctl":
                     return 0, json.dumps(MONITORS).encode(), b""
                 if argv[0] == "grim":
