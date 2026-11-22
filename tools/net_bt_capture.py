@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Captures of FART's Wi-Fi and Bluetooth settings (docs/NET_BT.md §5), offscreen, for the owner's look.
 
-    python3 tools/net_bt_capture.py OUT_DIR [--preset Mocha] [--scenes wifi,bt-pin] [--size 1080x620]
+    python3 tools/net_bt_capture.py OUT_DIR [--preset Mocha] [--scenes wifi,bt-pin] [--size 1080x620] [--form fluid]
 
 Each scene fills plain contract domains (view/contract/NetworkDomain.qml, BluetoothDomain.qml) with invented
 values and draws the section inside a stand-in for FART's settings pane, as Claude B's tabs will show it. Nothing
@@ -118,6 +118,7 @@ Scope {
         fixture.palette.colors = %(colors)s;
         Host.adapter = fixture;
         Fart.Design.source = fixture.palette;
+        Fart.Design.form = %(form)s;
     }
     FloatingWindow {
         implicitWidth: %(width)d; implicitHeight: %(height)d; visible: true
@@ -191,6 +192,7 @@ def main():
     parser.add_argument("--scenes", default=",".join(SCENES))
     parser.add_argument("--size", default="1080x620", help="Claude B's roomy settings pane")
     parser.add_argument("--log", action="store_true")
+    parser.add_argument("--form", default="angular", choices=("angular", "fluid"))
     args = parser.parse_args()
     out = args.out.resolve()
     out.mkdir(parents=True, exist_ok=True)
@@ -198,7 +200,8 @@ def main():
     width, height = (int(n) for n in args.size.lower().split("x"))
     with tempfile.TemporaryDirectory(prefix="fart-netbt-") as tmp:
         text = HARNESS % {"scenes": json.dumps(scenes), "out": json.dumps(str(out)),
-                          "colors": json.dumps(preset_colors(args.preset)), "width": width, "height": height}
+                          "colors": json.dumps(preset_colors(args.preset)), "width": width, "height": height,
+                          "form": json.dumps(args.form)}
         env, _state, view_log = prepare(Path(tmp), text)
         core = subprocess.Popen([sys.executable, "-I", str(ROOT / "core/fartd.py")], env=env,
                                 stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

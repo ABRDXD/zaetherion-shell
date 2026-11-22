@@ -48,6 +48,9 @@ class Words(unittest.TestCase):
         self.assertEqual([g["field"] for g in got], ["", "", "", "PIN", "Passkey", ""])
         self.assertIn("042137", got[0]["line"])
         self.assertEqual(got[1]["yes"], "")              # nothing to answer: the device is where the code is typed
+        # Side column (owner's pick B): every prompt has a short title over its line.
+        self.assertEqual([g["title"] for g in got], ["Confirm the code", "Type the code", "Allow the device", "Enter the PIN",
+                                                     "Enter the passkey", "Pairing"])
         self.assertEqual(run("[percent(-1), percent(0.804), band(''), band('5')]"), ["", "80 %", "", "5 GHz"])
 
     def test_the_islands_hover_word(self):

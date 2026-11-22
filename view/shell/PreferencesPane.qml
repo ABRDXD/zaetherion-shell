@@ -103,14 +103,15 @@ Item {
             }
             FText {
                 Layout.fillWidth: true
-                visible: !Design.fluid
+                // Bluetooth (Side column, Z223) heads its own page with its power state, in both forms.
+                visible: !Design.fluid && root.section !== "bluetooth"
                 text: root.sections.find(section => section[0] === root.section)?.[1] ?? "SETTINGS"
                 headline: true
                 font.pixelSize: Design.figure
                 font.weight: Font.DemiBold
             }
             SettingsRule {
-                visible: !Design.fluid || root.section !== "bluetooth"
+                visible: root.section !== "bluetooth"
                 Layout.fillWidth: true
             }
             RowLayout {
@@ -168,6 +169,13 @@ Item {
                             options: [[true, "On"], [false, "Off"]]
                             value: ViewState.visualiserEnabled
                             onPicked: value => ViewState.visualiserEnabled = value
+                        }
+                        LyricsReload {
+                            Layout.fillWidth: true
+                            Layout.topMargin: Design.baseline * 2
+                            media: root.host.media
+                            lyrics: root.host.lyrics
+                            active: root.expanded && root.section === "palette"
                         }
                         SettingChoices {
                             Layout.fillWidth: true

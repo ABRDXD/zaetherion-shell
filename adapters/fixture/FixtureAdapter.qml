@@ -151,6 +151,7 @@ HostAdapter {
         status: "ok"
         source: "fixture"
         trackKey: "Test Pattern - Fixture Signal"
+        currentKey: "Test Pattern - Fixture Signal"
         lines: [{ time: 0, end: 40, text: "First fixture line", words: [] }, { time: 40, end: 200, text: "Second fixture line", words: [] }]
     }
     system: SystemDomain {

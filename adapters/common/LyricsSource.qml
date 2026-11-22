@@ -12,6 +12,7 @@ LyricsDomain {
     readonly property string fartCacheDir: (Quickshell.env("FART_CACHE_DIR") || (Quickshell.env("XDG_CACHE_HOME") || Quickshell.env("HOME") + "/.cache") + "/fart") + "/lyrics"
     readonly property var track: media.active
     readonly property string key: track && track.title && track.artist ? track.artist.trim() + " - " + track.title.trim() : ""
+    currentKey: key
     readonly property bool wanted: holds("lyrics")
     property string loadedKey: ""
     available: true
