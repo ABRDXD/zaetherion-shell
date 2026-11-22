@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clips room studies · ZÆTHERION</title>
+<style>
+:root {
+  color-scheme:dark; --paper:#efede7; --ink:#101012; --muted:#aaa9a8; --rule:#38383a;
+  --accent:#c5e3dc; --danger:#e7aba1; --caption:11px; --body:12px; --control:13px;
+  --readout:20px; --figure:32px; --headline:52px;
+  --display:"Roboto Condensed","Arial Narrow",sans-serif; --mono:"JetBrainsMono Nerd Font",monospace;
+}
+* { box-sizing:border-box }
+body { margin:0; background:var(--ink); color:var(--paper); font:var(--body) var(--mono) }
+button,input { font:inherit; color:inherit }
+button { cursor:pointer; border:0; background:transparent }
+button:focus-visible,input:focus-visible { outline:2px solid #91cce3; outline-offset:2px }
+.study { display:flex; align-items:center; gap:8px; padding:10px max(16px,calc((100vw - 1056px)/2)); background:#242425; white-space:nowrap }
+.study a,.study button { padding:7px 12px; text-decoration:none; color:var(--paper); border:1px solid #606062 }
+.study a[aria-current=page] { color:var(--ink); background:var(--paper) }
+.study button { margin-left:auto }
+.frame .study { display:none }
+main { max-width:1120px; margin:auto; padding:22px clamp(16px,3vw,36px) 20px }
+header { display:flex; align-items:baseline; gap:18px; border-bottom:1px solid var(--paper); padding-bottom:12px }
+h1 { font:700 var(--headline)/.95 var(--display); letter-spacing:-2px; margin:0 }
+header .number { font:var(--figure)/1 var(--display); font-style:italic; color:var(--muted) }
+header p { margin:0 0 0 auto; color:var(--muted); font-size:var(--caption) }
+.bar { display:flex; align-items:center; gap:24px; margin:20px 0 14px }
+.search { display:flex; align-items:center; gap:12px; flex:1; min-width:0; border-bottom:1px solid #747474 }
+.search::before { content:""; width:10px; height:10px; margin:0 2px 3px 4px; border:1.5px solid var(--paper); border-radius:50% }
+.search::after { content:""; width:6px; height:1.5px; transform:translate(15px,5px) rotate(45deg); background:var(--paper); position:absolute }
+input { width:100%; border:0; background:transparent; padding:10px 0; font-size:var(--control) }
+input::placeholder { color:#b7b7b7; opacity:1 }
+.filters { display:flex; gap:4px }
+.filters button { position:relative; isolation:isolate; min-height:34px; padding:4px 17px; font-size:var(--control) }
+.filters button[aria-pressed=true] { color:var(--ink) }
+.filters button[aria-pressed=true]::before { position:absolute; content:""; inset:0; background:var(--paper); transform:skewX(-12deg); z-index:-1 }
+.summary { color:var(--muted); font-size:var(--caption); display:flex; align-items:center; gap:14px; margin:18px 0 9px }
+.summary::after { content:""; flex:1; height:1px; background:var(--rule) }
+#results { margin:0; padding:0; list-style:none }
+.entry { position:relative }
+.ref,.kind { font-size:var(--caption); font-variant-numeric:tabular-nums }
+.ref { color:var(--muted) }
+.mark { display:block; width:32px; height:20px }
+.excerpt { white-space:pre-wrap; overflow-wrap:anywhere; overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; margin:0 }
+.actions { display:flex; align-items:center; gap:10px }
+.actions button { min-height:29px; padding:2px 5px; font-size:var(--body) }
+.actions button:hover,.actions button:focus-visible { text-decoration:underline }
+.actions .delete:hover { color:var(--danger) }
+.actions .copy { font-weight:bold }
+.actions .pin[aria-pressed=true] { color:var(--accent) }
+.rail #results { border-top:1px solid #7a7a7a; background:linear-gradient(90deg,transparent 9px,#71807d 9px 10px,transparent 10px) }
+.rail .entry { display:grid; align-items:center; grid-template-columns:175px minmax(0,1fr) auto; gap:22px; min-height:81px; border-bottom:1px solid var(--rule) }
+.rail .meta { display:grid; grid-template-columns:1fr 38px; grid-template-rows:30px 18px; align-items:center; padding-left:30px; position:relative }
+.rail .meta::before { content:""; position:absolute; left:6px; top:calc(50% - 4px); width:6px; height:6px; border:1px solid var(--muted); background:var(--ink); border-radius:50% }
+.rail .ref { grid-column:1; grid-row:1; font:500 var(--figure)/1 var(--display); letter-spacing:-.6px }
+.rail .kind { grid-column:1; grid-row:2; color:var(--paper) }
+.rail .mark { grid-row:1/3; grid-column:2; color:#a3b4b0 }
+.rail .pinned .meta::before { border-color:var(--accent); background:var(--accent); box-shadow:0 0 0 3px var(--ink),0 0 0 4px #6f938c }
+.rail .pinned .ref { color:var(--accent) }
+.rail .excerpt { font:var(--readout)/1.2 var(--display); letter-spacing:.1px }
+.rail [data-kind=CODE] .excerpt,.rail [data-kind=PATH] .excerpt { font:var(--control)/1.5 var(--mono) }
+.rail .actions .copy { padding:5px 13px; color:var(--ink); background:var(--paper); clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%) }
+.rail .actions .copy:focus-visible { background:#91cce3 }
+.plates #results { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px }
+.plates .entry { isolation:isolate; min-height:140px; display:grid; grid-template-rows:auto 1fr auto; padding:13px 17px 7px 22px; overflow:hidden; color:#1c2120; background:#d5d4c9; border-left:5px solid #989c91; --muted:#505550; --accent:#275950; --danger:#8b342c }
+.plates .entry::before { content:""; position:absolute; z-index:-1; top:0; bottom:0; right:0; width:27%; background:repeating-linear-gradient(102deg,transparent 0 6px,#46494012 6px 7px); clip-path:polygon(70% 0,100% 0,100% 100%,0 100%) }
+.plates .entry:nth-child(4n+2),.plates .entry:nth-child(4n+3) { background:#c7ccc9 }
+.plates .entry[data-kind=COLOUR]::before { width:35%; background:var(--swatch); clip-path:polygon(40% 0,100% 0,100% 100%,10% 100%); border-left:1px solid #727973 }
+.plates .entry.pinned { border-color:#8fcbbb }
+.plates .meta { display:flex; align-items:center; gap:10px }
+.plates .mark { margin-left:auto; width:30px; height:16px }
+.plates .excerpt { align-self:center; padding:7px 0; font:600 var(--figure)/1.05 var(--display); letter-spacing:-.6px; -webkit-line-clamp:2 }
+.plates [data-kind=CODE] .excerpt,.plates [data-kind=PATH] .excerpt { font:var(--control)/1.4 var(--mono); letter-spacing:0 }
+.plates .actions { border-top:1px solid #777e76; gap:13px }
+.plates .actions button { min-height:26px; padding:2px 0 }
+.plates .actions .delete { margin-left:auto }
+footer { display:flex; justify-content:space-between; gap:16px; color:var(--muted); font-size:var(--caption); padding:14px 0 3px }
+footer output { color:var(--accent) }
+#empty { text-align:center; padding:44px 16px; color:var(--muted) }
+#saved h2 { font:var(--readout) var(--display) }
+.savedRow { border-top:1px solid var(--rule); padding:8px 0; display:flex; align-items:center; justify-content:space-between; gap:10px }
+@media (max-width:760px) {
+  .rail .entry { grid-template-columns:115px minmax(0,1fr); gap:6px 16px; padding:10px 0 }
+  .rail .actions { grid-column:2 }
+  .rail .meta { grid-template-columns:1fr 26px; padding-left:24px }
+  .rail .mark { width:23px }
+  .plates .excerpt { font-size:var(--readout) }
+}
+@media (max-width:560px) {
+  .bar { flex-wrap:wrap; gap:8px }
+  .search { flex-basis:100% }
+  .plates #results { grid-template-columns:1fr }
+  header p { display:none }
+  .savedRow { flex-wrap:wrap }
+  .study { flex-wrap:wrap }
+}
+</style>
+<nav class="study" aria-label="Study controls"><a id="railLink" href="?look=rail">A · Transit log</a><a id="platesLink" href="?look=plates">B · Contact sheet</a><button id="reset">Reset sample</button></nav>
+<main>
+<header><span class="number">07</span><h1>CLIPS</h1><p>Fragments, retained.</p></header>
+<div class="bar"><label class="search"><input type="search" id="query" aria-label="Search archive" placeholder="Search archive" autocomplete="off"></label><div class="filters" aria-label="Filter archive"><button data-filter="all">All</button><button data-filter="pinned">Pinned</button><button data-filter="images">Images</button></div></div>
+<div class="summary" id="count"></div><ul id="results"></ul><p id="empty" hidden></p><section id="saved" hidden><h2>Retained pins</h2><div id="savedRows"></div></section>
+<footer><span>LOCAL ARCHIVE · PINS RETAINED</span><output id="status" aria-live="polite"></output></footer>
+</main>
+<script>
+const sample = [
+  {id:'218',kind:'TEXT',text:'Keep the thin crescent in the final print.',pinned:true},
+  {id:'217',kind:'COLOUR',text:'#C5E3DC'},
+  {id:'216',kind:'IMAGE',text:'Lunar limb · 960 × 540'},
+  {id:'215',kind:'CODE',text:'const phase = elapsed / period;'},
+  {id:'214',kind:'PATH',text:'./atlas/plates/occultation.svg',pinned:true},
+  {id:'213',kind:'NUMBER',text:'27.3217'}
+];
+const params = new URLSearchParams(location.search);
+const look = params.get('look') === 'plates' ? 'plates' : 'rail';
+document.body.classList.add(look);
+if (params.has('frame')) document.body.classList.add('frame');
+document.getElementById(look+'Link').setAttribute('aria-current','page');
+const results = document.getElementById('results'), query = document.getElementById('query');
+let entries, filter, retained, timer;
+function node(tag, cls, text) {
+  const el = document.createElement(tag);
+  if (cls) el.className = cls;
+  if (text !== undefined) el.textContent = text;
+  return el;
+}
+function mark(entry) {
+  const canvas = node('canvas','mark');
+  canvas.width = 96; canvas.height = 54;
+  canvas.setAttribute('aria-hidden','true');
+  const c = canvas.getContext('2d');
+  c.scale(3,3);
+  c.strokeStyle = look === 'rail' ? '#c5e3dc' : '#414c47';
+  c.lineWidth = 1.4;
+  if (entry.kind === 'COLOUR') {
+    c.fillStyle = entry.text; c.fillRect(2,1,24,15); c.strokeRect(2,1,24,15); return canvas;
+  }
+  const strokes = {
+    TEXT:[[[1,13],[25,13]]], IMAGE:[[[1,7],[1,1],[9,1]],[[18,15],[26,15],[26,9]]],
+    CODE:[[[8,2],[3,8],[8,14]],[[16,2],[21,8],[16,14]]],
+    PATH:[[[1,15],[1,11],[7,11],[7,7],[13,7],[13,2],[21,2]]],
+    NUMBER:[[[3,1],[3,15]],[[8,1],[8,15]],[[13,1],[13,15]],[[18,1],[18,15]],[[1,13],[21,3]]]
+  };
+  for (const line of strokes[entry.kind]) {
+    c.beginPath(); c.moveTo(...line[0]); for (const pt of line.slice(1)) c.lineTo(...pt); c.stroke();
+  }
+  return canvas;
+}
+function action(label, name, entry) {
+  const b = node('button',name,label);
+  b.dataset.act = name; b.dataset.id = entry.id;
+  b.setAttribute('aria-label',label+' record '+entry.id);
+  if (name === 'pin') b.setAttribute('aria-pressed',String(!!entry.pinned));
+  return b;
+}
+function row(entry) {
+  const li = node('li','entry'+(entry.pinned?' pinned':''));
+  li.dataset.kind = entry.kind;
+  if (entry.kind === 'COLOUR') li.style.setProperty('--swatch',entry.text);
+  const meta = node('div','meta');
+  meta.append(node('span','ref',look==='rail'?entry.id:'№ '+entry.id),node('span','kind',entry.kind),mark(entry));
+  const actions = node('div','actions');
+  actions.append(action('Copy','copy',entry),action(entry.pinned?'Unpin':'Pin','pin',entry),action('Delete','delete',entry));
+  li.append(meta,node('p','excerpt',entry.text),actions);
+  return li;
+}
+function render() {
+  const q = query.value.toLowerCase();
+  const matches = entries.filter(e => (filter === 'all' || (filter === 'pinned' ? e.pinned : e.kind === 'IMAGE')) && e.text.toLowerCase().includes(q));
+  results.replaceChildren(...matches.map(row));
+  document.querySelectorAll('[data-filter]').forEach(b => b.setAttribute('aria-pressed',String(b.dataset.filter === filter)));
+  document.getElementById('count').textContent = matches.length+' '+(matches.length===1?'RECORD':'RECORDS');
+  const empty = document.getElementById('empty');
+  empty.hidden = matches.length>0;
+  empty.textContent = q?'No matches':'Archive empty';
+  const savedMatches = filter==='pinned' ? retained.filter(e=>e.text.toLowerCase().includes(q)).slice(0,3) : [];
+  document.getElementById('saved').hidden = !savedMatches.length;
+  document.getElementById('savedRows').replaceChildren(...savedMatches.map(e=>{
+    const el=node('div','savedRow'), controls=node('div','actions');
+    controls.append(action('Copy','copy',e),action('Unpin','pin',e));
+    el.append(node('span','',e.text),controls);
+    return el;
+  }));
+}
+function feedback(value) {
+  clearTimeout(timer);
+  const status = document.getElementById('status');
+  status.textContent = value;
+  if (value) timer = setTimeout(() => status.textContent='',1400);
+}
+function reset() {
+  entries=sample.map(e=>({...e})); filter='all'; retained=[{id:'192',text:'Print the wide version first.',pinned:true}]; query.value=''; feedback(''); render();
+}
+results.addEventListener('click',event=>{
+  const b=event.target.closest('[data-act]');
+  if (!b) return;
+  const index=entries.findIndex(e=>e.id===b.dataset.id);
+  const e=entries[index];
+  if (b.dataset.act==='copy') { feedback('COPIED '+e.id); return; }
+  if (b.dataset.act==='pin') e.pinned=!e.pinned;
+  else {
+    if (e.pinned && e.kind!=='IMAGE') retained.unshift(e);
+    entries.splice(index,1);
+  }
+  render();
+  const next=results.children[Math.min(index,results.children.length-1)];
+  (results.querySelector('[data-id="'+e.id+'"][data-act="'+b.dataset.act+'"]') || next?.querySelector('button') || query).focus();
+});
+document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{filter=b.dataset.filter; render()});
+document.getElementById('savedRows').addEventListener('click',event=>{
+  const b=event.target.closest('[data-act]');
+  if (!b) return;
+  if (b.dataset.act==='copy') feedback('COPIED SAVED PIN');
+  else { retained=retained.filter(e=>e.id!==b.dataset.id); render(); query.focus(); }
+});
+query.addEventListener('input',render);
+document.getElementById('reset').onclick=reset;
+reset();
+</script>
+</html>
