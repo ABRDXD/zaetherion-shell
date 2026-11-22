@@ -9,6 +9,12 @@ Item {
     id: root
     property string kind: "TEXT"
     property string swatch: ""
+    readonly property color swatchColor: {
+        if (swatch.startsWith("#")) return swatch;
+        const channels = /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*(\d*\.?\d+))?\s*\)$/i.exec(swatch);
+        return channels ? Qt.rgba(Math.min(255, +channels[1]) / 255, Math.min(255, +channels[2]) / 255,
+                                  Math.min(255, +channels[3]) / 255, Math.min(1, +(channels[4] ?? 1))) : "transparent";
+    }
     property color ink: Design.faint
     implicitWidth: 26
     implicitHeight: 14
@@ -38,7 +44,7 @@ Item {
         y: 2
         width: 10
         height: 10
-        color: root.swatch || "transparent"
+        color: root.swatchColor
         border.width: 1
         border.color: root.ink
     }
