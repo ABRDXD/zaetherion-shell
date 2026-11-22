@@ -19,24 +19,28 @@ Item {
     property string section: "palette"
     readonly property var sections: [["palette", "PALETTE"], ["wallpaper", "WALLPAPER"], ["presets", "PRESETS"], ["island", "ISLAND"], ["notifications", "NOTIFICATIONS"], ["clips", "CLIPS"], ["wifi", "WI-FI"], ["bluetooth", "BLUETOOTH"]]
     signal sectionPicked(string section)
-    property real reveal: expanded ? 1 : 0
+    readonly property real openHeight: Math.max(0, Math.min(620, parent.height - Design.baseline * 20))
+    readonly property real reveal: arrival.value
     signal closed
     signal archiveRequested
     signal toggleExterior
     width: Math.min(1080, parent.width - Design.baseline * 20)
-    height: Math.min(620, parent.height - Design.baseline * 20) * reveal
+    height: openHeight * reveal
     x: 40
     y: Math.max(20, parent.height - height - 40)
     visible: reveal > 0
     clip: true
     z: 10
     // Gated by the panel, not this pane: the pane is invisible when it starts to grow.
-    Tween on reveal {
+    Cue {
+        id: arrival
+        name: "settings.arrival"
+        on: root.expanded
         scope: root.parent
-        NumberAnimation {
-            duration: root.expanded ? Motion.unfold : Motion.fold
-            easing.type: Easing.OutCubic
-        }
+        enter: Design.fluid ? Motion.unfold : Motion.cutDuration(root.openHeight, 1, false)
+        exit: Design.fluid ? Motion.fold : Motion.cutDuration(root.openHeight, 1, true)
+        easing: Design.fluid ? Easing.OutCubic : Motion.cutIn
+        exitEasing: Design.fluid ? Easing.OutCubic : Motion.cutOut
     }
     Rectangle {
         anchors.fill: parent

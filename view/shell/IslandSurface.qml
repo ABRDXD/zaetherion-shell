@@ -206,8 +206,7 @@ FocusScope {
     readonly property int fadeDuration: motionLevel === "off" ? 0 : Math.min(120, Motion.feedback)
     readonly property bool wings: !docked && (hoverOpen || keyboardMode)
     readonly property bool geometryMotion: motionLevel === "all" || motionLevel === "reduced"
-    readonly property int morphDuration: geometryMotion ? Motion.emphasis : 0
-    readonly property int morphEasing: motionLevel === "all" ? Motion.roles.emphasis.easing : Easing.OutCubic
+    readonly property bool cutGeometry: !Design.fluid && motionLevel === "all"
     // Z66 keeps the resting width. Hovered, the centre opens by 40 px a side so the media pill keeps its room
     // when the clock gains seconds; the wings sit outside it.
     // Fluid rests compact (Z145): the clock alone, or the media row while a player plays.
@@ -266,25 +265,34 @@ FocusScope {
     width: implicitWidth
     height: implicitHeight
 
-    Tween on width {
-        scope: root
-        enabled: root.geometryMotion && Motion.live(root)
+    // The launcher and the island share this silhouette. Sample the endpoints when the
+    // size changes so a reversal takes its travel from the currently drawn shape.
+    component ExtentTween: Tween {
+        id: extent
+        required property IslandSurface island
+        scope: island
+        enabled: island.geometryMotion && Motion.live(island)
+        property real travel: 0
+        property real sizeChange: 0
+        property bool departing: false
+        onTargetValueChanged: {
+            const dw = island.implicitWidth - island.width;
+            const dh = island.implicitHeight - island.height;
+            travel = Math.max(Math.abs(dw) / 2, Math.abs(dh));
+            sizeChange = Math.max(Math.abs(dw) / Math.max(1, island.width, island.implicitWidth),
+                                  Math.abs(dh) / Math.max(1, island.height, island.implicitHeight));
+            departing = island.implicitWidth * island.implicitHeight < island.width * island.height;
+        }
         NumberAnimation {
-            duration: root.morphDuration
-            easing.type: root.morphEasing
+            duration: extent.island.cutGeometry ? Motion.cutDuration(extent.travel, extent.sizeChange, extent.departing)
+                : Motion.emphasis
+            easing.type: extent.island.cutGeometry ? (extent.departing ? Motion.cutOut : Motion.cutIn)
+                : extent.island.motionLevel === "all" ? Motion.roles.emphasis.easing : Easing.OutCubic
             easing.overshoot: Motion.roles.emphasis.overshoot
         }
     }
-
-    Tween on height {
-        scope: root
-        enabled: root.geometryMotion && Motion.live(root)
-        NumberAnimation {
-            duration: root.morphDuration
-            easing.type: root.morphEasing
-            easing.overshoot: Motion.roles.emphasis.overshoot
-        }
-    }
+    ExtentTween on width { island: root }
+    ExtentTween on height { island: root }
 
     IslandQueue {
         id: queue

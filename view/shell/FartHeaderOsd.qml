@@ -28,8 +28,10 @@ Item {
         on: !!root.event
         scope: root
         name: "fart.osd"
-        enter: Motion.navigate
-        exit: Motion.feedback
+        enter: Design.fluid ? Motion.navigate : Motion.cutDuration(root.headerTop + root.headerHeight, 0, false)
+        exit: Design.fluid ? Motion.feedback : Motion.cutDuration(root.headerTop + root.headerHeight, 0, true)
+        easing: Design.fluid ? Motion.standard : Motion.cutIn
+        exitEasing: Design.fluid ? Motion.standard : Motion.cutOut
         onSettled: if (!on) root.shown = null
     }
 
