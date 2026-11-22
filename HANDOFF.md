@@ -1,4 +1,4 @@
-# 22 November 2026 · Astra claims the native Clips room on `codex/clips-contact-sheet` · revised owner pick B · Contact sheet with parallelogram plates.
+# 22 November 2026 · Astra · ready to merge `codex/clips-contact-sheet` · Owner picked B · Contact sheet with parallelogram plates. The Clips grid uses two columns or one on narrow panels, upright excerpts, colour swatches and labelled actions. Verified 16 fixture checks at each of two widths, Clips kinds and Overdrive, core Clips, layout, room smoke (zero fixture action calls), qmldirs and Qt 6 qmllint (zero syntax diagnostics). Next: Claude A runs the full suite and merges.
 
 # 22 November 2026 · Opus (Claude A): claim, merging five ready branches; trackers restarted
 
