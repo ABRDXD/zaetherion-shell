@@ -1,5 +1,7 @@
 # Recording area · two live picker studies
 
+**Owner pick, 22 November 2026 · A · Viewfinder.** Use the coral corner marks, light shade outside the live area, and the Viewfinder instruction and size labels for native wiring.
+
 Open `index.html` and drag across the moving orbit. The sample runs entirely in the page. Release completes the example, Escape or a right click cancels, and Reset sample restores the initial hint. The orbit respects reduced motion.
 
 | A · Viewfinder | B · Splice |
