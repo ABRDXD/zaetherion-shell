@@ -21,9 +21,9 @@ FocusScope {
 
     readonly property var bounds: ({ x: 0, y: 0, width: width, height: height })
     readonly property var boxes: mode === "window" ? Geometry.boxesOn(windows, screenRect) : []
-    property bool dragging: false
-    property real anchorX: 0
-    property real anchorY: 0
+    property alias dragging: drag.dragging
+    property alias anchorX: drag.anchorX
+    property alias anchorY: drag.anchorY
     property real pointerX: width / 2
     property real pointerY: height / 2
     property bool pointerHere: false
@@ -47,6 +47,8 @@ FocusScope {
             return "top";
         return "none";
     }
+
+    RegionDrag { id: drag; bounds: root.bounds }
 
     function hover(x, y) {
         const i = Geometry.boxAt(boxes, x, y);
@@ -111,18 +113,18 @@ FocusScope {
             return cancelled();
         if (mode !== "region")
             return;
-        anchorX = x;
-        anchorY = y;
+        drag.press(x, y);
         crop = null;
-        dragging = true;
     }
     function move(x, y) {
         pointerX = x;
         pointerY = y;
         if (mode === "window")
             hover(x, y);
-        else if (dragging && Geometry.isDrag(anchorX, anchorY, x, y))
-            crop = Geometry.span(anchorX, anchorY, x, y, bounds);
+        else if (dragging) {
+            drag.move(x, y);
+            crop = drag.crop;
+        }
     }
     function release(x, y, button) {
         if (button !== Qt.LeftButton)
@@ -133,12 +135,11 @@ FocusScope {
                 picked(Geometry.answer(crop, screenRect));
             return;
         }
-        dragging = false;
         // A click is not a crop: the selector stays open for a real drag.
-        if (crop && crop.width > 0 && crop.height > 0)
-            picked(Geometry.answer(crop, screenRect));
-        else
-            crop = null;
+        const done = drag.release();
+        crop = done;
+        if (done)
+            picked(Geometry.answer(done, screenRect));
     }
 
     MouseArea {

@@ -1,7 +1,8 @@
 //@ pragma Env QS_NO_RELOAD_POPUP=1
 // The frozen-screen selector (Z48, Z221), started by the core for one shot and gone when it answers.
-// ZAE_SELECTOR_SPEC names a JSON file: {frozen, origin: {x, y}, scale, mode, screens: [name], active: name,
-// windows: [{x, y, width, height}], out}. A window opens on each listed screen (every screen when the list is missing).
+// ZAE_SELECTOR_SPEC names a JSON file: {frozen, origin: {x, y}, scale, scales: {name: scale}, mode, screens: [name],
+// active: name, windows: [{x, y, width, height}], out}. Mode "record" (no frozen grab) is Viewfinder over the live
+// desktop; "region" and "window" are Eclipse over the grab. A window opens on each listed screen (every screen when the list is missing).
 // `active` (the focused monitor) leads until the pointer moves; a drag keeps its screen until release.
 // The answer is written to `out`: slurp's "x,y wxh" in layout coordinates, or "cancel".
 import QtQuick
@@ -46,8 +47,25 @@ ShellRoot {
         atomicWrites: true
     }
 
+    readonly property var screens: root.spec ? Quickshell.screens.filter(s => !root.spec.screens || root.spec.screens.includes(s.name)) : []
+    readonly property bool live: root.spec !== null && root.spec.mode === "record"
+
     Variants {
-        model: root.spec ? Quickshell.screens.filter(s => !root.spec.screens || root.spec.screens.includes(s.name)) : []
+        model: root.live ? root.screens : []
+        LiveSelector {
+            required property var modelData
+            screen: modelData
+            stage.sourceScale: (root.spec.scales || {})[modelData.name] || 1
+            stage.active: root.dragScreen ? root.dragScreen === modelData.name
+                : root.activeScreen === modelData.name || !root.activeScreen
+            stage.onEntered: if (!root.dragScreen) root.activeScreen = modelData.name
+            stage.onDraggingChanged: root.dragScreen = stage.dragging ? modelData.name : ""
+            onPicked: answer => root.finish(answer)
+            onCancelled: root.finish("cancel")
+        }
+    }
+    Variants {
+        model: root.spec && !root.live ? root.screens : []
         FrozenSelector {
             required property var modelData
             screen: modelData

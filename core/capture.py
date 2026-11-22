@@ -194,8 +194,8 @@ class Capture:
 
     async def select(self, mode: str, monitors: list[dict], frozen: Path | None = None) -> tuple[int, int, int, int] | None:
         """The area to cut, in layout coordinates, or None for the whole grab. Chosen over the `frozen` grab when
-        there is one (a shot), over the live screen otherwise (a recording). Raises Cancelled when the owner
-        dismisses the selection."""
+        there is one (a shot: Eclipse), over the live screen otherwise (a recording: Viewfinder); slurp when the
+        selector can't show. Raises Cancelled when the owner dismisses the selection."""
         if mode == "full":
             return None
         if mode == "monitor":
@@ -210,8 +210,8 @@ class Capture:
             boxes = await self.window_boxes(monitors)
             if not boxes:
                 raise RuntimeError("no window to capture")
-        if frozen is not None and self.selector is not None and self.which("qs"):
-            answer = await self.choose_frozen(mode, monitors, frozen, boxes)
+        if self.selector is not None and self.which("qs"):
+            answer = await self.choose(mode, monitors, frozen, boxes)
             if answer is not None:
                 return answer
         argv, stdin = ["slurp", "-d"], None
@@ -222,14 +222,18 @@ class Capture:
             raise Cancelled()
         return geometry(out.decode())
 
-    async def choose_frozen(self, mode: str, monitors: list[dict], frozen: Path, boxes: list[str]):
-        """Eclipse over the frozen grab (shell-selector.qml): the chosen area, or None when the selector couldn't
-        run (then slurp chooses). Raises Cancelled when the owner dismisses it."""
+    async def choose(self, mode: str, monitors: list[dict], frozen: Path | None, boxes: list[str]):
+        """The selector (shell-selector.qml): Eclipse over the `frozen` grab, or Viewfinder over the live screen
+        without one (mode "record"). The chosen area, or None when it couldn't run (then slurp chooses). Raises
+        Cancelled when the owner dismisses it. It has quit before this returns, so a recording never shows it."""
         x0, y0, scale = grab_frame(monitors)
         token = os.urandom(8).hex()
         spec, answer = self.work / f"select-{token}.json", self.work / f"select-{token}.txt"
         try:
-            spec.write_text(json.dumps({"frozen": str(frozen), "origin": {"x": x0, "y": y0}, "scale": scale, "mode": mode,
+            self.work.mkdir(parents=True, exist_ok=True)
+            spec.write_text(json.dumps({"frozen": str(frozen) if frozen else None, "origin": {"x": x0, "y": y0},
+                                        "scale": scale, "mode": mode if frozen else "record",
+                                        "scales": {m["name"]: float(m.get("scale") or 1) for m in monitors if m.get("name")},
                                         "screens": [m.get("name") for m in monitors if m.get("name")],
                                         "active": next((m.get("name") for m in monitors if m.get("focused")), None),
                                         "windows": [box(b) for b in boxes], "out": str(answer)}))

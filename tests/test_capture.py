@@ -177,14 +177,27 @@ class FrozenSelector(unittest.IsolatedAsyncioTestCase):
             self.assertNotIn("qs", tools.names())
             self.assertIn("slurp", tools.names())
 
-    async def test_a_recording_region_is_chosen_over_the_live_screen(self):
+    async def test_a_recording_region_is_chosen_with_viewfinder_over_the_live_screen(self):
         with tempfile.TemporaryDirectory() as tmp:
-            tools = Tools(slurp=b"100,50 640x480\n", selector="1,1 2x2")
+            tools = Tools(monitors=self.MONITORS, slurp=b"9,9 9x9\n", selector="100,50 640x480")
             capture = make(tools, tmp, selector=ENTRY)
             await capture.record_start("region")
-            self.assertNotIn("qs", tools.names(), "nothing is frozen for a recording")
+            names = tools.names()
+            self.assertNotIn("grim", names, "nothing is frozen for a recording")
+            self.assertNotIn("slurp", names)
+            spec = tools.specs[0]
+            self.assertEqual((spec["mode"], spec["frozen"], spec["scales"]), ("record", None, {"A": 1.0, "B": 2.0}))
+            self.assertEqual(tools.spawned[0][1:5], ["-w", "region", "-region", "640x480+100+50"])
             await capture.record_stop()
             await settle(capture)
+
+    async def test_a_dismissed_viewfinder_records_nothing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tools = Tools(selector="cancel")
+            capture = make(tools, tmp, selector=ENTRY)
+            out = await capture.record_start("region")
+            self.assertEqual(out["status"], "cancelled")
+            self.assertEqual(tools.spawned, [])
 
 
 class Shots(unittest.IsolatedAsyncioTestCase):

@@ -239,3 +239,121 @@ class StageTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+RECORD_HARNESS = '''import QtQuick
+import Quickshell
+import qs.view.selector
+Scope {
+    id: harness
+    function say(name, value) { console.log("SEL " + JSON.stringify([name, value])); }
+    FloatingWindow {
+        id: win
+        implicitWidth: 1080; implicitHeight: 608; visible: true
+        Item {
+            id: scene
+            anchors.fill: parent
+            Rectangle { anchors.fill: parent; color: "#808080" } // the live desktop under the transparent layer
+            RecordStage {
+                id: stage
+                anchors.fill: parent
+                sourceScale: 2
+                screenRect: ({ x: 1920, y: 0, width: 1080, height: 608 })
+                onPicked: answer => harness.say("picked", answer)
+                onCancelled: harness.say("cancelled", true)
+            }
+        }
+    }
+    Timer {
+        interval: 300; running: true
+        onTriggered: {
+            harness.say("idle", [stage.prompt, stage.crop, stage.hint.visible, stage.hint.place]);
+            scene.grabToImage(idle => {
+                idle.saveToFile("IDLE");
+                stage.press(100, 100, Qt.LeftButton);
+                stage.move(400, 300);
+                harness.say("dragged", [stage.prompt, stage.crop, stage.sizeTab.visible, stage.sizeTab.children[0].text, stage.hint.place]);
+                scene.grabToImage(dragged => {
+                    dragged.saveToFile("DRAG");
+                    stage.release(400, 300, Qt.LeftButton);
+                    stage.press(500, 300, Qt.LeftButton);
+                    stage.move(600, 600);
+                    harness.say("bottom", stage.hint.place);
+                    stage.release(600, 600, Qt.LeftButton);
+                    stage.press(500, 0, Qt.LeftButton);
+                    stage.move(600, 608);
+                    harness.say("tall", [stage.hint.place, stage.hint.visible, stage.sizeTab.visible]);
+                    stage.release(600, 608, Qt.LeftButton);
+                    stage.press(10, 10, Qt.LeftButton);
+                    stage.release(12, 11, Qt.LeftButton);
+                    harness.say("click", stage.crop);
+                    stage.press(5, 5, Qt.RightButton);
+                    harness.say("done", true);
+                    Qt.quit();
+                });
+            });
+        }
+    }
+}
+'''
+
+
+@unittest.skipUnless(shutil.which("qs") and shutil.which("magick"), "needs Quickshell and ImageMagick")
+class RecordStageTests(unittest.TestCase):
+    """Viewfinder (Z222): the live recording picker."""
+    @classmethod
+    def setUpClass(cls):
+        from smoke import prepare
+        cls.temp = tempfile.TemporaryDirectory()
+        base = Path(cls.temp.name)
+        cls.idle, cls.drag = base / "idle.png", base / "drag.png"
+        env, _, _ = prepare(base, RECORD_HARNESS.replace("IDLE", str(cls.idle)).replace("DRAG", str(cls.drag)))
+        run = subprocess.run(["qs", "-n", "--no-color", "-p", str(base / "bundle/Harness.qml")], env=env,
+                             capture_output=True, text=True, timeout=60)
+        cls.output = run.stdout + run.stderr
+        cls.said = [json.loads(line.split("SEL ", 1)[1]) for line in cls.output.splitlines() if "SEL [" in line]
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.temp.cleanup()
+
+    def heard(self, name):
+        for said, value in self.said:
+            if said == name:
+                return value
+        self.fail(f"the harness never said {name!r}:\n{self.output[-3000:]}")
+
+    def pixel(self, image, x, y):
+        out = subprocess.run(["magick", str(image), "-format", f"%[hex:p{{{x},{y}}}]", "info:"],
+                             capture_output=True, text=True, check=True).stdout.strip()
+        return tuple(int(out[i:i + 2], 16) for i in (0, 2, 4))
+
+    def test_the_run_finished_without_qml_errors(self):
+        self.assertTrue(self.heard("done"))
+        self.assertNotIn("ReferenceError", self.output)
+        self.assertNotIn("TypeError", self.output)
+
+    def test_before_a_drag_the_desktop_stays_live_under_the_hint(self):
+        self.assertEqual(self.heard("idle"), ["Drag an area to record", None, True, "bottom"])
+        self.assertEqual(self.pixel(self.idle, 540, 200), (0x80, 0x80, 0x80))
+
+    def test_a_drag_shades_around_the_live_area_and_labels_the_recorders_size(self):
+        self.assertEqual(self.heard("dragged"),
+                         ["Release to start recording", rect(100, 100, 300, 200), True, "600 × 400 px", "bottom"])
+        self.assertEqual(self.pixel(self.drag, 250, 200), (0x80, 0x80, 0x80))  # inside: untouched
+        shaded = self.pixel(self.drag, 700, 200)  # outside: grey under #11171e at 0x70
+        expect = [round(0x80 * (1 - 0x70 / 255) + c * 0x70 / 255) for c in (0x11, 0x17, 0x1e)]
+        self.assertTrue(all(abs(a - b) <= 3 for a, b in zip(shaded, expect)), shaded)
+        self.assertEqual(self.pixel(self.drag, 97, 110), (0xff, 0x9b, 0x85))  # a coral corner's arm
+
+    def test_release_answers_in_layout_coordinates_and_a_click_does_not(self):
+        picks = [value for said, value in self.said if said == "picked"]
+        self.assertEqual(picks[0], "2020,100 300x200")
+        self.assertIsNone(self.heard("click"))
+
+    def test_the_hint_moves_to_the_top_then_goes(self):
+        self.assertEqual(self.heard("bottom"), "top")
+        self.assertEqual(self.heard("tall"), ["none", False, False])
+
+    def test_right_button_cancels(self):
+        self.assertTrue(self.heard("cancelled"))
