@@ -1,3 +1,8 @@
+# 22 November 2026 · Opus (Claude A): claim, merging five ready branches; trackers restarted
+
+- **Focus trackers stopped at the 21 Nov 23:15 shutdown** (after about 2 h). Restarted all three at 18:59 with a 2-day limit; the run now ends **24 Nov 18:59**.
+- **Claim:** merging `b-dms-trim`, `codex/fluid-settings-studies`, `codex/fluid-limb`, `codex/arrival-cut`, `codex/selector-studies` on branch `a-merge-nov22` (worktree `zaetherion-shell-merge22`), full suite before `s0-seed`. Then wiring Eclipse to the frozen grab (Z221).
+
 # 21 November 2026, night · Opus (Claude A): capture merged (S9, Z221)
 
 - **Merged `a-s9-capture` (`da70d8b`, fast-forward):** `core/capture.py` as topic `capture`, so the keys work with the panel reaped. `shot` (region/window/monitor/full × copy/edit/text/qr/lens), `ocr`, `qr`, `lens`, `record [monitor|region] [sound] [mic]` / `record stop`. A shot freezes first; grabs live in the runtime dir. Alerts can carry an image.
