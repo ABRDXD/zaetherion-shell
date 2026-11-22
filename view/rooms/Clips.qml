@@ -91,44 +91,50 @@ ColumnLayout {
         }
         Rectangle { Layout.fillWidth: true; height: 1; color: Design.line }
     }
-    GridView {
+    ListView {
         id: sheet
         Layout.fillWidth: true
         Layout.fillHeight: true
         clip: true
         reuseItems: true
-        cellWidth: Math.max(1, Math.floor(width / (width >= 680 ? 2 : 1)))
-        cellHeight: 154
-        model: root.page.concat(root.retainedPins)
+        readonly property int columns: width >= 680 ? 2 : 1
+        readonly property var records: root.page.concat(root.retainedPins)
+        // The shell scrolls and focuses one visual row at a time.
+        model: Math.ceil(records.length / columns)
         ScrollBar.vertical: ScrollBar {}
-        delegate: Item {
-            id: cell
-            required property var modelData
+        delegate: Row {
+            id: row
             required property int index
-            width: sheet.cellWidth
-            height: sheet.cellHeight
-            ClipPlate {
-                anchors.fill: parent
-                anchors.rightMargin: 6
-                anchors.bottomMargin: 8
-                record: cell.modelData
-                position: cell.index
-                retained: cell.index >= root.page.length
-                pinned: retained || pins.isPinned(record)
-                copied: root.copied === record.id
-                onCopyRequested: {
-                    if (retained)
-                        root.clipboard.copyText(record.content || record.text);
-                    else
-                        root.clipboard.copy(record.id);
-                    root.copied = record.id;
-                    copiedTimer.restart();
+            readonly property int first: index * sheet.columns
+            width: sheet.width
+            height: 154
+            spacing: 6
+            Repeater {
+                model: sheet.records.slice(row.first, row.first + sheet.columns)
+                ClipPlate {
+                    required property var modelData
+                    required property int index
+                    width: Math.floor(sheet.width / sheet.columns) - row.spacing
+                    height: row.height - 8
+                    record: modelData
+                    position: row.first + index
+                    retained: position >= root.page.length
+                    pinned: retained || pins.isPinned(record)
+                    copied: root.copied === record.id
+                    onCopyRequested: {
+                        if (retained)
+                            root.clipboard.copyText(record.content || record.text);
+                        else
+                            root.clipboard.copy(record.id);
+                        root.copied = record.id;
+                        copiedTimer.restart();
+                    }
+                    onPinRequested: {
+                        if (retained) pins.remove(record);
+                        else pins.toggle(record);
+                    }
+                    onDeleteRequested: root.clipboard.remove(record.id)
                 }
-                onPinRequested: {
-                    if (retained) pins.remove(record);
-                    else pins.toggle(record);
-                }
-                onDeleteRequested: root.clipboard.remove(record.id)
             }
         }
         footer: FButton {
