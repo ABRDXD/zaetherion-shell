@@ -129,8 +129,8 @@ class FrozenSelector(unittest.IsolatedAsyncioTestCase):
             spec = tools.specs[0]
             grab = next(c for c in tools.calls if c[0] == "grim")[-1]
             self.assertEqual(spec["frozen"], grab, "the selector shows the very grab that is cut")
-            self.assertEqual((spec["origin"], spec["scale"], spec["mode"], spec["screens"], spec["windows"]),
-                             ({"x": -1920, "y": 0}, 2.0, "region", ["A", "B"], []))
+            self.assertEqual((spec["origin"], spec["scale"], spec["mode"], spec["screens"], spec["active"], spec["windows"]),
+                             ({"x": -1920, "y": 0}, 2.0, "region", ["A", "B"], "B", []))
             crop = next(c for c in tools.calls if c[0] == "magick")
             self.assertEqual(crop[3], "600x400+3860+40")
             self.assertEqual(tools.notes(), ["Screenshot copied"])

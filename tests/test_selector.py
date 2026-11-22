@@ -95,6 +95,8 @@ Scope {
             const frame = stage.frame;
             const footer = stage.footer;
             harness.say("idle", [stage.prompt, frame.hasCrop]);
+            stage.enter(200, 150);
+            harness.say("reticle", [stage.reticle.visible, Math.round(stage.reticle.x + stage.reticle.width / 2), Math.round(stage.reticle.y + stage.reticle.height / 2)]);
             stage.press(544, 400, Qt.LeftButton);
             harness.say("pressed", stage.prompt);
             stage.move(100, 100);
@@ -109,8 +111,13 @@ Scope {
                 stage.press(100, 10, Qt.LeftButton);
                 stage.move(300, 60);
                 harness.say("top edge", frame.side);
+                stage.anchorY = 100;
                 stage.move(400, 590);
-                harness.say("reaches footer", footer.visible);
+                harness.say("reaches footer", [footer.visible, stage.footerPlace, footer.y]);
+                stage.move(400, 300);
+                stage.anchorY = 0; stage.move(400, 608);
+                harness.say("footer nowhere", [footer.visible, stage.footerPlace]);
+                stage.anchorY = 10;
                 stage.move(0, 0);
                 stage.press(0, 0, Qt.LeftButton);
                 stage.move(1080, 608);
@@ -119,9 +126,17 @@ Scope {
                 stage.mode = "window";
                 stage.crop = null;
                 stage.windows = [{ x: 1920, y: 0, width: 800, height: 600 }, { x: 2020, y: 100, width: 200, height: 100 }];
-                harness.say("window idle", stage.prompt);
+                harness.say("window idle", [stage.prompt, stage.reticle.visible]);
                 stage.move(150, 150);
-                harness.say("window hover", [stage.crop, stage.prompt]);
+                harness.say("window hover", [stage.crop, stage.prompt, frame.children.find(c => c.color !== undefined && c.width > 100 && c.height === 26) ? true : false]);
+                stage.leave();
+                harness.say("left", stage.crop);
+                stage.move(150, 150);
+                stage.active = false;
+                harness.say("inactive", [stage.shown, footer.visible, stage.quiet.visible, stage.quiet.text, frame.hasCrop]);
+                stage.dragElsewhere = true;
+                harness.say("drag elsewhere", stage.quiet.text);
+                stage.active = true; stage.dragElsewhere = false;
                 stage.release(150, 150, Qt.LeftButton);
                 stage.release(700, 500, Qt.LeftButton);
                 harness.say("done", true);
@@ -183,7 +198,20 @@ class StageTests(unittest.TestCase):
         self.assertEqual(self.heard("top edge"), "below")
 
     def test_the_footer_steps_aside_for_the_crop(self):
-        self.assertFalse(self.heard("reaches footer"))
+        # A crop reaching the bottom sends the footer to the top; one spanning the height leaves it nowhere.
+        self.assertEqual(self.heard("reaches footer"), [True, "top", 0])
+        self.assertEqual(self.heard("footer nowhere"), [False, "none"])
+
+    def test_the_reticle_is_the_pointer_in_region_mode_only(self):
+        self.assertEqual(self.heard("reticle"), [True, 200, 150])
+        self.assertFalse(self.heard("window idle")[1])
+
+    def test_an_inactive_screen_stays_dim_with_a_quiet_label(self):
+        self.assertEqual(self.heard("inactive"), [None, False, True, "Move here to select", False])
+        self.assertEqual(self.heard("drag elsewhere"), "Selection on other screen")
+
+    def test_leaving_clears_the_window_candidate(self):
+        self.assertIsNone(self.heard("left"))
 
     def test_a_full_screen_crop_shows_no_frame(self):
         self.assertEqual(self.heard("fills"), [True, False, "none"])
@@ -192,8 +220,8 @@ class StageTests(unittest.TestCase):
         self.assertTrue(self.heard("cancelled"))
 
     def test_window_mode_lights_the_smallest_window_and_a_click_takes_it(self):
-        self.assertEqual(self.heard("window idle"), "Point at a window")
-        self.assertEqual(self.heard("window hover"), [rect(100, 100, 200, 100), "Click to select"])
+        self.assertEqual(self.heard("window idle")[0], "Point at a window")
+        self.assertEqual(self.heard("window hover")[:2], [rect(100, 100, 200, 100), "Click this window"])
         picks = [value for said, value in self.said if said == "picked"]
         self.assertEqual(picks[1:], ["2020,100 200x100", "1920,0 800x600"])
 

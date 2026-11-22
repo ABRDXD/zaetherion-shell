@@ -9,6 +9,7 @@ Item {
     id: root
     property var crop: null // {x, y, width, height} in this item's pixels
     property real sourceScale: 1
+    property string caption: "" // before the size on the label ("Window" for a window candidate)
     readonly property bool hasCrop: crop !== null && crop.width > 0 && crop.height > 0
     readonly property var bounds: ({ x: 0, y: 0, width: width, height: height })
     readonly property bool marked: hasCrop && !Geometry.fills(crop, bounds)
@@ -66,7 +67,7 @@ Item {
             id: sizeText
             x: EclipseLook.labelPadding
             anchors.verticalCenter: parent.verticalCenter
-            text: root.hasCrop ? Geometry.sizeText(root.crop, root.sourceScale) : ""
+            text: root.hasCrop ? (root.caption ? root.caption + " " : "") + Geometry.sizeText(root.crop, root.sourceScale) : ""
             color: EclipseLook.ink
             font.family: Design.mono
             font.pixelSize: Design.control

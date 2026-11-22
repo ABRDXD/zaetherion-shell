@@ -3,5 +3,7 @@ module qs.view.selector
 EclipseFrame 1.0 EclipseFrame.qml
 singleton EclipseLook 1.0 EclipseLook.qml
 FrozenSelector 1.0 FrozenSelector.qml
+PilotReticle 1.0 PilotReticle.qml
+QuietLabel 1.0 QuietLabel.qml
 SelectorFooter 1.0 SelectorFooter.qml
 SelectorStage 1.0 SelectorStage.qml

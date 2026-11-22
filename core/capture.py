@@ -231,6 +231,7 @@ class Capture:
         try:
             spec.write_text(json.dumps({"frozen": str(frozen), "origin": {"x": x0, "y": y0}, "scale": scale, "mode": mode,
                                         "screens": [m.get("name") for m in monitors if m.get("name")],
+                                        "active": next((m.get("name") for m in monitors if m.get("focused")), None),
                                         "windows": [box(b) for b in boxes], "out": str(answer)}))
             code, _, err = await self.run(["qs", "-n", "--no-color", "-p", str(self.selector)], timeout=None,
                                           env={"ZAE_SELECTOR_SPEC": str(spec)})

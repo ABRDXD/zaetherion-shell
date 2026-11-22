@@ -2,8 +2,8 @@ pragma Singleton
 import QtQuick
 import Quickshell
 
-// A · Eclipse, the owner's frozen-selector pick (Z48, 21 November 2026). Values are Astra's mock:
-// tools/selector-study/render.py `eclipse()`. They are fixed, not palette colours, so the crop reads the same
+// A · Eclipse, the owner's frozen-selector pick (Z48, 21 November 2026), with A · Pilot light for its other states
+// (22 November). Values are Astra's mocks: tools/selector-study/render.py `eclipse()` and states.py. They are fixed, not palette colours, so the crop reads the same
 // over any screen.
 Singleton {
     readonly property color shade: "#090c10"
@@ -30,4 +30,15 @@ Singleton {
     readonly property int pauseBarHeight: 11
     readonly property int pauseGap: 3
     readonly property int pauseTextGap: 13
+    // Pilot light: the cross that is the pointer before a drag (open centre), lime over a dark outline.
+    readonly property int reticleArm: 10
+    readonly property int reticleGap: 5
+    readonly property int reticleWidth: 2
+    readonly property int reticleOutline: 4
+    // Pilot light: the quiet label on a screen the pointer isn't on.
+    readonly property int quietHeight: 30
+    readonly property int quietMargin: 16 // from the screen's left edge
+    readonly property int quietBottom: 14 // from the screen's bottom edge
+    readonly property int quietPadding: 11
+    readonly property int quietBarHeight: 10
 }
