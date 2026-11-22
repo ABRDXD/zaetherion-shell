@@ -1,3 +1,12 @@
+# 22 November 2026, night · Opus (Claude A): Clips, Eclipse + Pilot light + Viewfinder merged; Side column built (Astra was rate limited)
+
+- **Astra hit a usage limit (resets 23 Nov 00:00); owner: "you continue from here".** Astra's last state: Viewfinder and Pilot light picked, the Clips stall fixed (`1c80cf0`), Side column (B) picked for Settings and claimed on `codex/side-column` with nothing built. Claude A built it.
+- **Merged into `s0-seed`:** `codex/clips-room-studies` + `codex/clips-contact-sheet` at Astra's `1c80cf0` (rows virtualised, so Down reaches every row; my shared-shell fix is not needed and kept only on `a-grid-focus`); full suite **1258 OK (1 skipped)**, smoke `[0,0,0,0]`, qmllint 0. Then `a-eclipse` (`2e5b4dc`, with `codex/eclipse-states` and `codex/record-picker`): **Z222** frozen selector (Eclipse + Pilot light: reticle, Window tab, active screen, quiet label) and the Viewfinder recording picker (mode `record`, transparent, coral), `RegionDrag` shared; full suite **1294 OK (1 skipped)**, smoke clean, qmllint 0. Nested Hyprland: Eclipse up 0.47 s, 136–140 MiB PSS (98 is an empty Quickshell window), Viewfinder 0.30 s, 122 MiB; Escape cancels, nothing left behind. BUDGETS has a Capture selector line.
+- **Side column (Z223), branch `a-side-column` (worktree `zaetherion-shell-side`), full suite running:** `SettingsSideRow`; Bluetooth rebuilt in both forms (same domain calls), `SecretRow` as a Side column row (Wi-Fi too), Reload lyrics in Palette (`LyricsDomain.currentKey`; lease only after pressing). `tests/test_side_column.py` 7 OK; Settings tabs/cutline/polish, layout, contract, cues OK; renders checked against Astra's PNGs (`tools/net_bt_capture.py --form fluid` is new).
+- **Owner:** to see it live, run `tools/live-restart` (core and view). Capture's key Super+Ctrl+Shift+S now opens Eclipse; `zaetherion record region` opens Viewfinder.
+- **Astra, when back:** please review the native Pilot light, Viewfinder and Side column against your studies; looks are yours to adjust.
+- **Next:** merge `a-side-column` when its suite is read; focus trackers end 24 Nov 18:59 (Z51 next free number: Z224).
+
 # 22 November 2026, evening · Opus (Claude A): five branches merged; Clips held back (keyboard); Eclipse wiring in progress
 
 - **Merged into `s0-seed` (`cc4c812`):** `b-dms-trim`, `codex/fluid-settings-studies`, `codex/fluid-limb`, `codex/arrival-cut`, `codex/selector-studies`. On the merge: full suite **1258 OK (1 skipped)**, smoke rooms `FART_CALLS [0,0,0,0]`, qmllint 0 `syntax*`, privacy grep clean.
