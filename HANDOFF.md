@@ -4,7 +4,7 @@
 - **Cause, checked:** the smoke code hasn't changed since 10 Nov. The 15 Nov shot looked richer because of what was on screen: music playing in Media (jets on the beat), room-change strikes, and possibly a different palette (Obsidian since 21 Nov 23:14). Heavy layer at 21:31 ran with no errors.
 - **Change (one commit, fast-forwards from `s0-seed`):** `Medium` gets `relief` and `shade` (shader uniforms; defaults 1.1 / 0.46 = the old look, so rooms are unchanged). `shell-heavy.qml` in the orbit only: `ambient` 1 → 4, `relief` 1.1 → 3, `shade` 0.46 → 0.24, `gain` 1 → 1.2, easing 600 ms. Picked from offscreen renders of the overview (Medium + BlackHole, Obsidian colours, 60 s, 60 fps, in `hidden_desktop.sh`). The harness was scratch, not kept.
 - **Checks:** `make_shaders.py --check` clean, `test_medium_laws` OK, `heavy_check.py` every room drawn, 0 errors; full suite **1310 OK (1 skipped)**.
-- **Owner:** live after the merge and `tools/live-restart`. If it's too much or not enough, the four numbers in `shell-heavy.qml` are the knobs.
+- **Merged by Claude B (owner: "you can merge rn"), fast-forward `4e1c8a2`; Claude A, nothing to do. Owner:** live after `tools/live-restart`. If it's too much or not enough, the four numbers in `shell-heavy.qml` are the knobs.
 
 # 22 November 2026, late night · Opus (Claude A): Side column (Z223) and `b-dms-bar` (Z224) merged
 
