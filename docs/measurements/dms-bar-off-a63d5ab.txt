@@ -1,0 +1,38 @@
+# DMS's Main Bar off at start (Z224), with all eight trims (Claude B, 22 November 2026; base b-dms-trim a63d5ab). Nested
+# Hyprland, private HOME/XDG/runtime/session bus, no system bus, the owner's DMS settings copied read only; owner's
+# settings.json checked unchanged after every run. Tool: tools/dms_trim_measure.py --check --bar-off.
+#
+# Live, before: the "hidden" Main Bar is DMS's island bar; it still maps a full-width layer (dms:dankisland, 1920x708)
+# on the top layer with visible: false (hyprctl layers, 22 Nov 19:3x). With enabled: false nothing is made.
+#
+# Found on the way (probes in Claude B's scratchpad, not kept):
+# - Turning the bar on while DMS runs makes it (dms:dankisland appears), off removes it; also when DMS started with it
+#   off. DMS's own qs process is never restarted for it.
+# - DMS keeps the island collapsed while it counts one of its menus as open on the screen (ModalManager). In the nested
+#   compositor Quickshell has no Hyprland IPC, and the clipboard window closed by a second `toggle` stays counted, so
+#   the bar won't show there until DMS restarts; open/close, the launcher and the power menu don't. The live session
+#   never opens DMS's clipboard window (quick paste is ZÆTHERION's island). Two launcher toggles within ~1.5 s of a cold
+#   start collapse into one open (the window is still loading): the launcher stays open, and the bar waits for it.
+# - With the bar off, DMS's control centre and dash fail to open (they open from its bar or island). The ZÆTHERION
+#   session's keys don't reach them (Super+A/B/O, N, M open its own rooms).
+#
+# dms_trim_measure.py --check, 2026-11-22 20:36: trims popups, notifications, toasts, osd, notepad, mux, desktop, colorpicker and the Main Bar off at start (Z224)
+
+control (notepad removed outright) logs 1 new warnings: the check sees QML errors
+  WARN scene: @DMSShell.qml[N:-N]: ReferenceError: notepadSlideoutVariants is not defined
+PSS MiB: plain 446.4, trimmed 334.6
+SAME ipc spotlight toggle: plain rc=0 'SPOTLIGHT_TOGGLE_SUCCESS' | trimmed rc=0 'SPOTLIGHT_TOGGLE_SUCCESS'
+SAME ipc spotlight toggle: plain rc=0 'SPOTLIGHT_TOGGLE_SUCCESS' | trimmed rc=0 'SPOTLIGHT_TOGGLE_SUCCESS'
+SAME ipc clipboard toggle: plain rc=0 'CLIPBOARD_TOGGLE_SUCCESS' | trimmed rc=0 'CLIPBOARD_TOGGLE_SUCCESS'
+SAME ipc clipboard toggle: plain rc=0 'CLIPBOARD_TOGGLE_SUCCESS' | trimmed rc=0 'CLIPBOARD_TOGGLE_SUCCESS'
+diff (not reached in the live session) ipc control-center toggle: plain rc=0 'CONTROL_CENTER_TOGGLE_SUCCESS' | trimmed rc=0 'CONTROL_CENTER_TOGGLE_FAILED'
+diff (not reached in the live session) ipc control-center toggle: plain rc=0 'CONTROL_CENTER_TOGGLE_SUCCESS' | trimmed rc=0 'CONTROL_CENTER_TOGGLE_FAILED'
+SAME ipc powermenu toggle: plain rc=0 '' | trimmed rc=0 ''
+SAME ipc powermenu toggle: plain rc=0 '' | trimmed rc=0 ''
+SAME ipc settings toggle: plain rc=0 'SETTINGS_TOGGLE_SUCCESS' | trimmed rc=0 'SETTINGS_TOGGLE_SUCCESS'
+SAME ipc settings toggle: plain rc=0 'SETTINGS_TOGGLE_SUCCESS' | trimmed rc=0 'SETTINGS_TOGGLE_SUCCESS'
+diff (not reached in the live session) ipc dash toggle overview: plain rc=0 'DASH_TOGGLE_SUCCESS' | trimmed rc=0 'DASH_TOGGLE_FAILED'
+diff (not reached in the live session) ipc dash toggle overview: plain rc=0 'DASH_TOGGLE_SUCCESS' | trimmed rc=0 'DASH_TOGGLE_FAILED'
+bar comes and goes: off at start: dms:lock-placement, dms:plugins:wallpaperCarousel:precache; turned on: dms:dankisland, dms:lock-placement, dms:plugins:wallpaperCarousel:precache; turned off: dms:lock-placement, dms:plugins:wallpaperCarousel:precache
+warnings only the trimmed copy logs: 0
+result: PASS

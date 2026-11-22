@@ -130,15 +130,15 @@ async def serve(runtime: Path, state_dir: Path):
         env["ZAETHERION_ISLAND"] = "1"
     core = Core(clock, scheduler, host, state_dir, spawn=lambda: spawn_quickshell(entry, env),
                 pressure=lambda callback: PressureTrigger(loop, callback), before_spawn=lambda: stop_foreign_instance(entry, None),
-                resident_view=resident, dms_bar=DmsBar() if resident else None)
+                resident_view=resident, dms_bar=DmsBar(clock=clock, scheduler=scheduler) if resident else None)
     sock, owned = listening_socket(sock_path)
     server = await asyncio.start_unix_server(core.server.handle, sock=sock, limit=MAX_LINE)
     core.view.start_checks()  # off the first open's path (docs/CORE.md §7)
     for signum in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
         loop.add_signal_handler(signum, core.stopping.set)
-    watch = supervise(core, scheduler, env, runtime)
     if core.dms_bar:
-        core.dms_bar.sync(False)  # shown until the view is up, also after a core that was killed with it hidden
+        core.dms_bar.prepare()  # off before DMS starts, so it never makes the bar; back on if the view fails (Z224)
+    watch = supervise(core, scheduler, env, runtime)
     core.view.keep()  # resident view only
     source = None
     if os.environ.get("FART_MIRROR") != "0":

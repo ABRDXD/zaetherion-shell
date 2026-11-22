@@ -104,7 +104,7 @@ class Core:
         self.view = ViewManager(clock, scheduler, spawn, self._view_changed, pressure,
                                 may_reap=lambda: self.overdrive.state.mode == "off", before_spawn=before_spawn,
                                 resident=resident_view)
-        self.dms_bar = dms_bar  # core/dms_bar.py: hidden while a resident view is up (Z159)
+        self.dms_bar = dms_bar  # core/dms_bar.py: off while a resident view is up (Z159, Z224)
         types = guard_types or [FullscreenGuard, BatteryGuard, SessionGuard]
         types = [partial(SessionGuard, active=self.sessions.active) if t is SessionGuard else t for t in types]
         self.guards = Guards(lambda name, on: self.overdrive.guard(name, on), types)
@@ -723,9 +723,11 @@ class Core:
         self.exhibit.stop()
         await self.capture.stop()  # a running recording is finished, not lost
         await self.equalizer.close()  # the owner's routing is back before anything else stops
-        await self.view.stop()  # the view's end shows DMS's bar again (_view_changed), before DMS stops
+        await self.view.stop()
         if self.supervisor:
             await self.supervisor.stop()  # after the panel: dms and its whole tree (docs/SUPERVISOR.md §6)
+        if self.dms_bar:
+            self.dms_bar.release()  # DMS's bar on again once DMS is down, for a DMS started without us (Z224)
         self.guards.stop()
         self.genealogy.stop()
         self.quiet.stop()

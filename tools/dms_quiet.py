@@ -11,7 +11,8 @@ its popups never fire while the rest of DMS (bar, control centre, lock, OSDs) is
 The copy is generated on this machine and never checked in (DMS is MIT; see NOTICE). Point the
 supervisor at it with FART_RESIDENT_DIR, which reaches `dms run` as DMS_SHELL_DIR (docs/SUPERVISOR.md §5).
 
-    tools/dms_quiet.py build [--source DIR] [--out DIR]   # default source: the running DMS's UI
+    tools/dms_quiet.py build [--source DIR] [--out DIR] [--trim a,b|none]  # default source: the running DMS's
+                                                          # UI; trims: kept from the copy it replaces
     tools/dms_quiet.py check DIR                           # exit 0 if DIR is a quiet copy
     tools/dms_quiet.py fits DIR                            # exit 0 if DIR was made for the installed `dms`
     tools/dms_quiet.py bridge [DIR]                        # add the launcher bridge to an existing copy (Z197)
@@ -262,6 +263,13 @@ def trims_in(text: str) -> list[str]:
     return [name for name in TRIMS if _tag(name) in text]
 
 
+def kept_trims(directory: Path) -> list[str]:
+    """The trims a quiet copy has, so a rebuild (after a DMS upgrade) keeps the owner's choice."""
+    if not (directory / MARKER).is_file() or not (directory / SHELL).is_file():
+        return []
+    return trims_in((directory / SHELL).read_text())
+
+
 def set_trims(directory: Path, names: list[str]) -> list[str]:
     """Makes exactly `names` the copy's trims (in place; only a copy this tool made). [] undoes them all.
     Everything is computed before the file is written. A running DMS reloads its UI when the file changes."""
@@ -394,7 +402,8 @@ def main(argv=None) -> int:
     b = sub.add_parser("build")
     b.add_argument("--source", type=Path)
     b.add_argument("--out", type=Path)
-    b.add_argument("--trim", default="", help="comma-separated trims (see `trim --list`); default none")
+    b.add_argument("--trim", default=None, help="comma-separated trims (see `trim --list`), or `none`; default: the"
+                   " trims the copy being replaced has (none for a new copy)")
     c = sub.add_parser("check")
     c.add_argument("directory", type=Path)
     f = sub.add_parser("fits")
@@ -410,7 +419,14 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
     if args.command == "build":
         source = args.source or running_source()
-        out = build(source, args.out or default_out(), [n for n in args.trim.split(",") if n])
+        out = args.out or default_out()
+        if args.trim is None:
+            trims = kept_trims(out)
+            if trims:
+                print("kept trims: " + ", ".join(trims) + " (`--trim none` for none)")
+        else:
+            trims = [n for n in args.trim.split(",") if n and n != "none"]
+        out = build(source, out, trims)
         print(f"quiet DMS UI (revision {revision(source)}): {out}")
         return 0
     if args.command == "trim":
