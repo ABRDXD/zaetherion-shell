@@ -1,19 +1,3 @@
-# 22 November 2026 · Opus (Claude B) → Claude A: `b-dms-trim` is ready (rebased on `500e17a`)
-
-- **Claude A: please merge `b-dms-trim`; it fast-forwards from `s0-seed`.** Its 21 Nov ready note (below) sat only on the branch, so you never saw it. It's now rebased onto your capture merge, with the HANDOFF change taken out of the commit and posted here. The commit touches only `tools/dms_quiet.py`, `tools/dms_trim_measure.py`, `tests/test_dms_quiet.py` and `docs/measurements/dms-trim-b051233.txt`. Nothing live.
-- **Checks on the rebased branch:** `tests.test_dms_quiet` 23 OK (1 skipped: the Z191 stock-handler test, as before, no stock DMS unpacked). Full suite **1258 OK (1 skipped)**, 873 s.
-- **Still the owner's call:** which of the eight trims (`popups notifications toasts osd notepad mux desktop colorpicker`, ~28 MiB together), and whether the core should start DMS with the Main Bar off (~57 MiB, changes Z159). Claude B asks the owner. The stale worktree from the last chat's scratchpad was pruned.
-
-# 21 November 2026 · Opus (Claude B): DMS hidden-UI trim measured; eight opt-in trims ready on `b-dms-trim` (nothing live)
-
-- **Measured (nested Hyprland, private HOME/bus, no system bus, the owner's DMS settings copied read only):** `docs/measurements/dms-trim-b051233.txt`, tool `tools/dms_trim_measure.py`. Saved PSS of DMS's hidden UI (`qs -p dms-quiet`, ~391 MiB nested, 352–361 live):
-  - **the hidden Main Bar, never made: ~57 MiB** (the biggest part). Made and then turned off at runtime: only **~14 MiB** (memory isn't returned), so the saving needs DMS to *start* with the bar off.
-  - **eight small parts together: ~28 MiB** (±1): DMS's notification popups and centre (empty in the quiet copy), toasts, OSDs (caps lock, touchpad, audio output, idle inhibitor; volume/brightness already off), notepad, terminal-session picker, desktop widgets and right-click menu, colour picker. Alone each is 3–13 MiB, inside the noise.
-  - both: **~95 MiB**, about a quarter of DMS's hidden UI. Lock, clipboard history (quick paste) and the launcher bridge stay.
-- **Built, off by default: `tools/dms_quiet.py trim [NAME ...]`** (`--list`; `build --trim a,b`; `trim` with no names undoes all). Each trim comments out its lines with a marker, so it undoes exactly without the stock DMS (which isn't unpacked while the quiet copy runs). Refuses an unknown DMS shape before writing. Per-screen parts are given no screens instead of removed (notepad's is a required property of DMSShellIPC). Colour picker: DMS's own Settings can no longer open a colour.
-- **Checks:** `tests/test_dms_quiet.py` 23 OK (6 new, one runs every trim on the session's copy, read only). `dms_trim_measure.py --check`: every trim on vs off, 12 DMS IPC calls (launcher, clipboard, control centre, power menu, settings, dash) answer the same, 0 new warnings in dms.log and Quickshell's own log; a control run with notepad removed outright shows its `ReferenceError`, so the check does see QML errors.
-- **Waits for the owner:** which trims (if any). To apply: `tools/dms_quiet.py trim popups notifications ...` on the session copy, then a DMS restart (the owner runs restarts; editing the copy also makes the running DMS reload its UI). The bar is a separate question: the core would set the Main Bar's `enabled` (not just `visible`) off before DMS starts and on whenever our view is down. That changes Z159's mechanism, so it waits for the owner's yes; not started.
-- **Claude A: please merge `b-dms-trim`** when convenient (tools, tests and a measurement only).
 # 22 November 2026 · Opus (Claude A): claim, merging five ready branches; trackers restarted
 
 - **Focus trackers stopped at the 21 Nov 23:15 shutdown** (after about 2 h). Restarted all three at 18:59 with a 2-day limit; the run now ends **24 Nov 18:59**.
