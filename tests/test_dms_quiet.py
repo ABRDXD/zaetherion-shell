@@ -1,4 +1,6 @@
 """tools/dms_quiet.py removes exactly DMS's NotificationServer object and refuses a DMS it doesn't understand."""
+import contextlib
+import io
 import sys
 import tempfile
 import unittest
@@ -392,17 +394,45 @@ class TrimTest(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 dms_quiet.build(source, Path(d) / "x", ["nope"])
 
+    def test_a_rebuild_keeps_the_copys_trims_unless_told(self):
+        with tempfile.TemporaryDirectory() as d:
+            source, out = Path(d) / "src", Path(d) / "out"
+            (source / "Services").mkdir(parents=True)
+            (source / "Services/NotificationService.qml").write_text(SERVICE)
+            (source / "Modules/DBar").mkdir(parents=True)
+            (source / "Modules/DBar/DBarBody.qml").write_text(BAR_LINE)
+            write_prompts(source)
+            (source / "DMSShell.qml").write_text(TRIM_SHELL)
+            self.assertEqual(dms_quiet.kept_trims(out), [])  # no copy yet
+            dms_quiet.build(source, out, ["toasts", "mux"])
+            self.assertEqual(dms_quiet.kept_trims(out), ["toasts", "mux"])
+            argv = ["build", "--source", str(source), "--out", str(out)]
+            with contextlib.redirect_stdout(io.StringIO()) as said:
+                dms_quiet.main(argv)  # e.g. after a DMS upgrade: the owner's trims come along
+            self.assertIn("kept trims: toasts, mux", said.getvalue())
+            self.assertEqual(dms_quiet.trims_in((out / "DMSShell.qml").read_text()), ["toasts", "mux"])
+            with contextlib.redirect_stdout(io.StringIO()):
+                dms_quiet.main([*argv, "--trim", "osd"])
+            self.assertEqual(dms_quiet.trims_in((out / "DMSShell.qml").read_text()), ["osd"])
+            with contextlib.redirect_stdout(io.StringIO()):
+                dms_quiet.main([*argv, "--trim", "none"])
+            self.assertEqual(dms_quiet.trims_in((out / "DMSShell.qml").read_text()), [])
+
     def test_the_session_copy_has_every_part_the_trims_take(self):
         copy = dms_quiet.default_out()
         if not (copy / "DMSShell.qml").is_file():
             self.skipTest("no quiet copy on this machine")
-        text = (copy / "DMSShell.qml").read_text()  # read only
-        # The owner may have trims on: check against the copy as it is with none.
-        for name in dms_quiet.trims_in(text):
+        live = (copy / "DMSShell.qml").read_text()  # read only
+        text = live
+        for name in dms_quiet.trims_in(live):  # the owner's trims (22 Nov: all eight) undone, in memory only
             text = dms_quiet.remove_trim(text, name)
         self.assertEqual(dms_quiet.trims_in(text), [])
         for name in dms_quiet.TRIMS:
             self.assertEqual(dms_quiet.remove_trim(dms_quiet.apply_trim(text, name), name), text, name)
+        again = text
+        for name in dms_quiet.trims_in(live):
+            again = dms_quiet.apply_trim(again, name)
+        self.assertEqual(again, live)  # undo and redo are exact on the copy as it runs
 
 
 class FitsTest(unittest.TestCase):

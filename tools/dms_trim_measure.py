@@ -14,6 +14,11 @@ this part cost", nothing else. Not part of the unit suite.
     dms_trim_measure.py [--quiet DIR] [--rounds N] [--settle S] [--only a,b] OUT.txt
     dms_trim_measure.py --check OUT.txt     # the copy with every trim (dms_quiet.TRIMS) against the untrimmed one:
                                             # same IPC calls (menus only: no audio, brightness, lock or power), logs
+    dms_trim_measure.py --check --bar-off OUT.txt   # the same, the trimmed copy also starting with the Main Bar off
+                                            # (Z224); then the bar turned on and off again while DMS runs
+
+Each run starts its own nested Hyprland (a private state file), so another agent's nested session is never reused
+or stopped.
 """
 import argparse
 import json
@@ -76,6 +81,39 @@ GROUPS = {"small": SMALL, "trimmable": TRIMMABLE}
 IPC = [["spotlight", "toggle"], ["spotlight", "toggle"], ["clipboard", "toggle"], ["clipboard", "toggle"],
        ["control-center", "toggle"], ["control-center", "toggle"], ["powermenu", "toggle"], ["powermenu", "toggle"],
        ["settings", "toggle"], ["settings", "toggle"], ["dash", "toggle", "overview"], ["dash", "toggle", "overview"]]
+# With the bar off (Z224) these must still answer the same: what the live ZÆTHERION session reaches in DMS
+# (~/.config/hypr/zaetherion/keybinds.lua: the old launcher on Super+Ctrl+Space; quick paste; adapters/dms: settings).
+# The control centre and the dash open from DMS's bar or its island, so they fail with the bar off; the ZÆTHERION
+# session's keys open its own rooms instead (Super+A/B/O, N, M), and no adapter calls them.
+LIVE_IPC = {"spotlight toggle", "clipboard toggle", "settings toggle"}
+
+
+def private_nested(work: Path):
+    """This run's own nested Hyprland, never one another agent is using (they share the default state file)."""
+    nested_hypr.STATE = work / "nested.json"
+    return nested_hypr.start()
+
+
+def namespaces(st) -> set[str]:
+    """The nested compositor's DMS layer surfaces, by namespace."""
+    out = nested_hypr.hypr(st["sig"], "layers", "-j").stdout
+    try:
+        monitors = json.loads(out)
+    except ValueError:
+        return set()
+    return {layer.get("namespace", "") for monitor in monitors.values() for level in monitor.get("levels", {}).values()
+            for layer in level if str(layer.get("namespace", "")).startswith("dms")}
+
+
+def set_bar(path: Path, enabled: bool):
+    """As core/dms_bar.py does it: on = enabled and visible (the owner's file says visible: false, Z159); off =
+    enabled only."""
+    settings = json.loads(path.read_text())
+    settings["barConfigs"][0]["enabled"] = enabled
+    if enabled:
+        settings["barConfigs"][0]["visible"] = True
+    path.with_name(".s").write_text(json.dumps(settings, indent=2))
+    os.replace(path.with_name(".s"), path)
 
 
 def drop(text: str, opening: str, contains: str | None) -> str:
@@ -167,6 +205,21 @@ def run_variant(work: Path, st: dict, bus, ui: Path, changes: dict, settle: floa
             time.sleep(settle)
             if bench.named("qs") != [qs]:
                 return None, "qs restarted after the change"
+        flips = []
+        if changes.get("bar0.flip"):  # off at start; on while DMS runs (the view gone), then off again (it's back)
+            # Before the menu calls: DMS keeps its island-style bar collapsed while it counts a menu as open on the
+            # screen, and in the nested compositor (no Hyprland IPC for Quickshell) a clipboard window closed by
+            # `toggle` stays counted, so the bar would never show here, though the window is gone (22 Nov).
+            path = work / "config/dms/settings.json"
+            flips.append(("off at start", sorted(namespaces(st))))
+            for enabled in (True, False):
+                before = namespaces(st)
+                set_bar(path, enabled)
+                wait(lambda: namespaces(st) != before, 20)
+                time.sleep(3)
+                flips.append((f"turned {'on' if enabled else 'off'}", sorted(namespaces(st))))
+            if bench.named("qs") != [qs]:
+                return None, "qs restarted when the bar was turned on or off"
         answers = []
         for call in ipc or []:
             r = subprocess.run(["dms", "ipc", "call", *call], env=bench.env, capture_output=True, text=True, timeout=15)
@@ -191,6 +244,7 @@ def run_variant(work: Path, st: dict, bus, ui: Path, changes: dict, settle: floa
                                     timeout=30).stdout
             keep.with_suffix(".qs.log").write_text(qs_log)
             row["answers"] = answers
+            row["flips"] = flips
             row["log"] = text + "\n" + qs_log
         return row, f"{errors} error lines"
     finally:
@@ -215,6 +269,7 @@ def main():
     parser.add_argument("--samples", type=int, default=5)
     parser.add_argument("--only", default="")
     parser.add_argument("--check", action="store_true")
+    parser.add_argument("--bar-off", action="store_true", help="with --check: the trimmed copy starts with the bar off")
     parser.add_argument("--quiet", type=Path, default=dms_quiet.default_out(), help="the quiet copy to start from")
     args = parser.parse_args()
     if args.check:
@@ -226,9 +281,9 @@ def main():
     source = args.quiet
     if dms_quiet.check(source):
         raise SystemExit(f"{source} is not a quiet copy: " + "; ".join(dms_quiet.check(source)))
-    st = nested_hypr.start()
     (REAL / "zaetherion").mkdir(exist_ok=True)
     work = Path(tempfile.mkdtemp(prefix="dms-trim-", dir=REAL / "zaetherion"))  # short: the core's socket lives here
+    st = private_nested(work)
     copies_dir = Path(tempfile.mkdtemp(prefix="dms-trim-ui-"))  # the UI copies (48 MiB, hard-linked per variant)
     bus = notiftest.Bus()
     results = {n: [] for n in names}
@@ -294,11 +349,17 @@ def main():
     return 0 if owner_ok else 1
 
 
+# Qt's own warnings that come and go from run to run with no change in DMS (seen in the live view's log too).
+NOISE = ("qt.qpa.wayland.textinput",)
+
+
 def warnings(log: str, work: Path) -> set[str]:
     """The log's warning and error lines, with each run's private folder and numbers made comparable."""
     import re
     out = set()
     for line in log.splitlines():
+        if any(noise in line for noise in NOISE):
+            continue
         if any(w in line for w in ("WARN", "ERROR", "Error", "rror:", " warn", "not initialized", "is not defined")):
             line = re.sub(r"\x1b\[[0-9;]*m", "", line)  # colours
             line = re.sub(r"0x[0-9a-fA-F]+", "ADDR", line)  # object addresses differ per run
@@ -309,9 +370,9 @@ def warnings(log: str, work: Path) -> set[str]:
 
 def check(args) -> int:
     source = args.quiet
-    st = nested_hypr.start()
     (REAL / "zaetherion").mkdir(exist_ok=True)
     work = Path(tempfile.mkdtemp(prefix="dms-trim-", dir=REAL / "zaetherion"))
+    st = private_nested(work)
     copies = Path(tempfile.mkdtemp(prefix="dms-trim-ui-"))
     bus = notiftest.Bus()
     logs = args.out.with_suffix(".logs")
@@ -328,9 +389,10 @@ def check(args) -> int:
         # The control: notepad removed outright breaks DMSShellIPC's required property, so its run must log errors
         # the plain one doesn't; if it doesn't, this check can't see QML errors and proves nothing.
         control = variant_copy(plain, copies / "control", VARIANTS["notepad"][1])
+        bar_off = {"bar0.enabled": False, "bar0.flip": True} if args.bar_off else {}
         for name, ui in (("plain", plain), ("trimmed", trimmed), ("control", control)):
-            row, note = run_variant(work / f"run-{name}", st, bus, ui, {}, args.settle, args.samples,
-                                    logs / f"check-{name}.log", IPC)
+            row, note = run_variant(work / f"run-{name}", st, bus, ui, bar_off if name == "trimmed" else {},
+                                    args.settle, args.samples, logs / f"check-{name}.log", IPC)
             rows[name] = (row, note)
             print(f"{name}: {row and round(row['Pss'] / 1024, 1)} MiB PSS ({note})", flush=True)
     finally:
@@ -338,7 +400,8 @@ def check(args) -> int:
         bus.stop()
         if nested_hypr.STATE.exists():
             nested_hypr.stop()
-    lines = [f"# dms_trim_measure.py --check, {time.strftime('%Y-%m-%d %H:%M')}: trims {', '.join(dms_quiet.TRIMS)}", ""]
+    lines = [f"# dms_trim_measure.py --check, {time.strftime('%Y-%m-%d %H:%M')}: trims {', '.join(dms_quiet.TRIMS)}"
+             + (" and the Main Bar off at start (Z224)" if args.bar_off else ""), ""]
     ok = all(r for r, _ in rows.values())
     if ok:
         (a, _), (b, _), (c, _) = rows["plain"], rows["trimmed"], rows["control"]
@@ -350,8 +413,17 @@ def check(args) -> int:
         lines.append(f"PSS MiB: plain {a['Pss'] / 1024:.1f}, trimmed {b['Pss'] / 1024:.1f}")
         for (call, rc_a, out_a), (_, rc_b, out_b) in zip(a["answers"], b["answers"]):
             same = rc_a == rc_b and out_a == out_b
-            ok &= same
-            lines.append(f"{'SAME' if same else 'DIFF'} ipc {call}: plain rc={rc_a} {out_a!r} | trimmed rc={rc_b} {out_b!r}")
+            needed = not args.bar_off or call in LIVE_IPC
+            ok &= same or not needed
+            tag = "SAME" if same else "DIFF" if needed else "diff (not reached in the live session)"
+            lines.append(f"{tag} ipc {call}: plain rc={rc_a} {out_a!r} | trimmed rc={rc_b} {out_b!r}")
+        if args.bar_off:
+            flips = dict(b["flips"])
+            off, on, again = flips.get("off at start"), flips.get("turned on"), flips.get("turned off")
+            works = off is not None and on is not None and set(on) > set(off) and again == off
+            ok &= works
+            lines.append(f"bar {'comes and goes' if works else 'DID NOT come and go'}: "
+                         + "; ".join(f"{what}: {', '.join(names) or 'none'}" for what, names in b["flips"]))
         new = sorted(warnings(b["log"], work) - warnings(a["log"], work))
         ok &= not new
         lines.append(f"warnings only the trimmed copy logs: {len(new)}")
