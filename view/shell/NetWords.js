@@ -82,13 +82,13 @@ function pairing(p) {
     if (!p) return null;
     const who = p.deviceName || "The device";
     switch (p.kind) {
-    case "confirm": return { line: "Does " + who + " show " + p.passkey + "?", field: "", yes: "Yes, pair", no: "No" };
-    case "display-passkey": return { line: "Type " + p.passkey + " on " + who + ".", field: "", yes: "", no: "Cancel" };
-    case "authorize": return { line: "Allow " + who + " to connect?", field: "", yes: "Allow", no: "Deny" };
-    case "pin": return { line: who + " asks for a PIN.", field: "PIN", yes: "Pair", no: "Cancel" };
-    case "passkey": return { line: who + " asks for its 6-digit passkey.", field: "Passkey", yes: "Pair", no: "Cancel" };
+    case "confirm": return { title: "Confirm the code", line: "Does " + who + " show " + p.passkey + "?", field: "", yes: "Yes, pair", no: "No" };
+    case "display-passkey": return { title: "Type the code", line: "Type " + p.passkey + " on " + who + ".", field: "", yes: "", no: "Cancel" };
+    case "authorize": return { title: "Allow the device", line: "Allow " + who + " to connect?", field: "", yes: "Allow", no: "Deny" };
+    case "pin": return { title: "Enter the PIN", line: who + " asks for a PIN.", field: "PIN", yes: "Pair", no: "Cancel" };
+    case "passkey": return { title: "Enter the passkey", line: who + " asks for its 6-digit passkey.", field: "Passkey", yes: "Pair", no: "Cancel" };
     }
-    return { line: who + " asks something FART can't answer yet.", field: "", yes: "", no: "Cancel" };
+    return { title: "Pairing", line: who + " asks something FART can't answer yet.", field: "", yes: "", no: "Cancel" };
 }
 
 function band(b) {

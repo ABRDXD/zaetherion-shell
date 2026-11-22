@@ -3,7 +3,8 @@
 HostDomain {
     property string status: "idle"
     property string source: ""
-    property string trackKey: ""
+    property string trackKey: "" // the track `status` and `lines` are for
+    property string currentKey: "" // the track playing now; equal to trackKey once it is looked up
     property var lines: []
     property bool wordTimed: false
 

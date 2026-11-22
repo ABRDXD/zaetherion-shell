@@ -7,6 +7,8 @@ import qs.view.ui
 // A quiet action in a Settings section (Cutline, Z218; Z219): mono words over a hairline, with an arrow. Hover
 // lifts the words to ink and the line with them; focus draws a frame; disabled fades to faint. `confirm` makes it ask
 // twice (ConfirmArm): armed, it reads `armedLabel` in the danger colour, and a Cancel beside it disarms.
+// In a Side column row (SettingsSideRow) the main verb `leads` with "›" in bold ink, and `underline: false` drops
+// the hairline until hover or focus.
 AbstractButton {
     id: root
     property string label: ""
@@ -14,6 +16,9 @@ AbstractButton {
     property string glyph: "↗"
     property bool confirm: false
     property bool danger: false
+    property bool lit: false // a state that is on (Trusted): the accent
+    property bool leads: false
+    property bool underline: true
     readonly property alias armed: arm.armed
     signal activated()
     hoverEnabled: true
@@ -34,14 +39,15 @@ AbstractButton {
 
     readonly property color tone: !enabled ? Design.faint
         : armed || danger ? Design.danger
-        : hovered || visualFocus ? Design.ink : Design.muted
+        : lit ? Design.accent
+        : hovered || visualFocus || leads ? Design.ink : Design.muted
     background: Item {
         Rectangle {
             y: parent.height - 1
             width: words.implicitWidth
             height: 1
             color: root.tone
-            opacity: Design.fluid && !root.hovered && !root.visualFocus ? 0 : root.enabled ? 1 : 0.5
+            opacity: (Design.fluid || !root.underline) && !root.hovered && !root.visualFocus ? 0 : root.enabled ? 1 : 0.5
             Tween on color { scope: root; ColorAnimation { duration: Motion.feedback; easing.type: Motion.roles.feedback.easing } }
         }
         Rectangle {
@@ -58,7 +64,8 @@ AbstractButton {
         SettingsText {
             id: words
             anchors.verticalCenter: parent.verticalCenter
-            text: (root.armed ? root.armedLabel : root.label) + (root.glyph ? "  " + root.glyph : "")
+            text: (root.leads ? "›  " : "") + (root.armed ? root.armedLabel : root.label) + (root.glyph && !root.leads ? "  " + root.glyph : "")
+            font.bold: root.leads
             technical: true
             font.pixelSize: Design.fluid ? FluidTokens.body : Design.body
             font.capitalization: Font.MixedCase
