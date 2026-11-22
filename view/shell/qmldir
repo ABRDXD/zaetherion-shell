@@ -31,6 +31,8 @@ LauncherFace 1.0 LauncherFace.qml
 LauncherOrbit 1.0 LauncherOrbit.qml
 LauncherRoutes 1.0 LauncherRoutes.qml
 LauncherScenery 1.0 LauncherScenery.qml
+LimbNavigation 1.0 LimbNavigation.qml
+LimbSwitch 1.0 LimbSwitch.qml
 LiveTitle 1.0 LiveTitle.qml
 NotificationsSettings 1.0 NotificationsSettings.qml
 OrbitSystem 1.0 OrbitSystem.qml
@@ -50,9 +52,12 @@ SettingChip 1.0 SettingChip.qml
 SettingChoices 1.0 SettingChoices.qml
 SettingReadout 1.0 SettingReadout.qml
 SettingsAction 1.0 SettingsAction.qml
+SettingsButton 1.0 SettingsButton.qml
 SettingsCut 1.0 SettingsCut.qml
 SettingsNavigation 1.0 SettingsNavigation.qml
+SettingsRule 1.0 SettingsRule.qml
 SettingsScrollBar 1.0 SettingsScrollBar.qml
+SettingsText 1.0 SettingsText.qml
 SheetCockle 1.0 SheetCockle.qml
 SheetWear 1.0 SheetWear.qml
 Shell 1.0 Shell.qml

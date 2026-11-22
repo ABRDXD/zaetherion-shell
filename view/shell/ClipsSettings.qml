@@ -40,7 +40,7 @@ ColumnLayout {
     readonly property var pinOptions: [[10, "10"], [25, "25"], [50, "50"], [100, "100"]]
 
     // ---- Quick paste (Super+V).
-    FText {
+    SettingsText {
         text: "QUICK PASTE · SUPER+V"
         technical: true
         color: Design.accent
@@ -79,17 +79,17 @@ ColumnLayout {
         }
     }
 
-    FRule {
+    SettingsRule {
         Layout.fillWidth: true
     }
 
     // ---- The history (DMS's).
-    FText {
+    SettingsText {
         text: "HISTORY · KEPT BY DMS"
         technical: true
         color: Design.accent
     }
-    FText {
+    SettingsText {
         visible: root.history === null
         text: root.clipboard.available ? "Reading DMS's clipboard settings…" : "DMS's clipboard is offline"
         technical: true
@@ -152,7 +152,7 @@ ColumnLayout {
             Layout.fillWidth: true
             Layout.columnSpan: historyGrid.columns
             spacing: Design.baseline * 2
-            FText {
+            SettingsText {
                 Layout.preferredWidth: 200
                 text: "CLEAR NOW"
                 technical: true
@@ -171,7 +171,7 @@ ColumnLayout {
             }
         }
     }
-    FText {
+    SettingsText {
         visible: root.error !== ""
         text: root.error
         technical: true

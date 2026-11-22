@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import qs.core.client
+import qs.view.fluid
 import qs.view.ui
 import qs.view.cues
 import qs.view.contract
@@ -39,35 +40,73 @@ Item {
     }
     Rectangle {
         anchors.fill: parent
-        color: Design.surface
-        border.width: 1
+        color: Design.fluid ? FluidTokens.base : Design.surface
+        border.width: Design.fluid ? 0 : 1
         border.color: Design.line
     }
     RowLayout {
         anchors.fill: parent
-        anchors.margins: Design.baseline * 4
-        spacing: Design.baseline * 6
-        SettingsNavigation {
-            Layout.preferredWidth: Design.baseline * 46
-            Layout.maximumWidth: Design.baseline * 46
+        anchors.margins: Design.fluid ? 0 : Design.baseline * 4
+        spacing: Design.fluid ? FluidTokens.sectionGap : Design.baseline * 6
+        Loader {
             Layout.fillHeight: true
-            sections: root.sections
-            section: root.section
-            onPicked: section => root.sectionPicked(section)
-            onClosed: root.closed()
+            Layout.preferredWidth: Design.fluid ? Math.max(130, Math.min(250, root.width * 0.23)) : Design.baseline * 46
+            active: root.visible
+            sourceComponent: Design.fluid ? limb : cutline
+            Component {
+                id: limb
+                LimbNavigation {
+                    sections: root.sections
+                    section: root.section
+                    onPicked: section => root.sectionPicked(section)
+                }
+            }
+            Component {
+                id: cutline
+                SettingsNavigation {
+                    sections: root.sections
+                    section: root.section
+                    onPicked: section => root.sectionPicked(section)
+                    onClosed: root.closed()
+                }
+            }
         }
         ColumnLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            spacing: Design.baseline * 3
+            Layout.topMargin: Design.fluid ? FluidTokens.gap : 0
+            Layout.bottomMargin: Layout.topMargin
+            Layout.rightMargin: Design.fluid ? FluidTokens.sectionGap : 0
+            spacing: Design.fluid ? FluidTokens.gap : Design.baseline * 3
+            FluidButton {
+                visible: Design.fluid
+                Layout.alignment: Qt.AlignRight
+                objectName: visible ? "settingsClose" : ""
+                text: "Close settings  ×"
+                background: Rectangle {
+                    radius: FluidTokens.controlRadius
+                    color: parent.hovered ? FluidTokens.control : "transparent"
+                    border.width: parent.visualFocus ? 1 : 0
+                    border.color: FluidTokens.ink
+                }
+                onClicked: root.closed()
+            }
+            FluidText {
+                visible: Design.fluid && root.section !== "bluetooth"
+                text: root.section === "wifi" ? "Wi-Fi" : root.section[0].toUpperCase() + root.section.slice(1)
+                font.pixelSize: FluidTokens.title
+                font.weight: Font.DemiBold
+            }
             FText {
                 Layout.fillWidth: true
+                visible: !Design.fluid
                 text: root.sections.find(section => section[0] === root.section)?.[1] ?? "SETTINGS"
                 headline: true
                 font.pixelSize: Design.figure
                 font.weight: Font.DemiBold
             }
-            FRule {
+            SettingsRule {
+                visible: !Design.fluid || root.section !== "bluetooth"
                 Layout.fillWidth: true
             }
             RowLayout {
@@ -143,7 +182,7 @@ Item {
                             value: root.wideLayout
                             onPicked: value => root.toggleExterior()
                         }
-                        FButton {
+                        SettingsButton {
                             Layout.fillWidth: true
                             label: "Field archive"
                             symbol: "folder_special"

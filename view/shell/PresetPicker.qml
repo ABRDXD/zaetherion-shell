@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import qs.core.client
+import qs.view.fluid
 import qs.view.ui
 
 // The presets section of FART's settings (Z180). A look is a wallpaper, a palette, the island's form and the
@@ -82,14 +83,14 @@ ColumnLayout {
             placeholderTextColor: Design.muted
             selectionColor: Design.accent
             selectedTextColor: Design.background
-            font.family: Design.sans
-            font.pixelSize: Design.body
-            background: Rectangle { color: Design.background; border.color: Design.line; border.width: 1 }
+            font.family: Design.fluid ? FluidTokens.sans : Design.sans
+            font.pixelSize: Design.fluid ? FluidTokens.body : Design.body
+            background: Rectangle { radius: Design.fluid ? FluidTokens.controlRadius : 0; color: Design.background; border.color: Design.line; border.width: 1 }
             onAccepted: if (text.trim() !== "") root.save()
             Keys.onDownPressed: { list.forceActiveFocus(); root.previewIndex(Math.max(0, list.currentIndex)); }
             Keys.onEscapePressed: { if (text) text = ""; else root.closeRequested(); }
         }
-        FButton {
+        SettingsButton {
             id: saveButton
             objectName: "presetSave"
             label: "Save current look"
@@ -118,7 +119,7 @@ ColumnLayout {
             Keys.onEnterPressed: root.applyCurrent()
             Keys.onDeletePressed: if (root.shown) root.send("presets.delete", { name: root.shown.name })
             Keys.onEscapePressed: root.closeRequested()
-            FText {
+            SettingsText {
                 anchors.centerIn: parent
                 visible: root.looks.length === 0
                 width: parent.width - Design.baseline * 8
@@ -140,6 +141,7 @@ ColumnLayout {
                 onHoveredChanged: if (hovered) root.previewIndex(index)
                 onClicked: { root.previewIndex(index); root.applyCurrent(); }
                 background: Rectangle {
+                    radius: Design.fluid ? FluidTokens.controlRadius : 0
                     color: Design.surface
                     border.width: list.currentIndex === card.index ? 2 : 1
                     border.color: list.currentIndex === card.index ? Design.accent : Design.line
@@ -162,7 +164,7 @@ ColumnLayout {
                             asynchronous: true
                             cache: false
                         }
-                        FText {
+                        SettingsText {
                             anchors.centerIn: parent
                             visible: !card.modelData.wallpaper || card.modelData.missing.includes("wallpaper")
                             text: card.modelData.wallpaper ? "MISSING" : "KEEP"
@@ -173,7 +175,7 @@ ColumnLayout {
                     ColumnLayout {
                         Layout.fillWidth: true
                         spacing: Design.baseline
-                        FText { Layout.fillWidth: true; text: card.modelData.name; elide: Text.ElideRight }
+                        SettingsText { Layout.fillWidth: true; text: card.modelData.name; elide: Text.ElideRight }
                         RowLayout {
                             spacing: Design.baseline
                             Repeater {
@@ -186,7 +188,7 @@ ColumnLayout {
                                     border.color: Design.line
                                 }
                             }
-                            FText {
+                            SettingsText {
                                 Layout.fillWidth: true
                                 text: [card.modelData.paletteName, card.modelData.islandForm.toUpperCase(), card.modelData.hostTheme]
                                     .filter(t => t).join(" · ")
@@ -195,17 +197,17 @@ ColumnLayout {
                                 elide: Text.ElideRight
                             }
                         }
-                        FText {
+                        SettingsText {
                             visible: card.modelData.missing.length > 0
                             text: "MISSING · " + card.modelData.missing.map(p => root.parts[p]).join(", ").toUpperCase()
                             technical: true
                             color: Design.danger
                         }
                     }
-                    FButton {
+                    SettingsButton {
                         symbol: "delete"
                         hint: "Delete this look"
-                        implicitHeight: Design.minHit
+                        Layout.preferredHeight: Design.minHit
                         onClicked: root.send("presets.delete", { name: card.modelData.name })
                     }
                 }
@@ -235,7 +237,7 @@ ColumnLayout {
                     asynchronous: true
                     cache: false
                 }
-                FText {
+                SettingsText {
                     anchors.centerIn: parent
                     visible: large.status !== Image.Ready
                     text: !root.shown ? "HOVER A LOOK TO PREVIEW IT" : !root.shown.wallpaper ? "KEEPS THE CURRENT WALLPAPER" : "WALLPAPER MISSING"
@@ -243,7 +245,7 @@ ColumnLayout {
                     color: Design.muted
                 }
             }
-            FText {
+            SettingsText {
                 Layout.fillWidth: true
                 visible: root.shown !== null
                 text: root.shown ? (root.shown.wallpaper ? root.fileName(root.shown.wallpaper) : "current wallpaper") : ""
@@ -254,22 +256,22 @@ ColumnLayout {
             Item { Layout.fillHeight: true }
         }
     }
-    FText {
+    SettingsText {
         Layout.fillWidth: true
         text: root.error || root.notice || "Hover or ↑ ↓ previews · click or Enter uses the look · Delete removes it"
         color: root.error ? Design.danger : Design.muted
-        font.pixelSize: Design.caption
+        font.pixelSize: Design.fluid ? FluidTokens.caption : Design.caption
         wrapMode: Text.Wrap
     }
     RowLayout {
         visible: root.looks.length > 0
-        FButton {
+        SettingsButton {
             objectName: "presetApply"
             label: "Use this look"
             Layout.fillWidth: true
             enabled: root.shown !== null
             onClicked: root.applyCurrent()
         }
-        FButton { label: "Undo preview"; enabled: root.presets.preview !== null && root.presets.preview !== undefined; onClicked: { root.cancel(); list.currentIndex = -1; } }
+        SettingsButton { label: "Undo preview"; enabled: root.presets.preview !== null && root.presets.preview !== undefined; onClicked: { root.cancel(); list.currentIndex = -1; } }
     }
 }

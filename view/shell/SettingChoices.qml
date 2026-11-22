@@ -7,6 +7,7 @@ ColumnLayout {
     id: root
 
     property string label: ""
+    property string displayLabel: label
     property string note: ""
     property string unlistedLabel: "—"
     property var options: []
@@ -54,11 +55,11 @@ ColumnLayout {
         }
     }
 
-    FText {
+    SettingsText {
         Layout.fillWidth: true
-        text: root.label
+        text: Design.fluid ? (root.displayLabel === "WI-FI" ? "Wi-Fi" : root.displayLabel.charAt(0) + root.displayLabel.slice(1).toLowerCase()) : root.displayLabel
         technical: true
-        horizontalAlignment: root.compact ? Text.AlignLeft : Text.AlignHCenter
+        horizontalAlignment: Design.fluid || root.compact ? Text.AlignLeft : Text.AlignHCenter
         color: Design.muted
     }
 
@@ -67,6 +68,7 @@ ColumnLayout {
 
         objectName: "current-" + root.key
         Layout.alignment: root.compact ? Qt.AlignLeft : Qt.AlignHCenter
+        Layout.fillWidth: Design.fluid
         Layout.maximumWidth: root.width
         Layout.preferredWidth: Math.min(root.width, implicitWidth)
         label: root.label
@@ -80,14 +82,14 @@ ColumnLayout {
         onClicked: root.expanded = !root.expanded
     }
 
-    FText {
+    SettingsText {
         Layout.fillWidth: true
         visible: root.note !== ""
         text: root.note
         technical: true
         color: Design.muted
         wrapMode: Text.WordWrap
-        horizontalAlignment: root.compact ? Text.AlignLeft : Text.AlignHCenter
+        horizontalAlignment: Design.fluid || root.compact ? Text.AlignLeft : Text.AlignHCenter
     }
 
     Loader {

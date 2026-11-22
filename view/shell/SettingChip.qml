@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import qs.view.cues
+import qs.view.fluid
 import qs.view.ui
 
 // One alternative under a Settings reading (Cutline, Z218; chips Z219). The current value is a white cut (an ink
@@ -22,8 +23,9 @@ AbstractButton {
     background: Item {
         Rectangle {
             anchors.fill: parent
-            color: Design.hover
-            opacity: root.hovered && !root.selected ? 1 : 0
+            radius: Design.fluid ? height / 2 : 0
+            color: Design.fluid && root.selected ? FluidTokens.accent : Design.hover
+            opacity: (Design.fluid && root.selected) || (root.hovered && !root.selected) ? 1 : 0
             Tween on opacity { scope: root; NumberAnimation { duration: Motion.feedback; easing.type: Motion.roles.feedback.easing } }
         }
         Plane {
@@ -31,13 +33,14 @@ AbstractButton {
             anchors.fill: parent
             role: "ink"
             slant: 3
-            visible: root.selected
+            visible: !Design.fluid && root.selected
         }
         Rectangle {
             anchors.fill: parent
             color: "transparent"
             border.width: 1
             border.color: root.selected ? Design.background : Design.ink
+            radius: Design.fluid ? height / 2 : 0
             visible: root.visualFocus
         }
     }
@@ -45,12 +48,13 @@ AbstractButton {
         id: word
         text: root.label
         technical: true
-        font.pixelSize: Design.body
+        font.family: Design.fluid ? FluidTokens.sans : Design.mono
+        font.pixelSize: Design.fluid ? FluidTokens.body : Design.body
         font.weight: root.selected ? Font.Bold : Font.Normal
         font.capitalization: Font.MixedCase
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-        color: root.selected ? cut.textColor : root.hovered || root.visualFocus ? Design.ink : Design.muted
+        color: root.selected ? (Design.fluid ? FluidTokens.base : cut.textColor) : root.hovered || root.visualFocus ? Design.ink : Design.muted
     }
     transform: Translate { y: root.down ? 1 : 0 }
 }

@@ -14,6 +14,9 @@
 - **Waits for the owner:** which trims (if any). To apply: `tools/dms_quiet.py trim popups notifications ...` on the session copy, then a DMS restart (the owner runs restarts; editing the copy also makes the running DMS reload its UI). The bar is a separate question: the core would set the Main Bar's `enabled` (not just `visible`) off before DMS starts and on whenever our view is down. That changes Z159's mechanism, so it waits for the owner's yes; not started.
 - **Claude A: please merge `b-dms-trim`** when convenient (tools, tests and a measurement only; fast-forwards from `b051233`).
 # 21 November 2026 · Astra · ready to merge `codex/fluid-settings-studies` · Fluid Settings options A · Limb and B · Spectrum in `tools/fluid-settings-study/`. Inspected all four synthetic Bluetooth and Island renders; repeat builds produced identical 1064 × 608 PNGs. Owner picked A · Limb; the native change is ready for Claude A on `codex/fluid-limb` (170871f).
+# 21 November 2026 · Astra · ready to merge `codex/fluid-limb` · Native Fluid Settings, owner pick A · Limb (Z218).
+
+- All eight sections use the planet-rim navigation and palette. Bluetooth stacks paired and nearby lists, and Island uses left-aligned readings. Verified the real Shell Settings entry, section change and close offscreen, all eight tabs at two sizes (42 checks each), Settings tests (3), Angular Settings cue (32), net/BT tests (64), layout (9), room smoke (zero fixture action calls), qmldir and Qt 6 qmllint (zero syntax diagnostics). Next: Claude A runs the full suite and merges. The arrival branch also edits the reveal at the top of PreferencesPane; retain its Angular timing.
 
 # 21 November 2026, night · Opus (Claude A): capture merged (S9, Z221)
 

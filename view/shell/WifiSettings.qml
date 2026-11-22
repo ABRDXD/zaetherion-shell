@@ -3,6 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import qs.view.contract
 import qs.view.rooms
+import qs.view.fluid
 import qs.view.ui
 import "NetWords.js" as Words
 
@@ -63,8 +64,17 @@ ColumnLayout {
     RowLayout {
         Layout.fillWidth: true
         spacing: Design.baseline * 4
+        LimbSwitch {
+            visible: Design.fluid
+            objectName: visible ? "wifiToggle" : ""
+            label: "Wi-Fi"
+            selected: root.network.wifiEnabled
+            enabled: root.network.available
+            onClicked: root.network.setWifiEnabled(!root.network.wifiEnabled)
+        }
         FToggle {
-            objectName: "wifiToggle"
+            visible: !Design.fluid
+            objectName: visible ? "wifiToggle" : ""
             label: "WI-FI"
             symbol: root.network.wifiEnabled ? "wifi" : "wifi_off"
             selected: root.network.wifiEnabled
@@ -74,19 +84,19 @@ ColumnLayout {
         ColumnLayout {
             Layout.fillWidth: true
             spacing: Design.baseline
-            FText {
+            SettingsText {
                 Layout.fillWidth: true
                 elide: Text.ElideRight
                 headline: true
                 font.capitalization: Font.MixedCase
-                font.pixelSize: Design.figure
+                font.pixelSize: Design.fluid ? FluidTokens.title : Design.figure
                 text: !root.network.available ? "Offline"
                     : root.network.kind === "wifi" ? root.network.name
                     : root.network.connecting !== "" ? "Joining " + root.network.connecting + "…"
                     : root.network.wifiEnabled ? "Not connected" : "Wi-Fi is off"
                 color: root.network.kind === "wifi" ? Design.accent : Design.ink
             }
-            FText {
+            SettingsText {
                 Layout.fillWidth: true
                 elide: Text.ElideRight
                 technical: true
@@ -135,7 +145,7 @@ ColumnLayout {
             anchors.fill: parent
             anchors.margins: Design.baseline * 3
             spacing: Design.baseline * 2
-            FText {
+            SettingsText {
                 Layout.fillWidth: true
                 wrapMode: Text.Wrap
                 aside: true
@@ -168,7 +178,7 @@ ColumnLayout {
             Layout.fillHeight: true
             Layout.preferredWidth: 3
             spacing: Design.baseline
-            FText { text: "NEARBY"; technical: true; color: Design.muted }
+            SettingsText { text: "NEARBY"; technical: true; color: Design.muted }
             ListView {
                 id: nearbyList
                 objectName: "wifiNearby"
@@ -207,7 +217,7 @@ ColumnLayout {
                         onCancelled: root.joining = ""
                     }
                 }
-                FText {
+                SettingsText {
                     visible: root.nearby.length === 0
                     width: parent.width
                     wrapMode: Text.Wrap
@@ -257,7 +267,7 @@ ColumnLayout {
             Layout.fillHeight: true
             Layout.preferredWidth: 2
             spacing: Design.baseline
-            FText { text: "SAVED"; technical: true; color: Design.muted }
+            SettingsText { text: "SAVED"; technical: true; color: Design.muted }
             ListView {
                 id: savedList
                 objectName: "wifiSaved"
@@ -273,7 +283,7 @@ ColumnLayout {
                     height: Design.minHit + Design.baseline * 5
                     spacing: Design.baseline * 2
                     FStatusDot { color: saved.modelData.inRange ? Design.accent : Design.line }
-                    FText {
+                    SettingsText {
                         Layout.fillWidth: true
                         elide: Text.ElideRight
                         font.capitalization: Font.MixedCase
@@ -298,7 +308,7 @@ ColumnLayout {
                         onActivated: root.network.forget(saved.modelData.id)
                     }
                 }
-                FText {
+                SettingsText {
                     visible: root.network.saved.length === 0
                     width: parent.width
                     aside: true
@@ -306,7 +316,7 @@ ColumnLayout {
                     text: "nothing saved."
                 }
             }
-            FText { visible: root.network.vpns.length > 0; text: "VPN"; technical: true; color: Design.muted }
+            SettingsText { visible: root.network.vpns.length > 0; text: "VPN"; technical: true; color: Design.muted }
             Repeater {
                 model: root.network.vpns
                 RowLayout {
@@ -314,14 +324,14 @@ ColumnLayout {
                     required property var modelData
                     Layout.fillWidth: true
                     spacing: Design.baseline * 2
-                    FText {
+                    SettingsText {
                         Layout.fillWidth: true
                         elide: Text.ElideRight
                         font.capitalization: Font.MixedCase
                         text: vpn.modelData.name
                         color: vpn.modelData.state === "on" ? Design.accent : Design.ink
                     }
-                    FText { technical: true; color: Design.muted; text: vpn.modelData.state.toUpperCase() }
+                    SettingsText { technical: true; color: Design.muted; text: vpn.modelData.state.toUpperCase() }
                     SettingsAction {
                         objectName: "vpn-" + vpn.modelData.id
                         label: vpn.modelData.state === "off" ? "Start" : "Stop"

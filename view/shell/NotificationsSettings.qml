@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import qs.core.client
 import qs.view.contract
+import qs.view.fluid
 import qs.view.ui
 
 // FART's Notifications tab (Z176, Z207). Everything here is the core's: do-not-disturb (the inbox), how long a
@@ -70,7 +71,7 @@ ColumnLayout {
     }
 
     // ---- Quiet.
-    FText {
+    SettingsText {
         text: "QUIET"
         technical: true
         color: Design.accent
@@ -120,7 +121,7 @@ ColumnLayout {
         }
     }
 
-    FRule {
+    SettingsRule {
         Layout.fillWidth: true
     }
 
@@ -137,12 +138,12 @@ ColumnLayout {
             Layout.preferredWidth: 1
             Layout.alignment: Qt.AlignTop
             spacing: Design.baseline * 2
-            FText { text: "PRIVATE APPS · NO PICTURES KEPT"; technical: true; color: Design.accent }
-            FText {
+            SettingsText { text: "PRIVATE APPS · NO PICTURES KEPT"; technical: true; color: Design.accent }
+            SettingsText {
                 visible: root.privateApps.length === 0
                 text: "None yet"
                 technical: true
-                font.pixelSize: Design.body
+                font.pixelSize: Design.fluid ? FluidTokens.body : Design.body
                 font.capitalization: Font.MixedCase
             }
             Flow {
@@ -166,7 +167,7 @@ ColumnLayout {
                 Layout.fillWidth: true
                 visible: root.seenApps.length > 0
                 spacing: Design.baseline * 4
-                FText {
+                SettingsText {
                     height: Design.minHit + Design.baseline * 2
                     verticalAlignment: Text.AlignVCenter
                     text: "ADD"
@@ -192,12 +193,12 @@ ColumnLayout {
             Layout.preferredWidth: 1
             Layout.alignment: Qt.AlignTop
             spacing: Design.baseline * 2
-            FText { text: "INBOX"; technical: true; color: Design.accent }
-            FText {
+            SettingsText { text: "INBOX"; technical: true; color: Design.accent }
+            SettingsText {
                 objectName: "inboxCount"
                 text: root.inboxUp ? root.notifications.items.length + " kept · " + root.notifications.unread + " unread" : "Offline"
                 technical: true
-                font.pixelSize: Design.body
+                font.pixelSize: Design.fluid ? FluidTokens.body : Design.body
                 font.capitalization: Font.MixedCase
                 color: root.inboxUp ? Design.ink : Design.muted
             }
@@ -221,14 +222,14 @@ ColumnLayout {
             }
         }
     }
-    FText {
+    SettingsText {
         visible: !root.inboxUp && root.error === ""
         text: "The inbox is offline. Its settings come back with it."
         technical: true
         font.capitalization: Font.MixedCase
         color: Design.muted
     }
-    FText {
+    SettingsText {
         visible: root.error !== ""
         text: root.error
         technical: true

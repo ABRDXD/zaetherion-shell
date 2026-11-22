@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import qs.core.client
+import qs.view.fluid
 import qs.view.ui
 import "IslandRestChoices.js" as Rest
 
@@ -44,7 +45,14 @@ ColumnLayout {
     }
 
     // ---- At rest.
+    RowLayout {
+        visible: Design.fluid
+        Layout.fillWidth: true
+        FluidText { Layout.fillWidth: true; text: "At rest"; font.pixelSize: FluidTokens.heading }
+        FluidText { text: "Hover shows everything"; color: FluidTokens.secondary }
+    }
     FText {
+        visible: !Design.fluid
         text: "AT REST · HOVER SHOWS EVERYTHING"
         technical: true
         color: Design.accent
@@ -52,6 +60,7 @@ ColumnLayout {
     SettingChoices {
         Layout.fillWidth: true
         label: "AT REST"
+        displayLabel: Design.fluid ? "Preset" : label
         value: root.preset
         unlistedLabel: root.rest !== null ? "Custom" : "—"
         options: ["today", "a", "b", "c"].map(preset => [preset, (preset === "today" ? "All" : preset.toUpperCase()) + " · " + Rest.PRESET_NOTES[preset]])
@@ -78,12 +87,14 @@ ColumnLayout {
             }
         }
     }
-    FRule {
+    SettingsRule {
         Layout.fillWidth: true
     }
 
     // ---- Where it sits.
+    FluidText { visible: Design.fluid; text: "Place"; font.pixelSize: FluidTokens.heading }
     FText {
+        visible: !Design.fluid
         text: "PLACE"
         technical: true
         color: Design.accent
