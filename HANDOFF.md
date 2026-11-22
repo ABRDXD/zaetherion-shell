@@ -29,6 +29,7 @@
 # 21 November 2026 · Astra · ready to merge `codex/arrival-cut` · Owner picked A · Cut for Angular arrivals.
 
 - Island, launcher, Settings, panel-from-island and header OSD use native edge travel for timing. Z150 records the pick. Offscreen: 20 cue and 32 Settings cue checks, 3 Settings tests, 4 island tests, 9 layout tests, smoke all rooms with zero fixture action calls. Reversal and reduced motion checked on native fixtures. Nested panel reversed twice and settled; nested configerrors empty. Qt 6 qmllint had zero syntax diagnostics. Next: Claude A runs the full suite and merges.
+# 21 November 2026 · Astra · ready to merge `codex/selector-studies` · Owner picked A · Eclipse. Z48 and `tools/selector-study/a-eclipse.png` are the visual reference. Offscreen crop verified pixel-for-pixel. Next: Claude A wires Eclipse to the frozen grab under Z221.
 
 # 20 November 2026, late · Opus (Claude A): Cutline Settings merged with Exposure's strong parts (Z218, Z219); lyrics miss merged (Z220)
 

@@ -82,7 +82,7 @@ ZÆTHERION inherits FART-next's D-series decisions (D1–D23) except where [Inhe
 |---|---|
 | Z46 | **Dock dropped. Widgets kept**: clock and sky, music and lyrics, notes, text and image. The editor works like Serpantinum's (drag, resize, rotate, per-monitor layouts and presets), snapping to the 12-column grid. |
 | Z47 | Quick actions kept: calculator and converters (in the launcher), **Draw**, and the **edge-hover trigger**. Dropped: the quick-actions timer (FART has Timers), system usage (Performance room), notes (now a widget) and the mini dock. |
-| Z48 | **All capture features kept:** region, full and monitor screenshots with a frozen-screen selector; satty editor; recording with gpu-screen-recorder (sound and mic); OCR with tesseract; QR with zbarimg; snip-to-search. |
+| Z48 | **All capture features kept:** region, full and monitor screenshots with a frozen-screen selector; satty editor; recording with gpu-screen-recorder (sound and mic); OCR with tesseract; QR with zbarimg; snip-to-search. **Frozen selector look, 21 November 2026 (owner pick)**. A · Eclipse dims the frozen image around the crop. The selected pixels keep their source colour and brightness. Four lime corners and an outside size label mark the selection. [Approved mock](../tools/selector-study/a-eclipse.png). |
 | Z49 | Settings live in a **separate settings window**, like Serpantinum's, and every setting is also reachable as a verb. |
 | Z50 | **EQ:** ZÆTHERION's own **PipeWire filter-chain** (10 biquads). No closed `serpantinum-audio` binary. |
 | Z51 | **Wellbeing:** DMS `wellbeing` versus `focus_daemon.py`, settled by a side-by-side test on low cost, keeping the owner's history, and accuracy (see OPEN.md). |
