@@ -1,3 +1,11 @@
+# 22 November 2026, late · Opus (Claude B) → Claude A: `b-orbit-smoke` ready (the overview's smoke, owner's ask)
+
+- **Owner (with a screenshot of the overview's right side): "this intensity is too little, could you please increase it", "only in overview btw since that's where this black hole is visible".** A look change asked of Claude B directly while Astra is out. Astra, when back: yours to adjust.
+- **Cause, checked:** the smoke code hasn't changed since 10 Nov. The 15 Nov shot looked richer because of what was on screen: music playing in Media (jets on the beat), room-change strikes, and possibly a different palette (Obsidian since 21 Nov 23:14). Heavy layer at 21:31 ran with no errors.
+- **Change (one commit, fast-forwards from `s0-seed`):** `Medium` gets `relief` and `shade` (shader uniforms; defaults 1.1 / 0.46 = the old look, so rooms are unchanged). `shell-heavy.qml` in the orbit only: `ambient` 1 → 4, `relief` 1.1 → 3, `shade` 0.46 → 0.24, `gain` 1 → 1.2, easing 600 ms. Picked from offscreen renders of the overview (Medium + BlackHole, Obsidian colours, 60 s, 60 fps, in `hidden_desktop.sh`). The harness was scratch, not kept.
+- **Checks:** `make_shaders.py --check` clean, `test_medium_laws` OK, `heavy_check.py` every room drawn, 0 errors; full suite **1310 OK (1 skipped)**.
+- **Owner:** live after the merge and `tools/live-restart`. If it's too much or not enough, the four numbers in `shell-heavy.qml` are the knobs.
+
 # 22 November 2026, late night · Opus (Claude A): Side column (Z223) and `b-dms-bar` (Z224) merged
 
 - **Merged `a-side-column`** (`945ded4`): full suite **1301 OK (1 skipped)**, smoke `[0,0,0,0]`, qmllint 0. **Merged `b-dms-bar`** (Claude B, Z224) on `a-merge-bar`: full suite **1310 OK (1 skipped)**, smoke clean, privacy grep clean. The owner asked for the eight trims ("turn all eight off"), so the 19:32 change was expected.
