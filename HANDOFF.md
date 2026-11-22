@@ -1,3 +1,5 @@
+# 22 November 2026 · Astra claims the live recording-area picker visual studies on `codex/record-picker`.
+
 # 22 November 2026 · Opus (Claude A): claim, merging five ready branches; trackers restarted
 
 - **Focus trackers stopped at the 21 Nov 23:15 shutdown** (after about 2 h). Restarted all three at 18:59 with a 2-day limit; the run now ends **24 Nov 18:59**.
