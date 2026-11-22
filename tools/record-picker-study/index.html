@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Recording area · visual studies</title>
+<style>
+*{box-sizing:border-box}
+:root{color-scheme:dark;--paper:#f4f1e8;--ink:#151719;--coral:#ff9b85;--amber:#ffd077;font:13px "JetBrainsMono Nerd Font",monospace}
+body{margin:0;background:#171c20;color:var(--paper)}
+nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px}
+a,button{color:inherit;font:inherit;padding:6px 12px;border:1px solid #68716e;background:transparent;text-decoration:none}
+[aria-current=page]{background:var(--paper);color:var(--ink)}
+main{height:min(75vw,78vh);min-height:350px;position:relative;overflow:hidden;isolation:isolate;touch-action:none;cursor:crosshair;background:#21313c}
+body.frame main{height:100vh;min-height:0}
+body.frame nav{display:none}
+.fixture{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.orbit{animation:drift 16s ease-in-out infinite alternate}
+@keyframes drift{from{transform:translate(-34px,14px)}to{transform:translate(120px,-52px)}}
+@media(prefers-reduced-motion:reduce){.orbit{animation:none}}
+.frame .orbit{animation:none}
+main:focus-visible{outline:2px solid var(--paper);outline-offset:-3px}
+.overlay{position:absolute;inset:0;pointer-events:none}
+.crop{position:absolute;outline:1px solid white}
+.viewfinder .crop{box-shadow:0 0 0 2px #24191b,0 0 0 150vmax #11171e70}
+.crop i{position:absolute;width:22px;height:22px;border:solid var(--coral);border-width:4px 0 0 4px;left:-4px;top:-4px}
+.crop i:nth-child(2){left:auto;right:-4px;transform:scaleX(-1)}
+.crop i:nth-child(3){top:auto;bottom:-4px;transform:scaleY(-1)}
+.crop i:nth-child(4){inset:auto -4px -4px auto;transform:scale(-1)}
+.splice .crop{outline-color:var(--amber)}
+.splice .crop i{display:none}
+.splice .crop::before,.splice .crop::after{content:"";position:absolute;left:-1px;right:-1px;height:9px;bottom:100%;border-block:2px solid #24221f;background:repeating-linear-gradient(90deg,#24221f 0 5px,var(--amber) 5px 9px,#24221f 9px 17px)}
+.splice .crop::after{top:100%;bottom:auto}
+.size{position:absolute;background:var(--coral);color:var(--ink);padding:5px 10px;font-weight:bold}
+.splice .size{background:var(--amber)}
+.hint{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:18px;padding:10px 16px;background:#16191d;color:var(--paper);white-space:nowrap}
+.hint b{font-size:11px;letter-spacing:.07em;color:var(--coral)}
+.hint span{font:500 20px "Roboto Condensed",sans-serif}
+.hint small{font-size:11px;color:#d5d7d7}
+.splice .hint{left:16px;transform:none;border-left:5px solid var(--amber)}
+.splice .hint b{color:var(--amber)}
+.hint.top{top:16px;bottom:auto}
+[hidden]{display:none!important}
+@media(max-width:540px){.hint,.splice .hint{left:6px;right:6px;bottom:6px;transform:none;justify-content:space-between;gap:6px;padding:8px}.hint span{font-size:15px}.hint b,.hint small{font-size:10px}}
+</style>
+<nav><a href="?look=viewfinder">A · Viewfinder</a><a href="?look=splice">B · Splice</a><button id="reset">Reset sample</button></nav>
+<main tabindex="0" aria-label="Drag a recording area on the invented orbit simulation">
+<svg class="fixture" viewBox="0 0 960 510" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<defs><pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="#829994" stroke-opacity=".2"/></pattern>
+<radialGradient id="sun" cx=".32" cy=".26" r=".85"><stop stop-color="#fff2c1"/><stop offset=".38" stop-color="#f5c67d"/><stop offset=".76" stop-color="#d9875e"/><stop offset="1" stop-color="#6c4847"/></radialGradient>
+<clipPath id="disc"><circle cx="525" cy="244" r="99"/></clipPath></defs>
+<rect width="960" height="510" fill="#263640"/><rect width="960" height="510" fill="url(#grid)"/>
+<g fill="#e2e1cf" font-family="Roboto Condensed, sans-serif"><text x="38" y="55" font-size="31">Orbital transit</text><text x="38" y="79" font-size="16">Simulation playback</text></g>
+<ellipse cx="522" cy="248" rx="353" ry="84" transform="rotate(-23 522 248)" fill="none" stroke="#abc1b2" stroke-opacity=".68"/>
+<circle cx="525" cy="244" r="99" fill="url(#sun)"/>
+<g clip-path="url(#disc)" stroke="#a76554" fill="none" opacity=".52"><path d="M406 180q57 33 115 5t116-4m-234 9q70 32 128 3t111 6m-247 24q78 24 136-2t115 6m-245 15q69 32 125 3t118 1m-242 23q57 17 109 0t138-2m-241 31q57 19 115-3t116 2m-222 18q48 19 99 3t117-4" stroke-width="3"/></g>
+<g class="orbit"><circle cx="522" cy="241" r="17" fill="#263038" stroke="#e3bb85"/></g>
+<path d="M38 405h71q11 0 18 14h54q8-14 20-14h65" fill="none" stroke="#c3d9cb" stroke-width="2"/>
+<text x="38" y="447" fill="#bdcabe" font-family="monospace" font-size="12">TRANSIT LIGHT CURVE</text>
+</svg>
+<div class="overlay"><div class="crop" hidden><i></i><i></i><i></i><i></i></div><div class="size" hidden></div><div class="hint"><b>RECORD AREA</b><span aria-live="polite">Drag an area to record</span><small>Esc · Cancel</small></div></div>
+</main>
+<script>
+const main=document.querySelector('main'),crop=document.querySelector('.crop'),size=document.querySelector('.size'),hint=document.querySelector('.hint'),words=hint.querySelector('span');
+const params=new URLSearchParams(location.search);
+const look=params.get('look')==='splice'?'splice':'viewfinder';
+document.body.classList.add(look);
+document.querySelector('[href="?look='+look+'"]').setAttribute('aria-current','page');
+if(params.has('frame'))document.body.classList.add('frame');
+let start=null, area=null;
+function clear(message='Drag an area to record'){
+  start=null;area=null;crop.hidden=true;size.hidden=true;hint.hidden=false;hint.classList.remove('top');words.textContent=message;
+}
+function show(x,y,w,h){
+  area={x,y,w,h};crop.hidden=false;
+  Object.assign(crop.style,{left:x+'px',top:y+'px',width:w+'px',height:h+'px'});
+  size.hidden=false;size.textContent=w+' × '+h+' px';
+  const margin=look==='splice'?13:7,above=y-size.offsetHeight-margin;
+  size.style.left=Math.max(0,Math.min(x,main.clientWidth-size.offsetWidth))+'px';
+  size.style.top=(above>=0?above:y+h+margin)+'px';
+  size.hidden=above<0 && y+h+margin+size.offsetHeight>main.clientHeight;
+  words.textContent='Release to start recording';
+  hint.hidden=false;hint.classList.remove('top');
+  function overlaps(el){
+    const r=el.getBoundingClientRect(),m=main.getBoundingClientRect();
+    return r.left<m.left+x+w && r.right>m.left+x && r.top<m.top+y+h && r.bottom>m.top+y;
+  }
+  function coversLabel(){
+    if(size.hidden)return false;
+    const a=hint.getBoundingClientRect(),b=size.getBoundingClientRect();
+    return a.left<b.right && a.right>b.left && a.top<b.bottom && a.bottom>b.top;
+  }
+  if(overlaps(hint)||coversLabel()){hint.classList.add('top');if(overlaps(hint)||coversLabel())hint.hidden=true}
+}
+function point(e){
+  const r=main.getBoundingClientRect();
+  return [Math.round(Math.max(0,Math.min(r.width,e.clientX-r.left))),Math.round(Math.max(0,Math.min(r.height,e.clientY-r.top)))];
+}
+function drag(e){
+  const [x,y]=point(e),w=Math.abs(start[0]-x),h=Math.abs(start[1]-y);
+  if(w>1&&h>1)show(Math.min(start[0],x),Math.min(start[1],y),w,h);
+  else{area=null;crop.hidden=true;size.hidden=true;hint.hidden=false;hint.classList.remove('top');words.textContent='Drag an area to record'}
+}
+main.onpointerdown=e=>{if(e.button!==0)return;clear();main.focus();main.setPointerCapture(e.pointerId);start=point(e)};
+main.onpointermove=e=>{if(start)drag(e)};
+main.onpointerup=e=>{if(!start)return;drag(e);clear(area?'Area selected · sample complete':undefined)};
+main.onpointercancel=()=>clear();
+main.oncontextmenu=e=>{e.preventDefault();clear('Selection cancelled')};
+window.onkeydown=e=>{if(e.key==='Escape')clear('Selection cancelled')};
+document.querySelector('#reset').onclick=()=>clear();
+if(params.has('frame') && params.get('state')!=='idle')show(Math.round(main.clientWidth*.31),Math.round(main.clientHeight*.21),Math.round(main.clientWidth*.45),Math.round(main.clientHeight*.49));
+</script>
+</html>
