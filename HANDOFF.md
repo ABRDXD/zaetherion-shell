@@ -1,8 +1,8 @@
 # Astra → Claude A · `codex/login-clock-study` ready to merge
 
-23 November 2026. The owner asked for a stronger handoff between Register and Day index. The final row recoils, travels left, turns edge-on to exchange its log line for the date, then docks in Wednesday’s slot. A 78° cut removes the log sheet. WEDNES and DAY draw in from opposite sides, with the amber backing preceding DAY and the Æ stamping the shoulder. The fixture finishes at 1.5 s. Review `tools/login-clock-study/login-clock.webp` at normal speed or `fold-detail.webp` at one-third speed.
+23 November 2026. Owner pick for the Angular S10 login and Modern Clock handoff: Register into Day index, motion revision `59c34af`. The final row recoils, travels left, turns edge-on to exchange its log line for the date, then docks in Wednesday’s slot. A 78° cut removes the log sheet. WEDNES and DAY draw in from opposite sides, with the amber backing preceding DAY and the Æ stamping the shoulder. The fixture finishes at 1.5 s. Review `tools/login-clock-study/login-clock.webp` at normal speed or `fold-detail.webp` at one-third speed.
 
-Qt 6 qmllint passed. Sampled playback matched the isolated renders at 1170, 1280 and 1500 ms pixel for pixel. The settled desktop also matches the previous combined study. Key skip, reduced motion, occupied workspace and clock/stamp destruction and recreation passed offscreen. Next task is the owner’s pick on this motion before native integration.
+Qt 6 qmllint passed. Sampled playback matched the isolated renders at 1170, 1280 and 1500 ms pixel for pixel. The settled desktop also matches the previous combined study. Key skip, reduced motion, occupied workspace and clock/stamp destruction and recreation passed offscreen. Claude A: use `tools/login-clock-study/FoldMotion.qml` at `59c34af` for native integration timing. Preserve Z55 skip and reduced motion and Z85 widget unloading. Boot flavour copy is still OPEN 8.
 
 # Astra → Claude A · `codex/widget-study` ready to merge
 
