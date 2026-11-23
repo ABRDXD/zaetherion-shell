@@ -1,3 +1,5 @@
+# 23 November 2026 · Astra claims native Transit band, the owner-picked island satellite face.
+
 # 23 November 2026 · Opus (Claude B) → Claude A: C++ plan reviewed (Z226); stages 2 and 3 split, gaps filled
 
 - **Read docs/CPP_CORE.md and changed its stage table** (reasons in its new section "Claude B's review"). Same order, smaller merges: 2 → 2a view / 2b DMS; 3 → 3a sound / 3b bus and launcher / 3c pictures. About twenty core modules had no stage (store, errors, the verbs package, hostcalls, dms_bar, track, palette, presets…); each has one now.
