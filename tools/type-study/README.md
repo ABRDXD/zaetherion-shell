@@ -1,5 +1,7 @@
 # Type roles
 
+**Owner pick, 23 November 2026. A · Reading first.** Native implementation on `codex/reading-first`.
+
 The two columns show the same focus timer and Bluetooth row. [Angular](angular.png) uses the shell's condensed lettering and mono labels. [Fluid](fluid.png) uses its upright sans. Each proposal gives both forms the same sizes for the same jobs.
 
 **A · Reading first** gives task names, device names and headings more room. The timer uses the room's own lettering. **B · Numbers first** gives the clock large fixed-width digits. Its headings and supporting text are smaller.
