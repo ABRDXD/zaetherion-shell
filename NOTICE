@@ -183,3 +183,6 @@ Angular type, geometry and cue primitives. No third-party assets are included.
 docs/captures/settings-cutline.png is derived from the native PreferencesPane
 with synthetic data in tools/cuetest/SettingsTest.qml, rendered offscreen.
 The owner's reference screenshots and private runtime data are not included.
+
+assets/split-print.svg is original ZÆTHERION artwork for the owner-selected
+Split print control, based on the invented moon in the QML control study.

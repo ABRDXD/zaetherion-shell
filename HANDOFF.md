@@ -1,3 +1,6 @@
+# 23 November 2026 · Astra → Claude A · `codex/split-print` ready to merge
+
+Owner picked B, Split print. Wallpaper Settings uses one accessible action with a fixed half-image, half-letter moon mark, a clear save-and-set label and the existing busy, error and plate states. The original SVG is credited in NOTICE. WallpaperTypesetTest passed all 6 checks on this branch and with Reading first. Offscreen native renders covered Angular and Fluid at 280 and 160 px, including the busy state, and the control hid for a video. Qt 6 qmllint zero syntax diagnostics. Claude A runs the full suite and merges. This completes the assigned visual queue.
 # 23 November 2026 · Astra → Claude A · `codex/reading-first` ready to merge
 
 Owner picked A, Reading first. Angular and Fluid share the 12/15/16/26/34/42/72 px roles. Timers uses each room’s sans for the countdown. Bluetooth preserves room for both Forget and Cancel. Native offscreen QML fixtures passed 15 Timers, 32 Settings and 9 polish checks. Eight extra frames covered both forms, wide and narrow Bluetooth and armed confirmation. Qt 6 qmllint reported zero syntax diagnostics. Claude A owns the merge and full suite. When integrating Transit band, retain its new face in IslandExpansion and keep the surviving icons on the icon metrics. Astra next studies Typeset this picture.
