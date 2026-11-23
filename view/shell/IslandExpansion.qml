@@ -21,6 +21,8 @@ Item {
     signal replyEdited(string text)
     signal replyFocused(bool focused)
     property bool restoreReplyFocus: false
+    property var privacy: []
+    signal openRoom(string room)
     signal dismiss()
     signal openLog(string url)
     signal pinMemory()
@@ -70,12 +72,15 @@ Item {
         case "memory": return Qt.size(448, 140);
         case "osd": return Qt.size(444, 56);
         case "workspace": return Qt.size(WorkspaceLayout.width, WorkspaceLayout.depth);
-        case "track": return Qt.size(420, 72);
+        case "timer":
+        case "done":
+        case "track": return Qt.size(438, 49);
         case "launcher": return Qt.size(LauncherLayout.contentWidth + 2 * launcherInset, LauncherLayout.depth(launcherRows, edgePad));
         case "session": return Qt.size(5 * 88 + 2 * 16 + (Design.fluid ? 0 : 2 * Math.ceil(12 + 76 / Math.tan(84 * Math.PI / 180))), 76);
         default: return Qt.size(420, 56);
         }
     }
+    readonly property bool transitKind: ["timer", "done", "track"].includes(kind)
     readonly property bool noticeKind: kind === "notification" || kind === "critical"
     // The pointer is over the notification card itself (Z175); the island pauses a notification's countdown only then.
     readonly property bool noticeHovered: noticeKind && (face.item?.cardHovered ?? false)
@@ -99,16 +104,18 @@ Item {
     Loader {
         id: face
         anchors.fill: parent
-        anchors.leftMargin: root.sideInset
-        anchors.rightMargin: root.sideInset
-        anchors.topMargin: root.edgePad + (root.bottomEdge ? root.facet + root.lift : -root.lift)
-        anchors.bottomMargin: root.edgePad + (root.bottomEdge ? -root.lift : root.facet + root.lift)
+        anchors.leftMargin: root.transitKind ? 0 : root.sideInset
+        anchors.rightMargin: root.transitKind ? 0 : root.sideInset
+        anchors.topMargin: root.transitKind ? 0 : root.edgePad + (root.bottomEdge ? root.facet + root.lift : -root.lift)
+        anchors.bottomMargin: root.transitKind ? 0 : root.edgePad + (root.bottomEdge ? -root.lift : root.facet + root.lift)
         sourceComponent: {
             switch (root.kind) {
             case "notification":
             case "critical": return notice;
             case "osd": return osd;
-            case "track": return track;
+            case "timer":
+            case "done":
+            case "track": return transit;
             case "workspace": return workspaces;
             case "memory": return memory;
             case "recording": return recording;
@@ -651,63 +658,15 @@ Item {
     }
 
     Component {
-        id: track
-        Item {
-            FPlate {
-                id: tile
-                anchors.verticalCenter: parent.verticalCenter
-                width: 44
-                height: 44
-                role: "signal"
-                radius: Design.roundPlate
-                MaterialSymbol {
-                    fill: Design.iconFill
-                    weight: Design.iconWeight
-                    anchors.centerIn: parent
-                    visible: cover.status !== Image.Ready
-                    text: "music_note"
-                    iconSize: Design.readout
-                    color: tile.textColor
-                }
-                Image {
-                    id: cover
-                    anchors.centerIn: parent
-                    width: 32
-                    height: 32
-                    source: root.payload.artUrl ?? ""
-                    sourceSize.width: 32
-                    sourceSize.height: 32
-                    fillMode: Image.PreserveAspectCrop
-                    asynchronous: true
-                }
-            }
-            Column {
-                anchors.left: tile.right
-                anchors.leftMargin: 3 * Design.baseline
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
-                FText {
-                    technical: true
-                    color: Design.accent
-                    font.capitalization: root.systemVoice ? Font.AllUppercase : Font.MixedCase
-                    text: root.voice("> NOW PLAYING")
-                }
-                FText {
-                    width: parent.width
-                    headline: true
-                    font.weight: Font.Bold
-                    font.pixelSize: Design.readout
-                    font.capitalization: Font.MixedCase
-                    text: root.payload.title ?? ""
-                }
-                FText {
-                    width: parent.width
-                    visible: text !== ""
-                    text: root.payload.artist ?? ""
-                    technical: true
-                    color: Design.muted
-                }
-            }
+        id: transit
+        TransitBand {
+            kind: root.kind
+            payload: root.payload
+            privacy: root.privacy
+            bottomEdge: root.bottomEdge
+            lift: root.lift
+            onOpenRoom: room => root.openRoom(room)
+            onDismiss: root.dismiss()
         }
     }
 
@@ -828,7 +787,7 @@ Item {
         id: status
         Item {
             id: statusFace
-            readonly property bool inverse: ["done", "low-battery"].includes(root.event?.kind)
+            readonly property bool inverse: root.kind === "low-battery"
             FPlate {
                 id: backing
                 anchors.fill: parent

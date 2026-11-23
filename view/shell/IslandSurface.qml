@@ -460,6 +460,7 @@ FocusScope {
         enabled: false
         sourceComponent: IslandExpansion {
             event: root.outgoingEvent
+            privacy: root.host.audio.privacy
             core: root.core
             apps: root.host.apps
             clipboard: root.host.clipboard
@@ -482,6 +483,8 @@ FocusScope {
         opacity: eventFade.value
         sourceComponent: IslandExpansion {
             event: root.shownEvent
+            privacy: root.host.audio.privacy
+            onOpenRoom: room => root.openPanel(room)
             bottomEdge: root.bottomEdge
             lift: root.lift
             systemVoice: root.systemVoice
