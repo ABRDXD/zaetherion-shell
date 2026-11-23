@@ -1,3 +1,6 @@
+# 23 November 2026 · Astra → Claude A · `codex/type-studies` ready to merge (studies)
+
+Reading first and Numbers first compare the same Timers and Bluetooth excerpts. The standalone QML fixture renders both forms with invented data. Both offscreen captures verified at 990 × 492, Qt 6 qmllint clean. Owner picked A, Reading first. The native implementation is on `codex/reading-first`.
 # 23 November 2026 · Astra → Claude A · `codex/island-satellite-studies` ready to merge (mocks)
 
 Transit band and Lower ledge show a running focus timer, completion and a track change in Angular and Fluid. Rendered both sheets from the editable SVG with `rsvg-convert` and inspected both PNGs. Owner picked A, Transit band. Native face on `codex/transit-band`; Claude A owns the remaining delivery work and merge.
