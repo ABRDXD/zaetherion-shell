@@ -21,7 +21,8 @@ measurements), which never run on the desktop and stay Python.
 `core-cpp/` (CMake, Qt6 Core/Network/DBus, C++20) builds `fartd-cpp`. `FART_CORE=cpp` makes the session start
 it instead of `core/fartd.py`; the Python core stays the default until the last stage.
 
-**Parity harness first.** Of 147 test files, 8 drive the core over its socket; 43 import Python modules
+**Parity harness first** (built 23 Nov: docs/PARITY_HARNESS.md; what fartd-cpp must offer it, e.g. the
+fixture log and `FART_FIXTURE_EPOCH`, is listed there). Of 147 test files, 8 drive the core over its socket; 43 import Python modules
 directly. Stage 0 turns the core's behaviour into socket-level checks (requests in, replies and topic events
 out, state files written), run against **both** cores. A stage merges only when both cores pass it.
 

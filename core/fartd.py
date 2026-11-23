@@ -75,6 +75,19 @@ def supervise_allowed(environ) -> bool:
     return environ.get("FART_HOST") != "fixture" or environ.get("FART_SUPERVISE_FIXTURE") == "1"
 
 
+def fixture_epoch(environ) -> float | None:
+    """FART_FIXTURE_EPOCH (epoch seconds): a test core's wall clock starts there. Ignored unless the host is the
+    fixture, so a stray variable can never move the desktop's clock."""
+    value = environ.get("FART_FIXTURE_EPOCH")
+    if not value or environ.get("FART_HOST") != "fixture":
+        return None
+    try:
+        return float(value)
+    except ValueError:
+        log.warning("FART_FIXTURE_EPOCH=%r ignored: not a number", value)
+        return None
+
+
 def view_env(environ, **extra) -> dict:
     """The view's environment. Supervision settings stay with the core, so apps launched from the shell don't
     inherit them and start a core that supervises DMS."""
@@ -117,7 +130,7 @@ def supervise(core: Core, scheduler, env: dict, runtime: Path) -> SessionWatch |
 
 async def serve(runtime: Path, state_dir: Path):
     loop = asyncio.get_running_loop()
-    clock = SystemClock()
+    clock = SystemClock(fixture_epoch(os.environ))
     scheduler = TimerfdScheduler(clock, loop)
     host = Host(load_profile(os.environ["FART_HOST"]))
     sock_path = runtime / "core.sock"
@@ -131,11 +144,13 @@ async def serve(runtime: Path, state_dir: Path):
     core = Core(clock, scheduler, host, state_dir, spawn=lambda: spawn_quickshell(entry, env),
                 pressure=lambda callback: PressureTrigger(loop, callback), before_spawn=lambda: stop_foreign_instance(entry, None),
                 resident_view=resident, dms_bar=DmsBar(clock=clock, scheduler=scheduler) if resident else None)
+    # Signals first: once the socket listens a client may stop us at once (the parity harness found SIGTERM in that
+    # window killing the core outright, leaving its socket behind).
+    for signum in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
+        loop.add_signal_handler(signum, core.stopping.set)
     sock, owned = listening_socket(sock_path)
     server = await asyncio.start_unix_server(core.server.handle, sock=sock, limit=MAX_LINE)
     core.view.start_checks()  # off the first open's path (docs/CORE.md §7)
-    for signum in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
-        loop.add_signal_handler(signum, core.stopping.set)
     if core.dms_bar:
         core.dms_bar.prepare()  # off before DMS starts, so it never makes the bar; back on if the view fails (Z224)
     watch = supervise(core, scheduler, env, runtime)

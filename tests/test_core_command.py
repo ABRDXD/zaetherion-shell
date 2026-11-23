@@ -197,3 +197,15 @@ class VolTests(Harness):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DurationTests(unittest.TestCase):
+    def test_durations(self):
+        from core.verbs.base import Usage, duration
+        cases = {"25": 1500, "90s": 90, "45s": 45, "5s": 5, "130s": 130, "25m": 1500, "1h30": 5400, "1h30m": 5400,
+                 "1m30s": 90, "2h": 7200, "1h5s": 3605, "2h10m15s": 7815}
+        self.assertEqual({text: duration(text) for text in cases}, cases)
+        self.assertEqual(duration("90", bare_minutes=False), 90)
+        for text in ("", "s", "m", "h", "1x", "90sm", "1h30s30"):
+            with self.subTest(text=text), self.assertRaises(Usage):
+                duration(text)
