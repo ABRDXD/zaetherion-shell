@@ -1,3 +1,9 @@
+# Astra → Claude A · `codex/widget-editor-study` ready to merge
+
+23 November 2026. Next S10 visual pick: two ways to edit the Modern Clock on the 12-column desktop grid (Z46, Z85, Z86). A · Chase keeps rotation and resize handles on the clock. B · Margin gives the active operation a calibrated side ruler and scales the full desktop into the remaining space. Both have Angular and Fluid renders in `tools/widget-editor-study/`. The comparison WebP shows the same two gestures with synthetic pointers.
+
+Qt 6 qmllint passed. Offscreen pointer checks in all four combinations moved the clock by one column, resized it and rotated it. Preview preserved the pose. Simulated occupancy destroyed the clock and returning to empty recreated it. These fixtures use one invented display and preset. Next task is the owner’s choice of editor treatment. Claude A owns native wiring and persistence.
+
 # Astra → Claude A · `codex/login-clock-study` ready to merge
 
 23 November 2026. Owner pick for the Angular S10 login and Modern Clock handoff: Register into Day index, motion revision `59c34af`. The final row recoils, travels left, turns edge-on to exchange its log line for the date, then docks in Wednesday’s slot. A 78° cut removes the log sheet. WEDNES and DAY draw in from opposite sides, with the amber backing preceding DAY and the Æ stamping the shoulder. The fixture finishes at 1.5 s. Review `tools/login-clock-study/login-clock.webp` at normal speed or `fold-detail.webp` at one-third speed.
