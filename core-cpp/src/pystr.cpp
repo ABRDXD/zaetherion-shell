@@ -2,7 +2,10 @@
 
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <cstdio>
+#include <optional>
+#include <stdexcept>
 
 namespace fart::py {
 
@@ -207,6 +210,88 @@ bool truthy(const json::Value& v) {
     case T::Object: return !v.as_object().empty();
     }
     return false;
+}
+
+namespace {
+std::optional<std::string> ascii_int_text(std::string_view s) {  // int(str)'s grammar, digits made ASCII
+    std::string stripped = strip(s), out;
+    size_t i = 0;
+    if (i < stripped.size() && (stripped[i] == '+' || stripped[i] == '-')) out += stripped[i++];
+    bool digit_before = false;
+    while (i < stripped.size()) {
+        size_t at = i;
+        uint32_t cp = next_code_point(stripped, i);
+        if (cp == '_' && digit_before && i < stripped.size()) {
+            size_t peek = i;
+            if (decimal(next_code_point(stripped, peek)) < 0) return std::nullopt;
+            digit_before = false;
+            continue;
+        }
+        int d = decimal(cp);
+        if (d < 0) return std::nullopt;
+        (void)at;
+        out += static_cast<char>('0' + d);
+        digit_before = true;
+    }
+    if (!digit_before) return std::nullopt;
+    return out;
+}
+}  // namespace
+
+int64_t int_of(const json::Value& v) {
+    using T = json::Value::Type;
+    switch (v.type()) {
+    case T::Bool: return v.as_bool() ? 1 : 0;
+    case T::Int: return v.as_int();
+    case T::Float: {
+        double d = v.as_float();
+        if (!std::isfinite(d)) throw std::runtime_error("cannot convert float to integer");
+        double t = std::trunc(d);
+        if (std::fabs(t) >= 9.2e18) throw std::runtime_error("int beyond 64 bits");
+        return static_cast<int64_t>(t);
+    }
+    case T::String: {
+        auto text = ascii_int_text(v.as_string());
+        if (!text) throw std::runtime_error("invalid literal for int(): " + repr(v.as_string()));
+        try {
+            return std::stoll(*text);
+        } catch (const std::exception&) {
+            throw std::runtime_error("int beyond 64 bits");
+        }
+    }
+    default: throw std::runtime_error("int() argument must be a string or a number, not " + repr_of(v));
+    }
+}
+
+double float_of(const json::Value& v) {
+    using T = json::Value::Type;
+    switch (v.type()) {
+    case T::Bool: return v.as_bool() ? 1.0 : 0.0;
+    case T::Int: return static_cast<double>(v.as_int());
+    case T::Float: return v.as_float();
+    case T::BigInt: {
+        auto d = json::parse_double(v.as_bigint().digits);
+        if (!d || !std::isfinite(*d)) throw std::runtime_error("int too large to convert to float");
+        return *d;
+    }
+    case T::String: {
+        std::string text;
+        for (char c : strip(v.as_string()))
+            if (c != '_') text += c;  // float("1_000"); a misplaced underscore is refused below only roughly
+        auto d = json::parse_double(text);
+        if (!d || text.empty() || text.find_first_of("xXpP") != std::string::npos)
+            throw std::runtime_error("could not convert string to float: " + repr(v.as_string()));
+        return *d;
+    }
+    default: throw std::runtime_error("float() argument must be a string or a real number, not " + repr_of(v));
+    }
+}
+
+double number(const json::Value& v) {
+    if (v.is_bool()) return v.as_bool() ? 1.0 : 0.0;
+    if (v.is_int()) return static_cast<double>(v.as_int());
+    if (v.is_float()) return v.as_float();
+    throw std::runtime_error("not a number: " + repr_of(v));
 }
 
 }  // namespace fart::py

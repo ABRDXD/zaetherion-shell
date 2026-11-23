@@ -29,4 +29,12 @@ std::string repr_of(const json::Value& v);
 std::string str_of(const json::Value& v);   // str(v): a string as itself, anything else as repr()  // repr() of a parsed JSON value: None, True, 1.0, 'x', [1, 2], {'k': v}
 bool truthy(const json::Value& v);       // bool(v)
 
+// int(v) and float(v) of a parsed value, as the loaders call them on whatever a file holds. They throw
+// std::runtime_error where Python raises (a string that isn't a number, a list, nan or inf to int, an int beyond
+// 64 bits to int here: the core never meets one). int() of a string allows whitespace, a sign, Unicode digits and
+// single underscores between digits; float() of a string allows what float() does.
+int64_t int_of(const json::Value& v);
+double float_of(const json::Value& v);
+double number(const json::Value& v);  // an int, float or bool as a double, for arithmetic (Python's promotion)
+
 }  // namespace fart::py

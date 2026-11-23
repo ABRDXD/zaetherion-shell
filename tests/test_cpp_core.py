@@ -289,6 +289,98 @@ class SettingsEdges(unittest.TestCase):
                 core.close()
 
 
+def timers_edges(which: str, seed: dict | None = None, steps=True) -> list:
+    """Timer ops at their edges: normalised replies (times as type tags), then the host calls and timers.json."""
+    from parity.normalise import Normaliser
+    norm = Normaliser()
+    out = []
+    with Core(which, seed=seed or {}) as core, core.client() as peer:
+        def call(op, **args):
+            reply = peer.call(op, **args)
+            out.append(norm(reply.get("error") or reply["result"]))
+        if steps:
+            for seconds in (0, 0.5, 1, 604800, 604800.5, True, "60", None, [60], float("inf"), float("nan"), 10 ** 30, -(10 ** 30), 10 ** 400):
+                call("timer.start", kind="countdown", seconds=seconds)
+            for kind in ("Countdown", None, 1, ["countdown"], "pomodoro "):
+                call("timer.start", kind=kind, seconds=60)
+            call("timer.start", kind="pomodoro", focus=90.5)
+            call("timer.start", kind="pomodoro", focus=0)
+            call("timer.start", kind="pomodoro", seconds=5, focus=None)
+            call("timer.start", kind="stopwatch", seconds="ignored", focus=[1])
+            call("timer.lap")
+            call("timer.toggle", kind="stopwatch")
+            call("timer.lap")
+            call("timer.reset", kind="countdown")
+            call("timer.toggle", kind="countdown")
+            call("timer.add", kind="countdown", seconds=604000)
+            call("timer.add", kind="countdown", seconds=1000)
+            call("timer.add", kind="pomodoro", seconds=1)
+            call("timer.add", kind="nope", seconds="x")
+            call("timer.add", kind="countdown", seconds=0)
+            for config in ({"pomodoro": {"focus": 59.9}}, {"pomodoro": {"focus": 3600.7, "cycles": 12}}, {"pomodoro": {"cycles": True}},
+                           {"pomodoro": {"cycles": 10 ** 20}}, {"pomodoro": {"Focus": 60}}, {"pomodoro": {"focus": 600}, "sound": "yes"},
+                           {"pomodoro": {}}, {}, {"pomodoro": None, "sound": None}, {"pomodoro": [1]}, {"sound": True}, {"sound": 0}):
+                call("timer.configure", **config)
+            call("timer.reset", kind="pomodoro")
+            for kind in (None, "countdown", "pomodoro", "stopwatch", "x"):
+                call("timer.ack", kind=kind)
+            call("timer.toggle", kind="pomodoro")
+            call("timer.toggle", kind="pomodoro")
+        out.append(norm(peer.request("status")["timers"]))
+        time.sleep(0.3)
+        out.append(core.host_calls())
+        saved = core.state_bytes("timers.json")
+        out.append(norm(_tag_late(json.loads(saved))) if saved else None)  # values with times as type tags
+        out.append(sorted(k for k in core.state_files() if k.startswith("timers")))
+    return out
+
+
+def _tag_late(value):
+    """`late` (seconds past a deadline) depends on timing too; keep only its type."""
+    if isinstance(value, dict):
+        return {k: (type(v).__name__ if k == "late" else _tag_late(v)) for k, v in value.items()}
+    return [_tag_late(v) for v in value] if isinstance(value, list) else value
+
+
+def timers_seed(**kinds) -> dict:
+    """A version-2 timers.json whose running kinds started on another boot, `ago` seconds back."""
+    now = time.time()
+    state = {"version": 2, "config": {"pomodoro": {"focus": 1500, "break": 300, "longBreak": 900, "cycles": 4}, "sound": True}}
+    for kind, (duration, ago) in kinds.items():
+        state[kind] = {"duration": duration, "run": {"running": True, "elapsed": 0.0,
+                                                     "anchor": {"boot": 1.0, "real": now - ago, "bootId": "another-boot"}}}
+    return {"timers.json": state}
+
+
+@built
+class TimersEdges(unittest.TestCase):
+    maxDiff = None
+
+    def test_ops_equal(self):
+        python, cpp = timers_edges("python"), timers_edges(str(FARTD_CPP))
+        for i, (a, b) in enumerate(zip(python, cpp)):
+            self.assertEqual(a, b, f"step {i}")
+        self.assertEqual(len(python), len(cpp))
+
+    def test_saved_files(self):
+        """Odd and old files: version 1 migration, settings.json's v1 lengths, foreign shapes, and deadlines that pass
+        while the core was down (late: no sound, the pomodoro pauses; on time: the cue plays)."""
+        v1 = {"timer": {"pomodoro": {"cycle": 7, "isBreak": True, "running": False},
+                        "stopwatch": {"running": False, "elapsed": 1234, "laps": [100, "x", 250.5, True]},
+                        "countdown": {"duration": 90, "running": False}}}
+        seeds = [{"timers.json": v1, "settings.json": {"time": {"pomodoro": {"focus": 1800, "breakTime": 0, "cyclesBeforeLongBreak": 3}},
+                                                       "sounds": {"pomodoro": True}}},
+                 {"timers.json": {"version": 2, "config": {"pomodoro": {"focus": True, "cycles": 2.0, "x": 5}, "sound": 1},
+                                  "pomodoro": {"phase": "longBreak", "cycle": "3", "duration": "120", "lengths": {"break": 61.5, "focus": -1}},
+                                  "stopwatch": {"laps": "12"}, "countdown": {"duration": 30, "done": {"at": 1}}}},
+                 {"timers.json": "{broken"}, {"timers.json": [1, 2]}, {"settings.json": "{broken"},
+                 timers_seed(countdown=(300, 3600)), timers_seed(pomodoro=(1500, 7200)), timers_seed(pomodoro=(1500, 1510)),
+                 timers_seed(countdown=(60, 30), stopwatch=(0, 5))]
+        for seed in seeds:
+            python, cpp = timers_edges("python", seed, steps=False), timers_edges(str(FARTD_CPP), seed, steps=False)
+            self.assertEqual(python, cpp, seed)
+
+
 @built
 class Rails(unittest.TestCase):
     def test_sigterm_right_after_start(self):
