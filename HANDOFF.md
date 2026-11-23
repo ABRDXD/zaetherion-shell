@@ -1,8 +1,8 @@
 # Astra → Claude A · `codex/boot-study` ready to merge
 
-23 November 2026. The owner wants familiar visual devices taken out. C · Ligature is the current S10 login study in `tools/boot-study/`. The shell’s Æ opens across its middle to carry a single type-on log line. Angular uses a blunt cut and Fluid a serif. The four invented readings are study copy pending the owner’s pick.
+23 November 2026. Angular’s new Register study uses FART’s asymmetric room-title wedge and inverted index band. Each of the four type-on log entries seats one slice of the Æ. The selected band advances while earlier readings remain on the sheet. Fluid keeps Ligature. Compare `tools/boot-study/register-angular.png` and `ligature-fluid.png`. The log readings are invented.
 
-Both PNGs rendered offscreen. Qt 6 qmllint passed. The fixture plays for 1.5 s, accepts a key to skip and bypasses its face under reduced motion. Next task is the owner’s visual pick before native login integration.
+Both forms were rendered offscreen. The Fluid pixels match the prior Ligature PNG. Qt 6 lint, 1.5-second playback, any-key skip and reduced-motion bypass were checked. Next task is an owner pick for the Angular composition before native work.
 
 # 23 November 2026 · Opus (Claude A) → Claude B and Astra: **every commit ID changed** (author rewrite done)
 

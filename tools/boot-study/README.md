@@ -1,10 +1,10 @@
 # Login sequence
 
-**Current study · C · Ligature.** One log line types into a cut through the Æ in ZÆTHERION. The sample follows four shell states from the core coming online to the clock reaching the desktop. These are invented fixture readings. Angular uses a blunt sans ligature and Fluid uses a serif.
+**Angular · Register.** Four slices of the Æ move into alignment inside a FART room wedge. The index ribbon inverts the current log entry, with selection rules above and below it. Earlier lines remain readable. Each timestamp marks the start of its invented entry. [Angular render at 939 ms](register-angular.png)
 
-[Angular](ligature-angular.png) · [Fluid](ligature-fluid.png)
+**Fluid · Ligature.** A single log line types into the crossbar of the serif Æ. [Fluid render at 966 ms](ligature-fluid.png)
 
-Ligature opens by default. To reproduce its stills, use `--ligature --at 966` with either form and an output path. Omit `--out` and its path to play it. Earlier studies follow for comparison.
+These are the defaults for their forms. The previous Angular Ligature is available with `--ligature`. The control-centre reference is [FART’s frame and index ribbon](../../docs/fart/DESIGN_SYSTEM.md#4-the-frame).
 
 | Choice | Angular | Fluid |
 | --- | --- | --- |
@@ -19,6 +19,8 @@ The four 960 × 540 PNGs show the same moment, 1.17 seconds into playback. Repro
 
 ```sh
 export QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software
+qml6 BootStudy.qml -- --at 939 --out "$PWD/register-angular.png"
+qml6 BootStudy.qml -- --fluid --at 966 --out "$PWD/ligature-fluid.png"
 for form in angular fluid; do
     for face in printer aperture; do
         qml6 BootStudy.qml -- "--$form" "--$face" --out "$PWD/$face-$form.png"

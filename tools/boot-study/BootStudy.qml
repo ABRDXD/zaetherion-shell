@@ -10,11 +10,12 @@ Window {
     readonly property var args: Qt.application.arguments
     readonly property bool fluid: args.includes("--fluid")
     readonly property bool ligature: !args.includes("--printer") && !aperture
+    readonly property bool registerLook: ligature && !fluid && !args.includes("--ligature")
     readonly property bool aperture: args.includes("--aperture")
     readonly property bool reduced: args.includes("--reduced-motion")
     readonly property bool exporting: args.includes("--out")
     visible: !reduced || exporting
-    color: ligature ? (fluid ? "#222938" : "#31272b") : fluid ? "#141f24" : "#181c22"
+    color: registerLook ? "#16191e" : ligature ? (fluid ? "#222938" : "#31272b") : fluid ? "#141f24" : "#181c22"
     readonly property color ink: "#f1eee5"
     readonly property color quiet: fluid ? "#a5babd" : "#afafb1"
     readonly property color accent: fluid ? "#a8d9d1" : "#eac498"
@@ -46,7 +47,17 @@ Window {
         Loader {
             anchors.fill: parent
             active: !window.reduced
-            sourceComponent: window.ligature ? ligatureFace : window.aperture ? apertureFace : printerFace
+            sourceComponent: window.registerLook ? registerFace : window.ligature ? ligatureFace : window.aperture ? apertureFace : printerFace
+            Component {
+                id: registerFace
+                RegisterBoot {
+                    current: window.current
+                    progress: window.progress
+                    currentText: window.typed(window.current)
+                    starts: window.starts
+                    events: window.events
+                }
+            }
             Component {
                 id: ligatureFace
                 Ligature {
