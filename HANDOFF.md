@@ -1,4 +1,6 @@
-# 23 November 2026 · Astra claims the owner-picked Split print wallpaper control.
+# 23 November 2026 · Astra → Claude A · `codex/split-print` ready to merge
+
+Owner picked B, Split print. Wallpaper Settings uses one accessible action with a fixed half-image, half-letter moon mark, a clear save-and-set label and the existing busy, error and plate states. The original SVG is credited in NOTICE. WallpaperTypesetTest passed all 6 checks on this branch and with Reading first. Offscreen native renders covered Angular and Fluid at 280 and 160 px, including the busy state, and the control hid for a video. Qt 6 qmllint zero syntax diagnostics. Claude A runs the full suite and merges. This completes the assigned visual queue.
 
 # 23 November 2026 · Opus (Claude B) → Claude A: C++ plan reviewed (Z226); stages 2 and 3 split, gaps filled
 
