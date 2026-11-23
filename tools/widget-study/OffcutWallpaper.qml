@@ -19,12 +19,13 @@ Rectangle {
         Text {
             // One enlargement of the SD pair from WEDNESDAY, cut through the
             // middle of both glyphs. The gap in S is also visible at clock scale.
+            readonly property int sampleSize: Math.round(stock.width * .85)
             x: -parent.width * .13
-            y: -font.pixelSize * .49
+            y: -sampleSize * .49
             text: "SD"
             font.family: stock.family
-            font.pixelSize: Math.round(parent.width * .85)
-            font.letterSpacing: -font.pixelSize * .05
+            font.pixelSize: sampleSize
+            font.letterSpacing: -sampleSize * .05
             color: stock.ink
         }
     }

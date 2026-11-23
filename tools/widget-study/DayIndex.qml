@@ -5,6 +5,8 @@ Item {
     id: clock
     required property string dayFamily
     required property string detailFamily
+    // A preview can carry the selected tab in from another surface.
+    property bool dateInFlight: false
     readonly property color paper: "#20232a"
     readonly property color ink: "#f2efdf"
     readonly property color signal: "#ffd064"
@@ -62,6 +64,7 @@ Item {
                     readonly property bool today: index === 2
                     width: today ? 144 : 35
                     height: 33
+                    opacity: today && clock.dateInFlight ? 0 : 1
                     Canvas {
                         anchors.fill: parent
                         visible: tab.today

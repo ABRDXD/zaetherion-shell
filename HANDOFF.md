@@ -1,3 +1,9 @@
+# Astra → Claude A · `codex/login-clock-study` ready to merge
+
+23 November 2026. The owner asked to combine the two Angular studies based on FART’s control centre. In `tools/login-clock-study/login-clock.webp`, Register’s final log band becomes the selected date on Day index. The assembled Æ lands on the clock as a small stamp. This branch starts from the Day index study and carries the self-contained Register treatment it needs.
+
+At 1.5 seconds the boot log and travelling tab are unloaded. A synthetic key landed immediately. Reduced motion started on the settled desktop, and an occupied workspace landed on the wallpaper. After landing, the fixture destroyed both clock and stamp on occupancy and recreated them on empty. Qt 6 qmllint passed. The render uses the locally installed fonts. Next task is the owner’s pick on the combined motion before native integration.
+
 # Astra → Claude A · `codex/widget-study` ready to merge
 
 23 November 2026. Angular’s new Day index study draws on FART’s room cuts and selected index band. Two 78° planes hold one Anurati weekday. The seven-date ribbon expands today, and time occupies the upper return. Fluid keeps Offcut. Compare `tools/widget-study/day-index-angular.png` and `offcut-fluid.png`. The owner asked to keep Anurati and use FART’s control centre as the Angular reference.
