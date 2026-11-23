@@ -16,8 +16,10 @@ long rss_kib() {
 Core::Core(const Clock& clock, std::string host, const std::filesystem::path& state_dir, Server& server,
            std::function<void()> stop)
     : clock_(clock), host_(std::move(host)), server_(server), stop_(std::move(stop)), started_(clock.now()),
-      tasks_(clock, state_dir), placeholders_(server) {
+      tasks_(clock, state_dir), island_(state_dir), clips_(state_dir), placeholders_(server) {
     tasks_.attach(server);
+    island_.attach(server);
+    clips_.attach(server);
     server.topic("core", [this] { return core_snapshot(); });
     // Always offered, so a view can subscribe whether or not this core supervises DMS (stage 2b ports the
     // supervisor; until then this core never supervises, which is what this snapshot says).

@@ -28,6 +28,7 @@ add_executable(fartd-cpp
   src/core.cpp
   src/store.cpp
   src/tasks.cpp
+  src/settings.cpp
 )
 target_link_libraries(fartd-cpp PRIVATE fart-json Qt6::Core)
 # Qt's own signal/slot keywords stay off: the code uses Q_SIGNALS-free lambdas only.

@@ -192,6 +192,8 @@ std::string repr_of(const json::Value& v) {
     return "?";
 }
 
+std::string str_of(const json::Value& v) { return v.is_string() ? v.as_string() : repr_of(v); }
+
 bool truthy(const json::Value& v) {
     using T = json::Value::Type;
     switch (v.type()) {

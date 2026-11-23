@@ -6,6 +6,7 @@
 #include "json.h"
 #include "placeholders.h"
 #include "protocol.h"
+#include "settings.h"
 #include "tasks.h"
 
 #include <filesystem>
@@ -31,6 +32,8 @@ private:
     std::function<void()> stop_;
     Now started_;
     Tasks tasks_;
+    Island island_;
+    Clips clips_;
     Placeholders placeholders_;
 
     json::Value hello(Client& peer, const Args& args);

@@ -244,6 +244,51 @@ class TasksEdges(unittest.TestCase):
             self.assertEqual(got["python"], got[str(FARTD_CPP)], seed)
 
 
+SETTINGS_LINES = [
+    b'{"id":1,"op":"island.rest","args":{"item":"inbox","mode":"unread"}}', b'{"id":2,"op":"island.rest","args":{"item":"inbox","mode":"unread"}}',
+    b'{"id":3,"op":"island.rest","args":{"item":"power","mode":"dot"}}', b'{"id":4,"op":"island.rest","args":{"item":"cpu","mode":"always"}}',
+    b'{"id":5,"op":"island.rest","args":{"item":5,"mode":"always"}}', b'{"id":6,"op":"island.rest","args":{"item":"battery","mode":["always"]}}',
+    b'{"id":7,"op":"island.rest","args":{"item":"network","mode":null}}', b'{"id":8,"op":"clips.set","args":{"key":"rows","value":4}}',
+    b'{"id":9,"op":"clips.set","args":{"key":"rows","value":11}}', b'{"id":10,"op":"clips.set","args":{"key":"rows","value":true}}',
+    b'{"id":11,"op":"clips.set","args":{"key":"rows","value":10.0}}', b'{"id":12,"op":"clips.set","args":{"key":7,"value":true}}',
+    b'{"id":13,"op":"clips.set","args":{"key":"enterPastes","value":1}}', b'{"id":14,"op":"clips.set","args":{"key":"showImages","value":false}}',
+    '{"id":15,"op":"clips.set","args":{"key":"naïve","value":"é"}}'.encode(), b'{"id":16,"op":"clips.set","args":{"key":null,"value":{"a":[1.5]}}}',
+]
+
+
+@built
+class SettingsEdges(unittest.TestCase):
+    maxDiff = None
+
+    def test_replies_byte_equal(self):
+        self.assertEqual(exchange("python", SETTINGS_LINES), exchange(str(FARTD_CPP), SETTINGS_LINES))
+
+    def test_saved_files(self):
+        """What each core makes of what it finds, and what it writes after one change."""
+        seeds = [{"island.json": '{"noticeMs":2000.0,"form":"fluid","rest":{"inbox":"dot","cpu":"x","power":"matters"},"screen":"' + "s" * 65 + '","zz":1}'},
+                 {"island.json": '{"screen":"DP-1","edge":"left"}'}, {"island.json": '{bad'}, {"island.json": '0'},
+                 {"clips.json": '{"rows":11,"enterPastes":true,"x":1}'}, {"clips.json": '[1]'}, {"clips.json": '{bad'}]
+        for seed in seeds:
+            got = {}
+            for which in ("python", str(FARTD_CPP)):
+                with Core(which, seed=seed) as core, core.client() as peer:
+                    snaps = peer.subscribe("island", "clips")["snapshots"]
+                    peer.call("island.rest", item="battery", mode="hover")
+                    peer.call("clips.set", key="rows", value=9)
+                    files = {k: v for k, v in core.state_files().items() if k.startswith(("island", "clips"))}
+                got[which] = (json.dumps(snaps), files)
+            self.assertEqual(got["python"], got[str(FARTD_CPP)], seed)
+
+    def test_island_file_not_an_object_stops_both(self):
+        for which in ("python", str(FARTD_CPP)):
+            core = Core(which, seed={"island.json": "[1]"})
+            try:
+                with self.assertRaises(CoreGone, msg=which):
+                    core.start()
+            finally:
+                core.close()
+
+
 @built
 class Rails(unittest.TestCase):
     def test_sigterm_right_after_start(self):

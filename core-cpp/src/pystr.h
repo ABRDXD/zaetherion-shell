@@ -25,7 +25,8 @@ std::string strip(std::string_view s);             // s.strip()
 std::string prefix(std::string_view s, size_t n);  // s[:n]
 
 std::string repr(std::string_view s);    // repr(str)
-std::string repr_of(const json::Value& v);  // repr() of a parsed JSON value: None, True, 1.0, 'x', [1, 2], {'k': v}
+std::string repr_of(const json::Value& v);
+std::string str_of(const json::Value& v);   // str(v): a string as itself, anything else as repr()  // repr() of a parsed JSON value: None, True, 1.0, 'x', [1, 2], {'k': v}
 bool truthy(const json::Value& v);       // bool(v)
 
 }  // namespace fart::py
