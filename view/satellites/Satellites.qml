@@ -12,6 +12,8 @@ Scope {
     required property CoreClient core
     required property HostAdapter host
     property bool panelOpen: false
+    // False where the island delivers these events itself (its Transit band, Z227): no surface, no cards.
+    property bool wanted: true
     // A click on the timer or track card opens that room (Overlay opens the panel).
     signal openRoom(string page)
     // The surface: Overlay passes a SatelliteWindow (a layer surface); the offscreen harness a
@@ -24,7 +26,7 @@ Scope {
 
     Loader {
         id: window
-        active: root.state.anyDue
+        active: root.wanted && root.state.anyDue
         sourceComponent: root.surface
         onLoaded: cards.parent = item.contentItem
     }
@@ -33,7 +35,7 @@ Scope {
         spacing: 6
         Loader {
             id: done
-            active: root.state.doneDue
+            active: root.wanted && root.state.doneDue
             sourceComponent: SatelliteCard {
                 value: root.state.doneText
                 inverted: true
@@ -43,7 +45,7 @@ Scope {
         }
         Loader {
             id: timer
-            active: root.state.timerDue
+            active: root.wanted && root.state.timerDue
             sourceComponent: SatelliteCard {
                 label: root.state.timerLabel
                 value: root.state.timerText
@@ -53,7 +55,7 @@ Scope {
         }
         Loader {
             id: track
-            active: root.state.trackDue
+            active: root.wanted && root.state.trackDue
             sourceComponent: SatelliteCard {
                 value: root.state.trackText
                 fade: true

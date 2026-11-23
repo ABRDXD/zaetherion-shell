@@ -96,7 +96,8 @@ Scope {
     }
 
     onTrackChanged: {
-        if (ready && track && previousTrack && track !== previousTrack)
+        // As the satellites did (DAILY_DRIVER §5): a session holds track changes back (Z227).
+        if (ready && track && previousTrack && track !== previousTrack && !core?.sessionData?.active)
             queue.offer("track", "track", priority.track, player, Timing.track);
         previousTrack = track;
     }

@@ -88,7 +88,7 @@ ShellRoot {
                 break;
             case 6:
                 root.check(!fixture.media.holds("spectrum") && !fixture.audio.holds("mixer"), "leases released");
-                root.check(island.expansion?.kind === "track" && island.height === 72, "track face");
+                root.check(island.expansion?.kind === "track" && island.height === 49 && island.width === 438, "track face (Transit band, 438 × 49)");
                 fixture.workspaces.activeId = "2";
                 break;
             case 7:

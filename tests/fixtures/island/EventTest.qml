@@ -93,6 +93,18 @@ ShellRoot {
                 break;
             case 9:
                 root.check(queue.current?.kind === "debrief" && queue.current.data.streak === 3, "session debrief");
+                queue.remove("debrief");
+                // Z227: a session holds track changes back, as the satellites did.
+                core.sessionData = { active: { preset: "focus", until: Date.now() + 600000, seconds: 600 }, last: null, streak: { current: 3 } };
+                fixture.media.active = Object.assign({}, fixture.media.active, { title: "Second Signal" });
+                break;
+            case 10:
+                root.check(!queue.entries.some(event => event.id === "track"), "session holds the track back");
+                core.sessionData = { active: null, last: null, streak: { current: 3 } };
+                fixture.media.active = Object.assign({}, fixture.media.active, { title: "Third Signal" });
+                break;
+            case 11:
+                root.check(queue.current?.kind === "track" && queue.current.data.title === "Third Signal", "track after the session");
                 running = false;
                 scene.grabToImage(result => {
                     root.check(result.saveToFile(Quickshell.env("ISLAND_FRAME_SHOT")), "offscreen capture");

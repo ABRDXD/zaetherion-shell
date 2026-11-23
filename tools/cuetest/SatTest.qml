@@ -129,6 +129,16 @@ ShellRoot {
                 });
                 return true;
             },
+            // Z227: where the island runs (it delivers these itself), a due timer makes no surface and no card.
+            () => {
+                sats.wanted = false;
+                core.timersData = timers({ running: true, duration: 1500 });
+                const away = sats.surfaces === 0 && sats.shown.length === 0 && sats.state.timerDue;
+                sats.wanted = true;
+                const back = sats.shown.join() === "timer" && sats.surfaces === 1;
+                core.timersData = timers();
+                check("sat.island.stands.down", away && back, { away: away, back: back, shown: sats.shown });
+            },
             () => after(200, () => {
                 check("sat.idle.end", idle() && Motion.active === 0, { shown: sats.shown, active: Motion.activeNames });
                 root.next();

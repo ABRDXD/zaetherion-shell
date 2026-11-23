@@ -25,6 +25,8 @@ Scope {
     // The island wants the keyboard (Super+Shift+I while docked): the panel stays open and yields it
     // until the island lets go (Escape), then takes it back.
     property bool islandHasKeyboard: false
+    // The island shows timer, DONE and track itself (Transit band, Z227); the satellites stand down then.
+    property bool satellitesWanted: true
     // The island's resting rect in screen coordinates. With an island at the edge the panel opens as the island
     // itself growing: its silhouette (IslandFrame) grows from this rect to the panel's, revealing FART inside, and
     // folds back into it. FART's header takes the island's place at the top.
@@ -253,6 +255,7 @@ Scope {
     // Timer, DONE and track-change satellites beside the clock; hidden while the panel is shown.
     Satellites {
         id: satellites
+        wanted: root.satellitesWanted
         core: root.core
         host: root.host
         panelOpen: root.retained

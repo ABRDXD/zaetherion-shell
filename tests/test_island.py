@@ -47,7 +47,8 @@ class IslandFrameTests(unittest.TestCase):
 
     def test_status_faces(self):
         self.run_fixture("EventTest.qml", ("recording status", "charging notice", "DND suppresses ordinary battery warning",
-            "critical battery passes DND", "backend comeback", "resident restart", "timer status", "timer done", "session debrief"))
+            "critical battery passes DND", "backend comeback", "resident restart", "timer status", "timer done", "session debrief",
+            "session holds the track back", "track after the session"))
 
     def test_notices_follow_their_inbox_item(self):
         self.run_fixture("NoticeTest.qml", ("the sender's showing time", "a live item can be answered",

@@ -48,6 +48,8 @@ ShellRoot {
           ?? Quickshell.screens.find(screen => screen.name === adapter.workspaces.focusedScreen)
           ?? Quickshell.screens[0] ?? null
     readonly property var island: islandLoader.item
+    // The island runs: it delivers timer, DONE and track, so Overlay's satellites stand down (Z227).
+    readonly property bool islandShown: islandWanted && islandScreen !== null
 
     Overlay {
         id: panel
@@ -56,6 +58,7 @@ ShellRoot {
         companionWindows: root.island?.companionWindow ? [root.island.companionWindow] : []
         adjacentIslandGap: root.island ? root.island.edgeGap : -1
         islandRect: root.island?.islandRect ?? null
+        satellitesWanted: !root.islandShown
         islandHasKeyboard: root.island?.companionWindow?.wantsKeyboard ?? false
         islandAlert: root.island?.coveredEvent ?? null
         islandOsd: root.island?.headerOsd ?? null
@@ -75,7 +78,7 @@ ShellRoot {
 
     LazyLoader {
         id: islandLoader
-        active: root.islandWanted && root.islandScreen !== null
+        active: root.islandShown
         IslandWindow {
             host: adapter
             core: client

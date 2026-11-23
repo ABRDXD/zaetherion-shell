@@ -14,7 +14,7 @@ VIEW_TESTS = ('view.navigate.burst', 'view.entrance.interrupt', 'view.entrance.r
               'calendar.shift.burst', 'view.click.during.entrance', 'button.fill.retarget', 'creature.press.retrigger',
               'view.idle.rooms', 'view.idle.playing', 'heat.scale', 'quiet.heard', 'clock.occultation', 'archive.matchcut', 'desks.sheet', 'home.sky', 'performance.orrery', 'orbit.alive', 'orbit.laws', 'overdrive.language', 'overdrive.ignite.release', 'overdrive.guards')
 SATELLITE_TESTS = ('sat.idle.none', 'sat.timer.minutes', 'sat.timer.last.minute', 'sat.suppressed', 'sat.done.flash', 'sat.done.unload',
-                   'sat.done.reduced.static', 'sat.pomodoro.phase.done', 'sat.track.dwell', 'sat.track.session', 'sat.track.core', 'sat.idle.end')
+                   'sat.done.reduced.static', 'sat.pomodoro.phase.done', 'sat.track.dwell', 'sat.track.session', 'sat.track.core', 'sat.island.stands.down', 'sat.idle.end')
 RUNTIME_ERRORS = ('ReferenceError:', 'TypeError:', 'Cannot assign', 'Unable to assign', 'is not a type', 'depends on non-bindable')
 
 
