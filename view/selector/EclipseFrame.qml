@@ -70,7 +70,7 @@ Item {
             text: root.hasCrop ? (root.caption ? root.caption + " " : "") + Geometry.sizeText(root.crop, root.sourceScale) : ""
             color: EclipseLook.ink
             font.family: Design.mono
-            font.pixelSize: Design.control
+            font.pixelSize: 13
         }
     }
 }

@@ -78,7 +78,7 @@ FocusScope {
     }
     PilotReticle {
         id: reticle
-        visible: root.active && root.mode === "region" && root.pointerHere
+        visible: root.active && root.mode === "region" && root.pointerHere && !root.shown
         pointX: root.pointerX
         pointY: root.pointerY
     }
