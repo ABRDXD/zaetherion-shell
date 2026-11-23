@@ -115,7 +115,7 @@ FocusScope {
             id: glyph
             anchors.verticalCenter: parent.verticalCenter
             text: "content_paste"
-            iconSize: Design.readout
+            iconSize: Design.statusIcon
             fill: Design.iconFill
             weight: Design.iconWeight
             color: Design.accent
@@ -267,9 +267,9 @@ FocusScope {
                     anchors.right: parent.right
                     anchors.rightMargin: Design.baseline
                     anchors.verticalCenter: parent.verticalCenter
-                    width: Design.control
+                    width: Design.smallIcon
                     text: "keep"
-                    iconSize: Design.control
+                    iconSize: Design.smallIcon
                     fill: 1
                     visible: row.pinned
                     color: wipe.inverted ? wipe.ink : Design.accent

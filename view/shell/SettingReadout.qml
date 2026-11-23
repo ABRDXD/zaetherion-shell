@@ -21,7 +21,7 @@ AbstractButton {
 
     hoverEnabled: true
     implicitWidth: Math.max(Design.baseline * 28, readout.implicitWidth + (unit.visible ? unit.implicitWidth + Design.baseline * 2 : 0) + Design.baseline * 16)
-    implicitHeight: Design.fluid ? FluidTokens.controlHeight : (compact ? Design.readout : prominent ? Design.headline : Design.figure) + Design.baseline * 4
+    implicitHeight: Math.max(Design.fluid ? FluidTokens.controlHeight : Design.minHit, readout.implicitHeight + topPadding + bottomPadding)
     leftPadding: Design.fluid ? 0 : Design.baseline * 5
     rightPadding: Design.fluid ? FluidTokens.unit : Design.baseline * 5
     topPadding: Design.baseline
@@ -106,7 +106,7 @@ AbstractButton {
             font.family: Design.fluid ? FluidTokens.sans : Design.sans
             font.capitalization: Design.fluid ? Font.MixedCase : Font.AllUppercase
             sheared: !Design.fluid && font.pixelSize >= Design.figure && /[0-9]/.test(text)
-            font.pixelSize: Design.fluid ? FluidTokens.heading : root.compact ? Design.readout : root.prominent ? Design.headline : Design.figure
+            font.pixelSize: root.compact ? Design.readout : root.prominent ? Design.headline : Design.figure
             font.weight: Font.DemiBold
             horizontalAlignment: Design.fluid ? Text.AlignLeft : Text.AlignHCenter
             color: !Design.fluid && root.prominent ? Design.background : Design.ink

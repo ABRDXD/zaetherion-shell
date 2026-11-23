@@ -120,14 +120,16 @@ Singleton {
     readonly property int radiusSmall: 0
     readonly property int radiusControl: 1
     readonly property int radiusCard: 2
-    // Type scale (MONTAGE.md §2). Rooms use these tokens only; tests/test_layout.py enforces it.
-    readonly property int caption: 11
-    readonly property int body: 12
-    readonly property int control: 13
-    readonly property int readout: 20
-    readonly property int figure: 32 // secondary numerals and the logo
-    readonly property int headline: 52
-    readonly property int display: 86 // hero numerals and glyphs
+    readonly property int smallIcon: 13
+    readonly property int statusIcon: 20
+    // Reading first type scale (MONTAGE.md §2). Rooms use these tokens only; tests/test_layout.py enforces it.
+    readonly property int caption: 12
+    readonly property int body: 16
+    readonly property int control: 15
+    readonly property int readout: 26
+    readonly property int figure: 34 // secondary numerals and the logo
+    readonly property int headline: 42
+    readonly property int display: 72 // primary numerals
     readonly property string sans: "Roboto Condensed"
     readonly property string mono: theme.mono ?? "JetBrainsMono Nerd Font"
     readonly property bool geometric: Config.options.appearance.geometric

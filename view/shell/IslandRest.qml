@@ -219,7 +219,7 @@ Item {
         // The player's mark, inverted on signal as in the approved study (Z144).
         FPlate {
             id: art
-            width: Design.readout
+            width: Design.statusIcon
             height: width
             anchors.verticalCenter: parent.verticalCenter
             radius: Design.roundSmall
@@ -230,7 +230,7 @@ Item {
                 weight: Design.iconWeight
                 anchors.fill: parent
                 text: "music_note"
-                iconSize: Design.control
+                iconSize: Design.smallIcon
                 color: art.textColor
                 visible: cover.status !== Image.Ready
             }
@@ -238,8 +238,8 @@ Item {
                 id: cover
                 anchors.fill: parent
                 source: root.player?.artUrl ?? ""
-                sourceSize.width: Design.readout
-                sourceSize.height: Design.readout
+                sourceSize.width: Design.statusIcon
+                sourceSize.height: Design.statusIcon
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
             }
@@ -269,7 +269,7 @@ Item {
         anchors.centerIn: parent
         spacing: Design.baseline * 2
         FPlate {
-            width: Design.readout
+            width: Design.statusIcon
             height: width
             anchors.verticalCenter: parent.verticalCenter
             radius: Design.roundSmall
@@ -280,7 +280,7 @@ Item {
                 weight: Design.iconWeight
                 anchors.fill: parent
                 text: "music_note"
-                iconSize: Design.control
+                iconSize: Design.smallIcon
                 color: parent.textColor
                 visible: mediaCover.status !== Image.Ready
             }
@@ -288,14 +288,14 @@ Item {
                 id: mediaCover
                 anchors.fill: parent
                 source: root.player?.artUrl ?? ""
-                sourceSize.width: Design.readout
-                sourceSize.height: Design.readout
+                sourceSize.width: Design.statusIcon
+                sourceSize.height: Design.statusIcon
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
             }
         }
         Loader {
-            width: Design.readout + Design.baseline
+            width: Design.statusIcon + Design.baseline
             height: Design.baseline * 3
             anchors.verticalCenter: parent.verticalCenter
             active: root.mediaView

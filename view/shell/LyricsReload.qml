@@ -33,7 +33,7 @@ SettingsSideRow {
 
     SettingsText {
         technical: !Design.fluid
-        font.pixelSize: Design.fluid ? FluidTokens.caption : Design.caption
+        font.pixelSize: Design.caption
         color: Design.muted
         text: Design.fluid ? "Lyrics" : "LYRICS"
     }
@@ -43,7 +43,7 @@ SettingsSideRow {
         elide: Text.ElideRight
         font.family: Design.fluid ? FluidTokens.sans : Design.sans
         font.capitalization: Font.MixedCase
-        font.pixelSize: Design.fluid ? FluidTokens.heading : Design.readout
+        font.pixelSize: Design.body
         font.weight: Design.fluid ? Font.Normal : Font.Bold
         font.letterSpacing: 0
         color: root.hasTrack ? Design.ink : Design.faint
@@ -54,7 +54,7 @@ SettingsSideRow {
         Layout.fillWidth: true
         technical: !Design.fluid
         font.capitalization: Font.MixedCase
-        font.pixelSize: Design.fluid ? FluidTokens.body : Design.body
+        font.pixelSize: Design.caption
         color: Design.muted
         text: root.state()
     }

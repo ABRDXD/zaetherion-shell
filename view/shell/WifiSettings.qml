@@ -89,7 +89,7 @@ ColumnLayout {
                 elide: Text.ElideRight
                 headline: true
                 font.capitalization: Font.MixedCase
-                font.pixelSize: Design.fluid ? FluidTokens.title : Design.figure
+                font.pixelSize: Design.readout
                 text: !root.network.available ? "Offline"
                     : root.network.kind === "wifi" ? root.network.name
                     : root.network.connecting !== "" ? "Joining " + root.network.connecting + "…"

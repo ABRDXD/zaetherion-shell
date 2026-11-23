@@ -49,7 +49,7 @@ AbstractButton {
         text: root.label
         technical: true
         font.family: Design.fluid ? FluidTokens.sans : Design.mono
-        font.pixelSize: Design.fluid ? FluidTokens.body : Design.body
+        font.pixelSize: Design.control
         font.weight: root.selected ? Font.Bold : Font.Normal
         font.capitalization: Font.MixedCase
         horizontalAlignment: Text.AlignHCenter

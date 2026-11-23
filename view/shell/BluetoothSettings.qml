@@ -89,7 +89,7 @@ ColumnLayout {
         SettingsText {
             visible: (root.bluetooth.pairing?.passkey ?? "") !== ""
             text: root.bluetooth.pairing?.passkey ?? ""
-            font.pixelSize: Design.fluid ? FluidTokens.title : Design.figure
+            font.pixelSize: Design.figure
             font.letterSpacing: Design.baseline
             color: Design.accent
         }
@@ -169,8 +169,8 @@ ColumnLayout {
                             Accessible.description: paired.modelData.trusted ? "Connects without asking" : "Asks before it connects"
                             onActivated: root.bluetooth.trust(paired.modelData.id, !paired.modelData.trusted)
                         }
-                        Item { Layout.fillWidth: true }
                         SettingsAction {
+                            Layout.columnSpan: 2
                             Layout.alignment: Qt.AlignRight
                             label: "Forget…"
                             armedLabel: "Forget?"
@@ -275,8 +275,8 @@ ColumnLayout {
                 elide: Text.ElideRight
                 font.capitalization: Font.MixedCase
                 font.family: Design.fluid ? FluidTokens.sans : Design.sans
-                font.pixelSize: Design.fluid ? FluidTokens.heading : Design.readout
-                font.weight: Design.fluid ? Font.Normal : Font.Bold
+                font.pixelSize: Design.body
+                font.weight: Font.DemiBold
                 font.letterSpacing: 0
                 text: row.device.name ?? ""
                 color: Design.ink
@@ -295,19 +295,19 @@ ColumnLayout {
         elide: Text.ElideRight
         headline: !Design.fluid
         font.capitalization: Font.MixedCase
-        font.pixelSize: Design.fluid ? FluidTokens.title : Design.figure
-        font.weight: Design.fluid ? Font.Normal : Font.Bold
+        font.pixelSize: Design.readout
+        font.weight: Font.DemiBold
     }
     component Caption: SettingsText {
         technical: !Design.fluid
         font.capitalization: Design.fluid ? Font.MixedCase : Font.AllUppercase
-        font.pixelSize: Design.fluid ? FluidTokens.caption : Design.caption
+        font.pixelSize: Design.caption
         color: Design.muted
     }
     component Detail: SettingsText {
         technical: !Design.fluid
         font.capitalization: Font.MixedCase
-        font.pixelSize: Design.fluid ? FluidTokens.body : Design.body
+        font.pixelSize: Design.caption
         color: Design.muted
     }
 }

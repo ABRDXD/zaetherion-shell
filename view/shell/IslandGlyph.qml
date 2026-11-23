@@ -30,7 +30,7 @@ AbstractButton {
         MaterialSymbol {
             anchors.fill: parent
             text: root.glyph
-            iconSize: Design.readout
+            iconSize: Design.statusIcon
             fill: Design.iconFill
             weight: Design.iconWeight
             color: root.quiet && plate.role === "clear" ? Design.muted : plate.textColor
@@ -39,7 +39,7 @@ AbstractButton {
         Image {
             id: image
             anchors.centerIn: parent
-            width: Design.control
+            width: Design.smallIcon
             height: width
             source: root.imageSource
             sourceSize.width: width

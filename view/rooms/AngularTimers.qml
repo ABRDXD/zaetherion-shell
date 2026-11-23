@@ -101,9 +101,9 @@ Item {
                 x: 10; y: 34; width: parent.width-34
                 fontSizeMode: Text.HorizontalFit; minimumPixelSize: Design.readout; elide: Text.ElideNone
                 text: root.completed ? "DONE" : root.stamp(root.seconds)
-                headline: true; font.weight: Font.Black
-                font.pixelSize: Math.min(Design.display * 1.35,readout.width/3.2,readout.height*.65) // scale: primary clock fits the undeformed present plane
-                font.letterSpacing: -4; color: root.completed ? Design.warm : heroPlane.textColor
+                headline: true; font.weight: Font.DemiBold
+                font.pixelSize: Math.min(Design.display,readout.width/3.2,readout.height*.65) // scale: primary clock fits the undeformed present plane
+                font.letterSpacing: 0; color: root.completed ? Design.warm : heroPlane.textColor
             }
             FText {
                 x: 14; anchors.bottom: parent.bottom; anchors.bottomMargin: 10

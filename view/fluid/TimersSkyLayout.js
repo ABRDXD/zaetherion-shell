@@ -34,7 +34,6 @@ const beaconRadius = 6;
 const haloRadius = 10;
 const beaconMs = 900;        // each half of the breath
 // The readings.
-const clockSize = 168;       // the numerals, px
 const sentenceWidth = 460;
 // Fixed stars, [x share, y share, size px].
 const stars = [[0.09, 0.11, 2], [0.23, 0.25, 1.6], [0.40, 0.08, 2.2], [0.56, 0.18, 1.4], [0.72, 0.09, 2], [0.85, 0.28, 1.6],

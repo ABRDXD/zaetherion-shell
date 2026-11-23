@@ -79,7 +79,7 @@ Item {
                     fill: Design.iconFill
                     weight: Design.iconWeight
                     text: root.glyph
-                    iconSize: Design.readout
+                    iconSize: Design.statusIcon
                     color: Design.ink
                 }
                 FText {

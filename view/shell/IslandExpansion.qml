@@ -602,7 +602,7 @@ Item {
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
                 text: parent.glyph
-                iconSize: Design.readout
+                iconSize: Design.statusIcon
                 color: Design.ink
             }
             FText {
@@ -666,7 +666,7 @@ Item {
                     anchors.centerIn: parent
                     visible: cover.status !== Image.Ready
                     text: "music_note"
-                    iconSize: Design.readout
+                    iconSize: Design.statusIcon
                     color: tile.textColor
                 }
                 Image {

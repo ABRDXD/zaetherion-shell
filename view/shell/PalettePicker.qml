@@ -57,7 +57,7 @@ ColumnLayout {
         Layout.fillWidth: true
         text: (root.core.paletteData?.preview ? "Preview · " : "Saved · ") + root.currentName
         headline: true
-        font.pixelSize: Design.fluid ? FluidTokens.title : Design.figure
+        font.pixelSize: Design.readout
         elide: Text.ElideRight
     }
     TextField {
