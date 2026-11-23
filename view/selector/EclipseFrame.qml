@@ -14,6 +14,7 @@ Item {
     readonly property var bounds: ({ x: 0, y: 0, width: width, height: height })
     readonly property bool marked: hasCrop && !Geometry.fills(crop, bounds)
     readonly property string side: marked ? Geometry.labelSide(crop, bounds, EclipseLook.labelHeight, EclipseLook.labelGap) : "none"
+    readonly property alias sizeTab: label
     readonly property real cx: hasCrop ? crop.x : 0
     readonly property real cy: hasCrop ? crop.y : 0
     readonly property real cw: hasCrop ? crop.width : 0

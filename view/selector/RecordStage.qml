@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Layouts
 import qs.view.ui
 import "SelectionGeometry.js" as Geometry
 
@@ -102,25 +103,41 @@ FocusScope {
         visible: root.active && place !== "none"
         x: atBottom.x
         y: place === "top" ? atTop.y : atBottom.y
-        width: hintRow.implicitWidth + 2 * ViewfinderLook.hintPadX
+        readonly property real singleLineWidth: tag.implicitWidth + instruction.implicitWidth + escapeText.implicitWidth
+            + 2 * (ViewfinderLook.hintPadX + ViewfinderLook.hintGap)
+        readonly property bool compact: singleLineWidth + 2 * ViewfinderLook.hintMargin > root.width
+        width: Math.max(0, Math.min(singleLineWidth, root.width - 2 * ViewfinderLook.hintMargin))
         height: hintRow.implicitHeight + 2 * ViewfinderLook.hintPadY
         color: ViewfinderLook.hint
-        Row {
+        GridLayout {
             id: hintRow
             anchors.centerIn: parent
-            spacing: ViewfinderLook.hintGap
+            width: Math.max(0, parent.width - 2 * ViewfinderLook.hintPadX)
+            columns: hint.compact ? 2 : 3
+            columnSpacing: ViewfinderLook.hintGap
+            rowSpacing: Design.baseline
             Text {
-                anchors.verticalCenter: parent.verticalCenter
+                id: tag
+                Layout.row: 0
+                Layout.column: 0
                 text: "RECORD AREA"; color: ViewfinderLook.coral; font.bold: true
                 font.family: Design.mono; font.pixelSize: Design.caption; font.letterSpacing: ViewfinderLook.tagSpacing
             }
             Text {
-                anchors.verticalCenter: parent.verticalCenter
+                id: instruction
+                Layout.row: hint.compact ? 1 : 0
+                Layout.column: hint.compact ? 0 : 1
+                Layout.columnSpan: hint.compact ? 2 : 1
+                Layout.fillWidth: true
+                wrapMode: Text.Wrap
                 text: root.prompt; color: ViewfinderLook.paper; font.weight: Font.Medium
                 font.family: Design.sans; font.pixelSize: Design.readout
             }
             Text {
-                anchors.verticalCenter: parent.verticalCenter
+                id: escapeText
+                Layout.row: 0
+                Layout.column: hint.compact ? 1 : 2
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                 text: "Esc · Cancel"; color: ViewfinderLook.hintSmall
                 font.family: Design.mono; font.pixelSize: Design.caption
             }
