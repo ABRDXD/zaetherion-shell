@@ -1,0 +1,122 @@
+python tools/fluid_fixture.py --fixture tests/fixtures/fluid/HomeSwitch.qml
+FLUID_PASS Active Home has a sky snapshot and one position lease
+FLUID_PASS Home controller and sky survive Angular to Fluid
+FLUID_PASS Home transport focus transfers to Fluid
+FLUID_PASS Home switching preserves Settings and palette preview
+FLUID_PASS Calendar month survives return to Angular
+FLUID_PASS Angular calendar week and selected day survive presentation replacement
+FLUID_PASS Home Settings close cancels preview
+FLUID_PASS Angular Home records its opening fold
+FLUID_PASS Surveyor follows all forty presentations without stale controls
+FLUID_PASS Forty switches retain Home controller and edition
+FLUID_PASS Style changes do not press extra folds
+FLUID_PASS Forty switches retain Angular calendar navigation
+FLUID_PASS Forty switches do not churn leases or sky requests
+FLUID_PASS Fluid restores its chosen calendar month
+FLUID_PASS Fluid Home fits the native viewport without scrolling
+FLUID_PASS home.main fits Home
+FLUID_PASS home.aside fits Home
+FLUID_PASS home.lock fits Home
+FLUID_PASS home.settings fits Home
+FLUID_PASS Home task completion uses task identity and shared core
+FLUID_PASS Home focus action uses existing timer service
+FLUID_PASS Home transport uses the shared adapter
+FLUID_PASS Folding Home releases position lease
+FLUID_PASS Hidden Home does not refresh sky
+FLUID_PASS Home profile focus transfers between presentations
+FLUID_PASS Home tests never actuate lock or host actions
+FLUID_PASS Late sky reply cannot update a folded Home
+FLUID_PASS Disconnected sky reply cannot replace the last snapshot
+FLUID_PASS Offline tasks and unavailable media disable their actions
+FLUID_PASS No player releases Home's position lease
+FLUID_DONE
+
+python tools/fluid_fixture.py
+FLUID_PASS Angular starts with the persistent session
+FLUID_PASS Fluid retains session identity and lyrics choice
+FLUID_PASS Style switch preserves the active palette preview
+FLUID_PASS Style switch does not churn leases
+FLUID_PASS Settings and command draft survive
+FLUID_PASS Closing settings still cancels preview exactly once
+FLUID_PASS Focus follows the corresponding Angular control
+FLUID_PASS Focus follows the corresponding Fluid control
+FLUID_PASS Switching does not steal focus from outside the room
+FLUID_PASS Rapid requests commit only the final view
+FLUID_PASS Rejected style command keeps the current design
+FLUID_PASS Both views use capability checked shared actions
+FLUID_PASS Unavailable actions do not reach the adapter
+FLUID_PASS Playing owns exactly one of each subscription
+FLUID_PASS Forty alternating switches preserve leases and controller identity
+FLUID_PASS Folding releases all subscriptions
+FLUID_PASS Delayed command serializes requests
+FLUID_PASS Latest queued intent returns to the original form
+FLUID_PASS Delayed style replies preserve final intent
+FLUID_PASS Superseded failure cannot overwrite the newer request
+FLUID_PASS Disconnect clears queued work and ignores stale replies
+FLUID_PASS Player choice focus transfers to Angular
+FLUID_PASS Player choice focus transfers to Fluid
+FLUID_PASS media.player stays inside Media
+FLUID_PASS media.cover stays inside Media
+FLUID_PASS media.lyricBody stays inside Media
+FLUID_PASS media.seek stays inside Media
+FLUID_PASS media.play stays inside Media
+FLUID_PASS media.loop stays inside Media
+FLUID_PASS Long player catalogue retains selection
+FLUID_PASS Fluid choice dispatches through the shared session
+FLUID_PASS Overdrive settings content fits its panel
+FLUID_DONE
+
+python tools/fluid_fixture.py --fixture tools/cuetest/HomeTest.qml
+CUE_PASS ruler.silent
+CUE_PASS ruler.overdrive
+CUE_PASS ruler.misregistered
+CUE_PASS ruler.recurrence
+CUE_PASS ruler.release
+CUE_ACTIVE 0 []
+CUE_DONE
+
+python tools/fluid_fixture.py --fixture tools/cuetest/HomeFoldTest.qml
+CUE_PASS fold.silent
+CUE_PASS fold.pressed
+CUE_PASS fold.edition
+CUE_PASS fold.again
+CUE_PASS week.ledger
+CUE_PASS fold.release
+CUE_ACTIVE 0 []
+CUE_DONE
+
+python tools/fluid_fixture.py --fixture tools/cuetest/SurveyorTest.qml
+CUE_PASS survey.rooms
+CUE_PASS survey.walk
+CUE_PASS survey.hop
+CUE_PASS survey.measure
+CUE_PASS survey.book
+CUE_PASS survey.error
+CUE_PASS survey.footer
+CUE_PASS survey.release
+CUE_ACTIVE 0 []
+CUE_DONE
+
+PYTHONPATH=tests:. python -m unittest test_layout test_day_fold.DayFoldTests test_survey -q
+----------------------------------------------------------------------
+Ran 36 tests in 1.962s
+
+OK
+
+QT_LOGGING_RULES=qml.debug=true python tools/smoke.py
+FART_SMOKE home home
+FART_SMOKE media media
+FART_SMOKE performance performance
+FART_SMOKE workspaces workspaces
+FART_SMOKE devices devices
+FART_SMOKE tasks tasks
+FART_SMOKE_SLOW timers 300
+FART_SMOKE timers timers
+FART_SMOKE clipboard clipboard
+FART_SMOKE notifications notifications
+FART_SMOKE codex codex
+FART_SMOKE_DONE
+
+Qt 6 qmllint: changed runtime QML, zero syntax* diagnostics.
+Nested hyprctl configerrors: empty. Clients after tests: [].
+Angular panel comparison: 0 of 1169600 pixels differ by >16/255.

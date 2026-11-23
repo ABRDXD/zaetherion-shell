@@ -14,14 +14,14 @@ SDDM ─► Hyprland, "Hyprland (ZÆTHERION)" session (its own entry file and re
 
 | Process | Lifetime | Holds |
 |---|---|---|
-| `fartd` | The whole session | Timers, tasks, sessions, leases and guards, notification mirror and 24 h history, command history, frecency, file index, sky ephemeris, trial log, supervision |
+| `fartd` | The whole session | Timers, tasks, sessions, leases and guards, the notification Inbox (24 h; fed by our server or the mirror, Z166), command history, frecency, file index, sky ephemeris, trial log, supervision |
 | `dms` | The whole session; restarted with backoff (Z11) | System backend (see the backend map below) |
 | resident `qs` | Child of `dms` (Z10) | Every surface that must never disappear |
 | panel `qs` | Spawned on demand; reaped after a delay chosen at S2 (Z142); never reaped while the settings window is open (Z91) | Rooms, settings window, overview |
 
 ### Startup and supervision
 - Hyprland autostart only, with no systemd units (Z13).
-- `zaetherion start` starts `fartd`, which starts `dms run -c`. DMS starts the resident process with `DMS_SOCKET` set.
+- `zaetherion start` starts `fartd`, which starts `dms run -c`. DMS starts the resident process with `DMS_SOCKET` set. The state machine, restart policy and logout sequence are in [SUPERVISOR.md](SUPERVISOR.md); the UI folder is passed as `DMS_SHELL_DIR` (the environment form of `-c`), so an owner restart keeps it.
 - If `dms` dies, the resident process dies with it. `fartd` restarts the pair, and the island announces it (Z123, Z127).
 - The panel keeps FART-next's crash limit: 3 crashes within 5 s halts it (Z128).
 - `fartd` today assumes a single view (one `process`, one `client`, `kind=="view"` in `core/view.py` and `core/app.py`). It is generalised to named clients, `resident` and `panel`.

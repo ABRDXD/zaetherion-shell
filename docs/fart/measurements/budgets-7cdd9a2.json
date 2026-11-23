@@ -1,0 +1,237 @@
+{
+  "schema": 1,
+  "timestamp": "2026-11-08T10:32:04.312035+00:00",
+  "machine": {
+    "host": "<host>",
+    "arch": "x86_64",
+    "kernel": "7.2.14-arch1-1"
+  },
+  "git_commit": "7cdd9a2cb62249d1f0b15611f7a85c2bcb72c0de",
+  "git_dirty": false,
+  "platform": "offscreen/software",
+  "observer_requested": false,
+  "interaction": "unknown",
+  "window_seconds": 60,
+  "status": "within_fixture_budgets",
+  "scenarios": {
+    "core_idle": {
+      "processes": [
+        {
+          "pid": 625613,
+          "role": "core",
+          "name": "python3",
+          "memory_kib": {
+            "Rss": 22052,
+            "Pss": 12771,
+            "Private_Dirty": 12088,
+            "Pss_Anon": 12088,
+            "Pss_File": 683
+          },
+          "coverage": "window",
+          "seconds": 60.002487191999535,
+          "cpu_ticks": 0,
+          "cpu_percent": 0.0,
+          "voluntary_switches": 0,
+          "nonvoluntary_switches": 0,
+          "thread_set_changed": false,
+          "switches_per_minute": 0.0
+        }
+      ],
+      "checks": {
+        "core_rss_mib": {
+          "value": 21.53515625,
+          "limit": 25,
+          "status": "pass"
+        },
+        "core_switches_per_minute": {
+          "value": 0.0,
+          "limit": 1,
+          "status": "pass"
+        }
+      }
+    },
+    "navigate": {
+      "processes": [
+        {
+          "pid": 625613,
+          "role": "core",
+          "name": "python3",
+          "memory_kib": {
+            "Rss": 22128,
+            "Pss": 12837,
+            "Private_Dirty": 12164,
+            "Pss_Anon": 12164,
+            "Pss_File": 673
+          },
+          "coverage": "window",
+          "seconds": 5.354601930997887,
+          "cpu_ticks": 13,
+          "cpu_percent": 2.427818195922794,
+          "voluntary_switches": 187,
+          "nonvoluntary_switches": 21,
+          "thread_set_changed": false,
+          "switches_per_minute": 2330.7054680858823
+        },
+        {
+          "pid": 630347,
+          "role": "view",
+          "name": "qs",
+          "memory_kib": {
+            "Rss": 190188,
+            "Pss": 113159,
+            "Private_Dirty": 99700,
+            "Pss_Anon": 99700,
+            "Pss_File": 13459
+          },
+          "coverage": "window",
+          "seconds": 5.354357750999043,
+          "cpu_ticks": 580,
+          "cpu_percent": 108.32298232066782,
+          "voluntary_switches": 75851,
+          "nonvoluntary_switches": 234,
+          "thread_set_changed": false,
+          "switches_per_minute": 852595.2527449667
+        }
+      ],
+      "checks": {
+        "p99_ms": {
+          "value": 19.0,
+          "limit": 6.9,
+          "status": "informational",
+          "reason": "offscreen software renderer"
+        }
+      },
+      "pages": [
+        "home",
+        "media",
+        "performance",
+        "workspaces",
+        "devices",
+        "tasks",
+        "timers",
+        "clipboard",
+        "notifications"
+      ],
+      "frames": {
+        "count": 434,
+        "median_ms": 9.0,
+        "p95_ms": 13.0,
+        "p99_ms": 19.0,
+        "budget_ms": 6.9,
+        "p99_note": null,
+        "missed_frames": 301
+      }
+    },
+    "open_static": {
+      "processes": [
+        {
+          "pid": 625613,
+          "role": "core",
+          "name": "python3",
+          "memory_kib": {
+            "Rss": 22128,
+            "Pss": 12837,
+            "Private_Dirty": 12164,
+            "Pss_Anon": 12164,
+            "Pss_File": 673
+          },
+          "coverage": "window",
+          "seconds": 60.00978437499725,
+          "cpu_ticks": 0,
+          "cpu_percent": 0.0,
+          "voluntary_switches": 1,
+          "nonvoluntary_switches": 0,
+          "thread_set_changed": false,
+          "switches_per_minute": 0.9998369536718194
+        },
+        {
+          "pid": 630347,
+          "role": "view",
+          "name": "qs",
+          "memory_kib": {
+            "Rss": 184568,
+            "Pss": 109178,
+            "Private_Dirty": 96452,
+            "Pss_Anon": 96452,
+            "Pss_File": 12726
+          },
+          "coverage": "window",
+          "seconds": 60.00876038599745,
+          "cpu_ticks": 10,
+          "cpu_percent": 0.1666423358135793,
+          "voluntary_switches": 363,
+          "nonvoluntary_switches": 13,
+          "thread_set_changed": true,
+          "switches_per_minute": 375.9451095954349
+        }
+      ],
+      "checks": {
+        "core_and_view_cpu_percent": {
+          "value": 0.1666423358135793,
+          "limit": 2,
+          "status": "pass"
+        }
+      }
+    },
+    "closed_idle": {
+      "processes": [
+        {
+          "pid": 625613,
+          "role": "core",
+          "name": "python3",
+          "memory_kib": {
+            "Rss": 22128,
+            "Pss": 12778,
+            "Private_Dirty": 12164,
+            "Pss_Anon": 12164,
+            "Pss_File": 614
+          },
+          "coverage": "window",
+          "seconds": 60.00984942099967,
+          "cpu_ticks": 0,
+          "cpu_percent": 0.0,
+          "voluntary_switches": 0,
+          "nonvoluntary_switches": 0,
+          "thread_set_changed": false,
+          "switches_per_minute": 0.0
+        },
+        {
+          "pid": 630347,
+          "role": "view",
+          "name": "qs",
+          "memory_kib": {
+            "Rss": 184236,
+            "Pss": 106931,
+            "Private_Dirty": 96376,
+            "Pss_Anon": 96376,
+            "Pss_File": 10555
+          },
+          "coverage": "window",
+          "seconds": 60.00851299400165,
+          "cpu_ticks": 0,
+          "cpu_percent": 0.0,
+          "voluntary_switches": 4,
+          "nonvoluntary_switches": 0,
+          "thread_set_changed": true,
+          "switches_per_minute": 3.9994325475785413
+        }
+      ],
+      "checks": {
+        "view_pss_mib": {
+          "value": 104.4248046875,
+          "limit": 200,
+          "status": "pass"
+        },
+        "view_cpu_percent": {
+          "value": 0.0,
+          "limit": 0,
+          "status": "pass"
+        }
+      }
+    },
+    "cmdline": {
+      "status": "skipped",
+      "reason": "interactive command line arrives in M5"
+    }
+  }
+}

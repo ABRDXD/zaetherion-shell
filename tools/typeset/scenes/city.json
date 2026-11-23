@@ -1,0 +1,70 @@
+{
+ "no": 2,
+ "name": "CITY",
+ "src": "~/Pictures/Wallpapers/ddg_12_1788816426558807772.jpg",
+ "focus": [
+  0.5,
+  0.5
+ ],
+ "zoom": 1.0,
+ "cell": 20,
+ "invert": false,
+ "levels": [
+  0,
+  255,
+  1.0
+ ],
+ "bands": [
+  [
+   0.3,
+   [
+    0,
+    1
+   ],
+   "#22303c",
+   "weather is a reading · not a picture · "
+  ],
+  [
+   0.48,
+   [
+    1,
+    2
+   ],
+   "#4a5e71",
+   "rooms are house tiles · orbits are hairlines · "
+  ],
+  [
+   0.64,
+   [
+    3,
+    5
+   ],
+   "#97abbd",
+   "THE HOST OWNS THE COLOURS · "
+  ],
+  [
+   0.8,
+   [
+    6,
+    7
+   ],
+   "#e6f0ff",
+   "ZÆTHERION · "
+  ]
+ ],
+ "signal": "#8fd6f5",
+ "way": "ICE",
+ "text": "·",
+ "reading": "G02 — TOSHI / THE CITY\nTHE CLOUDS ARE SET IN TYPE.\nTHE TOWERS ARE WHAT IS LEFT OUT.",
+ "aside": "every window is a room you haven't opened.",
+ "colophon": "JETBRAINS MONO THIN → EXTRABOLD · 20 PX CELL",
+ "title": {
+  "cjk": "都市",
+  "latin": "TOSHI",
+  "sub": "the city · four voices",
+  "size": 300,
+  "top": 260,
+  "side": "right",
+  "latin_size": 110
+ }
+}

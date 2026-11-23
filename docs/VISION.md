@@ -4,7 +4,7 @@
 
 FART started as a dynamic-island-style control centre that ran beside a host shell. The host owned everything else: the bar, launcher, notifications, OSD, wallpaper, lock, idle, polkit, screenshots, settings. Each of those had its own look and its own costs. ZÆTHERION is FART grown into the whole shell, so every surface speaks one design language and follows one rule about cost.
 
-The goal: **the most distinctive daily driver possible, which still costs nothing when it has nothing to do.**
+The goal is to **match DMS's functionality and responsiveness, then outperform it in the areas we can measure.** ZÆTHERION is a desktop control centre with orbital navigation, spacetime distortions, animated geometry, and a fictional creature that maintains an archive.
 
 ## Principles
 
@@ -26,11 +26,22 @@ The goal: **the most distinctive daily driver possible, which still costs nothin
 
 **Originality rule (Z61):** principles only. No names, logos, fonts, art, sound or copied layouts from those games.
 
-**Type:** Inter Display for headlines and the clock; JetBrains Mono for the system voice and readouts (Z52).
+**Type:** Inter Display for display text, Roboto Condensed for the Angular island clock, and JetBrains Mono for the system voice and readouts (Z52).
 
 **Colour:** the island uses a theme-derived navy, recalling the laptop's "Performance Blue" chassis (Z65). Everything else uses the active preset or Matugen palette behind a contrast guard (Z43).
 
 **Motion:** four levels, OFF / MINIMAL / REDUCED / ALL. The default is ALL; Sessions force MINIMAL (Z116).
+
+## Future FARTland direction
+
+The owner wants two visual modes:
+
+- **Angular** keeps the sharp Montage × Cosmos look, including the approved S3 island with its shallow bevel (Z144).
+- **FARTland // Fluid** explores rounded corners and smooth, lively animations across the shell.
+
+FARTland // Fluid depends on **FART // Fluid**, which the owner plans to develop later. The scope, schedule and way to switch modes are open.
+
+The owner approved the Fluid island (Z145), a compact, matte navy notch attached to the screen edge. A subtle 3 px underside follows the rounded shape as it morphs. It shows the clock at rest and adds track information and a waveform while media plays. The other controls appear when it widens on hover. See the [approved island study](ui/fartland-fluid-study.svg) and [motion preview](ui/fartland-fluid-motion.gif).
 
 ## What it is not
 

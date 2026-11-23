@@ -1,0 +1,8 @@
+{
+  "when": {
+    "counter": "sky.sun.rise",
+    "atLeast": 30
+  },
+  "whisper": "thirty sunrises counted",
+  "text": "Thirty sunrises logged by the instrument.\nThe team remembers twenty-nine.\nThe surveyor remembers thirty-one, and will not say which one we missed."
+}

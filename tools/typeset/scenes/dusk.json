@@ -1,0 +1,75 @@
+{
+ "no": 3,
+ "name": "DUSK",
+ "src": "~/Pictures/Wallpapers/ddg_1776707864029672540.jpg",
+ "focus": [
+  0.5,
+  0.45
+ ],
+ "zoom": 1.15,
+ "cell": 18,
+ "invert": false,
+ "levels": [
+  0,
+  255,
+  1.0
+ ],
+ "bands": [
+  [
+   0.3,
+   [
+    0,
+    1
+   ],
+   "#1f2830",
+   "the day folds at dusk · "
+  ],
+  [
+   0.48,
+   [
+    1,
+    2
+   ],
+   "#3d4a57",
+   "at rest nothing moves · "
+  ],
+  [
+   0.62,
+   [
+    3,
+    4
+   ],
+   "#8394a4",
+   "THE PEAK HOLDS THE LAST LIGHT · "
+  ],
+  [
+   0.74,
+   [
+    6,
+    7
+   ],
+   "#f2f6fb",
+   "ZÆTHERION · "
+  ]
+ ],
+ "signal": "#ff5a00",
+ "way": "EMBER",
+ "text": "·",
+ "warm": [
+  40,
+  350,
+  40
+ ],
+ "reading": "G03 — TASOGARE / DUSK\nWARM LIGHT IS THE ONLY SIGNAL.\nEVERYTHING ELSE IS INK.",
+ "aside": "the peak keeps the day a little longer.",
+ "colophon": "JETBRAINS MONO THIN → EXTRABOLD · 18 PX CELL",
+ "title": {
+  "cjk": "黄昏",
+  "latin": "TASOGARE",
+  "sub": "dusk · the last light",
+  "size": 300,
+  "top": 260,
+  "side": "right",
+  "latin_size": 96
+ }
+}

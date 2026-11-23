@@ -1,0 +1,7 @@
+  INFO: Launching config: "/tmp/fluid-fixture-5zxwh3mf/bundle/shell.qml"
+  INFO: Shell ID: "d2ed4f8f93701e31fe70d6647cd6916b" Path ID "d2ed4f8f93701e31fe70d6647cd6916b"
+  INFO: Saving logs to "/tmp/fluid-fixture-5zxwh3mf/runtime/quickshell/by-id/8op5uw1got/log.qslog"
+ DEBUG qml: FLUID_READY
+  INFO: Configuration Loaded
+  WARN qt.qpa.wayland.textinput: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Trying to disable 0x7fa7578301e0 but 0x0 is focused
+  WARN qt.qpa.wayland.textinput: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Trying to disable 0x7fa7578301e0 but 0x0 is focused

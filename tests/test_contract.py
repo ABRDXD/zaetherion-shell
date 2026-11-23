@@ -1,0 +1,187 @@
+"""The view reaches the host only through the typed adapter contract (docs/ADAPTER_CONTRACT.md)."""
+from pathlib import Path
+import re
+import unittest
+
+ROOT = Path(__file__).resolve().parents[1]
+VIEW = sorted((ROOT / "view").rglob("*.qml"))
+CONTRACT = ROOT / "view/contract"
+ADAPTER_DIRS = (ROOT / "adapters/serpantinum", ROOT / "adapters/common", ROOT / "adapters/dms",
+                ROOT / "adapters/quickshell", ROOT / "adapters/hyprland")
+
+# Contract domain -> its Serpantinum implementation.
+SERPANTINUM = {
+    "MediaDomain": "serpantinum/SerpantinumMedia.qml",
+    "AudioDomain": "serpantinum/SerpantinumAudio.qml",
+    "EqualizerDomain": "serpantinum/SerpantinumEqualizer.qml",
+    "NetworkDomain": "serpantinum/SerpantinumNetwork.qml",
+    "BluetoothDomain": "serpantinum/SerpantinumBluetooth.qml",
+    "NotificationsDomain": "serpantinum/SerpantinumNotifications.qml",
+    "WorkspacesDomain": "serpantinum/SerpantinumWorkspaces.qml",
+    "PowerDomain": "serpantinum/SerpantinumPower.qml",
+    "PaletteDomain": "serpantinum/SerpantinumPalette.qml",
+    "MotionDomain": "serpantinum/SerpantinumMotion.qml",
+    "HostActionsDomain": "serpantinum/SerpantinumHostActions.qml",
+    "SfxDomain": "serpantinum/SerpantinumSfx.qml",
+    "ClockGeometryDomain": "serpantinum/SerpantinumClockGeometry.qml",
+    "LyricsDomain": "common/LyricsSource.qml",
+    "SystemDomain": "common/LinuxSystem.qml",
+    "ClipboardDomain": "common/CliphistClipboard.qml",
+}
+# The same for the DMS adapter (docs/DMS_ADAPTER.md §5). Weather, osd, capture, palette, motion, sfx, clockGeometry, hostActions,
+# and the DMS-backed power controls are not built yet; they read "unavailable". The equaliser is the core's (Z173).
+DMS = {
+    "MediaDomain": "quickshell/QuickshellMedia.qml",
+    "AudioDomain": "quickshell/QuickshellAudio.qml",
+    "EqualizerDomain": "common/CoreEqualizer.qml",
+    "NetworkDomain": "dms/DmsNetwork.qml",
+    "BluetoothDomain": "dms/DmsBluetooth.qml",
+    "WorkspacesDomain": "hyprland/HyprlandWorkspaces.qml",
+    "KeybindsDomain": "hyprland/HyprlandKeybinds.qml",
+    "AppsDomain": "quickshell/QuickshellApps.qml",
+    "NotificationsDomain": "dms/DmsNotifications.qml",
+    "PowerDomain": "dms/DmsPower.qml",
+    "WallpaperDomain": "dms/DmsWallpaper.qml",
+    "HostThemeDomain": "dms/DmsHostTheme.qml",
+    "TrayDomain": "quickshell/QuickshellTray.qml",
+    "LyricsDomain": "common/LyricsSource.qml",
+    "SystemDomain": "common/LinuxSystem.qml",
+    "ClipboardDomain": "dms/DmsClipboard.qml",
+}
+# Domains the DMS adapter leaves on their contract placeholders for now.
+DMS_UNBUILT = {"weather", "osd", "capture", "palette", "motion", "sfx", "clockGeometry", "hostActions"}
+# Host-facing modules and commands. Overlay keeps the Hyprland focus grab (a compositor feature, not a host one).
+FORBIDDEN_IMPORTS = re.compile(r"^import (qs\.adapters\b|Quickshell\.Services\b|Quickshell\.Bluetooth\b|Quickshell\.Networking\b|Quickshell\.Hyprland\b)", re.M)
+# Focus grabs only: the panel's, and the island's for its tray menu (Z157), which replaced a grabbing popup.
+IMPORT_ALLOWED = {"view/shell/Overlay.qml": {"Quickshell.Hyprland"}, "view/shell/IslandWindow.qml": {"Quickshell.Hyprland"}}
+HOST_STRINGS = ("serpantinum", "qs_colors", "cliphist", "canberra-gtk-play", "pw-play", "wl-copy", "gdbus", "hyprctl")
+# The only view file that may start a process (the read-only update report).
+PROCESS_ALLOWED = {"view/shell/FartCommands.qml", 'view/shell/HeavyLayer.qml'}  # FART's own second process, never the host's
+# What each tree may import from qs.* (docs/CORE.md §9).
+QS_IMPORTS = {"view": re.compile(r"^qs\.(view|core\.client)\b"),
+              "adapters": re.compile(r"^qs\.(view\.contract|core\.client|adapters)\b"),
+              "core/client": re.compile(r"$^"),
+              # Cues are loadable alone: Overlay binds Motion.reduced (docs/CUES.md §2).
+              "view/cues": re.compile(r"$^")}
+# Motion goes through view/cues and shaders only through view/strata (docs/CUES.md §4.3).
+RAW_MOTION = re.compile(r"\b(SequentialAnimation|ParallelAnimation|ScriptAction|PauseAnimation)\b|^\s*Behavior\s+on\b|loops:\s*Animation\.Infinite", re.M)
+SHADERS = re.compile(r"\b(ShaderEffect|ShaderEffectSource|MultiEffect)\b")
+SPRING_IN_TWEEN = re.compile(r"Tween on \w+\s*\{\s*(?:scope:[^\n]*\s*)?SpringAnimation\b")
+NAMED_ANIMATION = re.compile(r"\b(?:Number|Color|Rotation)Animation(?:\s+on\s+\w+)?\s*\{\s*id:\s*(\w+)|"
+                             r"\b(?:Number|Color|Rotation)Animation(?:\s+on\s+\w+)?\s*\{\s*\n\s*id:\s*(\w+)")
+LOOPING_CUE = re.compile(r"\bPulse\s*\{[^{}]*?\brepeat:\s*([^\n;]+)")
+CUE_IDS = re.compile(r"\b(?:Cue|Pulse|Timeline)\s*\{\s*id:\s*(\w+)")
+# Host knowledge stays in adapters/<host>/core.py; core/ itself is host-agnostic.
+CORE_HOST_STRINGS = ("serpantinum", "qs_colors", "cliphist", "pw-play", "notify-send", "canberra")
+
+
+def functions(text):
+    return dict(re.findall(r"^\s*function (\w+)\(([^)]*)\)", text, re.M))
+
+
+def params(signature):
+    return [p.split(":")[0].strip() for p in signature.split(",") if p.strip()]
+
+
+class ContractTests(unittest.TestCase):
+    def test_view_does_not_import_host_modules(self):
+        for qml in VIEW:
+            rel = str(qml.relative_to(ROOT))
+            for match in FORBIDDEN_IMPORTS.finditer(qml.read_text()):
+                self.assertIn(match.group(1), IMPORT_ALLOWED.get(rel, set()), f"{rel}: import {match.group(1)}")
+
+    def test_view_names_no_host_paths_or_binaries(self):
+        for qml in VIEW:
+            text = qml.read_text().lower()
+            for needle in HOST_STRINGS:
+                self.assertNotIn(needle, text, f"{qml.relative_to(ROOT)}: {needle}")
+
+    def test_view_starts_processes_only_where_allowed(self):
+        for qml in VIEW:
+            rel = str(qml.relative_to(ROOT))
+            if re.search(r"execDetached|\bProcess\s*\{|\bProcess\b\s*$", qml.read_text(), re.M):
+                self.assertIn(rel, PROCESS_ALLOWED, rel)
+
+    def test_qs_imports_stay_within_their_layer(self):
+        for tree, allowed in QS_IMPORTS.items():
+            for qml in sorted((ROOT / tree).rglob("*.qml")):
+                for module in re.findall(r"^import (qs\.[\w.]+)", qml.read_text(), re.M):
+                    self.assertRegex(module, allowed, f"{qml.relative_to(ROOT)}: import {module}")
+
+    def test_motion_goes_through_cues(self):
+        for qml in VIEW:
+            rel = str(qml.relative_to(ROOT))
+            text = qml.read_text()
+            if not rel.startswith("view/cues/"):
+                self.assertIsNone(RAW_MOTION.search(text), f"{rel}: raw animation outside view/cues")
+                self.assertEqual(text.count("SpringAnimation"), len(SPRING_IN_TWEEN.findall(text)), f"{rel}: spring outside a Tween")
+            if not rel.startswith("view/strata/"):
+                self.assertIsNone(SHADERS.search(text), f"{rel}: shader outside view/strata")
+            # Silent is still (Z146): a repeating cue outside Overdrive's own files breathes only in Overdrive.
+            if not rel.startswith(("view/cues/", "view/overdrive/")):
+                for loop in LOOPING_CUE.finditer(text):
+                    self.assertIn("Motion.overdrive", loop.group(1), f"{rel}: a looping cue that runs in Silent")
+            # Every named animation outside a cue reports itself (Activity), so "settled" means nothing moves (rule 3).
+            if not rel.startswith("view/cues/"):
+                for name in (a or b for a, b in NAMED_ANIMATION.findall(text)):
+                    reported = re.search(rf"Activity\s*\{{[^}}]*running:[^}}\n]*\b{name}\.running", text)
+                    self.assertTrue(reported, f"{rel}: animation {name} is not reported by an Activity")
+            # Input never waits for motion: no control is gated on a running cue.
+            for cue in CUE_IDS.findall(text):
+                gate = re.search(rf"\b(enabled|visible)\s*:[^\n;}}]*\b{cue}\.running\b", text)
+                self.assertIsNone(gate, f"{rel}: enabled/visible gated on {cue}.running")
+
+    def test_core_names_no_host(self):
+        for source in sorted((ROOT / "core").rglob("*")):
+            if source.suffix in (".py", ".qml"):
+                text = source.read_text().lower()
+                for needle in CORE_HOST_STRINGS:
+                    self.assertFalse(needle in text, f"{source.relative_to(ROOT)}: {needle}")
+
+    def test_serpantinum_implements_every_contract_method(self):
+        self.check_implements(SERPANTINUM)
+
+    def test_dms_adapter_implements_every_contract_method(self):
+        self.check_implements(DMS)
+
+    def check_implements(self, table):
+        for domain, impl in table.items():
+            contract = functions((CONTRACT / f"{domain}.qml").read_text())
+            implemented = functions((ROOT / "adapters" / impl).read_text())
+            self.assertRegex((ROOT / "adapters" / impl).read_text(), re.compile(rf"^{domain} \{{", re.M), f"{impl} must derive from {domain}")
+            for name, signature in contract.items():
+                if name in ("record", "holds", "acquire", "release"):
+                    continue
+                self.assertIn(name, implemented, f"{impl}: {name}() not implemented")
+                self.assertEqual(params(implemented[name]), params(signature), f"{impl}: {name}() signature")
+
+    def test_adapters_fill_every_domain(self):
+        domains = re.findall(r"^    property (\w+Domain) (\w+):", (CONTRACT / "HostAdapter.qml").read_text(), re.M)
+        self.assertEqual(len(domains), 24)
+        resident_only = {"tray", "weather", "osd", "capture", "apps", "wallpaper", "hostTheme", "launcher"}
+        for adapter in ("serpantinum/SerpantinumAdapter.qml", "dms/DmsAdapter.qml", "fixture/FixtureAdapter.qml"):
+            text = (ROOT / "adapters" / adapter).read_text()
+            for _, name in domains:
+                if adapter.startswith("serpantinum/") and name in resident_only:
+                    continue  # The legacy panel does not provide resident domains.
+                if adapter.startswith("dms/") and name in DMS_UNBUILT:
+                    self.assertNotRegex(text, re.compile(rf"^    {name}: \w+", re.M), f"{adapter}: {name} is built; take it off DMS_UNBUILT")
+                    continue
+                # Filled where declared, or by loadDeferred() (root.<name> = …).
+                self.assertRegex(text, re.compile(rf"^    {name}: \w+|root\.{name} = \w+", re.M), f"{adapter}: {name}")
+
+    def test_every_view_lease_is_honoured_by_an_adapter(self):
+        held = set()
+        for directory in ADAPTER_DIRS:
+            for qml in directory.glob("*.qml"):
+                held |= set(re.findall(r'holds\("(\w+)"\)', qml.read_text()))
+        for qml in VIEW:
+            for feature in re.findall(r'HostLease \{[^}]*feature: "(\w+)"', qml.read_text()):
+                if feature == "menus" and qml == ROOT / "view/shell/IslandWindow.qml":
+                    self.assertIn('holds("menus")', (ROOT / "adapters/fixture/FixtureAdapter.qml").read_text())
+                    continue
+                self.assertIn(feature, held, f"{qml.relative_to(ROOT)}: lease {feature}")
+
+
+if __name__ == "__main__":
+    unittest.main()

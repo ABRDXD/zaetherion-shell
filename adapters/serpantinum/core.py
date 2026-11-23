@@ -1,0 +1,172 @@
+"""What the FART core needs from Serpantinum without a view: sfx mute and volume, DND, sounds, notifications.
+
+The same knowledge as SerpantinumSfx.qml and SerpantinumNotifications.qml. Settings are read only when
+needed (at an alarm), so there is no watcher and no idle wakeup.
+"""
+import json
+import os
+from pathlib import Path
+
+# ZÆTHERION's own sound set (owner, 13 November 2026: cybernetic, quiet, nothing that screams), all under
+# assets/sounds. Samples are CC0 (NOTICE, "Sounds"); the rest is synthesized by tools/sounds/make_ui.py.
+FART_SOUNDS = Path(__file__).resolve().parents[2] / "assets/sounds"
+OWN = {"timer.done": "alert.wav", "pomodoro.phase": "alert.wav", "session.end": "alert.wav",
+       "notify.normal": "notify-normal.wav", "notify.critical": "notify-critical.wav",
+       "ui.click": "ui-click.wav", "ui.switch": "ui-switch.wav", "ui.error": "ui-error.wav",
+       "cmd.run": "ui-confirm.wav", "orbit.hover": "ui-hover.wav", "hold.confirm": "ui-confirm.wav",
+       "hold.charge": "hold-charge.wav",
+       "osd.tick": "osd-tick.wav", "power.plug": "power-plug.wav", "power.unplug": "power-unplug.wav",
+       "battery.low": "battery-low.wav", "net.up": "net-up.wav", "net.down": "net-down.wav",
+       "dnd.on": "dnd-on.wav", "dnd.off": "dnd-off.wav",
+       # The orbit's two whooshes (tools/sounds/make_whoosh.py; the user asked for a whoosh, 8 November 2026).
+       "orbit.out": "orbit-out.wav", "orbit.land": "orbit-in.wav",
+       # Overdrive's ignition and spin-down (tools/sounds/make_ignite.py, docs/OVERDRIVE.md §2).
+       "ignite": "overdrive-ignite.wav", "overdrive.off": "overdrive-off.wav",
+       # Overdrive's foley and room chords (tools/sounds/make_foley.py).
+       **{f"foley.{name}": f"foley-{name}.wav" for name in ("pin", "relay", "paper", "ruler", "splice")},
+       **{f"chord.{n}.{pan}": f"chord-{n}-{pan}.wav" for n in range(10) for pan in "lcr"},
+       # Quiet telemetry (tools/sounds/make_foley.py).
+       **{f"quiet.{name}": f"quiet-{name}.wav" for name in ("thrash", "burst", "device")}}
+# A cue with several takes plays them in turn, so typing does not sound like one key repeated.
+TAKES = {"ui.key": ("ui-key-004.wav", "ui-key-009.wav", "ui-key-015.wav", "ui-key-021.wav")}
+
+
+class HostProfile:
+    name = "serpantinum"
+
+    def __init__(self):
+        config = Path(os.environ.get("XDG_CONFIG_HOME") or Path.home() / ".config")
+        self.settings_path = config / "serpantinum/settings.json"
+        source = Path(os.environ.get("SERPANTINUM_DIR") or Path.home() / ".local/share/serpantinum/src")
+        self.host_sounds = source / "assets/sounds"
+
+    def settings(self) -> dict:
+        try:
+            value = json.loads(self.settings_path.read_text())
+        except (OSError, ValueError):
+            return {}
+        return value if isinstance(value, dict) else {}
+
+    def sfx(self) -> tuple[bool, float]:
+        general = self.settings().get("general") or {}
+        try:
+            volume = float(general.get("sfxVolume", 100)) / 100
+        except (TypeError, ValueError):
+            volume = 1.0
+        return general.get("muteSfx") is True, max(0.0, min(1.0, volume))
+
+    def focus(self, start_ms: int, end_ms: int):
+        """Serpantinum's Digital Wellbeing tracker (focus_daemon.py), opened read-only: seconds per app class in each
+        local minute of the span. Window titles are in the same database and are never read. None if it is missing
+        or locked."""
+        import sqlite3
+        from datetime import datetime, timedelta
+        path = Path(os.environ.get("QS_STATE_FOCUSTIME") or Path.home() / ".local/state/quickshell/focustime") / "focustime.db"
+        if not path.is_file() or end_ms <= start_ms:
+            return None
+        a, b = datetime.fromtimestamp(start_ms / 1000), datetime.fromtimestamp(end_ms / 1000)
+        try:
+            db = sqlite3.connect(f"{path.as_uri()}?mode=ro", uri=True, timeout=0.2)
+        except sqlite3.Error:
+            return None
+        totals: dict[str, int] = {}
+        try:
+            day = a.date()
+            while day <= b.date():
+                lo = a.hour * 60 + a.minute if day == a.date() else 0
+                hi = b.hour * 60 + b.minute if day == b.date() else 1439
+                for app, seconds in db.execute("SELECT app_class, SUM(seconds) FROM focus_minutes WHERE log_date = ? "
+                                               "AND minute_idx BETWEEN ? AND ? GROUP BY app_class", (day.isoformat(), lo, hi)):
+                    totals[app] = totals.get(app, 0) + int(seconds or 0)
+                day += timedelta(days=1)
+        except sqlite3.Error:
+            return None
+        finally:
+            db.close()
+        return sorted(([k, v] for k, v in totals.items() if v > 0), key=lambda r: -r[1])[:4]
+
+    def dnd(self) -> bool:
+        return (self.settings().get("notifications") or {}).get("dnd") is True
+
+    def set_dnd(self, on: bool) -> bool:
+        """notifications.dnd in Serpantinum's settings.json, written as Serpantinum writes it (a temporary file renamed
+        over, two-space JSON) so its watcher reloads it. Every other setting is kept as it is; a file that can't be
+        read is left alone."""
+        try:
+            value = json.loads(self.settings_path.read_text())
+        except (OSError, ValueError):
+            return False
+        if not isinstance(value, dict):
+            return False
+        notifications = value.get("notifications") if isinstance(value.get("notifications"), dict) else {}
+        if notifications.get("dnd") is on:
+            return True
+        value["notifications"] = {**notifications, "dnd": on}
+        temp = self.settings_path.with_name(f".settings_tmp_fart_{os.getpid()}")
+        try:
+            temp.write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n")
+            os.replace(temp, self.settings_path)
+        except OSError:
+            temp.unlink(missing_ok=True)
+            return False
+        return True
+
+    def sound_file(self, cue: str) -> Path | None:
+        """The file for a cue, or None when there is none (the host plays nothing for it either)."""
+        if cue in TAKES:
+            takes = TAKES[cue]
+            self.take = (getattr(self, "take", -1) + 1) % len(takes)
+            path = FART_SOUNDS / takes[self.take]
+        else:
+            path = FART_SOUNDS / OWN[cue] if cue in OWN else None
+        return path if path is not None and path.is_file() else None
+
+    def play_command(self, cue: str, gain: float):
+        path = self.sound_file(cue)
+        if path is None:
+            return None
+        return self.play_file_command(path, gain)
+
+    def play_file_command(self, path: Path, gain: float):
+        props = json.dumps({"application.id": "fart-sfx", "application.name": "FART", "media.role": "event"})
+        return ["pw-play", "-P", props, f"--volume={max(0.0, min(2.0, gain)):.3f}", str(path)]
+
+    def notify_command(self, summary: str, body: str, image: str | None = None):
+        """A notice through our notification server; `image` (a file) shows as its picture (capture, Z221)."""
+        picture = ["-i", image, "-h", f"string:image-path:{image}"] if image else []
+        return ["notify-send", "-a", "FART", *picture, summary, body]
+
+    def before_open_command(self):
+        """A native calendar or music popup sits above FART's layer: close it, without starting the host."""
+        runtime = Path(os.environ.get("XDG_RUNTIME_DIR") or "/tmp")
+        try:
+            visible = json.loads((runtime / "serpantinum/current_widget").read_text()).get("widget")
+        except (OSError, ValueError, AttributeError):
+            return None
+        if not visible or visible == "hidden":
+            return None
+        source = Path(os.environ.get("SERPANTINUM_DIR") or Path.home() / ".local/share/serpantinum/src")
+        shell = source / "quickshell/Shell.qml"
+        if not shell.is_file():
+            return None
+        return ["qs", "-p", str(shell), "ipc", "call", "main", "handleCommand", "close", "", ""]
+
+    def location(self) -> dict | None:
+        """The place the user set in Serpantinum's settings (general.location), for the astronomical clock."""
+        place = (self.settings().get("general") or {}).get("location")
+        if not isinstance(place, dict):
+            return None
+        try:
+            return {"lat": float(place["latitude"]), "lon": float(place["longitude"]), "name": str(place.get("city") or "")}
+        except (KeyError, TypeError, ValueError):
+            return None
+
+    def launch_history(self) -> dict | None:
+        """The old Quickshell launcher's counts, {app name: {date: launches}}, read once by the core (Z136). A copy is
+        taken; the file is never written."""
+        state = Path(os.environ.get("XDG_STATE_HOME") or Path.home() / ".local/state")
+        try:
+            value = json.loads((state / "quickshell/applauncher/launch_stats.json").read_text())
+        except (OSError, ValueError):
+            return None
+        return value if isinstance(value, dict) else None

@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "timestamp": "2026-11-06T13:41:03.237833+00:00",
+  "source_commit": "7dd3a8600cfa8afff5ac7a6a1aa866760f220e30",
+  "platform": "wayland/opengl",
+  "motion": "serpantinum",
+  "script": [
+    "tim 25",
+    "task measure the command line",
+    "se",
+    "?",
+    "tim banana",
+    "? tim",
+    "tim stop",
+    "task second line !tomorrow"
+  ],
+  "typed_ms_per_character": 30,
+  "interaction": "quiet",
+  "dgpu_before": {
+    "0000:01:00.0": "suspended",
+    "0000:01:00.1": "suspended"
+  },
+  "dgpu_after": {
+    "0000:01:00.0": "suspended",
+    "0000:01:00.1": "suspended"
+  },
+  "vrr": false,
+  "checks": {
+    "missed": {
+      "measured": 0,
+      "limit": 0,
+      "status": "pass"
+    },
+    "gpu_p99_ms": {
+      "measured": 1.3843,
+      "limit": 6.9,
+      "status": "pass"
+    },
+    "render_thread_p99_ms": {
+      "measured": 3,
+      "limit": 6.9,
+      "status": "pass"
+    }
+  },
+  "cmdline": {
+    "load_frame_ms": {
+      "count": 1,
+      "median": 6.793,
+      "p95": 6.793,
+      "p99": 6.793,
+      "max": 6.793,
+      "over": 0
+    },
+    "load_frames_in_order_ms": [
+      6.793
+    ],
+    "create_ms_in_order": [],
+    "polish_max_ms_in_order": [],
+    "interval_ms": {
+      "count": 569,
+      "median": 6.942,
+      "p95": 7.724,
+      "p99": 8.553,
+      "max": 9.296,
+      "over": 0
+    },
+    "missed_steady": 0,
+    "missed_per_load_max": 0,
+    "gpu_ms": {
+      "count": 594,
+      "median": 0.51425,
+      "p95": 0.5664,
+      "p99": 1.3843,
+      "max": 3.207,
+      "over": 0
+    },
+    "render_thread_work_ms": {
+      "count": 594,
+      "median": 0.0,
+      "p95": 1,
+      "p99": 3,
+      "max": 5,
+      "over": 0
+    },
+    "vsync_wait_ms": {
+      "count": 594,
+      "median": 5.0,
+      "p95": 6,
+      "p99": 7,
+      "max": 8,
+      "over": null
+    }
+  },
+  "refresh_hz": 144.00301
+}

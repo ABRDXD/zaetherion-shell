@@ -1,0 +1,77 @@
+{
+ "no": 1,
+ "name": "TORII",
+ "src": "~/Pictures/Wallpapers/wallhaven-zywgxy_3840x2160.png",
+ "focus": [
+  0.5,
+  0.47
+ ],
+ "text": "SILENT IS STILL · ",
+ "cell": 20,
+ "levels": [
+  0,
+  255,
+  1.0
+ ],
+ "void": 0.06,
+ "ink": "#dbe7f2",
+ "deep": "#16202a",
+ "signal": "#8fd6f5",
+ "way": "ICE",
+ "reading": "G01 — TORII / THE GATE\nFOUR LAYERS OF MIST, FOUR VOICES.\nTHE NEAREST SPEAKS LOUDEST.",
+ "aside": "the sky is left unwritten.",
+ "colophon": "JETBRAINS MONO THIN → EXTRABOLD · 18 PX CELL",
+ "title": {
+  "cjk": "鳥居",
+  "latin": "TORII",
+  "sub": "the gate · sheared −12°",
+  "size": 300,
+  "top": 260,
+  "side": "right",
+  "latin_size": 110
+ },
+ "invert": true,
+ "bands": [
+  [
+   0.18,
+   0,
+   "#26323d",
+   "the far mist is thin · at rest nothing moves · "
+  ],
+  [
+   0.38,
+   [
+    1,
+    2
+   ],
+   "#566a7d",
+   "one angle family · the host owns the colours · "
+  ],
+  [
+   0.58,
+   [
+    3,
+    4
+   ],
+   "#9fb3c5",
+   "SILENT IS STILL · MOTION HAPPENS BECAUSE YOU DID SOMETHING · "
+  ],
+  [
+   0.78,
+   [
+    4,
+    7
+   ],
+   "#d3dfeb",
+   "ZÆTHERION · FART // ANGULAR · NOTHING ELSE LEANS · "
+  ]
+ ],
+ "signal_box": [
+  0.4,
+  0.3,
+  0.6,
+  0.62,
+  0.78
+ ],
+ "zoom": 1.7
+}

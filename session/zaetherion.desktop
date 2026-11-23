@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=ZÆTHERION
+Comment=Hyprland with the ZÆTHERION shell (FART core + DMS)
+Exec=/usr/bin/start-hyprland -- -c @HOME@/.config/hypr/zaetherion.lua
+TryExec=/usr/bin/start-hyprland
+DesktopNames=Hyprland
+Type=Application

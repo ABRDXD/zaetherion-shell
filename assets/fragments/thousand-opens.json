@@ -1,0 +1,8 @@
+{
+  "when": {
+    "counter": "view.opens",
+    "atLeast": 1000
+  },
+  "whisper": "the thousandth time the door opened",
+  "text": "The door has been opened a thousand times. The hinge has worn a groove in the frame.\nThe groove is on the outside.\nThe surveyor sniffed it once, and has kept to the middle of the room since."
+}

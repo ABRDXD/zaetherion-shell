@@ -1,0 +1,475 @@
+import QtQuick
+import QtQuick.Window
+import Quickshell
+import Quickshell.Io
+import Quickshell.Hyprland
+import Quickshell.Wayland
+import qs.core.client
+import qs.view.contract
+import qs.view.cues as Cues
+import qs.view.overdrive
+import qs.view.satellites
+import qs.view.strata
+import qs.view.ui as Fart
+
+Scope {
+    id: root
+    required property HostAdapter host
+    required property CoreClient core
+    Fart.PaletteBinding { core: root.core }
+    property string currentPage: "home"
+    property bool opened: false
+    property var companionWindows: []
+    // The island shares the panel's focus grab and supplies the gap at its edge.
+    property int adjacentIslandGap: -1
+    // The island wants the keyboard (Super+Shift+I while docked): the panel stays open and yields it
+    // until the island lets go (Escape), then takes it back.
+    property bool islandHasKeyboard: false
+    // The island shows timer, DONE and track itself (Transit band, Z227); the satellites stand down then.
+    property bool satellitesWanted: true
+    // The island's resting rect in screen coordinates. With an island at the edge the panel opens as the island
+    // itself growing: its silhouette (IslandFrame) grows from this rect to the panel's, revealing FART inside, and
+    // folds back into it. FART's header takes the island's place at the top.
+    property var islandRect: null
+    // Z161: a critical event that arrived while FART covers the island; it drops down inside FART.
+    property var islandAlert: null
+    signal islandAlertDismissed(string id)
+    signal islandAlertAction(string id, string action, string reply)
+    // Z174: the volume, mic or brightness change that arrived while FART covers the island; it shows in the header.
+    property var islandOsd: null
+    // The island's rect when this open began: the growth starts here and the fold returns here.
+    property var islandFrom: null
+    readonly property bool islandMorph: adjacentIslandGap >= 0 && !surface.full
+    readonly property bool holdsKeyboard: opened && !body.shell?.externalDialogOpen && adjacentIslandGap >= 0
+        && !islandHasKeyboard
+    // The panel opens like a host popup and folds from wherever it is; a reversal takes the
+    // time left (docs/CUES.md §9, §15). No scope: the surface's visibility depends on it.
+    readonly property bool cutPanel: islandMorph && !Fart.Design.fluid
+    // A single driver keeps the input mask, silhouette and reading together on reversal.
+    Unfold {
+        id: unfold
+        on: root.opened
+        readonly property real widthChange: Math.abs(surface.implicitWidth - surface.fromRect.width)
+        readonly property real heightChange: Math.abs(surface.implicitHeight - surface.fromRect.height)
+        readonly property real travel: Math.max(widthChange / 2, heightChange)
+        readonly property real sizeChange: Math.max(widthChange / Math.max(1, surface.implicitWidth, surface.fromRect.width),
+                                                   heightChange / Math.max(1, surface.implicitHeight, surface.fromRect.height))
+        enter: root.cutPanel ? Cues.Motion.cutDuration(travel, sizeChange, false)
+            : root.islandMorph ? Cues.Motion.scaled(560) : Cues.Motion.unfold
+        exit: root.cutPanel ? Cues.Motion.cutDuration(travel, sizeChange, true)
+            : root.islandMorph ? Cues.Motion.scaled(320) : Cues.Motion.fold
+        easing: root.cutPanel ? Cues.Motion.cutIn : Cues.Motion.linear
+        exitEasing: root.cutPanel ? Cues.Motion.cutOut : Cues.Motion.linear
+    }
+    readonly property bool retained: opened || unfold.value > 0
+    Binding { target: Cues.Motion; property: "reduced"; value: !ViewState.motionEnabled }
+    // Overdrive follows the core's lease (docs/OVERDRIVE.md §1): only an active lease drives; a suspended one
+    // (a guard is on) or a released one is Silent, and the engine winds down to rest.
+    Binding { target: Cues.Motion; property: "overdrive"; value: root.core.overdriveData?.effective === "active" }
+    Binding { target: Cues.Motion; property: "seen"; value: root.retained }
+    Binding { target: Cues.Motion; property: "profile"; value: root.host.motion.available ? root.host.motion.roles : ({}) }
+    // Cold-start phase markers for tools/measure/cold_breakdown.py --real (FART_COLD_PROBE=1 only).
+    ColdProbe {
+        id: coldProbe
+        window: body.Window.window
+        inputFocused: body.shell?.commandLine.inputFocused ?? false
+    }
+    // Singletons that cannot take properties get the host once, here.
+    Component.onCompleted: {
+        Host.adapter = host;
+        Fart.Design.source = host.palette;
+        coldProbe.mark("created");
+    }
+    // FART preferences that shape host-side work.
+    Binding { target: root.host.media; property: "preferredPlayer"; value: Config.options.bar.media.preferredPlayer }
+    Binding { target: root.host.system; property: "sampleInterval"; value: Math.max(500, Config.options.resources.updateInterval) }
+    ShellContext { id: context; panelOpen: root.opened; core: root.core }
+    // The host's wallpaper, for the core's `wallpaper` topic and verb (Z178): the host stays the authority.
+    readonly property var hostWallpaper: ({ available: host.wallpaper.available, current: host.wallpaper.current,
+                                            perScreen: host.wallpaper.perScreen, error: host.wallpaper.error })
+    onHostWallpaperChanged: if (core.connected) core.notify("wallpaper.report", hostWallpaper)
+    // The host's own theme, for presets (Z180).
+    readonly property var hostTheme: ({ available: host.hostTheme.available, current: host.hostTheme.current, error: host.hostTheme.error })
+    onHostThemeChanged: if (core.connected) core.notify("hosttheme.report", hostTheme)
+    onOpenedChanged: { Host.panelOpen = opened; reportState(); }
+    // The core reaps a closed view, ends panel leases and decides Super+` folds (Q7) from these reports.
+    function reportState() {
+        core.notify("view.state", { open: root.opened, page: Host.page, cmdlineIdle: root.opened && (body.shell?.commandLine.idle ?? false) });
+    }
+    Connections {
+        target: body.shell?.commandLine ?? null
+        function onIdleChanged() { root.reportState(); }
+    }
+    Connections {
+        target: root.core
+        function onConnectedChanged() {
+            if (!root.core.connected) return;
+            root.reportState();
+            root.core.notify("wallpaper.report", root.hostWallpaper);
+            root.core.notify("hosttheme.report", root.hostTheme);
+        }
+        function onCommand(action, page, from, extra) {
+            coldProbe.mark("command");
+            const placement = { from: from, screen: extra?.screen ?? "" };
+            if (action === "open" || action === "page") root.openPage(page || root.currentPage, placement);
+            // go <moon>: the orbit opens over the room and keys that moon (docs/ORBIT.md, "type to fly").
+            if (action === "open" && extra?.settings) Host.openSettings(extra.settings);
+            if (action === "open" && extra?.fly !== undefined) body.shell?.flyTo(extra.fly);
+            else if (action === "close") Host.close();
+            else if (action === "toggle") { if (root.opened) Host.close(); else root.openPage(page || root.currentPage, placement); }
+        }
+    }
+    Connections {
+        target: Host
+        function onPageChanged() { root.reportState(); }
+    }
+    Connections {
+        target: Fart.Feedback
+        function onCue(name) { root.core.notify("sfx.play", { cue: name }); }
+        function onStopped(name) { root.core.notify("sfx.stop", { cue: name }); }
+    }
+    // Opening from fully folded picks the screen and the origin. A new rect while open or folding
+    // moves nothing: it is stored for the next unfold (DAILY_DRIVER §3).
+    // A fixture or an in-panel action can open settings once the room exists.
+    function openPreferences() {
+        if (!opened || !body.shell) return false;
+        body.shell.preferencesOpen = true;
+        return true;
+    }
+
+    function openPage(page, placement) {
+        const screenName = placement?.screen || root.host.workspaces.focusedScreen;
+        const from = placement?.from;
+        if (from && screenName)
+            root.host.clockGeometry.setHookRect(screenName, Math.round(from.x), Math.round(from.y), Math.round(from.width), Math.round(from.height));
+        if (!opened && unfold.value === 0) {
+            surface.screen = Quickshell.screens.find(s => s.name === screenName) ?? Quickshell.screens.find(s => s.name === root.host.workspaces.focusedScreen) ?? Quickshell.screens[0];
+            const rect = from ?? root.host.clockGeometry.rectFor(surface.screen.name);
+            body.edge = rect?.edge === "bottom" ? "bottom" : "top";
+            body.origin = body.originFrom(rect, (surface.screen.width - surface.width) / 2);
+            root.islandFrom = from ?? root.islandRect;
+        }
+        currentPage = page;
+        body.show(page);
+        opened = true;
+        // Every open focuses the command line (Q3), from the clock, Super+` or the CLI.
+        body.armInteractive();
+        body.focusCommandLine();
+        coldProbe.handled();
+    }
+    // tools/launcher_keycheck.py (FART_COLD_PROBE=1 only), wall-clock ms: every change of the command line's text,
+    // of the panel window's activation (the keyboard entering it) and of the line's own focus, at any time.
+    Connections {
+        target: coldProbe.enabled ? (body.shell?.commandLine ?? null) : null
+        function onTextChanged() { console.log("FART_CMDTEXT", Date.now(), JSON.stringify(body.shell.commandLine.text)); }
+    }
+    Connections {
+        target: coldProbe.enabled ? body.Window.window : null
+        function onActiveChanged() { console.log("FART_CMDFOCUS", Date.now(), "window", body.Window.window.active); }
+    }
+    Connections {
+        target: coldProbe.enabled ? coldProbe : null
+        function onInputFocusedChanged() { console.log("FART_CMDFOCUS", Date.now(), "input", coldProbe.inputFocused); }
+    }
+    // The launcher key delivered by the host (keybinds.launcherPressed; Hyprland's global shortcut, only with
+    // FART_LAUNCHER_SHORTCUT=1): the press opens the command line without a CLI spawn or a core round trip. The core
+    // still gets the edges for hold-to-ignite (key.down with panel: true starts the hold without another open).
+    function launcherPressed() {
+        coldProbe.mark("command");
+        if (root.opened && (body.shell?.commandLine.idle ?? false)) {
+            Host.close();  // Q7: Super+` on a focused, empty command line folds
+            return;
+        }
+        root.openPage(root.currentPage || "home", null);
+        root.core.request("key.down", { panel: true });
+    }
+    Connections {
+        target: root.host.keybinds
+        function onLauncherPressed() { root.launcherPressed(); }
+        function onLauncherReleased() { root.core.request("key.up", {}); }
+    }
+    Connections {
+        target: Host
+        function onOpenRequested(page) { root.openPage(page, null); }
+        function onCloseRequested() { root.currentPage = Host.page; root.opened = false; }
+    }
+    // The desktop tier (T3, OVERDRIVE_IDEAS #52–54). It is a separate surface, so it needs no scene graph to check a shader
+    // against: its Stratum is `gpu: false`, and the shader inside it has its own.
+    readonly property string shownRoom: body.shell?.currentPage ?? root.currentPage
+    readonly property var panelSpot: {
+        if (root.islandMorph) {
+            // Grown from the island: the body sits centred at the island's edge, inside the silhouette's shoulders.
+            const screenHeight = surface.screen?.height ?? 0;
+            const top = body.edge === "bottom" ? screenHeight - surface.height - root.adjacentIslandGap : root.adjacentIslandGap;
+            return Qt.rect(Math.round(((surface.screen?.width ?? surface.width) - body.width) / 2), top, body.width, surface.height);
+        }
+        const mon = root.host.workspaces.monitors.find(m => m.name === surface.screen?.name);
+        const top = body.edge === "bottom" ? (surface.screen?.height ?? 0) - surface.height - 8 : (mon?.reservedTop ?? 0) + 8;
+        return Qt.rect(Math.round(((surface.screen?.width ?? surface.width) - surface.width) / 2), top, surface.width, surface.height);
+    }
+    // The desktop field rules the panel's footprint; grown from the island it arrives once the growth is complete.
+    readonly property bool fieldReady: !root.islandMorph || (root.opened && surface.growP >= 1)
+    Binding { target: Eigenmode; property: "desktop"; value: Qt.rect(0,0,surface.screen?.width ?? 1920,surface.screen?.height ?? 1080) }
+    Binding { target: Eigenmode; property: "origin"; value: ViewState.fullscreen ? Qt.point(0,0) : Qt.point(root.panelSpot.x,root.panelSpot.y) }
+    // What a closed panel leaves behind while Overdrive goes on: the room and the time, for a quarter of a minute.
+    property string residue: ""
+    Timer {
+        id: residueTimer
+        interval: 15000
+        onTriggered: root.residue = ""
+    }
+    function updateResidue() {
+        if (retained) {
+            residue = "";
+            residueTimer.stop();
+        } else if (Cues.Motion.driving) {
+            const n = body.shell?.navigationPages.findIndex(p => p.id === root.shownRoom) ?? 0;
+            residue = String(Math.max(0, n)).padStart(2, "0") + " · " + root.shownRoom.toUpperCase() + " · " + Qt.formatTime(new Date(), "hh:mm");
+            residueTimer.restart();
+        }
+    }
+    Stratum {
+        name: "field"
+        tier: "desktop"
+        gpu: false
+        wanted: !ViewState.fullscreen && (root.retained || root.residue !== "")
+        sourceComponent: DesktopField {
+            screen: surface.screen
+            panelRect: root.retained && root.fieldReady ? root.panelSpot : Qt.rect(0, 0, 0, 0)
+            roomTurn: body.shell?.navigationPages.findIndex(p => p.id === root.shownRoom) ?? 0
+            meridianX: {
+                const shell = body.shell;
+                if (!shell || !root.retained || !root.fieldReady)
+                    return -1;
+                const left = shell.sideOf(root.shownRoom) === "left";
+                const cut = shell.width < 920 ? 104 : 150;
+                return root.panelSpot.x + 24 + 16 + (left ? cut : shell.width - 48 - 32 - cut);
+            }
+            residue: root.residue
+        }
+    }
+    Loader {
+        active: root.retained && Cues.Motion.overdrive && Cues.Motion.reduced && Eigenmode.still && !ViewState.fullscreen
+        sourceComponent: DesktopField { screen:surface.screen; eigenOnly:true }
+    }
+    // Timer, DONE and track-change satellites beside the clock; hidden while the panel is shown.
+    Satellites {
+        id: satellites
+        wanted: root.satellitesWanted
+        core: root.core
+        host: root.host
+        panelOpen: root.retained
+        onOpenRoom: page => root.openPage(page, null)
+        surface: Component {
+            SatelliteWindow {
+                screen: Quickshell.screens.find(s => s.name === root.host.workspaces.focusedScreen) ?? Quickshell.screens[0]
+                rect: root.host.clockGeometry.rectFor(screen?.name ?? "")
+            }
+        }
+    }
+    // Deferred host domains (docs/ADAPTER_CONTRACT.md §1) load once the first open has settled, so their
+    // compile never lands inside the unfold, or at once when a room other than Home is shown.
+    readonly property bool settledOpen: opened && unfold.value >= 1
+    readonly property string shownPage: body.shell?.loadedPage ?? ""
+    onSettledOpenChanged: if (settledOpen) host.loadDeferred()
+    onShownPageChanged: {
+        if (shownPage !== "")
+            coldProbe.mark("room");
+        if (shownPage !== "" && shownPage !== "home")
+            host.loadDeferred();
+    }
+    // The surface has drawn since it became visible. The grab needs a mapped surface; waiting for the
+    // unfold's first 2% instead (as the archive did) held keyboard focus back by about 60 ms (COLDSTART.md).
+    property bool surfaceDrawn: false
+    onRetainedChanged: {
+        if (!retained)
+            surfaceDrawn = false;
+        updateResidue();
+    }
+    Connections {
+        target: body.Window.window
+        enabled: root.retained && !root.surfaceDrawn
+        function onFrameSwapped() { root.surfaceDrawn = true; }
+    }
+    // Hyprland clears the grab when a docked island takes the keyboard, and again if it resumes while focus is
+    // still moving. It pauses while the island has the keyboard and resumes once the panel holds it again.
+    property bool grabResumed: true
+    onIslandHasKeyboardChanged: {
+        grabResumed = false;
+        if (!islandHasKeyboard) resumeGrab.restart();
+    }
+    Timer {
+        id: resumeGrab
+        interval: 100
+        onTriggered: root.grabResumed = true
+    }
+    HyprlandFocusGrab {
+        active: root.opened && root.surfaceDrawn && !body.shell?.externalDialogOpen && root.grabResumed
+        // The panel goes last: a grab committed before the keyboard has reached the panel hands it to the last
+        // surface listed (Hyprland 0.57), and on the first open after the view starts that was the island, which
+        // swallowed every key (tools/launcher_keycheck.py, case `first`).
+        windows: root.companionWindows.concat([surface])
+        onCleared: if (!body.shell?.externalDialogOpen && root.grabResumed) Host.close()
+    }
+    // Diagnostics only: open, page, close and toggle arrive from the core.
+    IpcHandler {
+        target: "fart"
+        function status(): string {
+            return JSON.stringify({host: root.host.name, open: root.opened, loadedPage: body.shell?.loadedPage ?? "",
+                contentLoaded: !!body.shell, focus: body.shell?.Window.active ?? false,
+                cmdline: {focused: body.shell?.commandLine.inputFocused ?? false, lines: body.shell?.commandLine.log.count ?? 0},
+                bars: root.host.media.spectrum.length, player: !!root.host.media.active,
+                theme: {base: Fart.Design.background.toString(), accent: Fart.Design.accent.toString(),
+                    selected: Fart.Design.selected.toString(), opacity: Fart.Design.panelOpacity,
+                    radius: Fart.Design.radiusPanel, blur: !!surface.BackgroundEffect.blurRegion},
+                notifications: root.host.notifications.items.length, listening: root.host.notifications.available,
+                core: root.core.connected, tasks: root.core.tasks.all.length,
+                motion: {reduced: Cues.Motion.reduced, active: Cues.Motion.activeNames},
+                overdrive: {driving: Cues.Motion.driving, drive: Math.round(Cues.Motion.drive * 1000) / 1000, loops: Cues.Motion.idleLoops, strata: Strata.live},
+                surfaces: (root.retained ? 1 : 0) + satellites.surfaces, satellites: satellites.shown});
+        }
+    }
+    Binding { target: body.shell; property: "spaceBelow"; value: heavy.showing; when: body.shell !== null }
+    HeavyLayer {
+        id: heavy
+        opened: root.retained
+        // The orbit's centre, in the panel's coordinates; only while the orbit is on the screen and nothing is flying past it.
+        scene: {
+            const shell = body.shell, orbit = shell?.orbit ?? null;
+            if (!shell)
+                return null;
+            const theme = { edge: body.edge, full: surface.full, width: surface.width, height: surface.height, accent: Fart.Design.accent.toString(), second: Fart.Design.selected.toString(),
+                            ink: Fart.Design.ink.toString(), background: Fart.Design.background.toString(), room: root.shownRoom, rooms: shell.navigationPages.map(p => p.id),
+                            data: root.mediumData };
+            if (!orbit || !shell.orbitOpen)
+                return theme;
+            const at = orbit.mapToItem(surface.contentItem, orbit.homeScreenX, orbit.homeScreenY);
+            return Object.assign(theme, { cx: at.x, cy: at.y, radius: orbit.inner * 0.66 * orbit.camS, elevation: orbit.elevation });
+        }
+    }
+    // Only levels and counts leave for the heavy process (view/strata/MediumLaws.js), and only those of the room in view, so a room's sampling never wakes for this.
+    readonly property var mediumData: {
+        const host = root.host, room = root.shownRoom;
+        if (room === "media")
+            return { playing: !!host.media?.active?.playing, spectrum: host.media?.spectrum ?? [] };
+        if (room === "performance")
+            return { cpu: (host.system?.cpu?.usage ?? 0) / 100, gpu: (host.system?.gpu?.usage ?? 0) / 100 };
+        if (room === "workspaces")
+            return { desks: (host.workspaces?.workspaces ?? []).filter(w => w.windowCount > 0).length || 1 };
+        if (room === "tasks")
+            return { tasks: root.core.tasks?.all?.filter(t => !t.done).length ?? 0 };
+        if (room === "timers")
+            return { running: !!root.core.timers?.anyRunning };
+        if (room === "notifications")
+            return { unread: host.notifications?.items?.length ?? 0 };
+        return {};
+    }
+    PanelWindow {
+        id: surface
+        visible: root.retained
+        // The panel sits on the bar's side of the screen, as the host's calendar does; fullscreen
+        // (ViewState.fullscreen, F11) it covers the whole screen, bar included, on the overlay layer.
+        readonly property bool full: ViewState.fullscreen
+        anchors.top: full || body.edge !== "bottom"
+        anchors.bottom: full || body.edge === "bottom"
+        anchors.left: full
+        anchors.right: full
+        margins.top: full ? 0 : root.adjacentIslandGap >= 0 ? root.adjacentIslandGap : 8
+        margins.bottom: full ? 0 : root.adjacentIslandGap >= 0 ? root.adjacentIslandGap : 8
+        // Grown from the island, the panel covers the island's own reserved strip.
+        exclusionMode: full || root.islandMorph ? ExclusionMode.Ignore : ExclusionMode.Normal
+        color: "transparent"
+        // Grown from the island, the surface also holds the bar's 84° shoulders on either side of the body.
+        readonly property real shoulderRun: (root.islandFrom?.height ?? root.islandRect?.height ?? 36) / Math.tan(84 * Math.PI / 180)
+        implicitWidth: full ? screen.width : root.islandMorph ? Math.min(screen.width, 1360 + (Fart.Design.fluid ? 0 : 2 * Math.ceil(shoulderRun)))
+            : Math.min(1360, screen.width - 24)
+        implicitHeight: full ? screen.height : root.islandMorph ? Math.min(860, screen.height - root.adjacentIslandGap - 32)
+            : Math.min(860, screen.height - (root.host.workspaces.monitors.find(m => m.name === screen.name)?.reservedTop || 0) - 32)
+        WlrLayershell.namespace: "fart-control-centre"
+        // The heavy layer takes the Top layer, under the panel.
+        WlrLayershell.layer: full || heavy.up ? WlrLayer.Overlay : WlrLayer.Top
+        // Hyprland keeps focus on a layer that only steps down to OnDemand, so the panel yields fully (None)
+        // while the island has the keyboard; the focus grab is paused meanwhile.
+        WlrLayershell.keyboardFocus: !root.opened || body.shell?.externalDialogOpen || root.islandHasKeyboard ? WlrKeyboardFocus.None
+            : root.adjacentIslandGap >= 0 ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.OnDemand
+        mask: Region { item: root.islandMorph ? growth : body.shape; radius: root.islandMorph ? 0 : body.cornerRadius * body.bodyScale }
+        BackgroundEffect.blurRegion: Fart.Design.blur && surface.visible && !heavy.showing ? frameRegion : null
+        Region { id: frameRegion; item: root.islandMorph ? growth : body.shape; radius: root.islandMorph ? 0 : body.cornerRadius * body.bodyScale }
+
+        // The island growing, in two eased phases over the body track: the bar first widens to the panel's width,
+        // keeping its 84° ends, then the panel drops straight down from it. Folding retraces both.
+        readonly property real growP: root.cutPanel ? unfold.value : unfold.body.progress
+        function easeOut(p: real): real { const q = 1 - Math.max(0, Math.min(1, p)); return 1 - q * q * q; }
+        function easeInOut(p: real): real {
+            const t = Math.max(0, Math.min(1, p));
+            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        }
+        readonly property real widen: root.cutPanel ? Math.min(1, growP / 0.4) : easeOut(growP / 0.4)
+        readonly property real drop: root.cutPanel ? Math.max(0, (growP - 0.3) / 0.7) : easeInOut((growP - 0.3) / 0.7)
+        readonly property rect fromRect: {
+            const r = root.islandFrom ?? root.islandRect;
+            if (!r) return Qt.rect(width / 2 - 210, body.edge === "bottom" ? height - 36 : 0, 420, 36);
+            const left = ((screen?.width ?? width) - width) / 2;
+            return Qt.rect(r.x - left, body.edge === "bottom" ? height - r.height : 0, r.width, r.height);
+        }
+        Fart.IslandFrame {
+            id: growth
+            visible: root.islandMorph
+            bottomEdge: body.edge === "bottom"
+            shoulderDepth: surface.fromRect.height
+            // Fluid: the island's corners open into the panel's softer ones as it drops.
+            corner: Fart.Design.roundIsland + (2 * Fart.Design.roundPlate - Fart.Design.roundIsland) * surface.drop
+            x: surface.fromRect.x * (1 - surface.widen)
+            width: surface.fromRect.width + (surface.width - surface.fromRect.width) * surface.widen
+            height: surface.fromRect.height + (surface.height - surface.fromRect.height) * surface.drop
+            y: body.edge === "bottom" ? surface.height - height : 0
+            // The first moments fade over the resting island underneath, so its row can fade out in place.
+            opacity: Math.min(1, surface.growP / 0.08)
+        }
+        PanelBody {
+            id: body
+            width: root.islandMorph ? Math.min(1360, surface.width) : surface.width
+            x: (surface.width - width) / 2
+            height: surface.height
+            islandMorph: root.islandMorph
+            morphRect: Qt.rect(growth.x - x, growth.y, growth.width, growth.height)
+            host: root.host
+            core: root.core
+            context: context
+            unfold: unfold
+            retained: root.retained
+            cornerRadius: root.adjacentIslandGap >= 0 ? 0 : Fart.Design.radiusPanel
+            dismissOnEscape: root.adjacentIslandGap >= 0 && root.opened
+            page: root.currentPage
+            spaceShows: heavy.showing
+            spaceOnOrbit: !!body.shell?.orbitOpen
+            onLoaded: { coldProbe.mark("shell"); root.reportState(); }
+            // The cold-start and warm-open budgets end here (DAILY_DRIVER §1); printed for the probe only.
+            onInteractive: {
+                coldProbe.interactive();
+                if (coldProbe.enabled) console.log("FART_CMDLINE ready", Date.now());
+            }
+        }
+        FartAlertDrop {
+            x: body.x
+            width: body.width
+            height: surface.height
+            headerHeight: body.shell?.headerBottom ?? 0
+            visible: root.opened && surface.growP >= 1 && !!body.shell
+            event: visible ? root.islandAlert : null
+            onDismissed: id => root.islandAlertDismissed(id)
+            onNotificationAction: (id, action, reply) => root.islandAlertAction(id, action, reply)
+        }
+        FartHeaderOsd {
+            x: body.x
+            width: body.width
+            height: surface.height
+            headerTop: body.shell?.headerTop ?? 0
+            headerHeight: body.shell?.headerHeight ?? 32
+            slotX: body.shell?.headerSlotX ?? 0
+            slotWidth: body.shell?.headerSlotWidth ?? width
+            visible: root.opened && surface.growP >= 1 && !!body.shell
+            event: visible ? root.islandOsd : null
+        }
+    }
+}

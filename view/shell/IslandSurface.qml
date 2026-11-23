@@ -1,0 +1,651 @@
+import QtQuick
+import Quickshell
+import qs.view.contract
+import qs.core.client
+import qs.view.cues
+import qs.view.ui
+import "../ui/FocusMap.js" as FocusMap
+import "LauncherLayout.js" as LauncherLayout
+import "Rubber.js" as Rubber
+import "IslandTiming.js" as IslandTiming
+
+FocusScope {
+    id: root
+    required property HostAdapter host
+    property bool bottomEdge: false
+    property string motionLevel: "all"
+    property bool systemVoice: true
+    property real maximumWidth: Infinity
+    // The panel is open from this island: the island has grown into it (Overlay draws the growth), so its own row
+    // fades out and hover stays shut until the panel folds back.
+    property bool docked: false
+    // Flush against the screen edge (notch), the black island merges with the bezel, so the space on the edge side
+    // reads larger than it is. Content sits this much towards the edge to look centred; none when floating.
+    property bool notch: true
+    readonly property int lift: notch ? 3 : 0
+    readonly property int liftOffset: bottomEdge ? lift : -lift
+    // The width the island had when the panel took over: it holds it while docked, so the growth starts from and
+    // folds back into exactly that shape, then eases to its natural width.
+    property real dockWidth: 0
+    onDockedChanged: {
+        if (docked) dockWidth = width;
+        handOverOsd();
+    }
+    property bool pointerInside: hover.hovered
+    property bool keyboardMode: false
+    property bool hoverOpen: false
+    property var workspaceIds: []
+    property bool overdriveActive: false
+    property CoreClient core: null
+    property var startupNotice: null
+    // The open tray item (Z157): its menu is one of the island's faces, ahead of every event but a critical one while it is open (Z161).
+    property string trayItem: ""
+    readonly property bool trayOpen: trayItem !== ""
+    signal closeTray()
+    signal chooseTray(string entryId)
+    onTrayItemChanged: trayItem ? queue.offer("tray", "tray", events.priority.held, { item: trayItem }, null) : queue.remove("tray")
+    // The session card (Z158) grows from the island like the tray menu, ahead of every event but a critical one while it is open (Z161).
+    function openSession(): void {
+        keyboardMode = false;
+        queue.offer("session", "session", events.priority.held, {}, null);
+    }
+    function closeSession(): void { queue.remove("session"); }
+    // Ctrl+Alt+Del (`qs ipc call island session`, Z208): the card, or away again if it is open.
+    function toggleSession(): void {
+        if (queue.entries.some(event => event.id === "session")) closeSession();
+        else openSession();
+    }
+    // The launcher (S6) grows from the island like the session card and holds the keyboard while open (Z117).
+    readonly property int launcherRows: core?.launcherData?.settings?.rows ?? 6
+    readonly property bool launcherOpen: expansion?.kind === "launcher"
+    function openLauncher(): void {
+        keyboardMode = false;
+        queue.offer("launcher", "launcher", events.priority.held, {}, null);
+    }
+    function closeLauncher(): void { queue.remove("launcher"); }
+    function toggleLauncher(): void {
+        if (queue.entries.some(event => event.id === "launcher")) closeLauncher();
+        else openLauncher();
+    }
+    // The deepest face: the island's window is this deep, so it never resizes while a face grows.
+    readonly property int deepest: Math.max(160, LauncherLayout.depth(launcherRows, LauncherLayout.edgePad))
+    AppsIndex { core: root.core; apps: root.host.apps; }
+    // Quick paste (S3): Super+V grows the clipboard from the island; it holds the keyboard until it folds.
+    property var clipSettings: ({})
+    property var restItems: ({})
+    readonly property bool clipsOpen: queue.entries.some(event => event.id === "clips")
+    function openClips(): void {
+        keyboardMode = false;
+        queue.offer("clips", "clips", events.priority.held, {}, null);
+    }
+    function closeClips(): void { queue.remove("clips"); }
+    readonly property var clipsFace: expansion?.kind === "clips" ? eventPane.item?.faceItem ?? null : null
+    function toggleClips(): void { if (clipsOpen) closeClips(); else openClips(); }
+    signal clipRoom(string query)
+    // Faces the owner opened and holds: the keyboard goes to them, and a click outside closes them.
+    readonly property bool heldFace: expansion?.kind === "tray" || expansion?.kind === "session" || expansion?.kind === "launcher"
+        || expansion?.kind === "clips"
+    function runSession(action: string): void {
+        closeSession();
+        Feedback.play("ui.click");
+        switch (action) {
+        case "lock": host.power.lock(); break;
+        case "suspend": host.power.suspend(); break;
+        case "logout": host.power.logout(); break;
+        case "reboot": host.power.reboot(); break;
+        case "powerOff": host.power.powerOff(); break;
+        }
+    }
+    property var shownEvent: null
+    property var outgoingEvent: null
+    property var replyDrafts: ({})
+    readonly property var expansion: docked ? null : queue.current
+    // The critical event FART shows while it covers the island (Z161).
+    readonly property var coveredEvent: docked ? queue.current : null
+    function dismissCovered(id: string): void { queue.remove(id); }
+    // Z174 (owner, 13 November 2026; bends Z161 for the OSD only): while FART covers the island, a volume, mic or
+    // brightness change shows in FART's header (FartHeaderOsd, drawn by the Overlay) at once and is never banked
+    // in the queue, so the fold replays no stale level. It stays `osdDwell` after the last change.
+    readonly property int osdDwell: IslandTiming.osd
+    property var headerOsd: null
+    property double headerOsdUntil: 0
+    function showHeaderOsd(value: var, dwell: double): void {
+        queue.remove("osd");
+        headerOsd = value;
+        headerOsdUntil = queue.clock() + dwell;
+        headerOsdExpiry.interval = Math.max(1, dwell);
+        headerOsdExpiry.restart();
+    }
+    // The readout moves with the cover, its time intact: an OSD already on the island goes up into the header
+    // when FART docks, and one still in the header comes back to the island when FART has folded.
+    function handOverOsd(): void {
+        const now = queue.clock();
+        if (docked) {
+            const banked = queue.snapshot(now).find(event => event.id === "osd");
+            if (banked && banked.remaining > 0) showHeaderOsd(banked.data, banked.remaining);
+            else queue.remove("osd");
+        } else if (headerOsd) {
+            const left = headerOsdUntil - now;
+            const value = headerOsd;
+            headerOsdExpiry.stop();
+            headerOsd = null;
+            if (left > 0) queue.offer("osd", "osd", events.priority.osd, value, left);
+        }
+    }
+    Timer {
+        id: headerOsdExpiry
+        onTriggered: root.headerOsd = null
+    }
+    // A critical event flashes the island red once (Z161).
+    readonly property bool criticalShown: expansion?.priority === events.priority.critical
+    onCriticalShownChanged: if (criticalShown) alarm.fire()
+    CriticalFlash {
+        id: alarm
+        still: root.motionLevel === "off"
+    }
+    readonly property int draftLength: (replyDrafts[expansion?.id] ?? "").length
+    // Whether the shown notice holds a reply draft, set one step later: the queue's pause follows it, and the queue
+    // decides `expansion`, so a direct binding would loop.
+    property bool draftHold: false
+    onDraftLengthChanged: Qt.callLater(() => root.draftHold = root.draftLength > 0)
+    readonly property bool noticeVisible: expansion?.kind === "notification" || expansion?.kind === "critical"
+    // Notices queued behind the shown one, in the order they will show (after Sonner's stack).
+    readonly property var waitingNotices: noticeVisible ? queue.entries.filter(event =>
+        (event.kind === "notification" || event.kind === "critical") && event.id !== expansion?.id) : []
+    // Z175: a notification's countdown pauses only while the pointer is on its card, not on the island around it.
+    property bool noticeHovered: eventPane.item?.noticeHovered ?? false
+    // Right-click on a shown notification: it leaves the island and the Inbox.
+    function dismissNotice(): void {
+        const shown = expansion;
+        if (!noticeVisible || !shown) return;
+        queue.remove(shown.id);
+        if (shown.data?.id !== undefined) host.notifications.dismiss(String(shown.data.id));
+    }
+    // Keyboard interactivity for the layer. A queued reply draft keeps OnDemand through pre-emption:
+    // dropping to None and back strands a resting pointer, so Hyprland never refocuses on click.
+    readonly property bool replyHeld: noticeVisible || queue.entries.some(event =>
+        (event.kind === "notification" || event.kind === "critical") && !!replyDrafts[event.id])
+    property string replyFocusId: ""
+    property bool focusClaim: false
+    readonly property bool windowActive: Window.active
+    // A docked panel holds Exclusive. The island announces that it wants the keyboard, the panel lets go,
+    // and the island claims it a moment later: Hyprland does not hand focus to an Exclusive layer that
+    // committed while another Exclusive one still held it.
+    property bool keyboardPeer: false
+    readonly property bool wantsKeyboard: keyboardMode || focusClaim || heldFace
+    property bool peerSettled: true
+    onKeyboardPeerChanged: {
+        peerSettled = keyboardPeer;
+        if (!keyboardPeer) peerSettle.restart();
+    }
+    Timer {
+        id: peerSettle
+        interval: 60
+        onTriggered: root.peerSettled = true
+    }
+    readonly property string keyboardRequest: wantsKeyboard && !keyboardPeer && peerSettled ? "exclusive"
+        : replyHeld ? "ondemand" : "none"
+    onWindowActiveChanged: {
+        if (windowActive) focusClaim = false;
+        else if (!noticeVisible) replyFocusId = "";
+    }
+    // The field took Qt focus but the compositor did not hand over the keyboard: claim it once.
+    Timer {
+        running: root.focusClaim
+        interval: 400
+        onTriggered: root.focusClaim = false
+    }
+    function replyFocus(id: string, focused: bool): void {
+        if (focused) {
+            replyFocusId = id;
+            if (!windowActive) focusClaim = true;
+        } else if (expansion?.id === id && replyFocusId === id) {
+            replyFocusId = "";
+        }
+    }
+    readonly property int fadeDuration: motionLevel === "off" ? 0 : Math.min(120, Motion.feedback)
+    readonly property bool wings: !docked && (hoverOpen || keyboardMode)
+    readonly property bool geometryMotion: motionLevel === "all" || motionLevel === "reduced"
+    readonly property bool cutGeometry: !Design.fluid && motionLevel === "all"
+    // Z66 keeps the resting width. Hovered, the centre opens by 40 px a side so the media pill keeps its room
+    // when the clock gains seconds; the wings sit outside it.
+    // Fluid rests compact (Z145): the clock alone, or the media row while a player plays.
+    readonly property bool playing: !!host.media.active?.playing
+    readonly property int hoverCentre: 500
+    // Fluid at rest shows the clock or, while a player plays, the media (right-click switches).
+    property bool preferClock: false
+    readonly property int centreWidth: wings && !expansion ? hoverCentre : Design.fluid ? (restPane.item?.compactWidth ?? 100) : 420
+    readonly property int restHeight: 36
+    // Wide enough for the fuller side of the hovered row, actions at the shoulders included (IslandRest.sideNeed),
+    // past half the hovered centre.
+    readonly property int wingSpan: Math.max(Design.minHit, Math.ceil((restPane.item?.sideNeed ?? 0) - hoverCentre / 2))
+    signal openPanel(string room)
+    // FART's settings at a section, from a hover word on the island (docs/NET_BT.md §5).
+    signal openSettings(string section)
+    signal togglePanel(string room)
+    signal ignite()
+    signal openTray(string itemId)
+    signal openLog(string url)
+    signal notificationAction(string id, string action, string reply)
+
+    implicitWidth: docked && dockWidth > 0 ? dockWidth
+        : Math.min(maximumWidth, Math.max(0, expansion ? (eventPane.item?.implicitWidth ?? centreWidth)
+        : centreWidth + (wings ? 2 * wingSpan : 0)))
+    implicitHeight: expansion ? (eventPane.item?.implicitHeight ?? restHeight) : restHeight + pull
+    // Pull (after Vaul): dragging the resting island toward the middle of the screen stretches it with growing
+    // resistance; let go past the threshold and FART opens, short of it the island springs back.
+    property real pull: 0
+    property real pullTravel: 0
+    readonly property bool pullCommits: Rubber.committed(pullTravel)
+    NumberAnimation { id: pullBack; target: root; property: "pull"; to: 0; duration: Motion.scaled(Rubber.springMs); easing.type: Easing.OutBack }
+    Activity { name: "island.pull"; running: pullBack.running }
+    function pullBy(travel: real): void {
+        pullBack.stop();
+        pullTravel = Math.max(0, travel);
+        pull = Rubber.stretch(pullTravel);
+    }
+    readonly property real pullReach: Rubber.reach
+    function endPull(): void {
+        const open = pullCommits;
+        pullTravel = 0;
+        if (Motion.live(root)) pullBack.restart(); else pull = 0;
+        if (open) openFromRest();
+    }
+    // What a click (or a committed pull) on the resting island opens: the room for what is happening.
+    function openFromRest(): void {
+        keyboardMode = false;
+        const timers = core?.timersData;
+        const room = host.media.active?.playing ? "media"
+            : timers?.countdown?.running || timers?.pomodoro?.running ? "timers" : "home";
+        togglePanel(room);
+    }
+    // The launcher folds the same way: dragged toward the screen's edge it resists, past the threshold it folds.
+    property real foldTravel: 0
+    readonly property real fold: Rubber.stretch(foldTravel) * 0.5
+    width: implicitWidth
+    height: implicitHeight
+
+    // The launcher and the island share this silhouette. Sample the endpoints when the
+    // size changes so a reversal takes its travel from the currently drawn shape.
+    component ExtentTween: Tween {
+        id: extent
+        required property IslandSurface island
+        scope: island
+        enabled: island.geometryMotion && Motion.live(island)
+        property real travel: 0
+        property real sizeChange: 0
+        property bool departing: false
+        onTargetValueChanged: {
+            const dw = island.implicitWidth - island.width;
+            const dh = island.implicitHeight - island.height;
+            travel = Math.max(Math.abs(dw) / 2, Math.abs(dh));
+            sizeChange = Math.max(Math.abs(dw) / Math.max(1, island.width, island.implicitWidth),
+                                  Math.abs(dh) / Math.max(1, island.height, island.implicitHeight));
+            departing = island.implicitWidth * island.implicitHeight < island.width * island.height;
+        }
+        NumberAnimation {
+            duration: extent.island.cutGeometry ? Motion.cutDuration(extent.travel, extent.sizeChange, extent.departing)
+                : Motion.emphasis
+            easing.type: extent.island.cutGeometry ? (extent.departing ? Motion.cutOut : Motion.cutIn)
+                : extent.island.motionLevel === "all" ? Motion.roles.emphasis.easing : Easing.OutCubic
+            easing.overshoot: Motion.roles.emphasis.overshoot
+        }
+    }
+    ExtentTween on width { island: root }
+    ExtentTween on height { island: root }
+
+    IslandQueue {
+        id: queue
+        // A notice waits while the pointer is on its card or a reply is being written in it (Z200: at 1 s, a draft
+        // would otherwise vanish under the typing).
+        hovered: root.noticeVisible ? root.noticeHovered || root.draftHold : root.pointerInside
+        // Z161: FART grown from the island covers it: ordinary events wait (time intact) until it folds, and a
+        // critical one drops down inside FART instead (`coveredEvent`, drawn by the Overlay).
+        ceiling: root.docked ? events.priority.critical : Infinity
+        onEntriesChanged: {
+            const keep = {};
+            const ids = entries.map(event => event.id);
+            for (const id of Object.keys(root.replyDrafts)) {
+                if (ids.includes(id)) keep[id] = root.replyDrafts[id];
+            }
+            if (Object.keys(keep).length !== Object.keys(root.replyDrafts).length)
+                root.replyDrafts = keep;
+        }
+    }
+    IslandEvents {
+        id: events
+        host: root.host
+        queue: queue
+        workspaceIds: root.workspaceIds
+        core: root.core
+        startupNotice: root.startupNotice
+        covered: root.docked
+        osdDwell: root.osdDwell
+        onCoveredOsd: value => root.showHeaderOsd(value, root.osdDwell)
+    }
+
+    onExpansionChanged: {
+        if (expansion?.id === shownEvent?.id && expansion?.kind === shownEvent?.kind) {
+            shownEvent = expansion;
+            return;
+        }
+        outgoingEvent = shownEvent;
+        shownEvent = expansion;
+        eventFade.value = 0;
+        eventFade.retarget();
+    }
+    Cue {
+        id: eventFade
+        on: true
+        scope: root
+        name: "island.event"
+        enter: root.fadeDuration
+        onSettled: root.outgoingEvent = null
+    }
+
+    IslandFrame {
+        anchors.fill: parent
+        bottomEdge: root.bottomEdge
+    }
+    IslandFrame {
+        anchors.fill: parent
+        bottomEdge: root.bottomEdge
+        fill: Design.danger
+        visible: alarm.value > 0
+        opacity: alarm.value * 0.85
+    }
+    MouseArea {
+        id: gesture
+        anchors.fill: parent
+        enabled: !root.expansion
+        pressAndHoldInterval: 600
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
+        property bool held: false
+        property bool pulling: false
+        property real pressY: 0
+        onPressed: mouse => { held = false; pulling = false; pressY = mouse.y; }
+        onPositionChanged: mouse => {
+            if (!(pressedButtons & Qt.LeftButton) || held) return;
+            const travel = root.bottomEdge ? pressY - mouse.y : mouse.y - pressY;
+            if (!pulling && travel < Rubber.slop) return;
+            pulling = true;
+            root.pullBy(travel);
+        }
+        onReleased: if (pulling) root.endPull()
+        onCanceled: if (pulling) { root.pullTravel = 0; root.endPull(); }
+        onPressAndHold: mouse => {
+            if (mouse.button !== Qt.LeftButton || pulling) return;
+            held = true;
+            root.ignite();
+        }
+        onClicked: mouse => {
+            if (held || pulling) return;
+            // Fluid: right-click switches the resting view between the media and the clock.
+            if (mouse.button === Qt.RightButton) {
+                if (Design.fluid) root.preferClock = !root.preferClock;
+                return;
+            }
+            root.openFromRest();
+        }
+    }
+    // While pulling: what letting go will do, at the stretched edge.
+    FText {
+        objectName: "islandPullHint"
+        anchors.horizontalCenter: parent.horizontalCenter
+        y: root.bottomEdge ? Design.baseline : parent.height - height - Design.baseline
+        visible: root.pull > 1 && !root.expansion
+        opacity: Math.min(1, root.pull / (Rubber.reach * 0.5))
+        technical: true
+        font.pixelSize: Design.caption
+        color: root.pullCommits ? Design.accent : Design.muted
+        text: root.pullCommits ? "RELEASE · FART" : "PULL"
+    }
+
+    Cue {
+        id: ignition
+        on: gesture.pressed && !gesture.held && !gesture.pulling && (gesture.pressedButtons & Qt.LeftButton)
+        scope: root
+        name: "island.ignite"
+        enter: root.motionLevel === "off" ? 0 : 600
+        exit: 0
+        easing: Easing.Linear
+    }
+    Rectangle {
+        anchors.bottom: root.bottomEdge ? undefined : parent.bottom
+        anchors.top: root.bottomEdge ? parent.top : undefined
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: (parent.width - 12) * (root.overdriveActive ? 1 : root.motionLevel === "off" ? 0 : ignition.value)
+        height: 1
+        color: Design.accent
+    }
+
+    readonly property var restPaneItem: restPane.item
+    readonly property bool restVisible: !shownEvent || !outgoingEvent && eventFade.value < 1
+    Loader {
+        id: restPane
+        anchors.centerIn: parent
+        anchors.verticalCenterOffset: root.liftOffset
+        width: Math.min(parent.width, root.centreWidth)
+        height: root.restHeight
+        active: !root.shownEvent || root.restVisible
+        opacity: (root.shownEvent ? 1 - eventFade.value : root.outgoingEvent ? eventFade.value : 1) * undocked.value
+        enabled: !root.expansion && !root.docked
+        sourceComponent: IslandRest {
+            host: root.host
+            preferClock: root.preferClock
+            restItems: root.restItems
+            reveal: wingReveal.value
+            onOpenTray: itemId => root.openTray(itemId)
+            reach: Math.max(0, (root.width - root.centreWidth) / 2)
+            wings: root.wings && !root.expansion
+            live: !root.expansion
+            onOpenPanel: room => {
+                root.keyboardMode = false;
+                root.openPanel(room);
+            }
+            onOpenSettings: section => {
+                root.keyboardMode = false;
+                root.openSettings(section);
+            }
+            onOpenPower: root.openSession()
+        }
+    }
+
+    Loader {
+        anchors.centerIn: parent
+        width: Math.min(parent.width, item?.implicitWidth ?? 0)
+        height: item?.implicitHeight ?? 0
+        active: !!root.outgoingEvent
+        opacity: 1 - eventFade.value
+        enabled: false
+        sourceComponent: IslandExpansion {
+            event: root.outgoingEvent
+            privacy: root.host.audio.privacy
+            core: root.core
+            apps: root.host.apps
+            clipboard: root.host.clipboard
+            launcherEngine: root.host.launcher
+            launcherRows: root.launcherRows
+            bottomEdge: root.bottomEdge
+            lift: root.lift
+            systemVoice: root.systemVoice
+            replyDraft: root.replyDrafts[event?.id] ?? ""
+        }
+    }
+
+    Loader {
+        id: eventPane
+        anchors.centerIn: parent
+        anchors.verticalCenterOffset: root.bottomEdge ? root.fold : -root.fold
+        width: Math.min(parent.width, item?.implicitWidth ?? 0)
+        height: item?.implicitHeight ?? 0
+        active: !!root.shownEvent
+        opacity: eventFade.value
+        sourceComponent: IslandExpansion {
+            event: root.shownEvent
+            privacy: root.host.audio.privacy
+            onOpenRoom: room => root.openPanel(room)
+            bottomEdge: root.bottomEdge
+            lift: root.lift
+            systemVoice: root.systemVoice
+            replyDraft: root.replyDrafts[event?.id] ?? ""
+            trayEntries: event?.kind === "tray" ? root.host.tray.menuEntries : []
+            waiting: event?.id === root.expansion?.id ? root.waitingNotices : []
+            onTrayClose: root.closeTray()
+            onTrayChoose: entryId => root.chooseTray(entryId)
+            onSessionAction: action => root.runSession(action)
+            core: root.core
+            apps: root.host.apps
+            clipboard: root.host.clipboard
+            launcherEngine: root.host.launcher
+            launcherRows: root.launcherRows
+            onLauncherClose: root.closeLauncher()
+            clipSettings: root.clipSettings
+            onClipPaste: id => { root.closeClips(); root.host.clipboard.paste(id); }
+            onClipCopy: id => { root.closeClips(); root.host.clipboard.copy(id); }
+            onClipRoom: query => { root.closeClips(); root.clipRoom(query); }
+            restoreReplyFocus: !!event && root.replyFocusId === event.id
+            onReplyFocused: focused => root.replyFocus(String(event?.id ?? ""), focused)
+            onReplyEdited: text => {
+                if (!event) return;
+                root.replyDrafts = Object.assign({}, root.replyDrafts, { [event.id]: text });
+            }
+            memoryPinned: events.memoryPinned
+            onPinMemory: events.memoryPinned = !events.memoryPinned
+            onDismiss: {
+                if (root.expansion?.kind === "done") root.core?.timers.ack();
+                if (root.expansion?.kind === "debrief") root.core?.request("session.dismiss", {});
+                if (root.expansion) queue.remove(root.expansion.id);
+            }
+            onOpenLog: url => root.openLog(url)
+            onOpenSettings: section => {
+                root.keyboardMode = false;
+                root.openSettings(section);
+            }
+            onNotificationAction: (id, action, reply) => root.notificationAction(id, action, reply)
+            onPictureShown: (id, picture) => root.host.notifications.keepImage(id, picture)
+        }
+    }
+    // Takes the right button only, so left clicks reach the card and its buttons. Nothing reaches the window below.
+    MouseArea {
+        objectName: "noticeRightClick"
+        anchors.fill: parent
+        enabled: root.noticeVisible
+        acceptedButtons: Qt.RightButton
+        onClicked: root.dismissNotice()
+    }
+    clip: true
+    WheelHandler {
+        enabled: root.noticeVisible
+        onWheel: event => {
+            if (root.bottomEdge ? event.angleDelta.y < 0 : event.angleDelta.y > 0)
+                queue.remove(root.expansion.id);
+        }
+    }
+    // The launcher folds up (after Vaul): it follows a drag toward the screen's edge with resistance and folds past
+    // the threshold; short of it, it springs back.
+    DragHandler {
+        objectName: "launcherFold"
+        enabled: root.launcherOpen
+        target: null
+        xAxis.enabled: false
+        onTranslationChanged: if (active) { foldBack.stop(); root.foldTravel = Math.max(0, root.bottomEdge ? translation.y : -translation.y); }
+        onActiveChanged: if (!active) root.endFold()
+    }
+    NumberAnimation { id: foldBack; target: root; property: "foldTravel"; to: 0; duration: Motion.scaled(Rubber.springMs); easing.type: Easing.OutBack }
+    Activity { name: "island.fold"; running: foldBack.running }
+    function endFold(): void {
+        if (Rubber.committed(foldTravel)) { foldTravel = 0; closeLauncher(); return; }
+        if (Motion.live(root)) foldBack.restart(); else foldTravel = 0;
+    }
+    DragHandler {
+        enabled: root.noticeVisible
+        target: null
+        onTranslationChanged: {
+            const towardEdge = root.bottomEdge ? translation.y : -translation.y;
+            if (active && towardEdge >= Design.minHit && root.noticeVisible)
+                queue.remove(root.expansion.id);
+        }
+    }
+
+    function focusables(item, controls): void {
+        if (!item.visible || !item.enabled) return;
+        if (item.activeFocusOnTab && item.width > 0 && item.height > 0)
+            controls.push(item);
+        for (const child of item.children) focusables(child, controls);
+    }
+
+    function enterKeyboard(): void {
+        keyboardMode = true;
+        forceActiveFocus();
+        Qt.callLater(() => root.moveFocus("right"));
+    }
+
+    function moveFocus(direction: string): void {
+        const controls = [];
+        focusables(root, controls);
+        const active = root.Window.window?.activeFocusItem;
+        const rects = controls.map(item => item.mapToItem(root, Qt.rect(0, 0, item.width, item.height)));
+        const from = controls.indexOf(active);
+        const next = from < 0 ? 0 : FocusMap.pick(rects[from], rects, direction);
+        controls[next]?.forceActiveFocus();
+    }
+
+    Keys.onPressed: event => {
+        if (!root.keyboardMode) return;
+        const directions = {
+            [Qt.Key_Left]: "left", [Qt.Key_H]: "left", [Qt.Key_Right]: "right", [Qt.Key_L]: "right",
+            [Qt.Key_Up]: "up", [Qt.Key_K]: "up", [Qt.Key_Down]: "down", [Qt.Key_J]: "down"
+        };
+        if (event.key === Qt.Key_Escape) {
+            root.keyboardMode = false;
+            root.focus = false;
+        } else if (directions[event.key]) {
+            root.moveFocus(directions[event.key]);
+        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+            const active = root.Window.window?.activeFocusItem;
+            if (typeof active?.clicked !== "function") return;
+            active.clicked();
+        } else {
+            return;
+        }
+        event.accepted = true;
+    }
+
+    Loader {
+        anchors.right: parent.right
+        anchors.rightMargin: 16
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: Design.baseline
+        active: root.overdriveActive && root.wings && !root.expansion && !!root.core?.overdriveData?.requested?.until
+        sourceComponent: FText {
+            technical: true
+            color: Design.accent
+            text: Clock.formatSeconds((root.core.overdriveData.requested.until - leaseClock.date.getTime()) / 1000)
+            SystemClock { id: leaseClock; precision: SystemClock.Seconds }
+        }
+    }
+    HoverHandler { id: hover }
+    Timer {
+        running: root.pointerInside && !root.hoverOpen
+        interval: 300
+        onTriggered: root.hoverOpen = true
+    }
+    onPointerInsideChanged: if (!pointerInside) hoverOpen = false
+
+    Cue {
+        id: undocked
+        on: !root.docked
+        scope: root
+        name: "island.dock"
+        enter: root.fadeDuration
+        exit: root.fadeDuration
+    }
+    Cue {
+        id: wingReveal
+        on: root.wings && !root.expansion
+        scope: root
+        name: "island.wings"
+        enter: root.fadeDuration
+    }
+}

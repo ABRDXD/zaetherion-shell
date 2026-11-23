@@ -1,0 +1,149 @@
+{
+ "colors": {
+  "background": {
+   "dark": {
+    "color": "#111318"
+   },
+   "default": {
+    "color": "#111318"
+   },
+   "light": {
+    "color": "#f9f9ff"
+   }
+  },
+  "surface_container_low": {
+   "dark": {
+    "color": "#1a1b20"
+   },
+   "default": {
+    "color": "#1a1b20"
+   },
+   "light": {
+    "color": "#f3f3fa"
+   }
+  },
+  "surface_container_high": {
+   "dark": {
+    "color": "#282a2f"
+   },
+   "default": {
+    "color": "#282a2f"
+   },
+   "light": {
+    "color": "#e8e7ee"
+   }
+  },
+  "on_surface": {
+   "dark": {
+    "color": "#e2e2e9"
+   },
+   "default": {
+    "color": "#e2e2e9"
+   },
+   "light": {
+    "color": "#1a1b20"
+   }
+  },
+  "on_surface_variant": {
+   "dark": {
+    "color": "#c4c6d0"
+   },
+   "default": {
+    "color": "#c4c6d0"
+   },
+   "light": {
+    "color": "#44474f"
+   }
+  },
+  "outline": {
+   "dark": {
+    "color": "#8e9099"
+   },
+   "default": {
+    "color": "#8e9099"
+   },
+   "light": {
+    "color": "#74777f"
+   }
+  },
+  "outline_variant": {
+   "dark": {
+    "color": "#44474f"
+   },
+   "default": {
+    "color": "#44474f"
+   },
+   "light": {
+    "color": "#c4c6d0"
+   }
+  },
+  "primary": {
+   "dark": {
+    "color": "#adc6ff"
+   },
+   "default": {
+    "color": "#adc6ff"
+   },
+   "light": {
+    "color": "#445e91"
+   }
+  },
+  "tertiary": {
+   "dark": {
+    "color": "#debcdf"
+   },
+   "default": {
+    "color": "#debcdf"
+   },
+   "light": {
+    "color": "#715573"
+   }
+  },
+  "error": {
+   "dark": {
+    "color": "#ffb4ab"
+   },
+   "default": {
+    "color": "#ffb4ab"
+   },
+   "light": {
+    "color": "#ba1a1a"
+   }
+  },
+  "secondary": {
+   "dark": {
+    "color": "#bfc6dc"
+   },
+   "default": {
+    "color": "#bfc6dc"
+   },
+   "light": {
+    "color": "#575e71"
+   }
+  },
+  "primary_container": {
+   "dark": {
+    "color": "#2b4678"
+   },
+   "default": {
+    "color": "#2b4678"
+   },
+   "light": {
+    "color": "#d8e2ff"
+   }
+  },
+  "surface": {
+   "dark": {
+    "color": "#111318"
+   },
+   "default": {
+    "color": "#111318"
+   },
+   "light": {
+    "color": "#f9f9ff"
+   }
+  }
+ },
+ "is_dark_mode": true,
+ "mode": "dark"
+}

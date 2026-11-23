@@ -7,17 +7,18 @@ unofficial work and is not endorsed by any of the projects named below.
 
 Status
 ------
-As of 8 November 2026 this repository contains design documents only. No code
-from any other project has been copied yet. The entries below record what the
-plan says will be brought in, so the obligations are known in advance.
+Seeded on 10 November 2026 (milestone S0) from FART-next, tag FARG, commit
+c13d8747c5d8f7e6abc91a0f871ec87eeafc77e3. The seeded files are the code
+(adapters, assets, core, licenses, tests, tools, view, shell*.qml) and FART's
+docs under docs/fart/.
 
-Lineage (to be seeded at milestone S0)
+Lineage (seeded at milestone S0)
 --------------------------------------
 - FART-next, the predecessor control centre (GPL-3.0). It descends from
   pctrade/end4-pC and end-4/dots-hyprland ("illogical-impulse"), both GPL-3.0,
   and includes a Caelestia shell asset (GPL-3.0). FART-next's own NOTICE lists
-  the derived files. That NOTICE will be carried over in full, and the seed
-  commit will be recorded here.
+  the derived files. That NOTICE is carried over in full as
+  licenses/FART-NOTICE.
 
 Planned third-party use
 -----------------------
@@ -28,8 +29,11 @@ Planned third-party use
   vendored. If any of its QML services are adapted (notifications, lock/PAM,
   idle, polkit), the MIT notice will be reproduced here, with each derived file
   listed.
-- Yale Bright Star Catalogue (public domain) for the sky. Confirmed at
-  milestone S8.
+- Star catalogue for the night sky (DECISIONS Z42): not bundled. Checked
+  19 November 2026: the stars on screen are procedural
+  (view/strata/shaders/starfield.frag) and core/sky.py computes only the Sun,
+  Moon and planets from published formulas (Meeus). If a real catalogue is
+  added, its source and licence are recorded here before it is committed.
 
 Read at runtime, not distributed
 --------------------------------
@@ -42,3 +46,143 @@ Design references
 -----------------
 Persona and NieR:Automata are named only as design inspiration. No names,
 logos, fonts, artwork, sounds or layouts from them are used.
+
+S3 visual review artifacts (11 November 2026)
+-------------------------------------------
+- docs/ui/island-s3-review.svg: original island design studies using the
+  seeded FART Design tokens and geometric language; embeds a fixture-only
+  screenshot of the seeded FART Timers panel (GPL-3.0 lineage above).
+- docs/ui/island-s3-review.png: raster rendering of that SVG.
+- docs/ui/island-s3-motion.gif: a motion study using the same island drawings
+  with synthetic events and readings.
+- docs/ui/contrast.txt: derived contrast ratios for the review token snapshot.
+- docs/ui/fartland-fluid-study.svg: original Fluid mock-up with the same
+  FART token snapshot, synthetic sky and event content.
+- docs/ui/fartland-fluid-study.png and docs/ui/fartland-fluid-motion.gif:
+  raster review renders of the Fluid drawings.
+No new third-party imagery or fonts are bundled.
+
+Derived inside this repository (S2, 12 November 2026)
+-----------------------------------------------------
+These copy files already under the GPL-3.0 lineage above, with the host command calls removed:
+- adapters/quickshell/QuickshellMedia.qml, QuickshellAudio.qml: from adapters/serpantinum/SerpantinumMedia.qml and
+  SerpantinumAudio.qml.
+- adapters/hyprland/HyprlandWorkspaces.qml, HyprlandKeybinds.qml: from SerpantinumWorkspaces.qml and
+  SerpantinumKeybinds.qml (workspace switching now uses Hyprland's own dispatcher).
+- adapters/quickshell/QuickshellPowerSource.qml: the UPower part of SerpantinumPower.qml.
+- adapters/dms/DmsNotifications.qml: the mirror part of SerpantinumNotifications.qml.
+- adapters/dms/DeferredCreate.js: a copy of adapters/serpantinum/DeferredCreate.js.
+adapters/dms/DmsLinkMachine.js, DmsLink.qml, DmsNetwork.qml and the other DMS files are written from docs/DMS_ADAPTER.md
+and docs/NET_BT.md, which read DMS's method names from its QML and field names from the `dms` program; one DMS
+function is adapted (DMS, MIT, "Copyright (c) 2025 Avenge Media LLC", licenses/DUX-SHELL-MIT):
+- adapters/dms/DmsBluetoothMap.js: kindOf() and hasRealName() from DMS's Services/BluetoothService.qml
+  (getDeviceIcon, hasRealName).
+tools/dms_quiet.py also adds an early return to two of DMS's prompt handlers in the local, unpublished copy (Z191).
+adapters/dms/bridge/ZaetherionLauncherBridge.qml is ours; it uses DMS's launcher engine (Modals/DLauncherV2/Controller.qml)
+unchanged, and tools/dms_quiet.py places it and one instance in the local, unpublished copy (Z197).
+
+Dux Shell (MIT, copyright 2025 Avenge Media LLC)
+------------------------------------------------
+view/shell/IslandTrayMenu.qml adapts the submenu stack and navigation from
+quickshell/Modules/DBar/Widgets/TrayMenuContent.qml at commit
+e09c2b06813d3205276167cb69e21d386c1f428f of duxlabs-dev/dux-shell.
+The neutral menu tree replaces raw menu handles in the view. The full MIT
+notice is in licenses/DUX-SHELL-MIT.
+
+adapters/hyprland/HyprlandPaste.qml copies the list of terminal app ids and the
+terminal rule (ends in "term" or contains "terminal") from
+quickshell/Services/ClipboardService.qml (isTerminalFocused), and
+view/shell/IslandClips.qml follows the key map of
+quickshell/Modals/Clipboard/ClipboardKeyboardController.qml (Enter and
+Shift+Enter, Ctrl+S, Delete, Ctrl+Tab, Ctrl+J/K/N/P), both as installed with
+DMS 2.1.0 (v2.1.0 of duxlabs-dev/dux-shell). adapters/dms/DmsClipboard.qml makes
+the same socket calls as that ClipboardService (getHistory, copyEntry, the 200 ms
+wait before sendPaste, deleteEntry, pinEntry/unpinEntry, getEntry, copy,
+pasteSupported) and adapters/dms/DmsClipMap.js its newest-first order and the
+base64 text decode of ClipboardEditor.qml. No other code is taken.
+
+adapters/quickshell/QuickshellNotificationServer.qml,
+adapters/quickshell/QuickshellNotification.qml and
+adapters/quickshell/NotificationTiming.qml adapt the notification server's
+arrival rules (flood guard, do-not-disturb, transient handling), the live
+notification wrapper and the default showing times from
+quickshell/Services/NotificationService.qml at commit
+7627111c3ebd402662283f5f4a93223cda9e0a9d (v2.1.0) of duxlabs-dev/dux-shell.
+Popups, grouping, history, rules and dedupe are not taken; the list is kept by
+our own core.
+
+adapters/quickshell/QuickshellOsd.qml and adapters/quickshell/OsdChange.js
+follow the volume and mic OSD triggers (show on a level or mute change, a quiet
+2 s after start and after our own UI sets a level) of
+quickshell/Modules/OSD/VolumeOSD.qml and quickshell/Common/SessionData.qml at
+v2.1.0 of duxlabs-dev/dux-shell; no code is copied. tools/dms_quiet.py writes a
+local, unpublished copy of the installed DMS UI with its notification server
+removed.
+
+S6 launcher: core/matching.py and the ranking in core/launcher.py port the app
+search of quickshell/Services/AppSearchService.qml (tokenize, word-boundary
+match, Levenshtein fuzzy match with its typo budget, the match order and
+weights, calculateFrecency's time buckets and sample size, the recency bonus)
+at v2.1.0 of duxlabs-dev/dux-shell from QML/JavaScript to Python. History per
+day, the one-time import and the session blocklist are ours.
+adapters/quickshell/QuickshellApps.qml follows getVisibleApplications (hidden
+entries out, one row per id) and launchDesktopEntry's terminal handling of
+quickshell/Services/SessionService.qml at the same commit; no code is copied.
+
+S5 equaliser: core/eq_chain.py writes a PipeWire filter-chain config whose shape
+(builtin bq_peaking nodes, capture.props/playback.props) follows the example
+/usr/share/pipewire/filter-chain/sink-eq6.conf shipped with PipeWire (MIT); the
+graph, the mono mixers and every value are ours and no file is copied. The
+response and headroom use the RBJ "Audio EQ Cookbook" peaking formulas (Robert
+Bristow-Johnson; formulas, not code). The five presets are ZÆTHERION's own values.
+
+S8 palette catalogue: adapters/common/palette_sources.py reads installed Serpantinum and DMS JSON at runtime; no theme files or upstream implementation are bundled. The Amoled Black fallback repeats the DMS colour values already used by view/ui/Design.qml (DMS MIT notice above). The ten AMOLED studies and palette picker implementation are original ZÆTHERION work.
+
+Sounds
+------
+assets/sounds: alert, notify-critical, osd-tick, hold-charge, power-plug, power-unplug, battery-low, net-up, net-down,
+lock, unlock, screenshot, dnd-on and dnd-off are synthesized by tools/sounds/make_ui.py (ZÆTHERION's own). These are
+CC0 samples (public domain dedication), converted to 48 kHz stereo and level-matched, otherwise unchanged:
+- ui-click.wav: "Granular Synthesis BTN Sound", Button SFX Pack II (Granular Synthesis Styled),
+  https://opengameart.org/content/button-sfx-pack-ii-granular-synthesis-styled
+- ui-hover.wav: "Text rollover", Button SFX Pack III (Hi-Tech),
+  https://opengameart.org/content/button-sfx-pack-iii-assortment-ot-hi-tech
+- ui-confirm.wav: "Warm Digital Accept Button", Hi-Tech Button Sound Pack I,
+  https://opengameart.org/content/hi-tech-button-sound-pack-i-non-themed
+- ui-key-004/009/015/021.wav: keypress 004, 009, 015, 021, Keyboard Soundpack 1 (Inconsequentialist; Cherry KC 1000),
+  https://opengameart.org/content/keyboard-soundpack-1-typing-and-single-keystrokes
+- ui-switch.wav (toggle_002), ui-error.wav (error_004), notify-normal.wav (glass_002): Interface Sounds 1.0 by Kenney
+  (www.kenney.nl), https://opengameart.org/content/interface-sounds
+FLUID Phase 2 (13 November 2026)
+-------------------------------
+- view/rooms/AngularMedia.qml and MediaSession.qml are extracted from the
+  seeded view/rooms/Media.qml (GPL-3.0 lineage above). Angular's visual tree
+  is retained; the session owns shared state, actions and leases.
+- view/fluid/FluidMedia.qml is an original Confluence presentation of that
+  session. It reuses assets/caelestia/bongocat.gif under the existing GPL-3.0
+  attribution in licenses/FART-NOTICE; no new third-party assets are added.
+- docs/captures/fluid-phase2/ contains nested Hyprland fixture captures of
+  these presentations and FART Settings, including an Angular baseline from
+  e6c86ea. All content is synthetic; no host media or notification data is used.
+
+FLUID Home (14 November 2026)
+-----------------------------
+- view/rooms/AngularHome.qml and HomeSession.qml derive from the seeded
+  view/rooms/Home.qml and HomeSky.qml (GPL-3.0 lineage above). The Angular
+  visual tree remains; shared state, sky requests and lease ownership move
+  to the persistent session.
+- view/fluid/FluidHome.qml, FluidCalendar.qml and FluidActionRow.qml are
+  original Confluence components. No new third-party assets are bundled.
+- docs/captures/fluid-home/ contains nested Hyprland captures of these
+  presentations and Settings, plus the Angular Home baseline from e6c86ea.
+  All displayed tasks, identity, media and service data are synthetic.
+
+Native Settings Cutline (view/shell/SettingsCut.qml, SettingReadout.qml,
+SettingsNavigation.qml and SettingChoices.qml) uses this project's existing
+Angular type, geometry and cue primitives. No third-party assets are included.
+docs/captures/settings-cutline.png is derived from the native PreferencesPane
+with synthetic data in tools/cuetest/SettingsTest.qml, rendered offscreen.
+The owner's reference screenshots and private runtime data are not included.
+
+assets/split-print.svg is original ZÆTHERION artwork for the owner-selected
+Split print control, based on the invented moon in the QML control study.

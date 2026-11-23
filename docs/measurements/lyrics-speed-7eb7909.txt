@@ -1,0 +1,18 @@
+# Z217 follow-up, 20 November 2026 (Claude B): why tools/lyrics takes ~5.6 s a track. Public songs only
+# (10 well-known tracks, 4 made-up titles for misses); none of the owner's tracks were sent anywhere.
+# Network: a phone hotspot. lrclib's server answers in ~0.3 s; connection setup is 0.2–4.4 s and varies a lot.
+
+current code, sequential (lrclib get → search → search, then Better Lyrics ×2):
+  hit  (found by lrclib get):  0.6–1.0 s on a calm network, 1.8–8.7 s on a busy one; one request
+  miss (nothing anywhere):     3.6–15.5 s; five requests one after another
+  mean over 14: 6.56 s (busy), 1.96 s (calm, a few minutes later)
+
+tried and dropped: asking lrclib's three lookups at once, then Better Lyrics' two at once
+  mean 2.06–2.08 s, misses 1.4–6.7 s, BUT hits got slower (up to 3.9 s) and 4 of 10 hits returned different lyrics.
+  Cause: lrclib rate-limits bursts. 4 rounds of 9 concurrent requests: get 6×200 / 6×429, search 12×200 / 12×429.
+  A 429 on the exact lookup falls through to a looser search match. Never send lrclib concurrent requests.
+
+conclusion: hits are already as fast as the network allows (comparable to DMS). The cost is misses, and misses
+are never remembered: a track with no lyrics is looked up again (4–15 s of "loading") every time it plays.
+The lever is remembering a miss for a while (LyricsSource.reload() would bypass it). That is a behaviour change:
+the owner's call (not built).

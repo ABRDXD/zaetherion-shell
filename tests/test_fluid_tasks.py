@@ -1,0 +1,24 @@
+"""Confluence Tasks (the readable list in space), offscreen on a fake core's lists."""
+from pathlib import Path
+import sys
+import unittest
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+import cuetest  # noqa: E402
+
+CHECKS = ("fluid.presented", "open.count", "groups.in.order", "late.burns.warm", "done.is.ticked", "remove.waits.for.hover",
+          "horizon.warm.while.late", "lists.listed", "entry.reads", "editing.follows.focus", "switch.list", "angular.keeps.sheet")
+
+
+class FluidTasks(unittest.TestCase):
+    def test_atlas(self):
+        output = cuetest.run("FluidTasksTest.qml", timeout=120)
+        self.assertIn("CUE_DONE", output, output[-2000:])
+        self.assertEqual([l for l in output.splitlines() if "CUE_FAIL" in l], [])
+        for name in CHECKS:
+            self.assertIn(f"CUE_PASS {name}", output)
+        self.assertFalse([e for e in ("ReferenceError:", "TypeError:", "Binding loop") if e in output], output[-2000:])
+
+
+if __name__ == "__main__":
+    unittest.main()

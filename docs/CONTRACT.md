@@ -25,7 +25,7 @@ Signatures are written as they will be specified at S2. Exact property lists get
 | `sessionPower` | `canHibernate`, `canSuspend` | `lock()`, `suspend()`, `hibernate()`, `logout()`, `reboot()`, `poweroff()` | — |
 | `wallpaper` | `mode` ("image"\|"sky"), `current`, `cuts` {on, bands}, `favourites`, `history`, `video` {playing, still} | `set(path)`, `setMode(m)`, `setCuts(on, bands)`, `favourite(path, on)`, `search(query)` | `picker`, `search` |
 | `widgets` | `layout` [{id, kind, x, y, w, h, rotation}], `presets` | `add`, `move`, `resize`, `rotate`, `remove`, `applyPreset` | `editor` |
-| `apps` | `entries` [{id, name, description, icon, frecency}] | `launch(id)`, `record(id)` | `index` |
+| `apps` | `entries` [{id, name, genericName, comment, icon, keywords, terminal}] | `launch(id, terminal)` | — |
 | `files` | `results` [{path, name, kind}], `indexState` ("inotify"\|"walk"\|"building") | `query(text)`, `open(path)` | `query` |
 | `emoji` | `available`, `results` | `query(text)`, `copy(char)` | — |
 | `osd` | `event` {kind, level, muted}? | — | — |
@@ -38,3 +38,14 @@ Signatures are written as they will be specified at S2. Exact property lists get
 | `sky` (from `fartd`) | `sun` {alt, az}, `moon` {alt, az, phase}, `planets` [...], `stars` (projected, cached), `sidereal` | — | `sky` |
 
 The `location` domain exposes no coordinates to the view. Only `fartd` and DMS handle them.
+
+## S3 fixture snapshots
+
+The island uses the existing adapter for media, audio, network, Bluetooth, notifications, workspaces, power, palette and motion. The fixture also supplies the resident tray, weather, OSD and capture status domains above. The legacy panel can leave those domains unavailable.
+
+- `tray.menuEntries` carries plain rows `{id, label, enabled?, children?}` under the `menus` lease. The adapter receives `triggerMenuItem(itemId, entryId)` when the user chooses a row. Service handles stay inside the adapter.
+- `keybinds.capsLock`, `keybinds.numLock` and `network.airplaneMode` are optional status values. `null` means the fixture has no reading. `audio.privacy` carries visible mic/camera uses as `{kind, app}`.
+- `apps.entries` is the installed list only. Ranking, frecency and launch history are the core's (`apps.index`, `launcher.query`, `launcher.launch`, Z185); the view starts an app with `apps.launch` only after the core allowed it. No lease: the list is read once and kept warm for the launcher (Z139).
+- `keybinds.launcherPressed()` / `launcherReleased()` are the launcher key's edges when the host delivers it to the view itself (S6, Hyprland's global shortcut, only with `FART_LAUNCHER_SHORTCUT=1`). Hosts that don't never emit them; the key then arrives through the core as before.
+- `system.memory.pressureSomeAvg10` is a percentage, and `processes` contains `{name, pss}` rows with PSS in KiB. The island uses Z23 and OPEN 14 for the queue and recovery.
+- The fixture gives the island an inert core client for timer and session snapshots, plus a synthetic startup notice. The live producer of backend status is still F2-2. Notification actions and panel, power, log and ignition requests leave the island as signals.

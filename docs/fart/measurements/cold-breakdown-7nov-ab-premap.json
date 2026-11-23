@@ -1,0 +1,305 @@
+{
+ "platform": "wayland/real",
+ "settle_s": 1.0,
+ "runs": 5,
+ "conditions_before": {
+  "platform_profile": "low-power",
+  "epp": "power",
+  "governor": "powersave",
+  "ac_online": true,
+  "loadavg": "1.51 1.36 1.27 2/1706 88860"
+ },
+ "conditions_after": {
+  "platform_profile": "low-power",
+  "epp": "power",
+  "governor": "powersave",
+  "ac_online": true,
+  "loadavg": "1.55 1.37 1.27 1/1707 89347"
+ },
+ "sources": {
+  "~/.local/share/fart/next-coldstart": {
+   "complete": 5,
+   "phases": {
+    "core": {
+     "median": 2.0,
+     "min": 1.1,
+     "max": 2.3
+    },
+    "exec": {
+     "median": 41.0,
+     "min": 33.0,
+     "max": 47.0
+    },
+    "load": {
+     "median": 310.0,
+     "min": 295.0,
+     "max": 318.0
+    },
+    "hello": {
+     "median": 8.0,
+     "min": 7.0,
+     "max": 9.0
+    },
+    "open": {
+     "median": 40.0,
+     "min": 37.0,
+     "max": 45.0
+    },
+    "frame": {
+     "median": 113.0,
+     "min": 112.0,
+     "max": 113.0
+    },
+    "open.shell": {
+     "median": 38.0,
+     "min": 36.0,
+     "max": 43.0
+    },
+    "frame.swap": {
+     "median": 52.0,
+     "min": 51.0,
+     "max": 54.0
+    },
+    "frame.active": {
+     "median": 112.0,
+     "min": 112.0,
+     "max": 113.0
+    },
+    "frame.focus": {
+     "median": 0.0,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "total": {
+     "median": 509.1,
+     "min": 501.3,
+     "max": 523.6
+    }
+   },
+   "samples": [
+    {
+     "core": 1.1,
+     "exec": 33.0,
+     "load": 310.0,
+     "hello": 7.0,
+     "open": 45.0,
+     "frame": 113.0,
+     "open.shell": 43.0,
+     "frame.swap": 52.0,
+     "frame.active": 112.0,
+     "frame.focus": 0.0,
+     "total": 509.1,
+     "stayed_open": true,
+     "interrupted": false
+    },
+    {
+     "core": 1.6,
+     "exec": 47.0,
+     "load": 313.0,
+     "hello": 9.0,
+     "open": 40.0,
+     "frame": 113.0,
+     "open.shell": 38.0,
+     "frame.swap": 52.0,
+     "frame.active": 112.0,
+     "frame.focus": 0.0,
+     "total": 523.6,
+     "stayed_open": true,
+     "interrupted": false
+    },
+    {
+     "core": 2.3,
+     "exec": 39.0,
+     "load": 295.0,
+     "hello": 8.0,
+     "open": 44.0,
+     "frame": 113.0,
+     "open.shell": 42.0,
+     "frame.swap": 52.0,
+     "frame.active": 113.0,
+     "frame.focus": 0.0,
+     "total": 501.3,
+     "stayed_open": true,
+     "interrupted": false
+    },
+    {
+     "core": 2.0,
+     "exec": 41.0,
+     "load": 303.0,
+     "hello": 9.0,
+     "open": 39.0,
+     "frame": 113.0,
+     "open.shell": 37.0,
+     "frame.swap": 51.0,
+     "frame.active": 112.0,
+     "frame.focus": 0.0,
+     "total": 507.0,
+     "stayed_open": true,
+     "interrupted": false
+    },
+    {
+     "core": 2.1,
+     "exec": 45.0,
+     "load": 318.0,
+     "hello": 7.0,
+     "open": 37.0,
+     "frame": 112.0,
+     "open.shell": 36.0,
+     "frame.swap": 54.0,
+     "frame.active": 112.0,
+     "frame.focus": 1.0,
+     "total": 521.1,
+     "stayed_open": true,
+     "interrupted": false
+    }
+   ]
+  },
+  "scratch:t-premap": {
+   "complete": 5,
+   "phases": {
+    "core": {
+     "median": 1.5,
+     "min": 1.2,
+     "max": 1.9
+    },
+    "exec": {
+     "median": 43.0,
+     "min": 40.0,
+     "max": 46.0
+    },
+    "load": {
+     "median": 315.0,
+     "min": 311.0,
+     "max": 317.0
+    },
+    "hello": {
+     "median": 10.0,
+     "min": 9.0,
+     "max": 11.0
+    },
+    "open": {
+     "median": 41.0,
+     "min": 39.0,
+     "max": 44.0
+    },
+    "frame": {
+     "median": 120.0,
+     "min": 111.0,
+     "max": 154.0
+    },
+    "open.shell": {
+     "median": 40.0,
+     "min": 39.0,
+     "max": 43.0
+    },
+    "frame.swap": {
+     "median": 89.0,
+     "min": 87.0,
+     "max": 94.0
+    },
+    "frame.active": {
+     "median": 114.0,
+     "min": 107.0,
+     "max": 139.0
+    },
+    "frame.focus": {
+     "median": 0.0,
+     "min": 0.0,
+     "max": 0.0
+    },
+    "total": {
+     "median": 529.9,
+     "min": 521.2,
+     "max": 568.2
+    }
+   },
+   "samples": [
+    {
+     "core": 1.2,
+     "exec": 41.0,
+     "load": 317.0,
+     "hello": 11.0,
+     "open": 40.0,
+     "frame": 111.0,
+     "open.shell": 39.0,
+     "frame.swap": 87.0,
+     "frame.active": 107.0,
+     "frame.focus": 0.0,
+     "total": 521.2,
+     "stayed_open": true,
+     "interrupted": false
+    },
+    {
+     "core": 1.8,
+     "exec": 45.0,
+     "load": 315.0,
+     "hello": 10.0,
+     "open": 41.0,
+     "frame": 115.0,
+     "open.shell": 40.0,
+     "frame.swap": 88.0,
+     "frame.active": 110.0,
+     "frame.focus": 0.0,
+     "total": 527.8,
+     "stayed_open": true,
+     "interrupted": false
+    },
+    {
+     "core": 1.9,
+     "exec": 43.0,
+     "load": 311.0,
+     "hello": 10.0,
+     "open": 44.0,
+     "frame": 120.0,
+     "open.shell": 43.0,
+     "frame.swap": 89.0,
+     "frame.active": 114.0,
+     "frame.focus": 0.0,
+     "total": 529.9,
+     "stayed_open": true,
+     "interrupted": false
+    },
+    {
+     "core": 1.2,
+     "exec": 46.0,
+     "load": 315.0,
+     "hello": 11.0,
+     "open": 41.0,
+     "frame": 154.0,
+     "open.shell": 40.0,
+     "frame.swap": 94.0,
+     "frame.active": 139.0,
+     "frame.focus": 0.0,
+     "total": 568.2,
+     "stayed_open": true,
+     "interrupted": false
+    },
+    {
+     "core": 1.5,
+     "exec": 40.0,
+     "load": 311.0,
+     "hello": 9.0,
+     "open": 39.0,
+     "frame": 131.0,
+     "open.shell": 39.0,
+     "frame.swap": 93.0,
+     "frame.active": 115.0,
+     "frame.focus": 0.0,
+     "total": 531.5,
+     "stayed_open": true,
+     "interrupted": false
+    }
+   ]
+  }
+ },
+ "paired_total_difference_ms": {
+  "median": 12.1,
+  "samples": [
+   12.1,
+   4.2,
+   28.6,
+   61.2,
+   10.4
+  ]
+ }
+}

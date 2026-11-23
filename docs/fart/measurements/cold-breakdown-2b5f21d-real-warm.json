@@ -1,0 +1,174 @@
+{
+ "platform": "wayland/real",
+ "settle_s": 1.0,
+ "runs": 2,
+ "mode": "warm \u00d75, closed 1 s",
+ "conditions_before": {
+  "platform_profile": "low-power",
+  "epp": "power",
+  "governor": "powersave",
+  "ac_online": true,
+  "loadavg": "1.13 1.22 1.27 1/1735 113061"
+ },
+ "conditions_after": {
+  "platform_profile": "low-power",
+  "epp": "power",
+  "governor": "powersave",
+  "ac_online": true,
+  "loadavg": "1.24 1.24 1.28 1/1728 113509"
+ },
+ "sources": {
+  "~/.local/share/fart/next-coldstart": {
+   "complete": 10,
+   "phases": {
+    "frame": {
+     "median": 56.0,
+     "min": 42.0,
+     "max": 67.0
+    },
+    "relay": {
+     "median": 1.1,
+     "min": 0.5,
+     "max": 1.5
+    },
+    "handle": {
+     "median": 2.0,
+     "min": 2.0,
+     "max": 3.0
+    },
+    "frame.swap": {
+     "median": 38.5,
+     "min": 35.0,
+     "max": 50.0
+    },
+    "frame.active": {
+     "median": 44.0,
+     "min": 40.0,
+     "max": 62.0
+    },
+    "frame.focus": {
+     "median": 0.0,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "total": {
+     "median": 59.5,
+     "min": 46.1,
+     "max": 71.1
+    }
+   },
+   "samples": [
+    {
+     "relay": 1.1,
+     "handle": 3.0,
+     "frame": 58.0,
+     "frame.swap": 37.0,
+     "frame.active": 46.0,
+     "frame.focus": 0.0,
+     "total": 62.1,
+     "stayed_open": true,
+     "interrupted": false
+    },
+    {
+     "relay": 1.1,
+     "handle": 2.0,
+     "frame": 57.0,
+     "frame.swap": 40.0,
+     "frame.active": 43.0,
+     "frame.focus": 0.0,
+     "total": 60.1,
+     "stayed_open": true,
+     "interrupted": false
+    },
+    {
+     "relay": 0.9,
+     "handle": 3.0,
+     "frame": 55.0,
+     "frame.swap": 38.0,
+     "frame.active": 41.0,
+     "frame.focus": 0.0,
+     "total": 58.9,
+     "stayed_open": true,
+     "interrupted": false
+    },
+    {
+     "relay": 1.5,
+     "handle": 2.0,
+     "frame": 53.0,
+     "frame.swap": 36.0,
+     "frame.active": 53.0,
+     "frame.focus": 0.0,
+     "total": 56.5,
+     "stayed_open": true,
+     "interrupted": false
+    },
+    {
+     "relay": 0.5,
+     "handle": 2.0,
+     "frame": 54.0,
+     "frame.swap": 39.0,
+     "frame.active": 44.0,
+     "frame.focus": 0.0,
+     "total": 56.5,
+     "stayed_open": true,
+     "interrupted": false
+    },
+    {
+     "relay": 1.1,
+     "handle": 3.0,
+     "frame": 42.0,
+     "frame.swap": 38.0,
+     "frame.active": 42.0,
+     "frame.focus": 0.0,
+     "total": 46.1,
+     "stayed_open": true,
+     "interrupted": false
+    },
+    {
+     "relay": 0.8,
+     "handle": 2.0,
+     "frame": 62.0,
+     "frame.swap": 40.0,
+     "frame.active": 44.0,
+     "frame.focus": 0.0,
+     "total": 64.8,
+     "stayed_open": true,
+     "interrupted": false
+    },
+    {
+     "relay": 1.1,
+     "handle": 3.0,
+     "frame": 67.0,
+     "frame.swap": 50.0,
+     "frame.active": 54.0,
+     "frame.focus": 0.0,
+     "total": 71.1,
+     "stayed_open": true,
+     "interrupted": false
+    },
+    {
+     "relay": 1.3,
+     "handle": 2.0,
+     "frame": 49.0,
+     "frame.swap": 35.0,
+     "frame.active": 40.0,
+     "frame.focus": 0.0,
+     "total": 52.3,
+     "stayed_open": true,
+     "interrupted": false
+    },
+    {
+     "relay": 0.7,
+     "handle": 2.0,
+     "frame": 62.0,
+     "frame.swap": 45.0,
+     "frame.active": 62.0,
+     "frame.focus": 1.0,
+     "total": 64.7,
+     "stayed_open": true,
+     "interrupted": false
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,32 @@
+{
+  "Amoled Black": {
+    "text": 18.273,
+    "textMuted": 7.371,
+    "textFaint": 7.371,
+    "accent": 21.0
+  },
+  "Mocha": {
+    "text": 8.693,
+    "textMuted": 4.51,
+    "textFaint": 7.1,
+    "accent": 5.971
+  },
+  "GitHub Light": {
+    "text": 14.355,
+    "textMuted": 6.867,
+    "textFaint": 8.168,
+    "accent": 4.718
+  },
+  "Nord": {
+    "text": 7.448,
+    "textMuted": 4.534,
+    "textFaint": 8.263,
+    "accent": 4.531
+  },
+  "Oxeo Deep": {
+    "text": 11.637,
+    "textMuted": 5.093,
+    "textFaint": 5.093,
+    "accent": 5.117
+  }
+}

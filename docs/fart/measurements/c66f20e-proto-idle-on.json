@@ -1,0 +1,387 @@
+{
+  "schema": 1,
+  "timestamp": "2026-11-07T16:12:29.223152+00:00",
+  "source": "<scratch>/proto",
+  "source_commit": "c66f20ea5346b450c1216b4578a49be4159b478d",
+  "source_view_dirty": false,
+  "platform": "wayland/opengl",
+  "keep_shell": true,
+  "motion": "serpantinum",
+  "reduced": false,
+  "ambient": "on",
+  "playing": false,
+  "window_seconds": 15.0,
+  "scenarios": {
+    "open_home": {
+      "interaction": "quiet",
+      "frames": 488,
+      "frames_per_second": 32.53,
+      "view": {
+        "rss_mib": 520.7890625,
+        "pss_mib": 220.3515625,
+        "private_dirty_mib": 174.8984375,
+        "coverage": "window",
+        "cpu_ticks": 236,
+        "cpu_percent": 15.714296095328782,
+        "voluntary_switches": 17429,
+        "nonvoluntary_switches": 233,
+        "switches_per_minute": 70562.51634805855,
+        "thread_set_changed": false
+      },
+      "core": {
+        "rss_mib": 23.13671875,
+        "pss_mib": 14.0537109375,
+        "private_dirty_mib": 13.37890625,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      },
+      "motion": {
+        "active": 5,
+        "names": [
+          "idle.field.motes",
+          "idle.field.scan",
+          "idle.home.clock",
+          "idle.cover.orbit",
+          "idle.cut.rail"
+        ]
+      }
+    },
+    "open_media": {
+      "interaction": "quiet",
+      "frames": 487,
+      "frames_per_second": 32.47,
+      "view": {
+        "rss_mib": 518.3671875,
+        "pss_mib": 220.0400390625,
+        "private_dirty_mib": 174.98046875,
+        "coverage": "window",
+        "cpu_ticks": 227,
+        "cpu_percent": 15.117058131174913,
+        "voluntary_switches": 17220,
+        "nonvoluntary_switches": 286,
+        "switches_per_minute": 69948.6924170083,
+        "thread_set_changed": true
+      },
+      "core": {
+        "rss_mib": 23.13671875,
+        "pss_mib": 14.0517578125,
+        "private_dirty_mib": 13.37890625,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      },
+      "motion": {
+        "active": 4,
+        "names": [
+          "idle.cut.rail",
+          "idle.field.motes",
+          "idle.field.scan",
+          "idle.cover.orbit"
+        ]
+      }
+    },
+    "open_performance": {
+      "interaction": "quiet",
+      "frames": 486,
+      "frames_per_second": 32.4,
+      "view": {
+        "rss_mib": 512.85546875,
+        "pss_mib": 218.12109375,
+        "private_dirty_mib": 173.640625,
+        "coverage": "window",
+        "cpu_ticks": 258,
+        "cpu_percent": 17.179611095534856,
+        "voluntary_switches": 17349,
+        "nonvoluntary_switches": 331,
+        "switches_per_minute": 70636.16841140843,
+        "thread_set_changed": false
+      },
+      "core": {
+        "rss_mib": 23.13671875,
+        "pss_mib": 14.0517578125,
+        "private_dirty_mib": 13.37890625,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      },
+      "motion": {
+        "active": 4,
+        "names": [
+          "idle.cut.rail",
+          "idle.field.motes",
+          "idle.field.scan",
+          "idle.halo"
+        ]
+      }
+    },
+    "open_workspaces": {
+      "interaction": "quiet",
+      "frames": 486,
+      "frames_per_second": 32.4,
+      "view": {
+        "rss_mib": 512.46875,
+        "pss_mib": 217.802734375,
+        "private_dirty_mib": 173.3203125,
+        "coverage": "window",
+        "cpu_ticks": 257,
+        "cpu_percent": 17.123549382428635,
+        "voluntary_switches": 17120,
+        "nonvoluntary_switches": 267,
+        "switches_per_minute": 69508.2847732965,
+        "thread_set_changed": true
+      },
+      "core": {
+        "rss_mib": 23.13671875,
+        "pss_mib": 14.0517578125,
+        "private_dirty_mib": 13.37890625,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      },
+      "motion": {
+        "active": 4,
+        "names": [
+          "idle.cut.rail",
+          "idle.field.motes",
+          "idle.field.scan",
+          "idle.halo"
+        ]
+      }
+    },
+    "open_devices": {
+      "interaction": "quiet",
+      "frames": 483,
+      "frames_per_second": 32.2,
+      "view": {
+        "rss_mib": 517.40234375,
+        "pss_mib": 220.2021484375,
+        "private_dirty_mib": 175.50390625,
+        "coverage": "window",
+        "cpu_ticks": 222,
+        "cpu_percent": 14.784549136859463,
+        "voluntary_switches": 16734,
+        "nonvoluntary_switches": 265,
+        "switches_per_minute": 67925.01372364162,
+        "thread_set_changed": false
+      },
+      "core": {
+        "rss_mib": 23.13671875,
+        "pss_mib": 14.0517578125,
+        "private_dirty_mib": 13.37890625,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      },
+      "motion": {
+        "active": 3,
+        "names": [
+          "idle.cut.rail",
+          "idle.field.motes",
+          "idle.field.scan"
+        ]
+      }
+    },
+    "open_tasks": {
+      "interaction": "interrupted",
+      "frames": 1129,
+      "frames_per_second": 75.27,
+      "view": {
+        "rss_mib": 533.92578125,
+        "pss_mib": 228.201171875,
+        "private_dirty_mib": 182.1875,
+        "coverage": "window",
+        "cpu_ticks": 608,
+        "cpu_percent": 40.48290502002432,
+        "voluntary_switches": 38423,
+        "nonvoluntary_switches": 538,
+        "switches_per_minute": 155650.11142945732,
+        "thread_set_changed": true
+      },
+      "core": {
+        "rss_mib": 23.13671875,
+        "pss_mib": 14.0517578125,
+        "private_dirty_mib": 13.37890625,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 1,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 3.9951318396988795,
+        "thread_set_changed": false
+      },
+      "motion": {
+        "active": 3,
+        "names": [
+          "idle.field.motes",
+          "idle.field.scan",
+          "idle.cut.rail"
+        ]
+      }
+    },
+    "open_timers": {
+      "interaction": "interrupted",
+      "frames": 485,
+      "frames_per_second": 32.33,
+      "view": {
+        "rss_mib": 531.0703125,
+        "pss_mib": 227.845703125,
+        "private_dirty_mib": 182.25,
+        "coverage": "window",
+        "cpu_ticks": 226,
+        "cpu_percent": 15.050128889727192,
+        "voluntary_switches": 18058,
+        "nonvoluntary_switches": 242,
+        "switches_per_minute": 73119.65274743566,
+        "thread_set_changed": false
+      },
+      "core": {
+        "rss_mib": 23.13671875,
+        "pss_mib": 14.0517578125,
+        "private_dirty_mib": 13.37890625,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      },
+      "motion": {
+        "active": 3,
+        "names": [
+          "idle.cut.rail",
+          "idle.field.motes",
+          "idle.field.scan"
+        ]
+      }
+    },
+    "open_clipboard": {
+      "interaction": "quiet",
+      "frames": 488,
+      "frames_per_second": 32.53,
+      "view": {
+        "rss_mib": 533.08984375,
+        "pss_mib": 234.74609375,
+        "private_dirty_mib": 182.12890625,
+        "coverage": "window",
+        "cpu_ticks": 205,
+        "cpu_percent": 13.651023233819323,
+        "voluntary_switches": 15531,
+        "nonvoluntary_switches": 255,
+        "switches_per_minute": 63071.722761679564,
+        "thread_set_changed": true
+      },
+      "core": {
+        "rss_mib": 23.13671875,
+        "pss_mib": 14.0517578125,
+        "private_dirty_mib": 13.37890625,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      },
+      "motion": {
+        "active": 3,
+        "names": [
+          "idle.cut.rail",
+          "idle.field.motes",
+          "idle.field.scan"
+        ]
+      }
+    },
+    "open_notifications": {
+      "interaction": "quiet",
+      "frames": 487,
+      "frames_per_second": 32.47,
+      "view": {
+        "rss_mib": 532.76171875,
+        "pss_mib": 234.65234375,
+        "private_dirty_mib": 182.03515625,
+        "coverage": "window",
+        "cpu_ticks": 208,
+        "cpu_percent": 13.851920361053605,
+        "voluntary_switches": 15748,
+        "nonvoluntary_switches": 281,
+        "switches_per_minute": 64047.8167694216,
+        "thread_set_changed": false
+      },
+      "core": {
+        "rss_mib": 23.13671875,
+        "pss_mib": 14.0517578125,
+        "private_dirty_mib": 13.37890625,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      },
+      "motion": {
+        "active": 3,
+        "names": [
+          "idle.cut.rail",
+          "idle.field.motes",
+          "idle.field.scan"
+        ]
+      }
+    },
+    "closed_idle": {
+      "interaction": "quiet",
+      "frames": 0,
+      "frames_per_second": 0.0,
+      "view": {
+        "rss_mib": 532.76171875,
+        "pss_mib": 234.65234375,
+        "private_dirty_mib": 182.03515625,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      },
+      "core": {
+        "rss_mib": 23.13671875,
+        "pss_mib": 14.0517578125,
+        "private_dirty_mib": 13.37890625,
+        "coverage": "window",
+        "cpu_ticks": 0,
+        "cpu_percent": 0.0,
+        "voluntary_switches": 0,
+        "nonvoluntary_switches": 0,
+        "switches_per_minute": 0.0,
+        "thread_set_changed": false
+      },
+      "motion": {
+        "active": 0,
+        "names": []
+      }
+    }
+  }
+}

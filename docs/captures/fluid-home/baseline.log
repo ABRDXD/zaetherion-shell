@@ -1,0 +1,9 @@
+  INFO: Launching config: "/tmp/fluid-fixture-68hyupv8/bundle/shell.qml"
+  INFO: Shell ID: "40cc84975779f77300541fe4bf82c426" Path ID "40cc84975779f77300541fe4bf82c426"
+  INFO: Saving logs to "/tmp/fluid-fixture-68hyupv8/runtime/quickshell/by-id/6nj6jzbhot/log.qslog"
+ DEBUG qml: FLUID_READY
+  INFO: Configuration Loaded
+  WARN qt.qpa.wayland.textinput: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Trying to disable 0x7ff51c4fa420 but 0x0 is focused
+  WARN scene: QML QQuickImage at @view/rooms/Home.qml[98:25]: Cannot open: file:///tmp/fluid-fixture-68hyupv8/home/.face
+  WARN: Context2D: The font families specified are invalid: JetBrains Mono Nerd Font
+  WARN: Context2D: The font families specified are invalid: JetBrains Mono Nerd Font

@@ -1,0 +1,9 @@
+{
+  "when": {
+    "visits": {
+      "home": 200
+    }
+  },
+  "whisper": "home, two hundred times",
+  "text": "Home has been entered two hundred times.\nThe surveyor has worn a path from the door to the middle of the floor, where it lies down.\nThe path is exactly one surveyor wide. It measured it, then lay in it to check."
+}

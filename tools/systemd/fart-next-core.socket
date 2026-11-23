@@ -1,0 +1,11 @@
+# NOT INSTALLED. Approval needed before linking into ~/.config/systemd/user (docs/CORE.md §1).
+[Unit]
+Description=FART-next core socket
+
+[Socket]
+ListenStream=%t/fart-next/core.sock
+SocketMode=0600
+DirectoryMode=0700
+
+[Install]
+WantedBy=sockets.target

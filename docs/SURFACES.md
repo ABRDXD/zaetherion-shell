@@ -25,6 +25,11 @@ Each surface lists its process (**R** = resident, **P** = panel; see [ARCHITECTU
 - **Long-press ~600 ms:** ignites Overdrive, with the meter filling inside the island (Z119).
 - **Keyboard focus:** a bind (chosen at S3) focuses the hover state. Arrows/hjkl move, Enter activates, Esc leaves (Z115).
 
+- **Owner's modules (11 Nov 2026, from daily DMS use):** power button, network (Wi-Fi/Ethernet), notifications, battery, active media. That's all they use; everything else stays out of the rest state. Check the wings against this at S3: the power button and a notification glyph (unread dot) aren't in the lists above yet. **Owner confirmed at the S3 mock-up review (11 November):** clicking the power glyph opens the session card; clicking the notification glyph opens Inbox.
+- **At rest, less (Z201, 14 Nov 2026):** by default power and the bell are on hover only; Wi-Fi and battery sit at the right shoulder, and unread notifications are a dot on the battery. Each of power, network, battery and inbox has a rest mode (always, when it matters, hover; inbox also unread or dot), set in FART's Island tab.
+- **Quick paste (Z181–Z183):** Super+V grows the clipboard history from the island; Enter copies, Shift+Enter pastes, Ctrl+O opens Clips.
+- **Memory on demand (owner, 11 Nov 2026):** memory isn't shown normally. It appears only when it matters: the *Memory pressure* expansion below, or pinned by hand while the owner is doing something memory-heavy, showing where the memory is going (top processes by PSS). Threshold and pin control: OPEN 14.
+
 ### Expansions (Z22, Z23, Z71)
 
 The island morphs continuously (width and height, host motion profile with overshoot) and cross-fades its content. When several are due, a fixed priority queue decides; a higher one interrupts and a lower one resumes after:
@@ -41,13 +46,14 @@ The island morphs continuously (width and height, host motion profile with overs
 
 | Expansion | Content | Leaves |
 |---|---|---|
-| Notification (Z33, Z73) | App tag, summary, ≤ 2 body lines, actions, inline reply field, image | 5 s timeout (paused on hover), or swipe/scroll toward the edge. Click opens the app. Always kept in Inbox. |
+| Notification (Z33, Z73, Z175) | App tag, summary, ≤ 2 body lines, actions, inline reply field, image | 3 s timeout (6 s at most when the sender asks for more; paused while the pointer is on the card), or right-click, or swipe/scroll toward the edge. Click opens the app. Always kept in Inbox. |
 | OSD | −12° blade meter with level | 1.2 s after the last change |
 | Track change | Art, title, artist | ~3 s |
 | Timer/session | Countdown and current task; DONE inverts until clicked | On click (DONE) |
 | Recording | Signal-coloured timer; stopped by the same keybind (Z105) | When stopped |
 | Mic/camera in use | Signal dot at rest; app name on hover (Z74) | When the stream ends |
-| Workspace switch | N blades, active highlighted (Z21) | ~0.8 s |
+| Workspace switch | A cold edge-on system: the current workspace in transit across a small star (Z199) | ~2.2 s |
+| Memory pressure (owner, 11 Nov 2026) | Used/total bar, then the top 3 processes by PSS; pinnable to stay while working | Pressure falls below the threshold for ~10 s, unless pinned |
 | Low battery | Signal plane at 20, 10 and 5%; 5% is critical and passes DND (Z129) | Timeout, or on click |
 | Session debrief | Duration, tasks done, streak (Z103) | When dismissed |
 | DMS offline/online | `> BACKEND · OFFLINE` / `ONLINE`; affected glyphs greyed (Z123) | Timeout |
@@ -99,6 +105,7 @@ The island morphs continuously (width and height, host motion profile with overs
 
 - A normal Hyprland application window (Z91). The panel is not reaped while it is open.
 - **Layout:** a 78° diagonal index with search at the top. Changes apply instantly (Z92).
+- **Now (Z177):** palette, wallpaper and presets live in FART's own settings pane as tabs; the window below is still the plan for the rest.
 - **Tabs** (Z93): Display · Theme · Wallpaper · Island · Widgets · Launcher · Notifications · Network & Bluetooth · Audio/EQ · Idle · Lock · Capture · Wellbeing · Overdrive · Sessions & Timers · Keybinds (editable) · About.
   - Keybinds rewrites the ZÆTHERION keybind file, reloads Hyprland, and rolls back automatically on `configerrors` (Z94).
   - About lists missing Serpantinum assets (Z125).

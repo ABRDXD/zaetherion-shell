@@ -6,6 +6,15 @@ Rules carried over from FART-next:
 - Exclude runs interrupted by user input.
 - Measure before claiming.
 
+## Performance priorities
+
+Match DMS's functionality and responsiveness first. Compare performance on the same tasks, hardware, display mode and power state.
+
+- Keep idle CPU use and wakeups as close to zero as practical. Evaluate both alongside memory use. A smaller shell that wakes the CPU more often can use more battery.
+- Aim for consistent 144 Hz animation when the system can sustain it. Measure presented frames and their spacing.
+- Check that memory stabilizes after warm-up across repeated interactions. Report RSS, PSS and private dirty separately, with shared mappings noted.
+- Update background widgets when their underlying state changes. Stop expensive animations and rendering in hidden rooms.
+
 ## Total (Z60)
 
 **ZÆTHERION's total must be no larger than Serpantinum plus FART-next's total.** Its total is the resident process, the warm panel, `fartd` and `dms`, measured as PSS. The comparison total is re-measured quietly at S0.
@@ -20,6 +29,23 @@ A point-in-time reading from planning, 8 Nov 2026 (not a quiet measurement):
 | FART-next view | 506 | 218 | — |
 | FART-next `fartd` | 22 | 12 | — |
 
+**Quiet S0 baseline, 11 Nov 2026** (Serpantinum freshly started, 90 s settle, 6 samples 20 s apart, no input; FART-next view then opened, closed and sampled warm 4 × 15 s; plugged in). Last sample shown; the Serpantinum `quickshell` ranged 480–494 PSS across the run.
+
+| Process | RSS (MiB) | PSS (MiB) | Private dirty (MiB) |
+|---|---|---|---|
+| Serpantinum `quickshell` | 743 | 491 | 386 |
+| Serpantinum focus daemon | 21 | 11 | 9 |
+| Serpantinum idle helper | 17 | 9 | 8 |
+| Serpantinum audio daemon | 10 | 5 | 4 |
+| `serpantinumd` (bash) | 6 | 1 | 1 |
+| Serpantinum `inotifywait` × 2 | 5 | 0 | 0 |
+| cliphist `wl-paste` watchers × 2 (Serpantinum autostart) | 4 | 0.4 | — |
+| FART-next view (warm, closed) | 498 | 235 | 172 |
+| FART-next `fartd` | 24 | 15 | 14 |
+| **Total** | | **≈ 768** | |
+
+**Fixed total budget: ZÆTHERION ≤ 768 MiB PSS** (resident + warm panel + `fartd` + `dms`, measured the same way). With the panel reaped, the comparison is ≈ 533 MiB.
+
 ## Per surface (Z141)
 
 Each surface gets a measured memory delta and a frame budget. The limits are fixed at the milestone that builds the surface, then enforced by a `check-budgets` gate.
@@ -33,9 +59,37 @@ Each surface gets a measured memory delta and a frame budget. The limits are fix
 | Widgets loaded | S10 | Unloaded whenever a window is on the workspace (Z85) |
 | Video wallpaper | S8 | Paused when covered; still frame on battery (Z140) |
 | Sky wallpaper | S8 | ≤ 1 redraw per minute in Silent |
+| Capture selector | S9 | Exists only while choosing (Z222); ≤ 0.6 s key → overlay shown; ≤ 160 MiB PSS on one 1080p screen (22 Nov: 0.47 s, 136 MiB, nested Hyprland; an empty Quickshell window is 98) |
 | Lock | S7 | Surfaces exist only while locked |
 | Overview | S11 | Thumbnails only in Overdrive |
 | Panel | carried over | Cold start target ≤ 450 ms; p99 ≤ 6.9 ms on open, navigation and command line; reap timer set at S2 (Z142) |
+
+### Angular island fixture sample (11 November 2026)
+
+Hidden nested Hyprland, Qt Quick software renderer, synthetic data. The preview process also loads the folded fixture panel. These are process readings, not isolated per-surface memory limits.
+
+| State | RSS (MiB) | PSS (MiB) | Private dirty (MiB) | Shared clean + dirty (MiB) |
+|---|---:|---:|---:|---:|
+| Rest | 106.85 | 46.27 | 37.66 | 69.15 |
+| Playing | 106.36 | 45.57 | 36.95 | 69.38 |
+| Wings | 107.77 | 46.54 | 37.74 | 69.99 |
+
+Four seconds between minute ticks yielded zero Qt frames and 0.00% of one core at the CPU counter resolution. Four seconds of synthetic playback yielded 3.25% of one core with timing logs enabled. Across eight OSD open and fold cycles over the wings, the 548 Qt software frame samples had a p99 of 1 ms at whole-millisecond resolution. This sample excludes compositor presentation time. Measure the separated resident, actual adapter and compositor presentation before fixing the live per-surface limits.
+
+### Island fixture sample, GPU renderer (12 November 2026, commit 9662778)
+
+Hidden nested Hyprland 0.57.1, Quickshell 0.3.2, GPU renderer, synthetic data, 5 s settle, `smaps_rollup` of the fixture process (island plus FART panel). Not comparable with the software-renderer sample above.
+
+| State | RSS (MiB) | PSS (MiB) | Private dirty (MiB) |
+|---|---:|---:|---:|
+| Rest, Angular | 370.71 | 102.62 | 71.27 |
+| Rest, Fluid | 376.21 | 103.82 | 72.03 |
+| Hovered (Fluid) | 379.00 | 106.09 | 74.14 |
+| Playing (Fluid) | 378.56 | 105.65 | 73.70 |
+| After 1 open/fold of FART | 439.21 | 151.92 | 114.17 |
+| After 21 open/fold cycles, idle | 466.09 | 179.02 | 141.70 |
+
+CPU over 30 s: 0.00% of one core at rest (pass, ≤ 2%); 6.37% while playing in Fluid (over the 5% rule; the fixture's own 33 ms spectrum timer is included). **Open:** memory does not return to idle after folding and still grew between cycle 1 and 21; whether it plateaus and what is retained are not yet known.
 
 ## Overdrive (carried over)
 
@@ -43,7 +97,7 @@ Each surface gets a measured memory delta and a frame budget. The limits are fix
 |---|---|
 | CPU | ≤ 25% of one core |
 | Memory over Silent-open, including iGPU textures | ≤ +400 MiB |
-| dGPU | Never woken |
+| dGPU | Never woken outside Overdrive. In Overdrive the heavy layer runs on it (OPEN 13, the owner, 10 November 2026; FARG measured about 38 % and 12–14 W) |
 | Frame time | p95 ≤ 6.9 ms, p99 ≤ 10 ms |
 | Release | Back to the Silent baseline ±10 MiB within 5 s |
 | Battery | Suspended on battery (Z122) |

@@ -1,0 +1,134 @@
+#!/usr/bin/env python3
+"""Run Silent fixture measurements. JSON to stdout, or to --output."""
+import argparse
+from datetime import datetime, timezone
+import json
+import math
+import os
+from pathlib import Path
+import platform
+import subprocess
+import time
+
+from measure.budgets import BUDGETS
+from measure.fixture import PAGES, ROOT, private_core
+from measure.frames import frame_stats
+from measure.interaction import Interaction
+from measure.smaps import window
+
+
+def measured(rows, role):
+    for row in rows:
+        if row["role"] == role and row["coverage"] == "window":
+            return row
+    raise RuntimeError(f"{role} did not survive the sampling window")
+
+
+def scenario(name, rows, **values):
+    checks = {}
+    for key, limit in BUDGETS[name].items():
+        value = values[key]
+        status = "missing" if value is None else "pass" if value <= limit else "exceeded"
+        checks[key] = dict(value=value, limit=limit, status=status)
+    return dict(processes=rows, checks=checks)
+
+
+def collect(seconds, observe_interaction=False):
+    scenarios = {}
+    # Only the read-only observer can opt into the caller's Hyprland sockets.
+    with private_core() as f, Interaction(os.environ if observe_interaction else f.env) as interaction:
+        core = f.process.pid
+        time.sleep(5.2)  # let discovery's single debounced startup write complete
+        rows = window(core, seconds)
+        c = measured(rows, "core")
+        scenarios["core_idle"] = scenario("core_idle", rows, core_rss_mib=c["memory_kib"]["Rss"]/1024,
+            core_switches_per_minute=None if c["thread_set_changed"] else c["switches_per_minute"])
+
+        f.request("view.open", page="home")
+        view = f.wait_state(True, "home")["pid"]
+        rows = window(core, seconds, view, workload=f.navigate)
+        frames = frame_stats(f.log.read_text().splitlines(), BUDGETS["navigate"]["p99_ms"])
+        timing = dict(value=frames["p99_ms"], limit=frames["budget_ms"],
+                      status="informational" if frames["count"] else "missing",
+                      reason="offscreen software renderer")
+        scenarios["navigate"] = dict(processes=rows, checks={"p99_ms": timing}, pages=PAGES, frames=frames)
+
+        time.sleep(1)
+        rows = window(core, seconds, view)
+        scenarios["open_static"] = scenario("open_static", rows, core_and_view_cpu_percent=sum(
+            measured(rows, role)["cpu_percent"] for role in ("core", "view")))
+
+        f.request("view.close")
+        f.wait_state(False, PAGES[-1])
+        time.sleep(1)
+        rows = window(core, seconds, view)
+        v = measured(rows, "view")
+        scenarios["closed_idle"] = scenario("closed_idle", rows, view_pss_mib=v["memory_kib"]["Pss"]/1024,
+                                            view_cpu_percent=v["cpu_percent"])
+    scenarios["cmdline"] = dict(status="skipped", reason="interactive command line arrives in M5")
+    statuses = {c["status"] for s in scenarios.values() for c in s.get("checks", {}).values()}
+    if interaction.status == "interrupted":
+        verdict = "interrupted"
+    elif "missing" in statuses or (observe_interaction and interaction.status == "unknown"):
+        verdict = "incomplete"
+    elif "exceeded" in statuses:
+        verdict = "exceeded"
+    else:
+        verdict = "within_fixture_budgets"
+    return dict(schema=1, timestamp=datetime.now(timezone.utc).isoformat(),
+                machine=dict(host=platform.node(), arch=platform.machine(), kernel=platform.release()),
+                git_commit=git("rev-parse", "HEAD"), git_dirty=bool(git("status", "--porcelain")),
+                platform="offscreen/software", observer_requested=observe_interaction, interaction=interaction.status, window_seconds=seconds,
+                status=verdict, scenarios=scenarios)
+
+
+def git(*args):
+    return subprocess.check_output(["git", "-C", str(ROOT), *args], text=True).strip()
+
+
+def comparison(old, new):
+    keys = ("schema", "platform", "machine", "window_seconds", "observer_requested")
+    differences = [key for key in keys if new[key] != old.get(key)]
+    if differences or any(r["status"] in ("interrupted", "incomplete") for r in (old, new)):
+        return dict(comparable=False, reason="interrupted or different sampling conditions", differences=differences)
+    deltas = {}
+    for name, scenario in new["scenarios"].items():
+        previous = old["scenarios"].get(name, {})
+        values = {}
+        for metric, check in scenario.get("checks", {}).items():
+            prior = previous.get("checks", {}).get(metric, {}).get("value")
+            if prior is not None and check["value"] is not None:
+                values[metric] = check["value"] - prior
+        for metric, value in scenario.get("frames", {}).items():
+            prior = previous.get("frames", {}).get(metric)
+            if prior is not None and value is not None and metric not in ("budget_ms", "p99_note"):
+                values[metric] = value - prior
+        if values:
+            deltas[name] = values
+    return dict(comparable=True, previous_commit=old["git_commit"], deltas=deltas)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--seconds", type=float, default=60, help="each stationary sample window (default 60 s)")
+    parser.add_argument("--output", "-o", type=Path)
+    parser.add_argument("--against", type=Path)
+    parser.add_argument("--observe-interaction", action="store_true",
+                        help="monitor caller's Hyprland focus/workspace and cursor while the view stays offscreen")
+    args = parser.parse_args()
+    if not math.isfinite(args.seconds) or args.seconds <= 0:
+        parser.error("--seconds must be finite and positive")
+    old = json.loads(args.against.read_text()) if args.against else None
+    report = collect(args.seconds, args.observe_interaction)
+    if old is not None:
+        report["comparison"] = comparison(old, report)
+    rendered = json.dumps(report, indent=2, allow_nan=False) + "\n"
+    if args.output:
+        args.output.write_text(rendered)
+    else:
+        print(rendered, end="")
+    return {"within_fixture_budgets": 0, "exceeded": 1, "interrupted": 2, "incomplete": 3}[report["status"]]
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

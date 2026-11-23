@@ -1,0 +1,6 @@
+  INFO: Launching config: "/tmp/fluid-fixture-4_xg5q0h/bundle/shell.qml"
+  INFO: Shell ID: "7bf5eb6379725a1787f16020e197662f" Path ID "7bf5eb6379725a1787f16020e197662f"
+  INFO: Saving logs to "/tmp/fluid-fixture-4_xg5q0h/runtime/quickshell/by-id/kwl58p1got/log.qslog"
+ DEBUG qml: FLUID_READY
+  INFO: Configuration Loaded
+  WARN qt.qpa.wayland.textinput: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Trying to disable 0x7fb9eb665b20 but 0x0 is focused
