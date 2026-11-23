@@ -20,11 +20,14 @@ class Now(NamedTuple):
 
 
 class SystemClock:
-    def __init__(self):
+    def __init__(self, epoch: float | None = None):
+        """epoch: a test core's wall clock starts there and runs at the real rate (fartd allows it only with the
+        fixture host; the parity harness uses it for time-zone and DST checks, docs/PARITY_HARNESS.md)."""
         self.boot_id = Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+        self.offset = 0.0 if epoch is None else epoch - time.time()
 
     def now(self) -> Now:
-        return Now(time.clock_gettime(time.CLOCK_BOOTTIME), time.time(), self.boot_id)
+        return Now(time.clock_gettime(time.CLOCK_BOOTTIME), time.time() + self.offset, self.boot_id)
 
 
 def anchor(now: Now) -> dict:

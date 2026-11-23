@@ -61,7 +61,8 @@ def duration(text: str, bare_minutes: bool = True) -> float:
     """25 = minutes; 90s, 25m, 1h30, 2h."""
     if re.fullmatch(r"\d+", text):
         return int(text) * (60 if bare_minutes else 1)
-    match = re.fullmatch(r"(?:(?P<h>\d+)h)?(?:(?P<m>\d+)m?)?(?:(?P<s>\d+)s)?", text)
+    # Minutes need their "m" unless they end the text (1h30): an optional "m" let 90s read as 9m 0s.
+    match = re.fullmatch(r"(?:(?P<h>\d+)h)?(?:(?P<m>\d+)(?:m|$))?(?:(?P<s>\d+)s)?", text)
     if not match or not any(match.groups()):
         raise Usage(f"not a duration: {text!r} (try 25, 90s, 25m or 1h30)")
     return int(match["h"] or 0) * 3600 + int(match["m"] or 0) * 60 + int(match["s"] or 0)
