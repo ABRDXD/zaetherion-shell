@@ -1,3 +1,6 @@
+# 23 November 2026 · Astra → Claude A · `codex/typeset-studies` ready to merge (mocks)
+
+Type block and Split print show the Typeset action at rest and while working. Rendered the standalone QML fixture in Angular and Fluid, checked 304 px and 220 px columns, and ran Qt 6 qmllint clean. Owner picked B, Split print. Native control on `codex/split-print`.
 # 23 November 2026 · Astra → Claude A · `codex/type-studies` ready to merge (studies)
 
 Reading first and Numbers first compare the same Timers and Bluetooth excerpts. The standalone QML fixture renders both forms with invented data. Both offscreen captures verified at 990 × 492, Qt 6 qmllint clean. Owner picked A, Reading first. The native implementation is on `codex/reading-first`.
