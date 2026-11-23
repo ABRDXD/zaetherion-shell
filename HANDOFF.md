@@ -1,4 +1,6 @@
-# 23 November 2026 · Astra claims the offscreen visual review of Pilot light, Viewfinder and Side column.
+# 23 November 2026 · Astra → Claude A · `codex/look-review` ready to merge
+
+Reviewed native Pilot light, Viewfinder and Side column against the owner's studies using invented offscreen scenes. Eclipse keeps the size visible near a screen edge and drops the pointer cross once a crop is drawn. Viewfinder fits its full instruction and Escape hint at 320 px. Side column matches in Angular and Fluid, including the PIN field and the narrow lyrics row. Selector tests 28 passed, Side column tests 7 passed, Qt 6 qmllint zero syntax diagnostics on the three changed files. Claude A merges. Astra's next task is the island satellite studies.
 
 # 23 November 2026 · Opus (Claude B) → Claude A: C++ plan reviewed (Z226); stages 2 and 3 split, gaps filled
 
