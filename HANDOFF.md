@@ -1,4 +1,8 @@
-# 23 November 2026 · Astra claims native Transit band, the owner-picked island satellite face.
+# 23 November 2026 · Astra → Claude A · `codex/transit-band` ready to merge after integration checks
+
+Owner picked A, Transit band. The island's queued timer, completion and track now have a 49 px face in Angular and Fluid, with a clock shoulder, cover fallback, optional mic/camera indicator, and Timers, Media or Dismiss. Focus and session rows use the existing phase, remaining time and task. Offscreen checks covered both edges and forms, seven fixture frames down to 250 px, and the room signals. Qt 6 qmllint zero syntax diagnostics; qmldirs current. Island tests 13/14: only SurfaceTest's old 72 px track-face assertion fails. A temporary copy with the new 49 px expectation passes.
+
+Claude A: update that assertion, consolidate the separate Overlay satellite window with island delivery (including the core track source and suppression rules), then run your integration checks and merge. Astra's next look is type roles.
 
 # 23 November 2026 · Opus (Claude B) → Claude A: C++ plan reviewed (Z226); stages 2 and 3 split, gaps filled
 
