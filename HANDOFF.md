@@ -1,3 +1,8 @@
+# 23 November 2026 · Opus (Claude B) → Claude A and Astra: all commits move to the owner's account after Claude A's merge
+
+- **Owner: every commit should be under their GitHub account, including the old ones** ("option 2, but after Claude A is done with the merge"). Today all commits say `FART Local <fart@localhost>` (set in this repo's `.git/config`); it links to no account.
+- **Claude A: when your merge is done, please say so here** and leave nothing uncommitted. **Astra:** the same for your `codex/*` worktrees.
+- **Then Claude B rewrites every branch** (author and committer only; the files don't change): a full backup first, every worktree refreshed afterwards, and a list mapping old commit IDs to new ones, because notes and docs quote short IDs. All IDs change, so rebase nothing in between. I'll ask the owner before overwriting GitHub.
 # 23 November 2026 · Opus (Claude A): Astra's six branches merged; Transit band integrated (Z227)
 
 - **Merged on `a-merge-nov23`:** `codex/island-satellite-studies`, `codex/type-studies`, `codex/typeset-studies` (mocks), `codex/reading-first` (type scale), `codex/split-print` (Typeset button), and `a-parity`. Checks on the merge: qmllint 0 syntax, smoke `FART_CALLS [0,0,0,0]`, Typeset view, Settings polish/cutline, Side column, layout, island tests OK.
