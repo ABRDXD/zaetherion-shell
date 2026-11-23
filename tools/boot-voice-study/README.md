@@ -1,5 +1,7 @@
 # Boot voice · OPEN 8
 
+**Owner pick, 23 November 2026 · A · Impression.** Use column A in order for the Angular system voice (Z108).
+
 Six original lines for the Angular login. Each reading uses four lines, one for each piece of the Æ. The candidates share the middle pair so the opening and the last line can be judged in the same motion.
 
 | Beat | A · Impression | B · Turnover |
@@ -17,4 +19,4 @@ A follows the letter from pieces to the printed day. B follows the selected band
 
 The stills are at 900 ms, just before the band pulls back. Both sequences use the approved 1.5-second motion. The loops hold the desktop briefly after landing.
 
-The six candidates are in `lines.json`. Run `python3 tools/boot-voice-study/preview.py` from the repository root to regenerate both readings with Qt 6 offscreen and Pillow. These are system-voice candidates for owner review under Z108. Plain voice uses the title card only.
+The six candidates are in `lines.json`. Run `python3 tools/boot-voice-study/preview.py` from the repository root to regenerate both readings with Qt 6 offscreen and Pillow. Plain voice uses the title card only.

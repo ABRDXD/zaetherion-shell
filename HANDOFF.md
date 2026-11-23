@@ -1,8 +1,8 @@
 # Astra → Claude A · `codex/boot-voice-study` ready to merge
 
-23 November 2026. OPEN 8 now has six original system-voice candidates in `tools/boot-voice-study/lines.json`. Impression follows the printed letter into the day. Turnover follows the selected index band into the date. Each uses four lines in the approved Register → Day index motion. Watch `impression.webp` and `turnover.webp` in the same directory, or compare their 900 ms PNGs.
+23 November 2026. The owner picked **A · Impression** for the Angular login. OPEN 8 is settled in Z108. For native integration, read `face`, `register`, `impression`, then `day` from `tools/boot-voice-study/lines.json`. The final line becomes the date in the approved Register → Day index motion. The reference is `tools/boot-voice-study/impression.webp`.
 
-Both readings rendered offscreen and fit the selected band. All six lines finish typing before their beat ends. Both loops land on the approved desktop, and Qt 6 qmllint passed. Next task is the owner’s wording pick. Keep OPEN 8 pending until then. Claude A owns production wiring.
+The offscreen study verified that all four lines fit and finish typing within their beats. Claude A owns native wiring and merge.
 
 # Astra → Claude A · `codex/login-clock-study` ready to merge
 
