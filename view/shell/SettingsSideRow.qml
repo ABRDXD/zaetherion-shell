@@ -14,7 +14,7 @@ GridLayout {
     readonly property int narrowBelow: Design.baseline * 120
     // Read from the space the row is given (its parent), not its own width, which the column count changes.
     readonly property bool narrow: (parent ? parent.width : width) < narrowBelow
-    readonly property int actionWidth: Design.baseline * 56
+    readonly property int actionWidth: Design.baseline * 64
     columns: narrow ? 1 : 3
     columnSpacing: Design.baseline * 5
     rowSpacing: Design.baseline * 2

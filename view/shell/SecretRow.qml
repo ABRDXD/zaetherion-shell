@@ -49,7 +49,7 @@ SettingsSideRow {
             selectionColor: Design.accent
             selectedTextColor: Design.background
             font.family: Design.fluid ? FluidTokens.sans : Design.mono
-            font.pixelSize: Design.fluid ? FluidTokens.body : Design.body
+            font.pixelSize: Design.body
             leftPadding: 0
             echoMode: eye.pressed ? TextInput.Normal : TextInput.Password
             inputMethodHints: Qt.ImhSensitiveData | Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase | (root.digits ? Qt.ImhDigitsOnly : 0)
@@ -76,7 +76,7 @@ SettingsSideRow {
                 text: eye.pressed ? "Showing" : "Hold to show"
                 technical: true
                 font.capitalization: Font.MixedCase
-                font.pixelSize: Design.fluid ? FluidTokens.body : Design.body
+                font.pixelSize: Design.control
                 color: eye.hovered || eye.visualFocus || eye.pressed ? Design.ink : Design.muted
             }
             background: null

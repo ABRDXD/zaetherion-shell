@@ -11,7 +11,7 @@ Item {
     readonly property color textColor: plane.textColor
     readonly property real run: Design.fluid ? height / 2 : height * Math.tan(12 * Math.PI / 180)
     implicitHeight: Design.baseline * 5
-    readonly property real glyphWidth: symbol !== "" ? Design.control + Design.baseline : 0
+    readonly property real glyphWidth: symbol !== "" ? Design.smallIcon + Design.baseline : 0
     readonly property real padding: 2 * run + 2 * Design.baseline
     implicitWidth: Math.ceil(label.implicitWidth + glyphWidth + padding)
 
@@ -31,7 +31,7 @@ Item {
             visible: root.symbol !== ""
             anchors.verticalCenter: parent.verticalCenter
             text: root.symbol
-            iconSize: Design.control
+            iconSize: Design.smallIcon
             color: root.textColor
         }
         FText {

@@ -50,6 +50,9 @@ Flickable {
         x: root.inset
         y: FluidTokens.gap
         text: "Settings"
+        width: parent.width - 2 * root.inset
+        fontSizeMode: Text.HorizontalFit
+        minimumPixelSize: Design.readout
         font.pixelSize: FluidTokens.title
         font.weight: Font.DemiBold
     }

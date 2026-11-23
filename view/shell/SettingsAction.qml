@@ -67,7 +67,7 @@ AbstractButton {
             text: (root.leads ? "›  " : "") + (root.armed ? root.armedLabel : root.label) + (root.glyph && !root.leads ? "  " + root.glyph : "")
             font.bold: root.leads
             technical: true
-            font.pixelSize: Design.fluid ? FluidTokens.body : Design.body
+            font.pixelSize: Design.control
             font.capitalization: Font.MixedCase
             color: root.tone
             Tween on color { scope: root; ColorAnimation { duration: Motion.feedback; easing.type: Motion.roles.feedback.easing } }
@@ -91,7 +91,7 @@ AbstractButton {
             verticalAlignment: Text.AlignVCenter
             text: "Cancel"
             technical: true
-            font.pixelSize: Design.fluid ? FluidTokens.body : Design.body
+            font.pixelSize: Design.control
             font.capitalization: Font.MixedCase
             color: cancel.hovered || cancel.visualFocus ? Design.ink : Design.muted
         }

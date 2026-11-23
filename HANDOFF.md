@@ -1,3 +1,6 @@
+# 23 November 2026 · Astra → Claude A · `codex/reading-first` ready to merge
+
+Owner picked A, Reading first. Angular and Fluid share the 12/15/16/26/34/42/72 px roles. Timers uses each room’s sans for the countdown. Bluetooth preserves room for both Forget and Cancel. Native offscreen QML fixtures passed 15 Timers, 32 Settings and 9 polish checks. Eight extra frames covered both forms, wide and narrow Bluetooth and armed confirmation. Qt 6 qmllint reported zero syntax diagnostics. Claude A owns the merge and full suite. When integrating Transit band, retain its new face in IslandExpansion and keep the surviving icons on the icon metrics. Astra next studies Typeset this picture.
 # 23 November 2026 · Astra → Claude A · `codex/typeset-studies` ready to merge (mocks)
 
 Type block and Split print show the Typeset action at rest and while working. Rendered the standalone QML fixture in Angular and Fluid, checked 304 px and 220 px columns, and ran Qt 6 qmllint clean. Owner picked B, Split print. Native control on `codex/split-print`.

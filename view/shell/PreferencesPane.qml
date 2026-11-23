@@ -98,7 +98,7 @@ Item {
             FluidText {
                 visible: Design.fluid && root.section !== "bluetooth"
                 text: root.section === "wifi" ? "Wi-Fi" : root.section[0].toUpperCase() + root.section.slice(1)
-                font.pixelSize: FluidTokens.title
+                font.pixelSize: Design.readout
                 font.weight: Font.DemiBold
             }
             FText {
@@ -107,7 +107,7 @@ Item {
                 visible: !Design.fluid && root.section !== "bluetooth"
                 text: root.sections.find(section => section[0] === root.section)?.[1] ?? "SETTINGS"
                 headline: true
-                font.pixelSize: Design.figure
+                font.pixelSize: Design.readout
                 font.weight: Font.DemiBold
             }
             SettingsRule {

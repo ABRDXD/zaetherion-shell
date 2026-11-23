@@ -14,7 +14,7 @@ RowLayout {
     spacing: Design.baseline * 2
     MaterialSymbol {
         text: root.words?.busy ? "progress_activity" : root.words?.ok ? "check" : "error"
-        iconSize: Design.readout
+        iconSize: Design.statusIcon
         color: root.words?.busy || root.words?.ok ? Design.accent : Design.warning
     }
     ColumnLayout {

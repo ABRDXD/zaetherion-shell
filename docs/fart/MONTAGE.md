@@ -40,18 +40,17 @@ Today there are 33 literal `pixelSize` values in view/ (counted with grep). Each
 
 ## 2. Tokens (view/ui/Design.qml)
 
-**Type scale** (PROJECT_PLAN, revised):
+**Reading first type scale** (owner selection, 23 November 2026). Angular and Fluid share these text sizes. The main clock uses the room’s sans family and fits down when space is limited.
 
-| Token | Size | Was |
-| --- | --- | --- |
-| `caption` | 11 | 13 |
-| `body` | 12 | 15 |
-| `control` | 13 | new |
-| `readout` | 20 | `subheading` 20 |
-| `headline` | 52 | `heading` 52 |
-| `display` | 80–98, numerals only | literals today (the clock, the index) |
-
-Body text shrinks by 3 px. That is the biggest visible change of M6, so it lands first and on its own (§10, step 1), and you can judge it before any montage work.
+| Role | Design token | Size in pixels |
+| --- | --- | ---: |
+| Caption or status | `caption` | 12 |
+| Action | `control` | 15 |
+| Body | `body` | 16 |
+| Section heading | `readout` | 26 |
+| Secondary number | `figure` | 34 |
+| Page headline | `headline` | 42 |
+| Main clock or countdown | `display` | 72 |
 
 **Grid.** There is one `Grid` singleton per room width:
 - 12 columns.

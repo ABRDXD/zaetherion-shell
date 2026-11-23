@@ -135,8 +135,8 @@ Item {
                 : root.controller.stamp(root.controller.seconds)
             trend: root.kind === "stopwatch" ? 1 : -1   // a stopwatch climbs; every other clock counts down
             font.family: FluidTokens.sans
-            font.pixelSize: Math.min(Sky.clockSize, root.height * 0.24) // scale: the numerals keep below the sky's middle
-            font.weight: Font.ExtraLight
+            font.pixelSize: Math.min(FluidTokens.clock, root.height * 0.24) // scale: the numerals keep below the sky's middle
+            font.weight: Font.DemiBold
             font.features: ({ "tnum": 1 })
             color: FluidTokens.ink
         }
@@ -144,7 +144,7 @@ Item {
             objectName: "timers.sentence"
             Layout.preferredWidth: Sky.sentenceWidth
             text: root.sentence
-            font.pixelSize: FluidTokens.heading
+            font.pixelSize: FluidTokens.body
             font.weight: Font.Light
             color: FluidTokens.secondary
             wrapMode: Text.Wrap

@@ -32,6 +32,7 @@ Button {
     }
     contentItem: FluidText {
         id: label
+        font.pixelSize: Design.control
         text: root.text
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter

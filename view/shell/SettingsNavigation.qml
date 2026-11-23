@@ -20,7 +20,7 @@ ColumnLayout {
         Layout.fillWidth: true
         text: "SETTINGS"
         headline: true
-        font.pixelSize: Design.figure
+        font.pixelSize: Design.headline
         font.weight: Font.DemiBold
     }
 

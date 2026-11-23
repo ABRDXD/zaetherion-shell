@@ -3,7 +3,7 @@ import QtQuick
 import Quickshell
 import qs.view.ui
 
-// Fluid geometry and type are independent of Angular; all colours use the shared palette.
+// Fluid keeps its geometry and typeface. Both forms use the Reading first scale.
 Singleton {
     readonly property int unit: 4
     readonly property int gap: 16
@@ -11,11 +11,11 @@ Singleton {
     readonly property int controlHeight: 34
     readonly property int controlRadius: 8
     readonly property int imageRadius: 18
-    readonly property int body: 14
-    readonly property int caption: 12
-    readonly property int title: 32
-    readonly property int clock: 88
-    readonly property int heading: 22
+    readonly property int body: Design.body
+    readonly property int caption: Design.caption
+    readonly property int title: Design.headline
+    readonly property int clock: Design.display
+    readonly property int heading: Design.readout
     readonly property int lyric: 24
     readonly property int lyricEmphasis: 30
     readonly property string sans: "Inter"
