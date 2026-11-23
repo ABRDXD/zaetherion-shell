@@ -208,11 +208,11 @@ Scope {
     function syncTimer(): void {
         const state = timerSource.item;
         if (state?.doneDue) {
-            queue.offer("done", "done", priority.done, { label: "> TIMER · " + state.doneText }, null);
+            queue.offer("done", "done", priority.done, { label: "> TIMER · " + state.doneText, phase: state.doneText }, null);
         } else queue.remove("done");
         if (state?.timerDue) {
             queue.offer("timer", "timer", priority.timer,
-                { label: "> " + state.timerLabel + " · " + state.timerText, task: state.taskText }, null);
+                { label: "> " + state.timerLabel + " · " + state.timerText, phase: state.timerLabel, remaining: state.timerText, task: state.taskText }, null);
         } else queue.remove("timer");
     }
 

@@ -67,6 +67,7 @@ ShellContext 1.0 ShellContext.qml
 SpaceSystem 1.0 SpaceSystem.qml
 StylePicker 1.0 StylePicker.qml
 SunFace 1.0 SunFace.qml
+TransitBand 1.0 TransitBand.qml
 Unfold 1.0 Unfold.qml
 singleton ViewState 1.0 ViewState.qml
 WallpaperPicker 1.0 WallpaperPicker.qml
