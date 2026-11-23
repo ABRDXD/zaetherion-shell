@@ -1,5 +1,11 @@
 # Login sequence
 
+**Current study · C · Ligature.** One log line types into a cut through the Æ in ZÆTHERION. The sample follows four shell states from the core coming online to the clock reaching the desktop. These are invented fixture readings. Angular uses a blunt sans ligature and Fluid uses a serif.
+
+[Angular](ligature-angular.png) · [Fluid](ligature-fluid.png)
+
+Ligature opens by default. To reproduce its stills, use `--ligature --at 966` with either form and an output path. Omit `--out` and its path to play it. Earlier studies follow for comparison.
+
 | Choice | Angular | Fluid |
 | --- | --- | --- |
 | A · Line printer | [Warm rule and block cursor](printer-angular.png) | [Cool rule and fine cursor](printer-fluid.png) |

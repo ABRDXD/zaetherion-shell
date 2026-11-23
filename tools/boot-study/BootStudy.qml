@@ -9,18 +9,20 @@ Window {
     title: "ZÆTHERION boot study"
     readonly property var args: Qt.application.arguments
     readonly property bool fluid: args.includes("--fluid")
+    readonly property bool ligature: !args.includes("--printer") && !aperture
     readonly property bool aperture: args.includes("--aperture")
     readonly property bool reduced: args.includes("--reduced-motion")
     readonly property bool exporting: args.includes("--out")
     visible: !reduced || exporting
-    color: fluid ? "#141f24" : "#181c22"
+    color: ligature ? (fluid ? "#222938" : "#31272b") : fluid ? "#141f24" : "#181c22"
     readonly property color ink: "#f1eee5"
     readonly property color quiet: fluid ? "#a5babd" : "#afafb1"
     readonly property color accent: fluid ? "#a8d9d1" : "#eac498"
     readonly property color rule: fluid ? "#41525a" : "#454950"
     readonly property string sans: fluid ? "Noto Sans" : "Roboto Condensed"
     readonly property string mono: "DejaVu Sans Mono"
-    readonly property var events: ["Reading palette", "Loading typefaces", "Opening workspace", "Session ready"]
+    readonly property var events: ligature ? ["fartd online", "island at rest", "workspace empty", "clock on desktop"]
+                                          : ["Reading palette", "Loading typefaces", "Opening workspace", "Session ready"]
     readonly property var starts: [0, 320, 660, 1020]
     readonly property int current: elapsed >= starts[3] ? 3 : elapsed >= starts[2] ? 2 : elapsed >= starts[1] ? 1 : 0
     readonly property real progress: (current + Math.min(1, (elapsed - starts[current]) / (16 * events[current].length))) / events.length
@@ -44,7 +46,15 @@ Window {
         Loader {
             anchors.fill: parent
             active: !window.reduced
-            sourceComponent: window.aperture ? apertureFace : printerFace
+            sourceComponent: window.ligature ? ligatureFace : window.aperture ? apertureFace : printerFace
+            Component {
+                id: ligatureFace
+                Ligature {
+                    fluid: window.fluid
+                    ground: window.color
+                    line: window.typed(window.current)
+                }
+            }
         }
         Text {
             visible: !window.reduced
