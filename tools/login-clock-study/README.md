@@ -1,8 +1,10 @@
 # Register into Day index
 
-[Watch the combined Angular study](login-clock.webp) · [View the settled desktop at full size](desktop.png)
+[Watch the 1.5-second login](login-clock.webp) · [Watch the handoff at one-third speed](fold-detail.webp) · [View the settled desktop at full size](desktop.png)
 
-Four invented log entries assemble the Register Æ inside FART’s cut wedge. At 1.13 seconds the last selected row moves to Wednesday’s slot in the week ribbon. The wedge shrinks into a stamp on the leading edge of the Anurati weekday. The clock is at rest by 1.5 seconds. The WebP holds the final frame briefly and loops for comparison.
+Four invented log lines seat the pieces of the Æ. The final row pulls back for a moment, sweeps left and turns edge-on. It changes to the date as it turns over, then climbs the 78° seam into Wednesday’s place. Behind it, the log sheet is cut away. The dark weekday plane draws in from the left, the gold backing and ivory DAY plane arrive from the right, and the Æ stamps the clock’s shoulder. The last piece settles before the 1.5-second mark.
+
+The full loop holds the settled desktop for comparison. The slower loop begins at 900 ms and plays the same samples at one-third speed.
 
 Any key during playback lands immediately. Reduced motion opens directly on the desktop. An occupied workspace ends on the fixture wallpaper. After landing, Space toggles occupancy and destroys or rebuilds both the clock and its stamp.
 
@@ -14,4 +16,4 @@ Render a still from this directory using Qt 6. Change the millisecond value to i
 QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software qml6 LoginClock.qml -- --at 1290 --out "$PWD/mid-fold.png"
 ```
 
-`python3 render.py` reproduces the WebP and final PNG with Qt 6 and Pillow.
+`python3 render.py` reproduces both WebPs and the final PNG with Qt 6 and Pillow.
