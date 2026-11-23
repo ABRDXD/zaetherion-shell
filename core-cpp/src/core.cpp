@@ -19,7 +19,7 @@ Core::Core(const Clock& clock, const std::filesystem::path& state_dir, Server& s
       scheduler_(clock), timers_(clock, scheduler_, host_, state_dir), tasks_(clock, state_dir),
       sessions_(clock, scheduler_, host_, state_dir), island_(state_dir),
       clips_(state_dir), sfx_(host_, clock, [this] { return timers_.sound(); }, [this] { return sessions_.active(); }),
-      placeholders_(server) {
+      commands_(Subsystems{clock, timers_, tasks_, sessions_, island_}, state_dir), placeholders_(server) {
     host_.sfx = &sfx_;
     server.topic("timers", [this] { return timers_.snapshot(); });
     timers_.attach(server);
@@ -43,6 +43,7 @@ Core::Core(const Clock& clock, const std::filesystem::path& state_dir, Server& s
     sessions_.attach(server);
     island_.attach(server);
     clips_.attach(server);
+    commands_.attach(server);
     server.topic("core", [this] { return core_snapshot(); });
     // Always offered, so a view can subscribe whether or not this core supervises DMS (stage 2b ports the
     // supervisor; until then this core never supervises, which is what this snapshot says).

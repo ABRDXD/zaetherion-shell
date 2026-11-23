@@ -3,6 +3,7 @@
 #pragma once
 
 #include "clock.h"
+#include "command.h"
 #include "host.h"
 #include "json.h"
 #include "placeholders.h"
@@ -41,6 +42,7 @@ private:
     Island island_;
     Clips clips_;
     Sfx sfx_;
+    Commands commands_;
     Placeholders placeholders_;
     bool sound_ = false;  // the timer sound setting the sfx snapshot last followed
 

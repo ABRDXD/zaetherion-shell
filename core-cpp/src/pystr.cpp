@@ -120,6 +120,44 @@ std::string prefix(std::string_view s, size_t n) {
     return std::string(s.substr(0, i));
 }
 
+std::vector<std::string> split(std::string_view s) {
+    std::vector<std::string> out;
+    std::string word;
+    size_t i = 0;
+    while (i < s.size()) {
+        size_t at = i;
+        if (is_space(next_code_point(s, i))) {
+            if (!word.empty()) out.push_back(std::move(word));
+            word.clear();
+        } else {
+            word.append(s.substr(at, i - at));
+        }
+    }
+    if (!word.empty()) out.push_back(std::move(word));
+    return out;
+}
+
+std::string lower(std::string_view s) {
+    std::string out;
+    size_t i = 0;
+    while (i < s.size()) {
+        size_t at = i;
+        uint32_t cp = next_code_point(s, i);
+        if (cp >= 'A' && cp <= 'Z') out += static_cast<char>(cp + 32);
+        else if (cp == 0x212A) out += 'k';
+        else if (cp == 0x0130) out += "i\xcc\x87";
+        else out.append(s.substr(at, i - at));
+    }
+    return out;
+}
+
+std::string upper_ascii(std::string_view s) {
+    std::string out(s);
+    for (char& c : out)
+        if (c >= 'a' && c <= 'z') c = static_cast<char>(c - 32);
+    return out;
+}
+
 namespace {
 // str.isprintable() beyond what repr() escapes by range below: Python's own table also marks unassigned code
 // points, which only a Unicode database knows; those print here as themselves.

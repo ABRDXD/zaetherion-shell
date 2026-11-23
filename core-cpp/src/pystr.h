@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace fart::py {
 
@@ -23,6 +24,11 @@ int decimal(uint32_t cp);      // unicodedata.decimal(c), or -1: what re's \d ma
 size_t length(std::string_view s);                 // len(s)
 std::string strip(std::string_view s);             // s.strip()
 std::string prefix(std::string_view s, size_t n);  // s[:n]
+std::vector<std::string> split(std::string_view s);  // s.split(): runs of Unicode whitespace, no empty words
+// s.lower() where it matters for matching ASCII names: ASCII letters, the Kelvin sign (U+212A, to "k") and U+0130
+// (to "i" + U+0307); every other code point lowers to something non-ASCII, or to itself, and can't match.
+std::string lower(std::string_view s);
+std::string upper_ascii(std::string_view s);
 
 std::string repr(std::string_view s);    // repr(str)
 std::string repr_of(const json::Value& v);

@@ -448,6 +448,77 @@ class SessionsEdges(unittest.TestCase):
                 self.assertEqual(python, cpp, (tz, seed))
 
 
+COMMAND_EDGES = (
+    "t 5", "s", "se", "zzz", "TİM 5", "? tim", "? timers", "? t", "? zzz", "? ?", "help", "? help", "? session", "? \u212aeys",
+    "tim \u0662\u0665", "tim 0", "tim 99999999999999999999", "tim " + "9" * 400, "tim 1h", "tim h", "tim 1h30m", "tim 30m15", "tim 5S",
+    "tim 10080", "tim 10081", "tim 1h0m0s", "tim 0h0m1s", "focus 0", "focus 1h", "focus 1", "tim focus", "tim focus 25 5",
+    "task a @tasks", "task a @TASKS", "task a @default", "task a @nope", "task @x @y z", "task a !x !y", "task a !mon", "task a !mo",
+    "task a !TUESDAY", "task a !+0d", "task a !+999w", "task a !+1000d", "task a !2026-11-25t10:00", "task a !2026-11-25T24:00",
+    "task a !\u0662\u0660\u0662\u0666-11-25", "task !today", "task @", "task !", "task\u3000spaced\u2003words", "TASK Upper",
+    "task a !2026-02-29", "task a !wed", "task a !sun", "task a !tod", "task a !tmr",
+    "island", "island FLUID", "island screen AUTO", "island screen DP-1", "island screen " + "x" * 65, "island notice 2",
+    "island notice 4", "island rest A", "island rest inbox DOT", "island rest power unread", "island bogus", "island screen",
+    "island BOTTOM", "island floating", "island rest", "island notice",
+    "session", "session nap", "session focus", "session focus", "session end", "session end", "session nap 30", "session nap 2h",
+    "session nap 13h", "session END", "session a b c", "session Read", "session end",
+    "sw", "sw", "tim lap", "tim pause", "tim pause", "tim stop", "tim sw x", "tim STOP",
+    "x" * 1000, "é" * 1000,
+)
+
+
+def commands_edges(which: str, seed: dict | None = None) -> list:
+    from parity.normalise import Normaliser
+    norm = Normaliser()
+    out = []
+    with Core(which, seed=seed or {}, tz="Asia/Kolkata", env={"FART_FIXTURE_EPOCH": "1795464000"}) as core, core.client() as peer:
+        def call(op, **args):
+            reply = peer.call(op, **args)
+            out.append(norm(reply.get("error") or reply["result"]))
+        for line in ("tim 25", "tim 25", "task x", "tim 25"):
+            call("cmd.run", line=line, record=True)
+        for line in COMMAND_EDGES:
+            call("cmd.run", line=line)
+        call("cmd.run", line="sw", record=True)
+        call("cmd.run", line="? tim", record=True)  # ? is never kept
+        for bad in ({"line": None}, {"line": "x" * 1001}, {"line": "é" * 1001}, {"line": "tim 5", "fallthrough": None, "record": 1}):
+            call("cmd.run", **bad)
+        for text in ("T", "s", "zz", "? ", "tim   25", 5, "é" * 1001, "\u212a", "se", "is"):
+            call("cmd.complete", text=text)
+        for args in ({}, {"prefix": "tim"}, {"limit": 0}, {"limit": True}, {"limit": 2.5}, {"limit": 10 ** 30}, {"limit": "1"},
+                     {"prefix": 5}, {"prefix": "", "limit": 2}):
+            call("cmd.history", **args)
+        out.append(norm(peer.subscribe("tasks", "timers", "session", "island")["snapshots"]))
+        out.append(core.state_bytes("history.json"))
+    return out
+
+
+@built
+class CommandsEdges(unittest.TestCase):
+    maxDiff = None
+
+    def test_lines_equal(self):
+        python, cpp = commands_edges("python"), commands_edges(str(FARTD_CPP))
+        for i, (a, b) in enumerate(zip(python, cpp)):
+            self.assertEqual(a, b, f"step {i}")
+        self.assertEqual(len(python), len(cpp))
+
+    def test_history_files(self):
+        seeds = [{"history.json": {"version": 1, "lines": ["task a", 5, "tim 1", None, "session end"] + [f"tim {n}" for n in range(150)]}},
+                 {"history.json": {"lines": "tim 5"}}, {"history.json": [1]}, {"history.json": "{nope"},
+                 {"history.json": {"lines": ["task 1", "task 2", "task 3", "TIM 4", "  ", ""]}}]
+        for seed in seeds:
+            self.assertEqual(commands_edges("python", seed), commands_edges(str(FARTD_CPP), seed), seed)
+
+    def test_unported_verbs_say_so(self):
+        """What isn't here yet answers `unported`, never a fake success."""
+        with Core(str(FARTD_CPP)) as core, core.client() as peer:
+            for line in ("home", "vol 40", "overdrive 20m", "tim", "task", "clip x", "lock"):
+                result = peer.request("cmd.run", line=line)
+                self.assertEqual((result["ok"], result["code"]), (False, "unported"), line)
+            result = peer.request("cmd.run", line="zzz", fallthrough=True)
+            self.assertEqual((result["ok"], result["code"]), (False, "unported"))
+
+
 @built
 class Rails(unittest.TestCase):
     def test_sigterm_right_after_start(self):

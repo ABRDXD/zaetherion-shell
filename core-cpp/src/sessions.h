@@ -43,8 +43,9 @@ private:
     void finish(bool completed);
 };
 
-// The local day of an epoch-ms moment, as days since 1970-01-01 (datetime.fromtimestamp(ms / 1000).date()).
-int64_t local_day(double ms);
+// The local day of an epoch moment, as days since 1970-01-01: datetime.fromtimestamp(t).date().
+int64_t local_day_at(double seconds);
+inline int64_t local_day(double ms) { return local_day_at(ms / 1000); }
 // The civil date of a day number, and back.
 struct Date {
     int year, month, day;

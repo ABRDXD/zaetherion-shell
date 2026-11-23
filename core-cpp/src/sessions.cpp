@@ -147,9 +147,8 @@ Date civil(int64_t z) {
     return Date{static_cast<int>(yoe + era * 400 + (m <= 2)), m, d};
 }
 
-int64_t local_day(double ms) {
+int64_t local_day_at(double t) {
     // datetime.fromtimestamp(t): t split into seconds and microseconds rounded half to even, then local time.
-    double t = ms / 1000;
     double whole;
     double us = std::nearbyint(std::modf(t, &whole) * 1e6);
     if (us >= 1e6) whole += 1;
