@@ -16,6 +16,7 @@
 #include <cerrno>
 #include <clocale>
 #include <csignal>
+#include <ctime>
 #include <cstring>
 #include <fcntl.h>
 #include <filesystem>
@@ -134,6 +135,7 @@ int main(int argc, char** argv) {
 
     QCoreApplication app(argc, argv);
     std::setlocale(LC_NUMERIC, "C");  // Qt set the user's locale; numbers are always written the C way
+    tzset();                          // local days (sessions, due words) follow TZ, as Python's time module reads it
 
     fart::Clock clock(fart::fixture_epoch(env));
     make_dir(state);

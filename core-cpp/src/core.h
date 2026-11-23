@@ -7,6 +7,7 @@
 #include "json.h"
 #include "placeholders.h"
 #include "protocol.h"
+#include "sessions.h"
 #include "settings.h"
 #include "tasks.h"
 #include "timers.h"
@@ -36,6 +37,7 @@ private:
     Scheduler scheduler_;
     Timers timers_;
     Tasks tasks_;
+    Sessions sessions_;
     Island island_;
     Clips clips_;
     Sfx sfx_;

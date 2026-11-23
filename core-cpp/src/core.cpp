@@ -16,8 +16,9 @@ long rss_kib() {
 Core::Core(const Clock& clock, const std::filesystem::path& state_dir, Server& server,
            std::function<void()> stop)
     : clock_(clock), server_(server), stop_(std::move(stop)), started_(clock.now()),
-      scheduler_(clock), timers_(clock, scheduler_, host_, state_dir), tasks_(clock, state_dir), island_(state_dir),
-      clips_(state_dir), sfx_(host_, clock, [this] { return timers_.sound(); }, [] { return false; }),
+      scheduler_(clock), timers_(clock, scheduler_, host_, state_dir), tasks_(clock, state_dir),
+      sessions_(clock, scheduler_, host_, state_dir), island_(state_dir),
+      clips_(state_dir), sfx_(host_, clock, [this] { return timers_.sound(); }, [this] { return sessions_.active(); }),
       placeholders_(server) {
     host_.sfx = &sfx_;
     server.topic("timers", [this] { return timers_.snapshot(); });
@@ -38,6 +39,8 @@ Core::Core(const Clock& clock, const std::filesystem::path& state_dir, Server& s
             if (client->topics.contains("sfx")) server.push(*client, "sfx.cue", event);
     };
     tasks_.attach(server);
+    sessions_.tasks_done = [this](int64_t start, int64_t end) { return tasks_.done_between(start, end); };
+    sessions_.attach(server);
     island_.attach(server);
     clips_.attach(server);
     server.topic("core", [this] { return core_snapshot(); });
@@ -63,9 +66,10 @@ json::Value Core::status() const {
                                     {"uptime", json::py_round_int(now.boot - started_.boot)}, {"host", host_.name()}};
     json::Value out = json::Object{{"core", std::move(core)}};
     for (const char* part : {"view", "timers", "tasks", "notifications", "overdrive", "session"})
-        out.set(part, std::string_view(part) == "tasks"    ? tasks_.summary()
-                      : std::string_view(part) == "timers" ? timers_.summary()
-                                                            : placeholders_.status_part(part));
+        out.set(part, std::string_view(part) == "tasks"     ? tasks_.summary()
+                      : std::string_view(part) == "timers"  ? timers_.summary()
+                      : std::string_view(part) == "session" ? sessions_.snapshot()
+                                                             : placeholders_.status_part(part));
     return out;
 }
 

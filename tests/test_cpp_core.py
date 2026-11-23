@@ -381,6 +381,73 @@ class TimersEdges(unittest.TestCase):
             self.assertEqual(python, cpp, seed)
 
 
+def sessions_edges(which: str, seed: dict | None = None, steps=True, tz=None) -> list:
+    from parity.normalise import Normaliser
+    norm = Normaliser()
+    out = []
+    with Core(which, seed=seed or {}, **({"tz": tz} if tz else {})) as core, core.client() as peer:
+        def call(op, **args):
+            reply = peer.call(op, **args)
+            out.append(norm(reply.get("error") or reply["result"]))
+        if steps:
+            for preset in ("nap\n", "Nap", "-nap", "n" * 32, "n" * 33, "9to5", "a_b-c", "", 5, None, "nap\nx", "café"):
+                call("session.start", preset=preset, seconds=600)
+                peer.call("session.end")
+            for seconds in (60, 43200, 43200.5, 59.99, float("nan"), 10 ** 30, "600", [600], False, 600.25):
+                call("session.start", preset="nap", seconds=seconds)
+                call("session.end")
+            call("session.start", preset="deep")
+            call("session.start", preset="read")
+            call("session.end")
+            call("session.dismiss")
+            call("session.dismiss")
+        out.append(norm(peer.request("status")["session"]))
+        time.sleep(0.3)
+        out.append(core.host_calls())
+        for name in ("session.json", "sessions.jsonl"):
+            data = core.state_bytes(name)
+            try:
+                parsed = None if data is None else [json.loads(x) for x in data.splitlines()] if name.endswith("l") else json.loads(data)
+            except ValueError:
+                parsed = data.decode(errors="replace")  # left as the seed was
+            out.append(norm(parsed))
+    return out
+
+
+def _ms(days_ago: float) -> int:
+    return round((time.time() - days_ago * 86400) * 1000)
+
+
+@built
+class SessionsEdges(unittest.TestCase):
+    maxDiff = None
+
+    def test_ops_equal(self):
+        python, cpp = sessions_edges("python"), sessions_edges(str(FARTD_CPP))
+        for i, (a, b) in enumerate(zip(python, cpp)):
+            self.assertEqual(a, b, f"step {i}")
+        self.assertEqual(len(python), len(cpp))
+
+    def test_saved_files(self):
+        now = time.time()
+        ended = {"session.json": {"active": {"preset": "focus", "anchor": {"boot": 1.0, "real": now - 4000, "bootId": "other"},
+                                             "seconds": 3000.0, "dnd": True}, "last": None}}
+        running = {"session.json": {"active": {"preset": "nap", "anchor": {"boot": 1.0, "real": now - 60, "bootId": "other"},
+                                               "seconds": 600, "dnd": False}, "last": {"preset": "x", "apps": [["a", 1]]}}}
+        log = "\n".join(json.dumps(e) for e in (
+            {"preset": "a", "start": _ms(0), "seconds": 300}, {"preset": "a", "start": _ms(0) - 1, "seconds": 300.5},
+            {"preset": "b", "start": _ms(1), "seconds": 601}, {"preset": "c", "start": _ms(3), "seconds": 1e3},
+            {"preset": "d", "start": _ms(2), "seconds": -1}, {"preset": 4, "start": 0, "seconds": 9}, {"start": True, "seconds": 900}))
+        seeds = [ended, running, {"session.json": "{bad"}, {"session.json": {"active": [1], "last": 5}},
+                 {"sessions.jsonl": log.replace("\n", "\u2028", 1).replace("\n", "\x85", 1) + "\r\nnot json\n"},
+                 {"sessions.jsonl": log}]
+        for seed in seeds:
+            for tz in (None, "Pacific/Kiritimati", "America/St_Johns"):
+                python = sessions_edges("python", seed, steps=False, tz=tz)
+                cpp = sessions_edges(str(FARTD_CPP), seed, steps=False, tz=tz)
+                self.assertEqual(python, cpp, (tz, seed))
+
+
 @built
 class Rails(unittest.TestCase):
     def test_sigterm_right_after_start(self):
