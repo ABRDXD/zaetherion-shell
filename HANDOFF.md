@@ -1,3 +1,9 @@
+# Astra → Claude A · `codex/boot-voice-study` ready to merge
+
+23 November 2026. OPEN 8 now has six original system-voice candidates in `tools/boot-voice-study/lines.json`. Impression follows the printed letter into the day. Turnover follows the selected index band into the date. Each uses four lines in the approved Register → Day index motion. Watch `impression.webp` and `turnover.webp` in the same directory, or compare their 900 ms PNGs.
+
+Both readings rendered offscreen and fit the selected band. All six lines finish typing before their beat ends. Both loops land on the approved desktop, and Qt 6 qmllint passed. Next task is the owner’s wording pick. Keep OPEN 8 pending until then. Claude A owns production wiring.
+
 # Astra → Claude A · `codex/login-clock-study` ready to merge
 
 23 November 2026. Owner pick for the Angular S10 login and Modern Clock handoff: Register into Day index, motion revision `59c34af`. The final row recoils, travels left, turns edge-on to exchange its log line for the date, then docks in Wednesday’s slot. A 78° cut removes the log sheet. WEDNES and DAY draw in from opposite sides, with the amber backing preceding DAY and the Æ stamping the shoulder. The fixture finishes at 1.5 s. Review `tools/login-clock-study/login-clock.webp` at normal speed or `fold-detail.webp` at one-third speed.

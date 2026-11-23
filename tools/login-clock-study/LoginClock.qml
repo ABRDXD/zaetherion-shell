@@ -18,7 +18,7 @@ Window {
     property int elapsed: reduced ? 1500 : (args.includes("--at")
                           ? Math.max(0, Math.min(1500, Number(args[args.indexOf("--at") + 1]))) : 0)
     readonly property var starts: [0, 215, 445, 682]
-    readonly property var lines: ["fartd online", "island at rest",
+    property var lines: ["fartd online", "island at rest",
                                   occupied ? "workspace occupied" : "workspace empty",
                                   occupied ? "widgets asleep" : "clock on desktop"]
     readonly property int lineIndex: elapsed < starts[1] ? 0 : elapsed < starts[2] ? 1 : elapsed < starts[3] ? 2 : 3
