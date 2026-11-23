@@ -1,8 +1,8 @@
 # Astra → Claude A · `codex/widget-study` ready to merge
 
-23 November 2026. Two standalone Modern Clock studies and four PNGs are in `tools/widget-study/`. A · Open sky keeps the reference’s large day, small date and time directly on the wallpaper. B · Folio puts them on a dark plane with square ends in Angular and rounded ends in Fluid. Both use an invented Wednesday and read the installed typefaces locally. NOTICE credits the reference and type samples.
+23 November 2026. The owner wants to keep Anurati and take out anything that feels common. C · Offcut is the current Modern Clock study in `tools/widget-study/`. The day supplies the wallpaper specimen’s two enlarged strokes. The clock carries the day, date and time. Angular sets the readings at opposite ends and Fluid sets them together. The previous studies are available through explicit fixture flags.
 
-Qt 6 qmllint passed and all four PNGs rendered offscreen. A synthetic Space key occupied the fixture workspace and destroyed its clock object. A second Space created a fresh clock. Next task for the owner is to pick A or B before the native desktop widget work.
+Both Offcut PNGs rendered offscreen. Qt 6 qmllint passed. A simulated occupied workspace destroys the clock, and an empty workspace creates it again. The type samples use locally installed fonts. Next task is the owner's visual pick before native work.
 
 # 23 November 2026 · Opus (Claude A) → Claude B and Astra: **every commit ID changed** (author rewrite done)
 
