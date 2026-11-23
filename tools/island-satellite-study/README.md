@@ -14,4 +14,4 @@ The crescent identifies a running timer. Its shape is fixed. For an ordinary cou
 
 These are faces for the existing island event queue. Use the timer, completion or track that the queue presents. Timers opens Timers, Media opens Media and Dismiss acknowledges completion. For a bottom-edge island, place the ledge toward the desktop and keep the text upright. The native implementation needs to respect the current island placement, privacy indicator, panel and fullscreen rules. Claude A owns event delivery, actions and retiring the separate satellite surface.
 
-Rebuild both pictures with `python3 tools/island-satellite-study/render.py`.
+The editable artwork is in `studies.svg`. From this directory, render a sheet with `rsvg-convert -i angular --page-width=1014 --page-height=513 studies.svg -o angular.png`. Use `fluid` for the second sheet.

@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1014" height="1026" viewBox="0 0 1014 1026">
+  <title>Timer and track satellites inside the island</title>
+  <defs>
+    <style>
+      text { fill: #f2eee3 }
+      .mono { font-family: "JetBrainsMono Nerd Font", monospace }
+      .muted { fill: #b7c4cb }
+      .warm { fill: #ffcd8d }
+      .dark { fill: #111c29 }
+      .action { text-anchor: end; font-size: 13px }
+    </style>
+    <g id="crescent"><path d="M16 2a14 14 0 1 0 0 28A18 18 0 0 1 16 2Z" fill="#ffcd8d"/></g>
+    <g id="record" fill="#a7d1ee"><circle cx="16" cy="16" r="14"/><circle cx="16" cy="16" r="7.5" fill="none" stroke="#111c29"/><circle cx="16" cy="16" r="2" fill="#111c29"/></g>
+    <g id="complete"><circle cx="16" cy="16" r="14" fill="#ffcd8d"/><path d="m9 16 5 5 9-10" stroke="#111c29" stroke-width="2.3" fill="none"/></g>
+    <g id="status" fill="none" stroke="#b7c4cb"><path d="M0 4q7-7 14 0M3 7q4-4 8 0m-5 3h2" stroke-width="1.4"/><path d="M23 2h15v8H23Zm17 2v4"/><path d="M25 4h9v4h-9z" fill="#b7c4cb" stroke="none"/></g>
+    <clipPath id="viewport"><rect width="472" height="108"/></clipPath>
+    <g id="wall" clip-path="url(#viewport)">
+      <rect width="472" height="108" fill="#89979d"/>
+      <path fill="none" stroke="#75888f" d="M0 94Q86 19 199 79T472 51 M0 100Q86 23 199 83T472 56 M0 106Q86 27 199 87T472 61 M0 112Q86 31 199 91T472 66 M0 118Q86 35 199 95T472 71 M0 124Q86 39 199 99T472 76 M0 130Q86 43 199 103T472 81 M0 136Q86 47 199 107T472 86 M0 142Q86 51 199 111T472 91"/>
+    </g>
+    <g id="band-clock" class="mono"><text x="28" y="30" font-size="14" class="muted">09:42</text><path d="M87 9v30" stroke="#576474"/></g>
+    <g id="ledge-clock"><text x="208" y="22" class="mono" font-size="15" font-weight="600" text-anchor="middle">09:42</text><use xlink:href="#status" x="330" y="11"/><path d="M31 33h354" stroke="#52606c"/></g>
+    <g id="band-timer">
+      <use xlink:href="#crescent" x="99" y="8"/>
+      <text x="140" y="32" class="warm" font-size="25" font-weight="700">12′</text>
+      <text x="191" y="20" class="muted" font-size="12">Focus</text><text x="191" y="37" font-size="15" font-weight="550">Index the plates</text>
+      <text x="405" y="30" class="action" font-weight="550">Timers ↗</text>
+    </g>
+    <g id="band-done"><text x="116" y="31" font-size="23" font-weight="700" class="dark">Focus done</text><text x="405" y="30" class="action dark" font-weight="600">Dismiss</text></g>
+    <g id="band-track">
+      <use xlink:href="#record" x="99" y="8"/>
+      <text x="141" y="22" font-size="18" font-weight="650">After Light</text><text x="141" y="39" class="muted" font-size="12">North Arc</text>
+      <text x="405" y="30" class="action" font-weight="550">Media ↗</text>
+    </g>
+    <g id="ledge-timer">
+      <use xlink:href="#crescent" x="27" y="42"/><text x="71" y="66" class="warm" font-size="28" font-weight="700">12′</text>
+      <text x="132" y="54" class="muted" font-size="12">Focus</text><text x="132" y="71" font-size="16">Index the plates</text>
+      <text x="383" y="63" class="action" font-weight="550">Timers ↗</text>
+    </g>
+    <g id="ledge-done"><use xlink:href="#complete" x="27" y="42"/><text x="71" y="67" font-size="23" font-weight="650" class="warm">Focus done</text><text x="383" y="63" class="action" font-weight="550">Dismiss</text></g>
+    <g id="ledge-track"><use xlink:href="#record" x="27" y="42"/><text x="71" y="55" font-size="20" font-weight="650">After Light</text><text x="71" y="73" font-size="13" class="muted">North Arc</text><text x="383" y="63" class="action" font-weight="550">Media ↗</text></g>
+    <g id="layout">
+      <rect width="1014" height="513" fill="#1b2327"/>
+      <g font-size="28" font-family="Roboto Condensed" font-weight="650"><text x="24" y="37">A   Transit band</text><text x="518" y="37">B   Lower ledge</text></g>
+      <use xlink:href="#wall" x="24" y="103"/><use xlink:href="#wall" x="518" y="103"/>
+      <use xlink:href="#wall" x="24" y="245"/><use xlink:href="#wall" x="518" y="245"/>
+      <use xlink:href="#wall" x="24" y="387"/><use xlink:href="#wall" x="518" y="387"/>
+    </g>
+    <g id="faces">
+      <g transform="translate(41 103)"><use xlink:href="#band-clock"/><use xlink:href="#band-timer"/></g>
+      <g transform="translate(41 245)"><use xlink:href="#band-clock"/><use xlink:href="#band-done"/></g>
+      <g transform="translate(41 387)"><use xlink:href="#band-clock"/><use xlink:href="#band-track"/></g>
+      <g transform="translate(546 103)"><use xlink:href="#ledge-clock"/><use xlink:href="#ledge-timer"/></g>
+      <g transform="translate(546 245)"><use xlink:href="#ledge-clock"/><use xlink:href="#ledge-done"/></g>
+      <g transform="translate(546 387)"><use xlink:href="#ledge-clock"/><use xlink:href="#ledge-track"/></g>
+    </g>
+    <path id="angular-band" d="M0 0h438l-13 49H13Z" fill="#111c29"/>
+    <path id="angular-ledge" d="M0 0h416l-13 84H13Z" fill="#111c29"/>
+    <path id="fluid-band" d="M0 0h438q-13 0-13 13v20q0 16-17 16H30q-17 0-17-16V13Q13 0 0 0Z" fill="#111c29"/>
+    <path id="fluid-ledge" d="M0 0h416q-13 0-13 13v55q0 16-17 16H30q-17 0-17-16V13Q13 0 0 0Z" fill="#111c29"/>
+  </defs>
+  <g id="angular">
+    <use xlink:href="#layout"/>
+    <g class="mono" font-size="13"><text x="24" y="93" class="muted">Angular / Focus timer</text><text x="24" y="235" class="muted">Angular / Timer finished</text><text x="24" y="377" class="muted">Angular / Track change</text></g>
+    <use xlink:href="#angular-band" x="41" y="103"/><use xlink:href="#angular-band" x="41" y="245"/><use xlink:href="#angular-band" x="41" y="387"/>
+    <path transform="translate(41 245)" d="M96 0H438l-13 49H86Z" fill="#ffcd8d"/>
+    <use xlink:href="#angular-ledge" x="546" y="103"/><use xlink:href="#angular-ledge" x="546" y="245"/><use xlink:href="#angular-ledge" x="546" y="387"/>
+    <use xlink:href="#faces" font-family="Roboto Condensed,sans-serif"/>
+  </g>
+  <g id="fluid" transform="translate(0 513)">
+    <use xlink:href="#layout"/>
+    <g class="mono" font-size="13"><text x="24" y="93" class="muted">Fluid / Focus timer</text><text x="24" y="235" class="muted">Fluid / Timer finished</text><text x="24" y="377" class="muted">Fluid / Track change</text></g>
+    <use xlink:href="#fluid-band" x="41" y="103"/><use xlink:href="#fluid-band" x="41" y="245"/><use xlink:href="#fluid-band" x="41" y="387"/>
+    <path transform="translate(41 245)" d="M94 0H438q-13 0-13 13v20q0 16-17 16H94Z" fill="#ffcd8d"/>
+    <use xlink:href="#fluid-ledge" x="546" y="103"/><use xlink:href="#fluid-ledge" x="546" y="245"/><use xlink:href="#fluid-ledge" x="546" y="387"/>
+    <use xlink:href="#faces" font-family="Inter,sans-serif"/>
+  </g>
+</svg>
