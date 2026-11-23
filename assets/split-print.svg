@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="70" height="46" viewBox="0 0 70 46">
+  <title>One moon in continuous tone and printed letters</title>
+  <defs>
+    <radialGradient id="light" gradientUnits="userSpaceOnUse" cx="46" cy="12" r="38">
+      <stop stop-color="#ffdaaa"/><stop offset=".43" stop-color="#ba885f"/>
+      <stop offset=".78" stop-color="#66564e"/><stop offset="1" stop-color="#303037"/>
+    </radialGradient>
+  </defs>
+  <rect width="70" height="46" fill="#11171d"/>
+  <rect width="31" height="46" fill="#17242e"/>
+  <path d="M31 1.68A27 27 0 0 0 16.88 46H31Z" fill="url(#light)"/>
+  <path d="M17 11q6 2 14 0M13.5 16q8 3 17.5 1M11.5 21q8 3 19.5 2M10.8 28q8 3 20.2 3M11.7 35q8 3 19.3 4M13.9 40q7 3 17.1 4"
+        fill="none" stroke="#89705c" stroke-width="1.2" opacity=".42"/>
+  <g font-family="monospace" font-size="6" fill="#ffd09a">
+    <text x="32" y="6">iiiEE</text><text x="32" y="12">ittEEAA</text>
+    <text x="32" y="18">:iitEEAA</text><text x="32" y="24">:iitttEEA</text>
+    <text x="32" y="30">.::iitttE</text><text x="32" y="36">..::iitt</text>
+    <text x="32" y="42">...::iit</text><text x="32" y="46">...:::i</text>
+  </g>
+</svg>

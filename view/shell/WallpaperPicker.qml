@@ -277,16 +277,73 @@ ColumnLayout {
                 wrapMode: Text.Wrap
             }
             // Z215: the shown picture redrawn in type, saved beside it and set; a plate already follows the palette (Z213).
-            SettingsButton {
+            AbstractButton {
+                id: typeset
                 objectName: "wallpaperTypeset"
                 Layout.fillWidth: true
+                Layout.minimumWidth: 0
                 visible: root.shown?.kind === "image" && root.shown?.plate !== true
-                enabled: !root.wall.typesetting
-                label: root.wall.typesetting ? "Typesetting… about half a minute" : "Typeset this picture"
-                onClicked: root.core.request("wallpaper.typeset", { name: root.shown.path }, (ok, result) => {
-                    root.error = ok ? "" : result.message;
-                    if (ok) root.load();
-                })
+                readonly property bool busy: !!root.wall.typesetting
+                readonly property string label: busy ? "Typesetting…" : "Typeset this picture"
+                readonly property string detail: busy ? "About half a minute" : "Save and set a lettered copy"
+                enabled: !busy
+                hoverEnabled: true
+                focusPolicy: Qt.StrongFocus
+                padding: 10
+                implicitWidth: 220
+                implicitHeight: Math.max(80, words.implicitHeight + 2 * padding)
+                Accessible.name: label
+                Accessible.description: detail
+                Keys.onReturnPressed: click()
+                Keys.onEnterPressed: click()
+                background: Rectangle {
+                    color: typeset.hovered || typeset.down ? Design.hover : Design.surface
+                    radius: Design.fluid ? FluidTokens.controlRadius : 0
+                    border.width: typeset.visualFocus ? 2 : 1
+                    border.color: typeset.visualFocus || typeset.hovered ? Design.ink : Design.line
+                }
+                contentItem: RowLayout {
+                    spacing: 10
+                    Image {
+                        Layout.preferredWidth: typeset.width < 180 ? 42 : 70
+                        Layout.preferredHeight: Layout.preferredWidth * 46 / 70
+                        source: Qt.resolvedUrl("../../assets/split-print.svg")
+                        fillMode: Image.PreserveAspectFit
+                        Accessible.ignored: true
+                    }
+                    ColumnLayout {
+                        id: words
+                        Layout.fillWidth: true
+                        spacing: 2
+                        SettingsText {
+                            Layout.fillWidth: true
+                            headline: true
+                            text: typeset.label
+                            font.capitalization: Font.MixedCase
+                            font.pixelSize: Design.control
+                            font.weight: Font.DemiBold
+                            font.letterSpacing: 0
+                            wrapMode: Text.WordWrap
+                        }
+                        SettingsText {
+                            Layout.fillWidth: true
+                            headline: true
+                            text: typeset.detail
+                            font.capitalization: Font.MixedCase
+                            font.pixelSize: Design.caption
+                            font.letterSpacing: 0
+                            color: Design.muted
+                            wrapMode: Text.WordWrap
+                        }
+                    }
+                }
+                onClicked: {
+                    Feedback.play("ui.click");
+                    root.core.request("wallpaper.typeset", { name: root.shown.path }, (ok, result) => {
+                        root.error = ok ? "" : result.message;
+                        if (ok) root.load();
+                    });
+                }
             }
             SettingsText {
                 Layout.fillWidth: true
