@@ -5,8 +5,9 @@ Rectangle {
     id: stock
     required property string family
     required property bool fluid
-    readonly property color ink: fluid ? "#30294d" : "#41232b"
-    color: fluid ? "#b7b0d0" : "#e3ac92"
+    property bool darkStock: false
+    readonly property color ink: darkStock ? "#292d36" : fluid ? "#30294d" : "#41232b"
+    color: darkStock ? "#535762" : fluid ? "#b7b0d0" : "#e3ac92"
     clip: true
 
     Item {

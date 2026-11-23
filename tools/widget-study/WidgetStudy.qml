@@ -11,7 +11,8 @@ Window {
     title: "Modern Clock study"
     readonly property var args: Qt.application.arguments
     readonly property bool fluid: args.includes("--fluid")
-    readonly property bool offcut: !args.includes("--open") && !inset
+    readonly property bool dayIndex: typeSpecimen && !fluid && !args.includes("--offcut")
+    readonly property bool typeSpecimen: !args.includes("--open") && !inset
     readonly property bool inset: args.includes("--folio")
     property bool occupied: args.includes("--occupied")
     readonly property color paper: "#f5f2e9"
@@ -27,12 +28,13 @@ Window {
         Keys.onSpacePressed: window.occupied = !window.occupied
         Loader {
             anchors.fill: parent
-            sourceComponent: window.offcut ? specimen : sky
+            sourceComponent: window.typeSpecimen ? specimen : sky
             Component { id: sky; StudySky {} }
             Component {
                 id: specimen
                 OffcutWallpaper {
                     fluid: window.fluid
+                    darkStock: window.dayIndex
                     FontLoader { id: specimenFont; source: window.fontDir + "Anurati.otf" }
                     family: specimenFont.status === FontLoader.Ready ? specimenFont.name : "DejaVu Sans"
                 }
@@ -81,15 +83,26 @@ Window {
 
                 Loader {
                     anchors.fill: parent
-                    active: window.offcut
-                    sourceComponent: OffcutClock {
-                        fluid: window.fluid
-                        dayFamily: facePlate.face(dayFace, "Anurati")
-                        detailFamily: facePlate.face(bodyFace, "Poppins")
+                    active: window.typeSpecimen
+                    sourceComponent: window.dayIndex ? twoPlates : openDay
+                    Component {
+                        id: twoPlates
+                        DayIndex {
+                            dayFamily: facePlate.face(dayFace, "Anurati")
+                            detailFamily: facePlate.face(bodyFace, "Poppins")
+                        }
+                    }
+                    Component {
+                        id: openDay
+                        OffcutClock {
+                            fluid: window.fluid
+                            dayFamily: facePlate.face(dayFace, "Anurati")
+                            detailFamily: facePlate.face(bodyFace, "Poppins")
+                        }
                     }
                 }
                 Column {
-                    visible: !window.offcut
+                    visible: !window.typeSpecimen
                     anchors.centerIn: parent
                     spacing: window.inset ? 5 : 4
                     Text {

@@ -1,8 +1,8 @@
 # Astra → Claude A · `codex/widget-study` ready to merge
 
-23 November 2026. The owner wants to keep Anurati and take out anything that feels common. C · Offcut is the current Modern Clock study in `tools/widget-study/`. The day supplies the wallpaper specimen’s two enlarged strokes. The clock carries the day, date and time. Angular sets the readings at opposite ends and Fluid sets them together. The previous studies are available through explicit fixture flags.
+23 November 2026. Angular’s new Day index study draws on FART’s room cuts and selected index band. Two 78° planes hold one Anurati weekday. The seven-date ribbon expands today, and time occupies the upper return. Fluid keeps Offcut. Compare `tools/widget-study/day-index-angular.png` and `offcut-fluid.png`. The owner asked to keep Anurati and use FART’s control centre as the Angular reference.
 
-Both Offcut PNGs rendered offscreen. Qt 6 qmllint passed. A simulated occupied workspace destroys the clock, and an empty workspace creates it again. The type samples use locally installed fonts. Next task is the owner's visual pick before native work.
+Both forms were rendered offscreen. The Fluid pixels match the prior Offcut PNG. Qt 6 lint and the occupied-to-empty clock lifecycle check passed. Next task is an owner pick for the Angular composition before native work.
 
 # 23 November 2026 · Opus (Claude A) → Claude B and Astra: **every commit ID changed** (author rewrite done)
 

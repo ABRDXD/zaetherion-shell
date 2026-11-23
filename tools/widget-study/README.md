@@ -1,10 +1,10 @@
 # Modern Clock
 
-**Current study · C · Offcut.** The owner wants Anurati and wants familiar visual devices taken out. The two cropped shapes on the fixture wallpaper are an enlargement of the S and D in WEDNESDAY. The widget itself contains only the day, date and time. Angular spreads the two readings to the ends of the day. Fluid centres them together.
+**Angular · Day index.** The Modern Clock uses the same 78° planes and ruled, inverted selection as FART’s control centre. The weekday spans two adjoining pieces of paper. The week runs along the bottom edge, where Wednesday opens to show its full date. The time sits above DAY. [Angular render](day-index-angular.png)
 
-[Angular](offcut-angular.png) · [Fluid](offcut-fluid.png)
+**Fluid · Offcut.** The date and time sit together below the Anurati day. The fixture wallpaper enlarges its S and D. [Fluid render](offcut-fluid.png)
 
-Offcut opens by default. Run the commands below with `--offcut` for this study. The earlier A and B studies are available for comparison.
+These are the defaults for their forms. The previous Angular Offcut is available with `--offcut`. The control-centre reference is [FART’s frame and index ribbon](../../docs/fart/DESIGN_SYSTEM.md#4-the-frame).
 
 A Wednesday morning on an invented desktop. Both clocks sit in the upper third. The wallpaper is part of the fixture.
 
@@ -21,6 +21,7 @@ From this directory, reproduce the PNGs with Qt 6.
 
 ```sh
 export QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software
+qml6 WidgetStudy.qml -- --out "$PWD/day-index-angular.png"
 for form in angular fluid; do
     for face in offcut open folio; do
         qml6 WidgetStudy.qml -- "--$form" "--$face" --out "$PWD/$face-$form.png"
