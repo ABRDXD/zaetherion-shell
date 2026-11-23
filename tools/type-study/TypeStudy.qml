@@ -1,3 +1,4 @@
+pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Window
 import QtQuick.Layouts
@@ -30,7 +31,7 @@ Window {
     component Page: Item {
         id: page
         required property bool numbersFirst
-        readonly property var scale: numbersFirst ? window.instrument : window.reading
+        readonly property var roles: numbersFirst ? window.instrument : window.reading
         readonly property string units: window.fluid ? window.prose : window.mono
         readonly property int inset: 20
         SampleText {
@@ -46,20 +47,20 @@ Window {
             SampleText {
                 x: page.inset; y: 14; width: parent.width - 2*x
                 text: window.fluid ? "Timer" : "TIMER"
-                font.family: page.units; font.pixelSize: page.scale.caption
+                font.family: page.units; font.pixelSize: page.roles.caption
                 color: window.quiet
             }
             SampleText {
                 x: page.inset; y: 36; width: parent.width - 2*x
                 text: "Focus session"
-                font.pixelSize: page.scale.heading; font.weight: Font.DemiBold
+                font.pixelSize: page.roles.heading; font.weight: Font.DemiBold
             }
             SampleText {
                 x: page.inset; y: 68; width: parent.width - 2*x; height: 92
                 verticalAlignment: Text.AlignVCenter
                 text: "08:42"
                 font.family: page.numbersFirst ? window.mono : window.prose
-                font.pixelSize: page.scale.display
+                font.pixelSize: page.roles.display
                 font.weight: page.numbersFirst ? Font.Medium : Font.DemiBold
                 color: window.warm
             }
@@ -69,11 +70,11 @@ Window {
                 SampleText {
                     Layout.fillWidth: true
                     text: "Index the observation plates"
-                    font.pixelSize: page.scale.body
+                    font.pixelSize: page.roles.body
                 }
                 SampleText {
                     text: "Pause"
-                    font.family: page.units; font.pixelSize: page.scale.action; font.weight: Font.DemiBold
+                    font.family: page.units; font.pixelSize: page.roles.action; font.weight: Font.DemiBold
                 }
             }
         }
@@ -83,28 +84,28 @@ Window {
             color: "#172129"
             SampleText {
                 x: page.inset; y: 13; text: window.fluid ? "Settings" : "SETTINGS"
-                font.family: page.units; font.pixelSize: page.scale.caption; color: window.quiet
+                font.family: page.units; font.pixelSize: page.roles.caption; color: window.quiet
             }
             SampleText {
                 x: page.inset; y: 34; text: "Bluetooth"
-                font.pixelSize: page.scale.heading; font.weight: Font.DemiBold
+                font.pixelSize: page.roles.heading; font.weight: Font.DemiBold
             }
             Rectangle { x: page.inset; y: 77; width: parent.width - 2*x; height: 1; color: window.rule }
             SampleText {
                 x: page.inset; y: 91; width: divider.x - x - 12
                 text: "Studio headphones"
-                font.pixelSize: page.scale.body; font.weight: Font.DemiBold
+                font.pixelSize: page.roles.body; font.weight: Font.DemiBold
             }
             SampleText {
                 x: page.inset; y: 117; width: divider.x - x - 12
                 text: "Connected · 80% battery"
-                font.family: page.units; font.pixelSize: page.scale.caption; color: window.quiet
+                font.family: page.units; font.pixelSize: page.roles.caption; color: window.quiet
             }
             Rectangle { id: divider; x: parent.width * 0.67; y: 92; width: 1; height: 42; color: window.rule }
             SampleText {
                 x: divider.x + 13; y: 91; width: parent.width - x - page.inset
                 text: "›  Disconnect"
-                font.family: page.units; font.pixelSize: page.scale.action; font.weight: Font.DemiBold
+                font.family: page.units; font.pixelSize: page.roles.action; font.weight: Font.DemiBold
             }
         }
     }
