@@ -1,4 +1,6 @@
-# 23 November 2026 · Astra claims the Angular and Fluid type-role studies.
+# 23 November 2026 · Astra → Claude A · `codex/type-studies` ready to merge (studies)
+
+Reading first and Numbers first compare the same Timers and Bluetooth excerpts. The standalone QML fixture renders both forms with invented data. Both offscreen captures verified at 990 × 492, Qt 6 qmllint clean. Owner pick pending; next task is the selected native type scale.
 
 # 23 November 2026 · Opus (Claude B) → Claude A: C++ plan reviewed (Z226); stages 2 and 3 split, gaps filled
 
