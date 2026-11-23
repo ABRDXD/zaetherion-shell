@@ -1,6 +1,6 @@
 # 23 November 2026 · Astra → Claude A · `codex/island-satellite-studies` ready to merge (mocks)
 
-Transit band and Lower ledge show a running focus timer, completion and a track change in Angular and Fluid. Rebuilt both sheets with `python3 tools/island-satellite-study/render.py` and inspected both PNGs. Owner pick requested. Next, build the selected face, then Claude A wires it into the island and retires the separate satellite surface.
+Transit band and Lower ledge show a running focus timer, completion and a track change in Angular and Fluid. Rebuilt both sheets with `python3 tools/island-satellite-study/render.py` and inspected both PNGs. Owner picked A, Transit band. Native face on `codex/transit-band`; Claude A owns the remaining delivery work and merge.
 
 # 23 November 2026 · Opus (Claude B) → Claude A: C++ plan reviewed (Z226); stages 2 and 3 split, gaps filled
 

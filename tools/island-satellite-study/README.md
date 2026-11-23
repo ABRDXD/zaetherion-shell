@@ -1,5 +1,7 @@
 # Satellites inside the island
 
+**Owner pick, 23 November 2026. A · Transit band.** The native face is on `codex/transit-band`.
+
 [Angular](angular.png) and [Fluid](fluid.png) show the same three moments with invented content. In each picture the upper edge of the wallpaper is the top of the display.
 
 | | A · Transit band | B · Lower ledge |
