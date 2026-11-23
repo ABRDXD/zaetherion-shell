@@ -1,6 +1,7 @@
 #include "protocol.h"
 
 #include "log.h"
+#include "pystr.h"
 
 #include <QSocketNotifier>
 #include <QTimer>
@@ -378,7 +379,7 @@ bool Server::is_answer(std::string_view line) {
 std::optional<OpError> Server::bind(const Spec& spec, const json::Value& args, Args& out) const {
     // inspect.signature(handler).bind(client, **args), in its order: the peer given twice, then the first
     // missing parameter, then the first unexpected name (in the order sent) unless the handler takes **kwargs.
-    if (args.find(spec.peer)) return bad_args("multiple values for argument " + json::py_str_repr(spec.peer));
+    if (args.find(spec.peer)) return bad_args("multiple values for argument " + py::repr(spec.peer));
     for (const auto& [name, def] : spec.params) {
         if (const json::Value* v = args.find(name)) {
             out.named_.set(name, *v);
@@ -386,12 +387,12 @@ std::optional<OpError> Server::bind(const Spec& spec, const json::Value& args, A
         } else if (def) {
             out.named_.set(name, *def);
         } else {
-            return bad_args("missing a required argument: " + json::py_str_repr(name));
+            return bad_args("missing a required argument: " + py::repr(name));
         }
     }
     for (const json::Member& m : args.as_object()) {
         if (out.named_.find(m.key)) continue;
-        if (spec.varkw.empty()) return bad_args("got an unexpected keyword argument " + json::py_str_repr(m.key));
+        if (spec.varkw.empty()) return bad_args("got an unexpected keyword argument " + py::repr(m.key));
         out.extra_.set(m.key, m.value);
     }
     return std::nullopt;
@@ -437,7 +438,7 @@ void Server::dispatch(const std::shared_ptr<Client>& client, const std::string& 
         const std::string& name = op->as_string();
         if (client->kind.empty() && name != "hello") throw OpError{"protocol", "send hello first"};
         auto spec = ops_.find(name);
-        if (spec == ops_.end()) throw OpError{"unknown-op", "unknown op " + json::py_str_repr(name)};
+        if (spec == ops_.end()) throw OpError{"unknown-op", "unknown op " + py::repr(name)};
         Args bound;
         if (auto error = bind(spec->second, args, bound)) throw *error;
         if (!spec->second.handler)  // in the Python core, not here yet (docs/CPP_CORE.md stages)

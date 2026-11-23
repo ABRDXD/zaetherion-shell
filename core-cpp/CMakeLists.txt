@@ -17,7 +17,7 @@ find_package(Qt6 6.5 REQUIRED COMPONENTS Core Network DBus)
 
 add_compile_options(-Wall -Wextra -Wpedantic)
 
-add_library(fart-json STATIC src/json.cpp)
+add_library(fart-json STATIC src/json.cpp src/pystr.cpp)
 target_include_directories(fart-json PUBLIC src)
 
 add_executable(fartd-cpp
@@ -26,7 +26,8 @@ add_executable(fartd-cpp
   src/log.cpp
   src/protocol.cpp
   src/core.cpp
-  src/placeholders.cpp
+  src/store.cpp
+  src/tasks.cpp
 )
 target_link_libraries(fartd-cpp PRIVATE fart-json Qt6::Core)
 # Qt's own signal/slot keywords stay off: the code uses Q_SIGNALS-free lambdas only.

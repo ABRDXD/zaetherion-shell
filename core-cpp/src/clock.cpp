@@ -2,6 +2,7 @@
 
 #include "json.h"
 #include "log.h"
+#include "pystr.h"
 
 #include <ctime>
 #include <fstream>
@@ -32,7 +33,7 @@ std::optional<double> fixture_epoch(const std::map<std::string, std::string>& en
         return std::nullopt;
     auto parsed = json::parse_double(value->second);
     if (!parsed) {
-        log::warning("fart.core", "FART_FIXTURE_EPOCH=" + json::py_str_repr(value->second) + " ignored: not a number");
+        log::warning("fart.core", "FART_FIXTURE_EPOCH=" + py::repr(value->second) + " ignored: not a number");
         return std::nullopt;
     }
     return parsed;

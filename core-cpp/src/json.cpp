@@ -1,6 +1,8 @@
 // Ordered JSON with Python's semantics; see json.h.
 #include "json.h"
 
+#include "pystr.h"
+
 #include <algorithm>
 #include <charconv>
 #include <clocale>
@@ -186,80 +188,11 @@ Value py_round_int(double x) {
     return Value(BigInt{std::string(buf, printed.ptr)});
 }
 
-namespace {
-uint32_t next_code_point(std::string_view s, size_t& i);
-
-// str.isprintable() for the code points an op name or argument could plausibly hold: Python's own table also
-// marks unassigned code points, which only a Unicode database knows; those print here as themselves.
-bool printable(uint32_t cp) {
-    if (cp >= 0xD800 && cp <= 0xDFFF) return false;                                  // surrogates
-    if ((cp >= 0xE000 && cp <= 0xF8FF) || cp >= 0xF0000) return false;               // private use
-    if (cp == 0x1680 || (cp >= 0x2000 && cp <= 0x200F) || (cp >= 0x2028 && cp <= 0x202F) ||
-        (cp >= 0x205F && cp <= 0x206F) || cp == 0x3000 || cp == 0xFEFF || (cp >= 0xFFF9 && cp <= 0xFFFB))
-        return false;                                                                // separators and format
-    if ((cp >= 0x0600 && cp <= 0x0605) || cp == 0x061C || cp == 0x06DD || cp == 0x070F || cp == 0x180E)
-        return false;
-    return cp != 0xFFFE && cp != 0xFFFF;
-}
-}  // namespace
-
-std::string py_str_repr(std::string_view s) {
-    bool single = s.find('\'') == std::string_view::npos || s.find('"') != std::string_view::npos;
-    char quote = single ? '\'' : '"';
-    std::string out(1, quote);
-    auto hex = [&](const char* fmt, uint32_t cp) {
-        char buf[16];
-        std::snprintf(buf, sizeof buf, fmt, cp);
-        out += buf;
-    };
-    size_t i = 0;
-    while (i < s.size()) {
-        size_t start = i;
-        uint32_t cp = next_code_point(s, i);
-        if (cp == static_cast<uint32_t>(quote) || cp == '\\') {
-            out += '\\';
-            out += static_cast<char>(cp);
-        } else if (cp == '\t') {
-            out += "\\t";
-        } else if (cp == '\n') {
-            out += "\\n";
-        } else if (cp == '\r') {
-            out += "\\r";
-        } else if (cp < 0x20 || (cp >= 0x7F && cp <= 0xA0) || cp == 0xAD) {
-            hex("\\x%02x", cp);
-        } else if (!printable(cp)) {
-            hex(cp > 0xFFFF ? "\\U%08x" : "\\u%04x", cp);
-        } else {
-            out.append(s.substr(start, i - start));
-        }
-    }
-    out += quote;
-    return out;
-}
-
 // --- Parser ----------------------------------------------------------------------------------------------------
 
 namespace {
 
 constexpr size_t kMaxIntDigits = 4300;  // sys.get_int_max_str_digits(): int() refuses longer text
-
-void put_utf8(std::string& out, uint32_t cp) {  // WTF-8: surrogate code points get their three bytes too
-    if (cp < 0x80) {
-        out += static_cast<char>(cp);
-    } else if (cp < 0x800) {
-        out += static_cast<char>(0xC0 | (cp >> 6));
-        out += static_cast<char>(0x80 | (cp & 0x3F));
-    } else if (cp < 0x10000) {
-        out += static_cast<char>(0xE0 | (cp >> 12));
-        out += static_cast<char>(0x80 | ((cp >> 6) & 0x3F));
-        out += static_cast<char>(0x80 | (cp & 0x3F));
-    } else {
-        out += static_cast<char>(0xF0 | (cp >> 18));
-        out += static_cast<char>(0x80 | ((cp >> 12) & 0x3F));
-        out += static_cast<char>(0x80 | ((cp >> 6) & 0x3F));
-        out += static_cast<char>(0x80 | (cp & 0x3F));
-    }
-}
 
 // Length of one strictly valid UTF-8 sequence at s[i] (Python's strict decoder: no overlongs, no encoded
 // surrogates, nothing past U+10FFFF), or 0.
@@ -451,7 +384,7 @@ private:
                         }
                     }
                     if (cp >= 0xD800 && cp <= 0xDFFF) lone_ = true;
-                    put_utf8(out, cp);
+                    py::append_utf8(out, cp);
                     break;
                 }
                 default: return fail("Invalid \\escape");
@@ -580,36 +513,8 @@ Options options(Style style) {
     return {true, false, -1, ", ", ": "};
 }
 
-// One code point from (W)UTF-8 at s[i]; advances i. Bytes that aren't a sequence decode as U+FFFD (they can't
-// come from the parser or from C++ literals, so this only keeps the writer total).
-uint32_t next_code_point(std::string_view s, size_t& i) {
-    unsigned char c = static_cast<unsigned char>(s[i]);
-    auto cont = [&](size_t k) {
-        return i + k < s.size() && (static_cast<unsigned char>(s[i + k]) & 0xC0) == 0x80;
-    };
-    auto bits = [&](size_t k) { return static_cast<uint32_t>(static_cast<unsigned char>(s[i + k]) & 0x3F); };
-    uint32_t cp;
-    if (c < 0x80) {
-        cp = c;
-        i += 1;
-    } else if (c >= 0xC0 && c < 0xE0 && cont(1)) {
-        cp = ((c & 0x1Fu) << 6) | bits(1);
-        i += 2;
-    } else if (c >= 0xE0 && c < 0xF0 && cont(1) && cont(2)) {
-        cp = ((c & 0x0Fu) << 12) | (bits(1) << 6) | bits(2);
-        i += 3;
-    } else if (c >= 0xF0 && c < 0xF8 && cont(1) && cont(2) && cont(3)) {
-        cp = ((c & 0x07u) << 18) | (bits(1) << 12) | (bits(2) << 6) | bits(3);
-        i += 4;
-    } else {
-        cp = 0xFFFD;
-        i += 1;
-    }
-    return cp;
-}
-
 void put_u(std::string& out, uint32_t unit) {
-    char buf[8];
+    char buf[16];
     std::snprintf(buf, sizeof buf, "\\u%04x", unit);
     out += buf;
 }
@@ -636,7 +541,7 @@ void write_string(std::string& out, std::string_view s, bool ascii) {
             continue;
         }
         size_t start = i;
-        uint32_t cp = next_code_point(s, i);
+        uint32_t cp = py::next_code_point(s, i);
         bool surrogate = cp >= 0xD800 && cp <= 0xDFFF;
         if (ascii || surrogate) {  // non-ASCII mode: a lone surrogate is what backslashreplace writes
             if (cp >= 0x10000) {

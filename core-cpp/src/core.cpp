@@ -13,9 +13,11 @@ long rss_kib() {
     return 0;
 }
 
-Core::Core(const Clock& clock, std::string host, Server& server, std::function<void()> stop)
+Core::Core(const Clock& clock, std::string host, const std::filesystem::path& state_dir, Server& server,
+           std::function<void()> stop)
     : clock_(clock), host_(std::move(host)), server_(server), stop_(std::move(stop)), started_(clock.now()),
-      placeholders_(server) {
+      tasks_(clock, state_dir), placeholders_(server) {
+    tasks_.attach(server);
     server.topic("core", [this] { return core_snapshot(); });
     // Always offered, so a view can subscribe whether or not this core supervises DMS (stage 2b ports the
     // supervisor; until then this core never supervises, which is what this snapshot says).
@@ -39,7 +41,7 @@ json::Value Core::status() const {
                                     {"uptime", json::py_round_int(now.boot - started_.boot)}, {"host", host_}};
     json::Value out = json::Object{{"core", std::move(core)}};
     for (const char* part : {"view", "timers", "tasks", "notifications", "overdrive", "session"})
-        out.set(part, placeholders_.status_part(part));
+        out.set(part, std::string_view(part) == "tasks" ? tasks_.summary() : placeholders_.status_part(part));
     return out;
 }
 

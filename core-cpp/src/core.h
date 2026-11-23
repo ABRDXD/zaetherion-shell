@@ -1,11 +1,14 @@
-// Wires the core's subsystems to the protocol (core/app.py). Stage 0: the connection ops (hello, status,
-// shutdown), the `core` and `supervisor` topics, and the stage-0 placeholders (placeholders.h).
+// Wires the core's subsystems to the protocol (core/app.py): the connection ops (hello, status, shutdown), the
+// `core` and `supervisor` topics, the ported subsystems, and placeholders for what is not ported yet.
 #pragma once
 
 #include "clock.h"
 #include "json.h"
 #include "placeholders.h"
 #include "protocol.h"
+#include "tasks.h"
+
+#include <filesystem>
 
 #include <functional>
 #include <string>
@@ -16,7 +19,7 @@ inline constexpr const char* VERSION = "0.2.0";  // core/app.py VERSION: the sam
 
 class Core {
 public:
-    Core(const Clock& clock, std::string host, Server& server, std::function<void()> stop);
+    Core(const Clock& clock, std::string host, const std::filesystem::path& state_dir, Server& server, std::function<void()> stop);
 
     json::Value core_snapshot() const;
     json::Value status() const;
@@ -27,6 +30,7 @@ private:
     Server& server_;
     std::function<void()> stop_;
     Now started_;
+    Tasks tasks_;
     Placeholders placeholders_;
 
     json::Value hello(Client& peer, const Args& args);

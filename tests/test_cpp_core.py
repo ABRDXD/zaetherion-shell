@@ -159,6 +159,91 @@ class ProtocolEdges(unittest.TestCase):
             self.assertEqual(run(which), (True, True), which)
 
 
+def tasks_edges(which: str) -> list[str]:
+    """Task ops at their edges; replies and tasks.json with random ids aliased and times tagged."""
+    import re
+    aliases: dict[str, str] = {}
+
+    def norm(text: str) -> str:
+        text = re.sub(r'"(created|doneAt)":\d+', r'"\1":<ms>', text)
+        return re.sub(r"\b[tl][0-9a-f]{8}\b", lambda m: aliases.setdefault(m.group(), f"{m.group()[0]}#{len(aliases) + 1}"), text)
+
+    out = []
+    with Core(which) as core, core.client() as peer:
+        def call(op, **args):
+            peer.send({"id": len(out), "op": op, "args": args})
+            line = peer.read_line().decode()
+            out.append(norm(line))
+            return json.loads(line)
+        a = call("task.add", text="  first \u3000\x1c")["result"]["task"]["id"]
+        b = call("task.add", text="é" * 1000, due="2024-02-29")["result"]["task"]["id"]
+        call("task.add", text="🪐" * 1001)
+        for text in ("", " \u2028 ", 5, None, ["x"]):
+            call("task.add", text=text)
+        for due in ("2026-02-29", "0000-01-01", "2026-11-25\n", "\u0662\u0660\u0662\u0666-11-25", "2026-11-25T24:00",
+                    "9999-12-31T24:00", "2026-11-25T24:01", "2026-11-25T23:60", "2026-11-25t10:00", "2026-1-25", 20261125, ""):
+            call("task.add", text="d", due=due)
+        for lst in (0, "", [], False, None, [1], "nope", {"a": 1}, 1.5):
+            call("task.add", text="l", list=lst)
+        for index in (0, True, -1, 1.0, 10 ** 30, -(10 ** 30), "0", None, 1):
+            call("task.add", text="i", index=index)
+        work = call("list.add", name="  Work ")["result"]["list"]["id"]
+        call("list.add", name="x" * 65)
+        call("list.rename", id=work, name="Jobs")
+        call("list.rename", id="nope", name="Jobs")
+        call("task.update", id=a, text="renamed", done=True, due="2026-12-01", list=work)
+        call("task.update", id=a, zeta=1, alpha=2, text="x")
+        call("task.update", id=a, done=1)
+        call("task.update", id=a, done=False, due=None, list=None, text=None)
+        call("task.update", id="t00000000")
+        call("task.update", id=7)
+        call("task.move", id=b, index=0)
+        call("task.move", id=b, index=-2)
+        call("task.move", id=b, index=None)
+        removed = call("task.remove", id=a)["result"]
+        call("task.restore", task=removed["task"], index=removed["index"])
+        call("task.restore", task=removed["task"])
+        call("task.restore", task={"id": "t0000000g", "text": "x"})
+        call("task.restore", task={"id": "tabcdef01", "text": "back", "list": "gone", "done": 1, "created": True, "doneAt": 2.5})
+        call("task.restore", task={"id": "tabcdef02", "text": "", "due": "bad"})
+        call("task.restore", task=[1])
+        call("list.remove", id="default")
+        call("list.remove", id=work)
+        call("list.remove", id=work)
+        out.append(json.dumps(peer.request("status")["tasks"]))  # the tasks summary; the rest is other stages'
+        out.append(norm(core.state_bytes("tasks.json").decode()))
+    return out
+
+
+@built
+class TasksEdges(unittest.TestCase):
+    maxDiff = None
+
+    def test_tasks_byte_equal(self):
+        """Replies and tasks.json, byte for byte (ids aliased, times tagged), at the validators' edges."""
+        python, cpp = tasks_edges("python"), tasks_edges(str(FARTD_CPP))
+        for i, (a, b) in enumerate(zip(python, cpp)):
+            self.assertEqual(a, b, f"step {i}")
+        self.assertEqual(len(python), len(cpp))
+
+    def test_state_files_at_start(self):
+        """What a start leaves behind for each kind of file it finds (state_files byte for byte)."""
+        seeds = [{"tasks.json": '{"version":1,"lists":[{"id":"x","name":"X"}],"tasks":[],"extra":"\\u00e9"}'},
+                 {"tasks.json": '[]'}, {"tasks.json": '{"tasks":[]}'}, {"tasks.json": '{not json\r\n'},
+                 {"todo.json": '[{"content":"  milk  "},{"content":"","done":true},{"content":"x","done":1},5]'},
+                 {"todo.json": '{bad'}, {"todo.json": '{"a":1}'},
+                 {"tasks.json": '{"tasks":"no"}', "todo.json": '[{"content":"y","done":true}]'}]
+        import re
+        for seed in seeds:
+            got = {}
+            for which in ("python", str(FARTD_CPP)):
+                with Core(which, seed=seed) as core:
+                    core.client().close()
+                    files = core.state_files()
+                got[which] = {k: re.sub(rb"t[0-9a-f]{8}", b"t#", v) for k, v in files.items() if k.startswith(("tasks", "todo"))}
+            self.assertEqual(got["python"], got[str(FARTD_CPP)], seed)
+
+
 @built
 class Rails(unittest.TestCase):
     def test_sigterm_right_after_start(self):

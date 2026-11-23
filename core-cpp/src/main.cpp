@@ -155,7 +155,7 @@ int main(int argc, char** argv) {
             QCoreApplication::exit(0);
         });
     };
-    fart::Core core(clock, host, server, stop);
+    fart::Core core(clock, host, state, server, stop);
 
     QSocketNotifier signals(signal_pipe[0], QSocketNotifier::Read);
     QObject::connect(&signals, &QSocketNotifier::activated, [&] {

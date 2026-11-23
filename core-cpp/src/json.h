@@ -119,8 +119,6 @@ std::optional<double> parse_double(std::string_view text);
 // round(x, n) for a float (half to even on the exact binary value) and round(x) to an int (Int, or BigInt when
 // it doesn't fit). round(x) throws std::domain_error for nan and inf, as Python raises.
 double py_round(double x, int ndigits);
-// repr(str) for messages that quote a value (f"unknown op {op!r}"): Python's choice of quotes and escapes.
-std::string py_str_repr(std::string_view s);
 Value py_round_int(double x);
 
 }  // namespace fart::json
