@@ -82,8 +82,8 @@ class Core:
                         DBUS_SESSION_BUS_ADDRESS=no_bus, DBUS_SYSTEM_BUS_ADDRESS=no_bus,
                         FART_RUNTIME_DIR=str(self.runtime), FART_STATE_DIR=str(self.state_dir),
                         FART_CACHE_DIR=str(self.cache_dir), FART_HOST="fixture", FART_MIRROR="0",
-                        FART_FIXTURE_LOG=str(self.fixture_log), FART_VIEW_ENTRY=str(base / "no-view.qml"),
-                        **self.extra_env)
+                        FART_FIXTURE_LOG=str(self.fixture_log), FART_VIEW_ENTRY=str(base / "no-view.qml"))
+        self.env.update(self.extra_env)  # the caller's settings win (a nested check passes its own view and PATH)
 
     @property
     def socket_path(self) -> Path:

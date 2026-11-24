@@ -69,6 +69,12 @@ note is the design the code is built and reviewed against (F6 reviews the code a
 | F13 | Reduced motion | no shake; error state still shown | U |
 | F14 | DMS command unset (switch reverted) | DMS's own lock works again | N |
 
+**Status (24 Nov):** built behind `FART_LOCK=own`. `tools/lock_nested_check.py` (a private nested Hyprland, a core
+that spawns the view, the fake PAM) passes engage, F1, F2, F3, F4, F7, F10, F11; `tests/test_core_lock.py` F4, F9, F10,
+F12 (the release side); `tests/test_lock_screen.py` F8, F12 (the face never holds the secret), F13 (the face's
+reduced state). Still to do: F5/F6 (PAM file missing, PAM erroring) in the nested check, F14 (the switch undone), the
+power hold's action (the owner's pick), the `switch` cue on lock and unlock.
+
 ## 6. Switch-over (owner present, Z109)
 1. Everything in §5 green in nested Hyprland with fake PAM.
 2. Owner at the machine: set DMS's `customPowerActionLock` (the core writes it byte-exact, as `dms_bar` does

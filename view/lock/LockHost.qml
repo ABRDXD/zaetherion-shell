@@ -22,6 +22,8 @@ Scope {
     property bool markerLocked: false
     readonly property bool coreKnows: root.core?.connected === true && root.core?.lockData !== null && root.core?.lockData !== undefined
     readonly property bool locked: coreKnows ? root.core.lockData.locked === true : markerLocked
+    // The compositor's own word that the session is locked (docs/LOCK.md checks read it).
+    readonly property bool secure: session.secure
 
     // What every screen shows (LockScreen reads these).
     property int maskLength: 0
