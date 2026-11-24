@@ -421,10 +421,13 @@ FocusScope {
 
     readonly property var restPaneItem: restPane.item
     readonly property bool restVisible: !shownEvent || !outgoingEvent && eventFade.value < 1
+    // Faces are pinned to the screen edge the island hangs from, at their own size, and the plate (which clips) reveals
+    // them as it grows (owner, 24 Nov: centred on the moving plate, a face slid in from the wrong place). At rest the
+    // plate is the face's size, so pinned and centred are the same place.
     Loader {
         id: restPane
-        anchors.centerIn: parent
-        anchors.verticalCenterOffset: root.liftOffset
+        anchors.horizontalCenter: parent.horizontalCenter
+        y: (root.bottomEdge ? parent.height - height : 0) + root.liftOffset
         width: Math.min(parent.width, root.centreWidth)
         height: root.restHeight
         active: !root.shownEvent || root.restVisible
@@ -452,7 +455,8 @@ FocusScope {
     }
 
     Loader {
-        anchors.centerIn: parent
+        anchors.horizontalCenter: parent.horizontalCenter
+        y: root.bottomEdge ? parent.height - height : 0
         width: Math.min(parent.width, item?.implicitWidth ?? 0)
         height: item?.implicitHeight ?? 0
         active: !!root.outgoingEvent
@@ -473,10 +477,11 @@ FocusScope {
         }
     }
 
+
     Loader {
         id: eventPane
-        anchors.centerIn: parent
-        anchors.verticalCenterOffset: root.bottomEdge ? root.fold : -root.fold
+        anchors.horizontalCenter: parent.horizontalCenter
+        y: root.bottomEdge ? parent.height - height + root.fold : -root.fold
         width: Math.min(parent.width, item?.implicitWidth ?? 0)
         height: item?.implicitHeight ?? 0
         active: !!root.shownEvent
