@@ -18,6 +18,8 @@ FocusScope {
     property bool margin: fluid
     signal placed(var pose)
     signal closed()
+    signal showWidgets(bool on)
+    readonly property bool shown: widgets?.shown !== false
 
     readonly property var savedPose: widgets?.monitors?.[monitor]?.clock ?? widgets?.defaults?.clock
         ?? ({ column: 2, span: 8, y: 0.42, angle: 0 })
@@ -126,6 +128,21 @@ FocusScope {
                 text: root.monitor + "   /   " + (root.widgets?.layout ?? "Default")
             }
             Rectangle {
+                id: showToggle
+                objectName: "editorShowToggle"
+                width: toggleLabel.implicitWidth + 36; height: 38
+                radius: root.fluid ? 19 : 0
+                anchors.right: done.left; anchors.rightMargin: 18; anchors.verticalCenter: parent.verticalCenter
+                color: "transparent"
+                border.width: 1
+                border.color: root.shown ? root.paper : root.signal
+                Accessible.role: Accessible.Button
+                Accessible.name: toggleLabel.text
+                Accessible.onPressAction: root.showWidgets(!root.shown)
+                Words { id: toggleLabel; anchors.centerIn: parent; text: root.shown ? "Hide widgets" : "Show widgets"; color: root.shown ? root.paper : root.signal }
+                TapHandler { onTapped: root.showWidgets(!root.shown) }
+            }
+            Rectangle {
                 id: done
                 objectName: "editorDone"
                 width: doneLabel.implicitWidth + 36; height: 38
@@ -188,6 +205,7 @@ FocusScope {
                     objectName: "editorClock"
                     x: root.box.x; y: root.box.y; width: root.box.width; height: root.box.height
                     rotation: root.pose.angle
+                    opacity: root.shown ? 1 : 0.35  // hidden on the desktop; still placeable here
                     DesktopClock { anchors.fill: parent; fluid: root.fluid; face: root.widgets?.face ?? ({}) }
                     DragSurface { objectName: "moveArea"; anchors.fill: parent; kind: root.margin ? root.tool : "Move" }
                     // Registration marks show the actual rotated bounds.

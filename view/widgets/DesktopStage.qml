@@ -34,7 +34,7 @@ Item {
         width: root.clockRect.width
         height: root.clockRect.height
         rotation: root.pose.angle
-        visible: !root.clockHidden
+        visible: !root.clockHidden && root.widgets?.shown !== false
         face: root.widgets?.face ?? ({})
     }
 }

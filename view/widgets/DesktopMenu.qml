@@ -8,7 +8,9 @@ FocusScope {
     required property string fontFamily
     signal chosen(string label)
     signal dismissed()
-    readonly property var labels: ["Edit widgets", "Wallpaper", "Theme", "Settings"]
+    // Z86's four, and since 24 Nov a fifth for showing or hiding the widgets (owner); the rail and dividers follow.
+    property var labels: ["Edit widgets", "Wallpaper", "Theme", "Settings"]
+    readonly property int last: Math.max(1, labels.length - 1)
     readonly property int rowHeight: fluid ? 47 : 44
     readonly property int inset: fluid ? 9 : 8
     readonly property int labelSize: fluid ? 17 : 19
@@ -57,7 +59,7 @@ FocusScope {
                 c.beginPath();
                 for (let n = 0; n <= 32; ++n) {
                     const t = n / 32;
-                    const y = menu.inset + menu.rowHeight * (0.5 + 3 * t);
+                    const y = menu.inset + menu.rowHeight * (0.5 + menu.last * t);
                     if (!n) c.moveTo(menu.orbitX(t), y); else c.lineTo(menu.orbitX(t), y);
                 }
                 c.strokeStyle = "#86749f"; c.stroke();
@@ -90,7 +92,7 @@ FocusScope {
                     const c = getContext("2d");
                     c.clearRect(0, 0, width, height);
                     if (menu.fluid) {
-                        const x = menu.orbitX(row.index / 3);
+                        const x = menu.orbitX(row.index / menu.last);
                         if (row.selected) {
                             c.beginPath(); c.moveTo(x + 8, height / 2);
                             c.bezierCurveTo(x + 20, height / 2, 40, 3, 61, 3);
@@ -106,7 +108,7 @@ FocusScope {
                         c.beginPath(); c.moveTo(7, 2); c.lineTo(width - 9, 2);
                         c.lineTo(width - 18, height - 2); c.lineTo(7, height - 2);
                         c.closePath(); c.fillStyle = "#ffd064"; c.fill();
-                    } else if (row.index < 3) {
+                    } else if (row.index < menu.last) {
                         c.fillStyle = "#464952"; c.fillRect(19, height - 1, width - 41, 1);
                     }
                 }

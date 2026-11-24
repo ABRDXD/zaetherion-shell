@@ -62,6 +62,24 @@ class WidgetsTests(unittest.TestCase):
         again.use_layout("Morning")
         self.assertEqual(again.pose("DP-1")["column"], 4)
 
+    def test_off_and_on_keeps_every_pose_and_survives_a_restart(self):
+        w = Widgets(self.dir)
+        self.assertTrue(w.snapshot()["shown"])
+        w.place("DP-1", "clock", 3, 5, 0.2, 30)
+        published = []
+        w.on_change = lambda: published.append(1)
+        w.show(False)
+        w.show(False)  # unchanged: no event
+        self.assertEqual(len(published), 1)
+        again = Widgets(self.dir)
+        self.assertFalse(again.snapshot()["shown"])
+        self.assertEqual(again.pose("DP-1")["column"], 3)
+        again.show(True)
+        self.assertTrue(Widgets(self.dir).snapshot()["shown"])
+        for bad in ("yes", 1, None):
+            with self.assertRaises(OpError):
+                again.show(bad)
+
     def test_resetting_the_face_keeps_every_pose(self):
         (self.dir / "widgets.json").write_text(json.dumps({"layout": "Default", "layouts": {"Default": {
             "DP-1": {"clock": {"column": 3, "span": 5, "y": 0.2, "angle": 30}}}}, "face": {"hours": 12, "ink": "tide"}}))

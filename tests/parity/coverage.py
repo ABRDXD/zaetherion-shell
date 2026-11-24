@@ -12,7 +12,7 @@ import re
 ROOT = Path(__file__).resolve().parents[2]
 
 PENDING_OPS = {
-    "1b": ("widgets.place", "widgets.layout", "widgets.reset"),
+    "1b": ("widgets.place", "widgets.layout", "widgets.reset", "widgets.show"),
     "2a": ("view.open", "view.close", "view.toggle", "view.state", "host.done", "key.down", "key.up"),
     "3a": ("sfx.play", "sfx.stop", "sfx.configure", "eq.enable", "eq.band", "eq.preset", "eq.mono"),
     "3b": ("notif.dismiss", "notif.clear", "notif.dnd", "notif.serve", "notif.ingest", "notif.image", "notif.closed",
