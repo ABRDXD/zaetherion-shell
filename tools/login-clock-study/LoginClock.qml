@@ -119,12 +119,12 @@ Window {
                             Text {
                                 x: 21; anchors.verticalCenter: parent.verticalCenter
                                 text: window.starts[parent.index] + " ms"
-                                font.family: "JetBrains Mono"; font.pixelSize: 14; color: "#aeb5bd"
+                                font.family: "JetBrains Mono"; font.pixelSize: 14; color: "#aeb5bd" // scale: study fixture, the mock's size
                             }
                             Text {
                                 x: 116; anchors.verticalCenter: parent.verticalCenter
                                 text: window.lines[parent.index]
-                                font.family: "Roboto Condensed"; font.pixelSize: 21; color: "#f2efdf"
+                                font.family: "Roboto Condensed"; font.pixelSize: 21; color: "#f2efdf" // scale: study fixture, the mock's size
                             }
                         }
                     }
@@ -133,7 +133,7 @@ Window {
                         anchors.bottom: parent.bottom; anchors.bottomMargin: 36
                         opacity: 1 - Math.min(1, 6 * cue.cut)
                         text: "Press any key to skip"
-                        font.family: "Roboto Condensed"; font.pixelSize: 15; color: "#aeb5bd"
+                        font.family: "Roboto Condensed"; font.pixelSize: 15; color: "#aeb5bd" // scale: study fixture, the mock's size
                     }
                 }
             }
@@ -197,11 +197,11 @@ Window {
                         Text {
                             width: 95; anchors.verticalCenter: parent.verticalCenter
                             text: window.starts[window.lineIndex] + " ms"
-                            font.family: "JetBrains Mono"; font.pixelSize: 14; color: "#20232a"
+                            font.family: "JetBrains Mono"; font.pixelSize: 14; color: "#20232a" // scale: study fixture, the mock's size
                         }
                         Text {
                             text: window.lines[window.lineIndex].slice(0, window.letters)
-                            font.family: "Roboto Condensed"; font.bold: true; font.pixelSize: 26; color: "#20232a"
+                            font.family: "Roboto Condensed"; font.bold: true; font.pixelSize: 26; color: "#20232a" // scale: study fixture, the mock's size
                         }
                     }
                     FontLoader { id: tabFont; source: window.fonts + "Poppins.ttf" }
@@ -210,7 +210,7 @@ Window {
                         visible: shuttle.toClock && cue.turnover >= .5
                         text: "18 SEP 2030"
                         font.family: tabFont.status === FontLoader.Ready ? tabFont.name : "DejaVu Sans"
-                        font.weight: Font.DemiBold; font.pixelSize: 16; color: "#20232a"
+                        font.weight: Font.DemiBold; font.pixelSize: 16; color: "#20232a" // scale: study fixture, the mock's size
                     }
                 }
             }

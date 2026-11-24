@@ -30,7 +30,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             text: page.line
             font.family: page.fluid ? "Noto Sans" : "DejaVu Sans Mono"
-            font.pixelSize: 25
+            font.pixelSize: 25 // scale: study fixture, the mock's size
             font.weight: Font.Medium
             color: "#f3ede4"
         }

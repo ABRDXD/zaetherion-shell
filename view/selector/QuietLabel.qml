@@ -22,6 +22,6 @@ Rectangle {
                 Rectangle { width: EclipseLook.pauseBarWidth; height: EclipseLook.quietBarHeight; color: EclipseLook.lime }
             }
         }
-        Text { text: root.text; color: EclipseLook.footerText; font.family: Design.mono; font.pixelSize: 12 }
+        Text { text: root.text; color: EclipseLook.footerText; font.family: Design.mono; font.pixelSize: EclipseLook.quietText }
     }
 }

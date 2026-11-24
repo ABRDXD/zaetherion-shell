@@ -40,7 +40,7 @@ Item {
         }
         component Day: Text {
             font.family: clock.dayFamily
-            font.pixelSize: 76
+            font.pixelSize: 76 // scale: study fixture, the mock's size
             font.letterSpacing: 14 + clock.trackingOffset
         }
         SlantedReveal {
@@ -83,7 +83,7 @@ Item {
                             text: tab.today ? (clock.briefDate ? "18 SEP" : "18 SEP 2030") : String(16 + tab.index)
                             color: tab.today ? clock.paper : "#bdc1bd"
                             font.family: tab.today ? clock.detailFamily : "JetBrains Mono"
-                            font.pixelSize: tab.today ? 16 : 14
+                            font.pixelSize: tab.today ? 16 : 14 // scale: study fixture, the mock's size
                             font.weight: tab.today ? Font.DemiBold : Font.Normal
                         }
                     }
@@ -106,7 +106,7 @@ Item {
                 x: 61; y: 17
                 text: clock.timeLabel
                 font.family: clock.detailFamily
-                font.pixelSize: 19
+                font.pixelSize: 19 // scale: study fixture, the mock's size
                 color: clock.paper
             }
         }

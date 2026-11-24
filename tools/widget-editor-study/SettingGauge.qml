@@ -45,7 +45,7 @@ Item {
             visible: index === 0 || gauge.minimum < gauge.maximum
             y: 43; x: index ? gauge.width - width : 0
             text: gauge.rotationMode ? (index ? "+180°" : "−180°") : String(index ? gauge.maximum : gauge.minimum)
-            font.family: gauge.family; font.pixelSize: 12; color: "#48454e"
+            font.family: gauge.family; font.pixelSize: 12; color: "#48454e" // scale: study fixture, the mock's size
         }
     }
     MouseArea {

@@ -84,7 +84,7 @@ FocusScope {
             text: root.crop ? Geometry.sizeText(root.crop, root.sourceScale) : ""
             color: ViewfinderLook.ink
             font.family: Design.mono
-            font.pixelSize: 13
+            font.pixelSize: ViewfinderLook.sizeText
             font.bold: true
         }
     }
@@ -115,7 +115,7 @@ FocusScope {
                 anchors.verticalCenter: parent.verticalCenter
                 id: tag
                 text: "RECORD AREA"; color: ViewfinderLook.coral; font.bold: true
-                font.family: Design.mono; font.pixelSize: hint.compact ? 10 : 11; font.letterSpacing: ViewfinderLook.tagSpacing
+                font.family: Design.mono; font.pixelSize: hint.compact ? ViewfinderLook.tagTextCompact : ViewfinderLook.tagText; font.letterSpacing: ViewfinderLook.tagSpacing
             }
             Text {
                 anchors.verticalCenter: parent.verticalCenter
@@ -123,13 +123,13 @@ FocusScope {
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
                 text: root.prompt; color: ViewfinderLook.paper; font.weight: Font.Medium
-                font.family: Design.sans; font.pixelSize: hint.compact ? 15 : 20
+                font.family: Design.sans; font.pixelSize: hint.compact ? ViewfinderLook.promptTextCompact : ViewfinderLook.promptText
             }
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 id: escapeLabel
                 text: "Esc · Cancel"; color: ViewfinderLook.hintSmall
-                font.family: Design.mono; font.pixelSize: hint.compact ? 10 : 11
+                font.family: Design.mono; font.pixelSize: hint.compact ? ViewfinderLook.tagTextCompact : ViewfinderLook.tagText
             }
         }
     }

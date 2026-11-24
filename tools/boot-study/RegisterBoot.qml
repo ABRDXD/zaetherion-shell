@@ -38,7 +38,7 @@ Item {
             id: type
             font.family: "DejaVu Sans"
             font.weight: Font.Black
-            font.pixelSize: 345
+            font.pixelSize: 345 // scale: study fixture, the mock's size
         }
         Item {
             id: press
@@ -103,7 +103,7 @@ Item {
                         text: boot.starts[entry.index] + " ms"
                         visible: entry.index <= boot.current
                         font.family: "JetBrains Mono"
-                        font.pixelSize: 14
+                        font.pixelSize: 14 // scale: study fixture, the mock's size
                         color: entry.selected ? boot.paper : "#aeb5bd"
                     }
                     Text {
@@ -112,7 +112,7 @@ Item {
                         text: entry.selected ? boot.currentText : entry.index < boot.current ? boot.events[entry.index] : ""
                         font.family: "Roboto Condensed"
                         font.weight: entry.selected ? Font.Bold : Font.Normal
-                        font.pixelSize: entry.selected ? 26 : 21
+                        font.pixelSize: entry.selected ? 26 : 21 // scale: study fixture, the mock's size
                         color: entry.selected ? boot.paper : boot.ink
                     }
                 }

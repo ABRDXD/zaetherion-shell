@@ -26,4 +26,10 @@ Singleton {
     readonly property int hintPadY: 10
     readonly property int hintGap: 18
     readonly property real tagSpacing: 0.77 // 0.07 em of the 11 px tag
+    // Type, at the study's sizes (Astra's review, 23 Nov); compact is the hint at 540 px and below.
+    readonly property int sizeText: 13
+    readonly property int tagText: 11
+    readonly property int tagTextCompact: 10
+    readonly property int promptText: 20
+    readonly property int promptTextCompact: 15
 }

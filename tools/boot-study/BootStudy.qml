@@ -74,7 +74,7 @@ Window {
             anchors.bottomMargin: 36
             text: "Press any key to skip"
             font.family: window.sans
-            font.pixelSize: 15
+            font.pixelSize: 15 // scale: study fixture, the mock's size
             color: window.quiet
         }
     }
@@ -94,13 +94,13 @@ Window {
                 anchors.centerIn: parent
                 width: 570
                 height: 272
-                Brand { x: 1; y: 0; font.pixelSize: 39 }
+                Brand { x: 1; y: 0; font.pixelSize: 39 } // scale: study fixture, the mock's size
                 Text {
                     anchors.right: parent.right
                     y: 29
                     text: "Session log"
                     font.family: window.mono
-                    font.pixelSize: 13
+                    font.pixelSize: 13 // scale: study fixture, the mock's size
                     color: window.quiet
                 }
                 Rectangle {
@@ -131,7 +131,7 @@ Window {
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: window.stamp(line.index)
                                 font.family: window.mono
-                                font.pixelSize: 14
+                                font.pixelSize: 14 // scale: study fixture, the mock's size
                                 color: window.quiet
                             }
                             Text {
@@ -140,7 +140,7 @@ Window {
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: window.typed(line.index)
                                 font.family: window.mono
-                                font.pixelSize: 21
+                                font.pixelSize: 21 // scale: study fixture, the mock's size
                                 color: line.index === window.current ? window.ink : window.quiet
                             }
                             Rectangle {
@@ -179,12 +179,12 @@ Window {
                     width: parent.width - x
                     anchors.verticalCenter: parent.verticalCenter
                     height: 150
-                    Brand { font.pixelSize: 17 }
+                    Brand { font.pixelSize: 17 } // scale: study fixture, the mock's size
                     Text {
                         y: 52
                         text: window.current ? window.events[window.current - 1] : ""
                         font.family: window.mono
-                        font.pixelSize: 17
+                        font.pixelSize: 17 // scale: study fixture, the mock's size
                         color: window.quiet
                     }
                     Text {
@@ -193,7 +193,7 @@ Window {
                         text: window.typed(window.current)
                         font.family: window.sans
                         font.weight: Font.Medium
-                        font.pixelSize: 43
+                        font.pixelSize: 43 // scale: study fixture, the mock's size
                         color: window.ink
                     }
                     Rectangle {

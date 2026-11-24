@@ -29,7 +29,7 @@ Item {
             id: type
             font.family: "DejaVu Sans"
             font.weight: Font.Black
-            font.pixelSize: 345
+            font.pixelSize: 345 // scale: study fixture, the mock's size
         }
         Item {
             id: impression

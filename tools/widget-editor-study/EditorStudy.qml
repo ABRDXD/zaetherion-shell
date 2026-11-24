@@ -38,12 +38,12 @@ Window {
 
     component Words: Text {
         font.family: win.sans
-        font.pixelSize: 17
+        font.pixelSize: 17 // scale: study fixture, the mock's size
         color: win.paper
     }
     component Fine: Words {
         font.family: win.fluid ? win.sans : win.mono
-        font.pixelSize: 13
+        font.pixelSize: 13 // scale: study fixture, the mock's size
         color: win.quiet
     }
     component DragSurface: MouseArea {
@@ -79,7 +79,7 @@ Window {
             Words {
                 x: 32; anchors.verticalCenter: parent.verticalCenter
                 text: win.editing ? "Edit widgets" : "Layout preview"
-                font.pixelSize: 30; font.weight: Font.DemiBold
+                font.pixelSize: 30; font.weight: Font.DemiBold // scale: study fixture, the mock's size
             }
             Fine {
                 x: 245; anchors.verticalCenter: parent.verticalCenter
@@ -269,7 +269,7 @@ Window {
             color: win.fluid ? "#e9e5f2" : "#e4dfcc"
             Item {
                 x: 24; y: 40; width: parent.width - 48; height: parent.height - y
-                Words { y: 7; text: "Modern Clock"; color: win.stock; font.pixelSize: 32; font.weight: Font.DemiBold }
+                Words { y: 7; text: "Modern Clock"; color: win.stock; font.pixelSize: 32; font.weight: Font.DemiBold } // scale: study fixture, the mock's size
                 Rectangle { y: 77; width: parent.width; height: 1; color: "#858489" }
                 Column {
                     y: 97; width: parent.width; spacing: 6
@@ -285,7 +285,7 @@ Window {
                             color: chosen ? win.stock : "transparent"
                             Words {
                                 x: 13; anchors.verticalCenter: parent.verticalCenter; text: control.modelData
-                                color: control.chosen ? win.paper : win.stock; font.pixelSize: 22
+                                color: control.chosen ? win.paper : win.stock; font.pixelSize: 22 // scale: study fixture, the mock's size
                                 font.weight: control.chosen ? Font.DemiBold : Font.Normal
                             }
                             Fine {

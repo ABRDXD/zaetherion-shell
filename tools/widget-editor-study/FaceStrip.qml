@@ -39,7 +39,7 @@ Rectangle {
                     color: button.swatch; border.width: 1; border.color: "#83808a"
                 }
                 Text {
-                    text: button.text; font.family: strip.sans; font.pixelSize: 16
+                    text: button.text; font.family: strip.sans; font.pixelSize: 16 // scale: study fixture, the mock's size
                     font.weight: button.selected ? Font.DemiBold : Font.Normal
                     color: button.selected ? strip.stock : strip.ink
                 }
@@ -64,7 +64,7 @@ Rectangle {
         Text {
             x: 4; text: group.title
             font.family: strip.fluid ? strip.sans : "DejaVu Sans Mono"
-            font.pixelSize: 13; color: "#494653"
+            font.pixelSize: 13; color: "#494653" // scale: study fixture, the mock's size
         }
         Row {
             spacing: 2

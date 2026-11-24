@@ -17,7 +17,7 @@ Item {
         anchors.verticalCenterOffset: -14
         text: "WEDNESDAY"
         font.family: face.dayFamily
-        font.pixelSize: 82
+        font.pixelSize: 82 // scale: study fixture, the mock's size
         font.letterSpacing: 15 + face.trackingOffset
         color: face.typeInk
     }
@@ -30,7 +30,7 @@ Item {
             id: date
             text: face.briefDate ? "18 Sep" : face.fluid ? "18 September 2030" : "18 SEP 2030"
             font.family: face.detailFamily
-            font.pixelSize: 18
+            font.pixelSize: 18 // scale: study fixture, the mock's size
             font.letterSpacing: face.fluid ? 0 : 1.5
             color: day.color
         }
@@ -39,7 +39,7 @@ Item {
             anchors.right: parent.right
             text: face.timeLabel
             font.family: face.detailFamily
-            font.pixelSize: 18
+            font.pixelSize: 18 // scale: study fixture, the mock's size
             color: day.color
         }
     }

@@ -110,7 +110,7 @@ Window {
                         text: "WEDNESDAY"
                         color: window.paper
                         font.family: facePlate.face(dayFace, "Anurati")
-                        font.pixelSize: window.inset ? 64 : 72
+                        font.pixelSize: window.inset ? 64 : 72 // scale: study fixture, the mock's size
                         font.letterSpacing: window.inset ? 13 : 17
                     }
                     Rectangle {
@@ -137,7 +137,7 @@ Window {
                         text: "18 SEP 2030"
                         color: window.inset ? window.paper : window.accent
                         font.family: facePlate.face(bodyFace, "Poppins")
-                        font.pixelSize: 19
+                        font.pixelSize: 19 // scale: study fixture, the mock's size
                         font.letterSpacing: 3
                     }
                     Text {
@@ -145,7 +145,7 @@ Window {
                         text: "– 07:24 AM –"
                         color: window.inset ? window.accent : window.paper
                         font.family: facePlate.face(bodyFace, "Poppins")
-                        font.pixelSize: 19
+                        font.pixelSize: 19 // scale: study fixture, the mock's size
                         font.letterSpacing: 3
                     }
                 }

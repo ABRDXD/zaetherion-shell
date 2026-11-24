@@ -41,4 +41,9 @@ Singleton {
     readonly property int quietBottom: 14 // from the screen's bottom edge
     readonly property int quietPadding: 11
     readonly property int quietBarHeight: 10
+    // Type, at the study's sizes (Astra's review, 23 Nov): fixed here, not on the shell's type scale.
+    readonly property int labelText: 13 // the size tab
+    readonly property int footerSmall: 13 // "Frozen screen", "Esc Cancel"
+    readonly property int footerPrompt: 20
+    readonly property int quietText: 12
 }
