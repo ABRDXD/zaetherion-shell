@@ -1,4 +1,4 @@
-# Astra → Claude B · password lock and desktop studies · `codex/widget-editor-study`
+# Astra → Claude B · password lock, widgets and remaining visual queue · `codex/widget-editor-study`
 
 24 November 2026. Claude B owns native behaviour, persistence, integration tests and merges per the integration handoff at `0c1df3a`. The following references are local Git objects.
 
@@ -12,7 +12,20 @@ Preserve Register → Day index at `51628d6` (`tools/login-clock-study/login-clo
 
 **Desktop widgets and presets · review.** At `9936847`, open `tools/desktop-widget-collection/angular.png` and `tools/desktop-widget-collection/fluid-studio.png`. The other preset in each form is linked in `tools/desktop-widget-collection/README.md`. Music/lyrics, sky, notes, text and image have first visual studies. Compare miniature arrangement choices for per-display presets. Native components, persistence and merge await review. Both forms and both layouts rendered offscreen, with no-track, missing-lyrics and occupied fixtures. The two occupied layouts in each form gave identical pixels. Qt 6 qmllint passed.
 
-**Next task.** Compare integration coverage with the remaining Settings, idle/session, Draw/edge and Overdrive decisions. Z158 already has a native island session card. Study the missing Draw and right-edge visuals. When the owner picks a lock treatment, extract its reusable visual parts and check parity before handing it to Claude B.
+**Draw and right edge · review.** At `83340ce`, compare `tools/draw-edge-study/draw-angular.png` (tool rail) with `tools/draw-edge-study/draw-fluid.png` (bottom palette). Z106 has frozen and blank fixtures, selection, colour, undo and redo references. Z107 has `tools/draw-edge-study/edge-angular.png` and `tools/draw-edge-study/edge-fluid.png` for the two-action plane. Review tool placement before extracting the visual components. All six references and both half-open edges rendered offscreen. Qt 6 qmllint passed. Native input, saving, clipboard and edge routing await approval and wiring.
+
+**Overdrive island lyrics · review.** At `17e6daf`, open `tools/island-lyric-study/title-slots.webp` and `tools/island-lyric-study/fallback.png`. The isolated slots magnify the change of line for Z121. Angular moves along the line of reading. Fluid lifts the incoming line. Reduced snaps. Offscreen reduced and lease-release frames matched their reference endpoints; Qt 6 qmllint passed. Native title-slot integration and merge are pending.
+
+**Coverage at integration `0c1df3a`.**
+
+| Surface | Design and native state | Remaining work |
+| --- | --- | --- |
+| Settings | Cutline and Limb are implemented in `view/shell/PreferencesPane.qml`. Its actual sections are palette, wallpaper, presets, island, notifications, clips, Wi-Fi and Bluetooth. | Z93 extends beyond this pane. Check the standalone window/search and dedicated Display, Widgets, Launcher, Audio/EQ, Idle, Lock, Capture, Wellbeing, Overdrive, Sessions & Timers, Keybinds and About content. Theme/network coverage is partial. The existing Presets picker concerns shell appearance; the widget layout chooser has its own study. |
+| Idle and session | Z38 dim, lock, off and suspend are timed states. Awake already has native controls in `view/rooms/Devices.qml` and `view/shell/RoomSystems.qml`. Z158 supersedes the old six-blade Z90 card. Five actions already live in `view/shell/IslandExpansion.qml`; click Lock, hold each other action for one second. | Pair the dim-to-lock fixture with the approved password face. Verify timers and inhibitors in native integration. Preserve the integrated session card. |
+| Draw and edge | Z106/Z107 now have first visual references above. The existing capture selectors are a different surface. | Owner review, reusable visual components, native behaviour, integration parity and merge. |
+| Overdrive | `view/shell/Shell.qml` loads the Media-room type treatment, `view/strata/LensPass.qml` and `view/overdrive/ContactSheet.qml`. The contact sheet already has live-preview and reduced-motion paths. `view/shell/IslandRest.qml` still uses the track title in both forms. | The lyric slot has a first study. Sky animation, launcher-specific lensing and richer island cut-ins still need surface-specific review against Z57. Native lease/performance verification is Claude B’s. The lock stays outside Overdrive. |
+
+**Next task.** First decision for the owner is Angular lock, Fluid lock or both by form. Once answered, Astra extracts the picked title card, password plane and band and compares masked entry, both motion levels, the attempt counter and partial hold against `490fa75`. Claude B then wires those visual components. While review is pending, the next independent Settings study is the missing Idle tab in the approved navigation, using Z38 fixture values and inhibitor states.
 
 # Astra → Claude A · `codex/login-clock-study` ready to merge
 
