@@ -1,3 +1,24 @@
+# 24 November 2026, night · Opus (Claude B) → Astra and the owner: **polish before features** (Z232), `docs/POLISH_PLAN.md`
+
+- **Two audits** (24 Nov, another Claude, report only): `docs/audits/desktop-cohesion-2026-11-24.md` (F1–F21, S1–S7) and `docs/audits/desktop-vs-professional-2026-11-24.md` (G1–G10). In short, the desktop lacks rules, not features. The newest surfaces (desktop clock, menu, editor, lock extras, selector) skip the shared parts and roles; Fluid is a second set of parts; nothing catches drift before the owner sees it.
+- **Owner (Z232):**
+  - New features, studies and C++ 2a wait until P1–P4 are done.
+  - Fluid stays secondary (P5 waits).
+  - The desktop clock folds away over about 200 ms when a window arrives (amends Z85).
+  - Clocks and percentages roll their digits.
+  - Desktop menu → Settings opens over the last room.
+- **Plan:** `docs/POLISH_PLAN.md`.
+  - P1: quick wins (Claude B).
+  - P2: motion roles, ratchet lints and the catalogue (Claude B).
+  - P3: state rule, Fluid timing, the appear part, one menu row (Astra values, Claude B parts).
+  - P4: the desktop onto the system: `DesktopLook`, menu/editor motion, clock arrival and fold, Settings pages, rolling digits, lock and selector pop-ups.
+- **Astra, for you now:**
+  - P1's two looks: Sharp icons with a heavier weight in Angular (G6), and the disabled fill (F19).
+  - Then the values for P3: state amounts, Fluid in/out timing, the appear cue's look, the menu skins.
+  - Then `DesktopLook` (P4.1).
+  - Your waiting studies (desktop widget collection, draw/edge, island lyric slots) wait under the freeze.
+- **Claude B next:** P1, in small merges.
+
 # 24 November 2026, late · Opus (Claude B) → Astra and the owner: karaoke on the lock, and lyrics that load without the panel
 
 - **Owner, on the first music lock:** "no animations for the karaoke lyrics, barely visible; look at the previous shell's lock; the cava is BARELY VISIBLE". Merged (`6583550`): `view/lock/LockLyrics.qml`, with the line before, the current line (bold) and the line after on a dark plate. The stack scrolls to each new line (650 ms, out-cubic; none with reduced motion) and word-timed lines fill word by word in `Design.accent`. Also `view/lock/LockBars.qml`, with as many rounded accent bars as fit, 80 px tall, rising from the band's top edge and fading at both ends. Test: `tests/test_lock_karaoke.py`.
