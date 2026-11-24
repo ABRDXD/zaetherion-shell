@@ -4,6 +4,8 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import qs.view.cues
+import qs.view.rooms
+import qs.view.ui
 
 // ZÆTHERION's session lock (S7, docs/LOCK.md §2-4). Locked whenever the core says so (topic `lock`), or, while
 // the core is not answering, whenever its marker is there: a view respawned after a crash re-locks at once
@@ -36,6 +38,24 @@ Scope {
     readonly property string wallpaper: root.core?.wallpaperData?.applied ?? ""
     readonly property var track: root.host?.media?.active ?? null
     readonly property real batteryFraction: root.host?.power?.battery?.available ? root.host.power.battery.level : -1
+
+    // Music on the lock (owner, 24 Nov: lyrics and a visualiser): only while locked and something plays. The current
+    // synced lyric line, and the spectrum (none with reduced motion). The host feeds each only while it is leased.
+    readonly property bool playing: root.locked && root.track?.playing === true
+    readonly property bool lyricsReady: root.host?.lyrics?.status === "ok" && (root.host?.lyrics?.lines?.length ?? 0) > 0
+    readonly property string lyric: root.playing ? lyricsClock.currentText : ""
+    readonly property var spectrum: root.playing && !Motion.reduced ? (root.host?.media?.spectrum ?? []) : []
+    HostLease { domain: root.host?.media ?? null; feature: "position"; active: root.playing }
+    HostLease { domain: root.host?.media ?? null; feature: "spectrum"; active: root.playing && !Motion.reduced }
+    HostLease { domain: root.host?.lyrics ?? null; feature: "lyrics"; active: root.playing }
+    LyricsTimeline {
+        id: lyricsClock
+        active: root.playing && root.lyricsReady
+        lines: root.host?.lyrics?.lines ?? []
+        position: root.host?.media?.position ?? 0
+        positionStamp: root.host?.media?.positionStamp ?? 0
+        playing: root.playing
+    }
 
     FileView {
         path: root.markerPath
