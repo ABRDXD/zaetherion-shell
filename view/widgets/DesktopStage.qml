@@ -15,6 +15,8 @@ Item {
         return Qt.rect(r.x, r.y, r.width, r.height);
     }
     readonly property alias clock: clockItem
+    // While the login lands into it (Z55) the clock is drawn by the login, then shown here.
+    property bool clockHidden: false
     // A right-click on the bare desktop asks for the desktop menu there (Z86).
     signal menuRequested(point at)
 
@@ -32,6 +34,7 @@ Item {
         width: root.clockRect.width
         height: root.clockRect.height
         rotation: root.pose.angle
+        visible: !root.clockHidden
         face: root.widgets?.face ?? ({})
     }
 }

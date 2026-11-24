@@ -10,6 +10,9 @@ DesktopOverlay 1.0 DesktopOverlay.qml
 DesktopSheet 1.0 DesktopSheet.qml
 DesktopStage 1.0 DesktopStage.qml
 DesktopWidgets 1.0 DesktopWidgets.qml
+FoldMotion 1.0 FoldMotion.qml
+LoginOverlay 1.0 LoginOverlay.qml
+LoginSequence 1.0 LoginSequence.qml
 MarginPanel 1.0 MarginPanel.qml
 OffcutFace 1.0 OffcutFace.qml
 PressMark 1.0 PressMark.qml
