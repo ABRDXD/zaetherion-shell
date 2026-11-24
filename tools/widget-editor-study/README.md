@@ -2,6 +2,8 @@
 
 The two studies open inside *Edit widgets*, the editor reached from the desktop context menu (Z46, Z86). They show one invented monitor and its Morning preset. Changes last for this fixture session.
 
+The form selects the approved placement by default. Angular opens Chase and Fluid opens Margin. Use an explicit placement flag to inspect either study in either form.
+
 | Choice | Angular | Fluid | How to use it |
 | --- | --- | --- | --- |
 | A · Chase | [Open](chase-angular.png) | [Open](chase-fluid.png) | Drag the clock to move it. Drag the upper handle to rotate, or the lower-right tab to change its span. The handles follow the clock. |
@@ -23,6 +25,12 @@ Watch the controls on [Angular Chase](face-angular.webp) or [Fluid Margin](face-
 Both editors work in the same 12-column space. Margin scales the desktop preview uniformly so opening the full preview preserves the widget’s placement. **Preview** hides the controls. **Edit widgets** brings them back. Escape toggles preview. Space simulates an occupied or empty workspace to exercise clock unloading (Z85).
 
 The three-column lower limit is a fixture size for this clock sample. The monitor and preset names give the editing context. Preset management, the desktop menu and persistence belong to native integration after the visual pick.
+
+### Approved desktop menus
+
+Run `qml6 EditorStudy.qml -- --desktop --angular` or replace `--angular` with `--fluid` in an offscreen or isolated display. Right-click the fixture desktop to open the four actions from Z86. **Edit widgets** enters the approved placement editor. The other three rows dismiss the study menu. Use the arrow keys and Enter to choose, or Escape to dismiss. Escape from the editor returns to the fixture desktop.
+
+Both forms use the shared [DesktopMenu QML](../../view/widgets/DesktopMenu.qml). The [Angular recording](desktop-menu-angular.webp) shows the cut index and Chase handles. The [Fluid recording](desktop-menu-fluid.webp) shows the curved rail and Margin ruler. Each has three offscreen frames captured through the fixture's pointer input.
 
 Reproduce the four PNGs with Qt 6 from this directory.
 

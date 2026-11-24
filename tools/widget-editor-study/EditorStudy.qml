@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
 import QtCore
+import "../../view/widgets" as Placement
 import "../widget-study" as Widgets
 import "../login-clock-study" as Login
 
@@ -13,8 +14,15 @@ Window {
     title: "Modern Clock · Widget editor"
     readonly property var args: Qt.application.arguments
     readonly property bool fluid: args.includes("--fluid")
-    readonly property bool margin: args.includes("--margin")
-    property bool editing: true
+    readonly property bool margin: args.includes("--margin") || (fluid && !args.includes("--chase"))
+    readonly property bool desktopStudy: args.includes("--desktop")
+    property bool editing: !desktopStudy
+    property bool menuOpen: false
+    property point menuOrigin
+    function openMenu(x, y) {
+        menuOrigin = Qt.point(x, y);
+        menuOpen = true;
+    }
     property bool faceOpen: true
     readonly property string timeLabel: faceStrip.twelveHour ? "– 7:24 AM –" : "– 07:24 –"
     property bool occupied: args.includes("--occupied")
@@ -72,10 +80,14 @@ Window {
         color: win.stock
         focus: true
         Keys.onSpacePressed: win.occupied = !win.occupied
-        Keys.onEscapePressed: win.editing = !win.editing
+        Keys.onEscapePressed: {
+            if (win.menuOpen) win.menuOpen = false;
+            else if (!win.desktopStudy || win.editing) win.editing = !win.editing;
+        }
         Item {
             id: header
-            width: parent.width; height: 74
+            visible: !win.desktopStudy || win.editing
+            width: parent.width; height: visible ? 74 : 0
             Words {
                 x: 32; anchors.verticalCenter: parent.verticalCenter
                 text: win.editing ? "Edit widgets" : "Layout preview"
@@ -125,11 +137,11 @@ Window {
         Item {
             id: viewport
             y: header.height; height: sheet.height - y - (faceStrip.visible ? faceStrip.height : 0)
-            width: sheet.width - (marginPanel.visible ? marginPanel.width : 0)
+            width: sheet.width - (marginPanel.active ? marginPanel.width : 0)
             clip: true
             Item {
                 id: desk
-                width: 1160; height: 576
+                width: 1160; height: win.desktopStudy && !win.editing ? 650 : 576
                 anchors.centerIn: parent
                 scale: Math.min(viewport.width / width, viewport.height / height)
                 clip: true
@@ -222,31 +234,18 @@ Window {
                                     Rectangle { y: parent.index >= 2 ? -17 : 0; width: 2; height: 17; color: win.fluid ? "#54496e" : win.signal }
                                 }
                             }
-                            Rectangle {
-                                visible: !win.margin
-                                x: 0; y: -32; width: clockName.implicitWidth + 20; height: 29
-                                color: win.stock; radius: win.fluid ? 10 : 0
-                                Fine { id: clockName; anchors.centerIn: parent; text: "Modern Clock"; color: win.paper }
-                            }
-                            Rectangle {
-                                visible: !win.margin
-                                anchors.horizontalCenter: parent.horizontalCenter; y: -34
-                                width: 2; height: 34; color: win.fluid ? win.stock : win.signal
-                                Rectangle {
-                                    anchors.horizontalCenter: parent.horizontalCenter; y: -22
-                                    width: turnLabel.implicitWidth + 23; height: 30
-                                    color: win.signal; radius: win.fluid ? 15 : 0
-                                    Fine { id: turnLabel; anchors.centerIn: parent; text: "Rotate  " + pose.angle + "°"; color: win.signalInk }
-                                    DragSurface { objectName: "turnHandle"; anchors.fill: parent; kind: "Rotate" }
+                            Loader {
+                                anchors.fill: parent
+                                active: win.editing && !win.margin
+                                sourceComponent: Placement.ChaseHandles {
+                                    id: handles
+                                    angle: pose.angle; span: pose.span
+                                    fluid: win.fluid; stock: win.stock; paper: win.paper
+                                    signal: win.signal; signalInk: win.signalInk
+                                    labelFamily: win.fluid ? win.sans : win.mono
+                                    DragSurface { parent: handles.rotationTarget; objectName: "turnHandle"; anchors.fill: parent; kind: "Rotate" }
+                                    DragSurface { parent: handles.resizeTarget; objectName: "spanHandle"; anchors.fill: parent; kind: "Resize" }
                                 }
-                            }
-                            Rectangle {
-                                visible: !win.margin
-                                anchors.right: parent.right; y: parent.height
-                                width: spanLabel.implicitWidth + 24; height: 30; color: win.signal
-                                radius: win.fluid ? 15 : 0
-                                Fine { id: spanLabel; anchors.centerIn: parent; text: "Resize  " + pose.span + " col"; color: win.signalInk }
-                                DragSurface { objectName: "spanHandle"; anchors.fill: parent; kind: "Resize" }
                             }
                         }
                     }
@@ -262,50 +261,48 @@ Window {
             anchors.bottom: parent.bottom; width: parent.width
             height: implicitHeight
         }
-        Rectangle {
+        Loader {
             id: marginPanel
-            anchors.right: parent.right; y: header.height; height: viewport.height; width: 286
-            visible: win.margin && win.editing && !win.occupied
-            color: win.fluid ? "#e9e5f2" : "#e4dfcc"
-            Item {
-                x: 24; y: 40; width: parent.width - 48; height: parent.height - y
-                Words { y: 7; text: "Modern Clock"; color: win.stock; font.pixelSize: 32; font.weight: Font.DemiBold } // scale: study fixture, the mock's size
-                Rectangle { y: 77; width: parent.width; height: 1; color: "#858489" }
-                Column {
-                    y: 97; width: parent.width; spacing: 6
-                    Repeater {
-                        model: ["Move", "Resize", "Rotate"]
-                        Rectangle {
-                            id: control
-                            objectName: "mode" + modelData
-                            required property string modelData
-                            readonly property bool chosen: win.activeTool === modelData
-                            width: parent.width; height: 52
-                            radius: win.fluid ? 16 : 0
-                            color: chosen ? win.stock : "transparent"
-                            Words {
-                                x: 13; anchors.verticalCenter: parent.verticalCenter; text: control.modelData
-                                color: control.chosen ? win.paper : win.stock; font.pixelSize: 22 // scale: study fixture, the mock's size
-                                font.weight: control.chosen ? Font.DemiBold : Font.Normal
-                            }
-                            Fine {
-                                anchors.right: parent.right; anchors.rightMargin: 12; anchors.verticalCenter: parent.verticalCenter
-                                text: control.modelData === "Move" ? "col " + (pose.column + 1) : control.modelData === "Resize" ? pose.span + " col" : pose.angle + "°"
-                                color: control.chosen ? win.signal : "#494750"
-                            }
-                            TapHandler { onTapped: win.tool = control.modelData }
-                        }
-                    }
+            anchors.right: parent.right; y: header.height; height: viewport.height
+            active: win.margin && win.editing && !win.occupied
+            sourceComponent: Placement.MarginPanel {
+                fluid: win.fluid; stock: win.stock; paper: win.paper; signal: win.signal
+                sans: win.sans; labelFamily: win.fluid ? win.sans : win.mono
+                tool: win.tool; activeTool: win.activeTool
+                column: pose.column; span: pose.span; angle: pose.angle
+                minimum: tool === "Rotate" ? -180 : tool === "Move" ? 1 : 3
+                maximum: tool === "Rotate" ? 180 : tool === "Move" ? 13 - pose.span : 12 - pose.column
+                onToolRequested: value => win.tool = value
+                onValueRequested: value => {
+                    if (tool === "Rotate") pose.angle = value;
+                    else if (tool === "Move") pose.column = value - 1;
+                    else pose.span = value;
                 }
-                SettingGauge {
-                    x: 2; y: 281; width: parent.width - 4; height: 62
-                    placement: pose; tool: win.tool; fluid: win.fluid
-                }
-                Fine {
-                    y: 365; width: parent.width; wrapMode: Text.WordWrap; color: "#48454e"
-                    text: win.tool === "Move" ? "Set the starting column on the ruler. Drag the clock to place it vertically."
-                        : win.tool === "Resize" ? "Set the width in columns on the ruler, or drag across the clock."
-                        : "Set the angle on the ruler, or turn the clock about its centre."
+            }
+        }
+        MouseArea {
+            anchors.fill: parent
+            enabled: win.desktopStudy && !win.editing
+            acceptedButtons: win.menuOpen ? Qt.LeftButton | Qt.RightButton : Qt.RightButton
+            onPressed: event => {
+                if (event.button === Qt.RightButton) win.openMenu(event.x, event.y);
+                else win.menuOpen = false;
+            }
+        }
+        Loader {
+            id: menuLoader
+            active: win.menuOpen
+            x: Math.max(0, Math.min(win.menuOrigin.x, sheet.width - width))
+            y: Math.max(0, Math.min(win.menuOrigin.y, sheet.height - height))
+            focus: active
+            onActiveChanged: if (!active) sheet.forceActiveFocus()
+            sourceComponent: Placement.DesktopMenu {
+                fluid: win.fluid
+                fontFamily: win.sans
+                onDismissed: win.menuOpen = false
+                onChosen: label => {
+                    win.menuOpen = false;
+                    if (label === "Edit widgets") win.editing = true;
                 }
             }
         }
