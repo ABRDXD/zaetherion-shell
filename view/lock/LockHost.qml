@@ -44,6 +44,9 @@ Scope {
     readonly property bool playing: root.locked && root.track?.playing === true
     readonly property bool lyricsReady: root.host?.lyrics?.status === "ok" && (root.host?.lyrics?.lines?.length ?? 0) > 0
     readonly property string lyric: root.playing ? lyricsClock.currentText : ""
+    readonly property var lyricLines: root.playing && root.lyricsReady ? root.host.lyrics.lines : []
+    readonly property int lyricIndex: root.playing ? lyricsClock.index : -1
+    readonly property var lyricClock: lyricsClock
     readonly property var spectrum: root.playing && !Motion.reduced ? (root.host?.media?.spectrum ?? []) : []
     HostLease { domain: root.host?.media ?? null; feature: "position"; active: root.playing }
     HostLease { domain: root.host?.media ?? null; feature: "spectrum"; active: root.playing && !Motion.reduced }

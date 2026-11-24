@@ -111,34 +111,29 @@ FocusScope {
     // Music (owner, 24 Nov): the current lyric line under the password field, and the spectrum just above the band,
     // both only while something plays. Placed against the face's designed composition (its unit scale).
     readonly property real unit: Math.min(1, width / 1280, height / 720)
-    Text {
-        id: lyricLine
-        objectName: "lockLyric"
+    LockLyrics {
+        objectName: "lockLyrics"
+        visible: root.faceLoaded && (root.lock.lyricLines?.length ?? 0) > 0 && (root.lock.lyricIndex ?? -1) >= 0
+        unit: root.unit
         width: Math.min(parent.width - 96, 900 * root.unit)
+        height: implicitHeight
         anchors.horizontalCenter: parent.horizontalCenter
-        y: parent.height / 2 + 150 * root.unit
-        horizontalAlignment: Text.AlignHCenter
-        elide: Text.ElideRight
-        text: root.lock.lyric ?? ""
-        visible: text !== "" && root.faceLoaded
-        color: Qt.alpha(Design.ink, 0.86)
-        font.family: Design.sans
-        font.pixelSize: Design.readout
-        opacity: root.arrival * lyricFade.value
-        onTextChanged: { lyricFade.value = Motion.reduced ? 1 : 0; fadeIn.restart(); }
-        QtObject { id: lyricFade; property real value: 1 }
-        NumberAnimation { id: fadeIn; target: lyricFade; property: "value"; to: 1; duration: Motion.reduced ? 0 : 240 }
-        Activity { name: "lock.lyric"; running: fadeIn.running }
+        y: parent.height / 2 + 132 * root.unit
+        lines: root.lock.lyricLines ?? []
+        index: root.lock.lyricIndex ?? -1
+        clock: root.lock.lyricClock ?? null
+        opacity: root.arrival
     }
-    LineWaveform {
+    LockBars {
         objectName: "lockSpectrum"
         visible: (root.lock.spectrum?.length ?? 0) > 1 && root.faceLoaded
         readonly property real bandTop: Design.fluid ? (77 + 32) * root.unit : 106 * root.unit
+        unit: root.unit
         width: Design.fluid ? Math.min(parent.width - 176 * root.unit, 1104 * root.unit) : parent.width
         anchors.horizontalCenter: parent.horizontalCenter
-        height: 26 * root.unit
-        y: parent.height - bandTop - height - 6 * root.unit
-        opacity: root.arrival * 0.8
+        height: 80 * root.unit
+        y: parent.height - bandTop - height
+        opacity: root.arrival
         levels: root.lock.spectrum ?? []
     }
     // F8: the face failed; the lock still asks for the password.
