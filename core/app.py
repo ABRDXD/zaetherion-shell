@@ -286,6 +286,7 @@ class Core:
         op("widgets.place", lambda peer, monitor, column, span, y, angle, widget="clock": dw.place(monitor, widget, column, span, y, angle))
         op("widgets.layout", lambda peer, name: dw.use_layout(name))
         op("widgets.reset", lambda peer: dw.reset_face())
+        op("widgets.show", lambda peer, on: dw.show(on))
         op("lock.engage", lambda peer, reason="command": self.lock.engage(reason))
         op("lock.release", lambda peer: self.lock.release(peer.kind))
         op("exhibit.prepare", lambda peer, reduced=True, metadata=None: self.exhibit.prepare(reduced, metadata))

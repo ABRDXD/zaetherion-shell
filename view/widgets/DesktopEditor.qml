@@ -1,5 +1,7 @@
 pragma ComponentBehavior: Bound
 import QtQuick
+import qs.view.ui
+import "ClockWords.js" as Words
 import "DesktopGrid.js" as Grid
 
 // Edit widgets (Z46, Z86; Astra's tools/widget-editor-study, owner's picks 24 Nov: A · Chase in Angular,
@@ -18,6 +20,8 @@ FocusScope {
     property bool margin: fluid
     signal placed(var pose)
     signal closed()
+    signal showWidgets(bool on)
+    readonly property bool shown: widgets?.shown !== false
 
     readonly property var savedPose: widgets?.monitors?.[monitor]?.clock ?? widgets?.defaults?.clock
         ?? ({ column: 2, span: 8, y: 0.42, angle: 0 })
@@ -33,8 +37,9 @@ FocusScope {
     // The study's palette and type (EditorStudy.qml), named for the type-scale rule.
     readonly property color stock: fluid ? "#242334" : "#1d2027"
     readonly property color paper: fluid ? "#efedf8" : "#f3efdc"
-    readonly property color signal: fluid ? "#d9cdff" : "#ffd064"
-    readonly property color signalInk: "#23232c"
+    // The study's amber (Angular) and lilac (Fluid) follow the theme's accent; text on it stays readable.
+    readonly property color signal: Design.accent
+    readonly property color signalInk: Words.inkOn(signal.r, signal.g, signal.b)
     readonly property color quiet: fluid ? "#c4c0d4" : "#bcc1c0"
     readonly property string sans: fluid ? "Noto Sans" : "Roboto Condensed"
     readonly property string mono: "DejaVu Sans Mono"
@@ -126,6 +131,21 @@ FocusScope {
                 text: root.monitor + "   /   " + (root.widgets?.layout ?? "Default")
             }
             Rectangle {
+                id: showToggle
+                objectName: "editorShowToggle"
+                width: toggleLabel.implicitWidth + 36; height: 38
+                radius: root.fluid ? 19 : 0
+                anchors.right: done.left; anchors.rightMargin: 18; anchors.verticalCenter: parent.verticalCenter
+                color: "transparent"
+                border.width: 1
+                border.color: root.shown ? root.paper : root.signal
+                Accessible.role: Accessible.Button
+                Accessible.name: toggleLabel.text
+                Accessible.onPressAction: root.showWidgets(!root.shown)
+                Words { id: toggleLabel; anchors.centerIn: parent; text: root.shown ? "Hide widgets" : "Show widgets"; color: root.shown ? root.paper : root.signal }
+                TapHandler { onTapped: root.showWidgets(!root.shown) }
+            }
+            Rectangle {
                 id: done
                 objectName: "editorDone"
                 width: doneLabel.implicitWidth + 36; height: 38
@@ -188,6 +208,7 @@ FocusScope {
                     objectName: "editorClock"
                     x: root.box.x; y: root.box.y; width: root.box.width; height: root.box.height
                     rotation: root.pose.angle
+                    opacity: root.shown ? 1 : 0.35  // hidden on the desktop; still placeable here
                     DesktopClock { anchors.fill: parent; fluid: root.fluid; face: root.widgets?.face ?? ({}) }
                     DragSurface { objectName: "moveArea"; anchors.fill: parent; kind: root.margin ? root.tool : "Move" }
                     // Registration marks show the actual rotated bounds.

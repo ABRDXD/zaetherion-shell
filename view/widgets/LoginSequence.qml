@@ -53,6 +53,7 @@ Item {
     readonly property real dockX: 170 + 40 + 42 * week.today
     readonly property real dockWidth: briefDate ? 90 : 144
     readonly property color sheetInk: "#20232a"
+    readonly property color accent: Design.accent  // the study's amber, following the theme
     readonly property color sheetPaper: "#f2efdf"
     readonly property color backdrop: "#16191e"
     readonly property int stampSize: 14
@@ -185,11 +186,11 @@ Item {
                     const c = getContext("2d");
                     c.reset();
                     const inset = height * .21;
-                    c.fillStyle = gold ? "#ffd064" : root.sheetPaper;
+                    c.fillStyle = gold ? root.accent : root.sheetPaper;
                     c.beginPath(); c.moveTo(inset, 3); c.lineTo(width, 3);
                     c.lineTo(width - inset, height - 3); c.lineTo(1, height - 3);
                     c.closePath(); c.fill();
-                    c.fillStyle = rim ? "#ffd064" : root.sheetPaper;
+                    c.fillStyle = rim ? root.accent : root.sheetPaper;
                     c.fillRect(inset, 0, width - inset, 1);
                     c.fillRect(0, height - 1, width - inset, 1);
                 }

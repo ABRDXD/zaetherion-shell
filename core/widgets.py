@@ -3,7 +3,7 @@
 Stored in the state directory as widgets.json. A pose is on the display's 12-column grid: the first column (0-11),
 the span in columns, the centre's height as a share of the screen's height, and the angle in degrees. Layouts are
 named presets ("Default" first); each holds a pose per monitor (by connector name) and widget. A monitor with no
-saved pose shows the widget at its default pose. Face settings are kept beside the layouts and are never changed
+saved pose shows the widget at its default pose. `shown` turns them all off and on, keeping every pose. Face settings are kept beside the layouts and are never changed
 by placing a widget (resetting the face keeps the pose).
 """
 from __future__ import annotations
@@ -72,8 +72,10 @@ class Widgets:
         layout = saved.get("layout")
         face = saved.get("face")
         face = face if isinstance(face, dict) else {}
+        shown = saved.get("shown")
         self.state = {
             "version": 1,
+            "shown": shown if isinstance(shown, bool) else True,
             "layout": layout if isinstance(layout, str) and layout in layouts else DEFAULT_LAYOUT,
             "layouts": layouts,
             "face": {k: face[k] if face.get(k) in self._face_choices(k) else v for k, v in FACE.items()},
@@ -86,7 +88,7 @@ class Widgets:
 
     def snapshot(self) -> dict:
         layout = self.state["layouts"][self.state["layout"]]
-        return {"layout": self.state["layout"], "layouts": list(self.state["layouts"]),
+        return {"shown": self.state["shown"], "layout": self.state["layout"], "layouts": list(self.state["layouts"]),
                 "monitors": {m: dict(p) for m, p in layout.items()}, "defaults": {w: dict(DEFAULT_POSE) for w in WIDGETS},
                 "columns": COLUMNS, "minSpan": {w: spec["minSpan"] for w, spec in WIDGETS.items()},
                 "face": dict(self.state["face"])}
@@ -112,6 +114,15 @@ class Widgets:
             raise bad_args(f"at most {MAX_MONITORS} monitors in a layout")
         if layout.get(monitor, {}).get(widget) != pose:
             layout.setdefault(monitor, {})[widget] = pose
+            self._commit()
+        return self.snapshot()
+
+    def show(self, on) -> dict:
+        """Widgets on or off on every screen (owner, 24 Nov: from the desktop menu and the editor). Poses are kept."""
+        if not isinstance(on, bool):
+            raise bad_args("on must be true or false")
+        if on != self.state["shown"]:
+            self.state["shown"] = on
             self._commit()
         return self.snapshot()
 

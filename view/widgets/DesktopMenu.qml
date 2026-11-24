@@ -1,5 +1,7 @@
 pragma ComponentBehavior: Bound
 import QtQuick
+import qs.view.ui
+import "ClockWords.js" as Words
 
 FocusScope {
     id: menu
@@ -8,12 +10,17 @@ FocusScope {
     required property string fontFamily
     signal chosen(string label)
     signal dismissed()
-    readonly property var labels: ["Edit widgets", "Wallpaper", "Theme", "Settings"]
+    // Z86's four, and since 24 Nov a fifth for showing or hiding the widgets (owner); the rail and dividers follow.
+    property var labels: ["Edit widgets", "Wallpaper", "Theme", "Settings"]
+    readonly property int last: Math.max(1, labels.length - 1)
     readonly property int rowHeight: fluid ? 47 : 44
     readonly property int inset: fluid ? 9 : 8
     readonly property int labelSize: fluid ? 17 : 19
     readonly property color paper: fluid ? "#f3efff" : "#f3efdc"
     property int current: 0
+    // Angular's amber band and Fluid's lilac highlight follow the theme's accent (owner, 24 Nov).
+    property color accent: Design.accent
+    readonly property color onAccent: Words.inkOn(accent.r, accent.g, accent.b)
     implicitWidth: fluid ? 232 : 242
     implicitHeight: 2 * inset + labels.length * rowHeight
     Accessible.role: Accessible.PopupMenu
@@ -34,6 +41,8 @@ FocusScope {
     function orbitX(t) { return 34 - 12 * Math.sin(Math.PI * t); }
     Canvas {
         anchors.fill: parent
+        property color tint: menu.accent  // repaint when the theme changes
+        onTintChanged: requestPaint()
         onPaint: {
             const c = getContext("2d");
             c.clearRect(0, 0, width, height);
@@ -53,16 +62,16 @@ FocusScope {
             }
             c.closePath(); c.fillStyle = menu.fluid ? "#2d273e" : "#20232b"; c.fill();
             if (menu.fluid) {
-                c.strokeStyle = "#b5a7cf"; c.lineWidth = 1; c.stroke();
+                c.strokeStyle = Qt.alpha(menu.accent, 0.7); c.lineWidth = 1; c.stroke();
                 c.beginPath();
                 for (let n = 0; n <= 32; ++n) {
                     const t = n / 32;
-                    const y = menu.inset + menu.rowHeight * (0.5 + 3 * t);
+                    const y = menu.inset + menu.rowHeight * (0.5 + menu.last * t);
                     if (!n) c.moveTo(menu.orbitX(t), y); else c.lineTo(menu.orbitX(t), y);
                 }
-                c.strokeStyle = "#86749f"; c.stroke();
+                c.strokeStyle = Qt.alpha(menu.accent, 0.5); c.stroke();
             } else {
-                c.fillStyle = "#ffd064"; c.fillRect(0, 0, 49, 3);
+                c.fillStyle = menu.accent; c.fillRect(0, 0, 49, 3);
                 c.fillStyle = "#60616a"; c.fillRect(49, 0, width - 49, 1);
             }
         }
@@ -86,11 +95,13 @@ FocusScope {
                 anchors.fill: parent
                 property bool highlighted: row.selected
                 onHighlightedChanged: requestPaint()
+                property color tint: menu.accent  // repaint when the theme changes
+                onTintChanged: requestPaint()
                 onPaint: {
                     const c = getContext("2d");
                     c.clearRect(0, 0, width, height);
                     if (menu.fluid) {
-                        const x = menu.orbitX(row.index / 3);
+                        const x = menu.orbitX(row.index / menu.last);
                         if (row.selected) {
                             c.beginPath(); c.moveTo(x + 8, height / 2);
                             c.bezierCurveTo(x + 20, height / 2, 40, 3, 61, 3);
@@ -98,15 +109,15 @@ FocusScope {
                             c.bezierCurveTo(width - 3, 3, width - 3, height - 3, width - 30, height - 3);
                             c.lineTo(61, height - 3);
                             c.bezierCurveTo(41, height - 3, x + 20, height / 2, x + 8, height / 2);
-                            c.fillStyle = "#d5c5ff"; c.fill();
+                            c.fillStyle = menu.accent; c.fill();
                         }
                         c.beginPath(); c.arc(x, height / 2, row.selected ? 5 : 3, 0, 2 * Math.PI);
-                        c.fillStyle = row.selected ? "#f5efff" : "#a197b5"; c.fill();
+                        c.fillStyle = row.selected ? "#f5efff" : Qt.alpha(menu.accent, 0.6); c.fill();
                     } else if (row.selected) {
                         c.beginPath(); c.moveTo(7, 2); c.lineTo(width - 9, 2);
                         c.lineTo(width - 18, height - 2); c.lineTo(7, height - 2);
-                        c.closePath(); c.fillStyle = "#ffd064"; c.fill();
-                    } else if (row.index < 3) {
+                        c.closePath(); c.fillStyle = menu.accent; c.fill();
+                    } else if (row.index < menu.last) {
                         c.fillStyle = "#464952"; c.fillRect(19, height - 1, width - 41, 1);
                     }
                 }
@@ -118,19 +129,21 @@ FocusScope {
                 font.family: menu.fontFamily
                 font.pixelSize: menu.labelSize
                 font.weight: row.selected ? Font.DemiBold : Font.Normal
-                color: row.selected ? "#25232f" : menu.paper
+                color: row.selected ? menu.onAccent : menu.paper
             }
             // A cut-out arrow marks the active Angular index row.
             Canvas {
                 visible: !menu.fluid && row.selected
                 x: parent.width - 48; anchors.verticalCenter: parent.verticalCenter
                 width: 16; height: 12
+                property color tint: menu.accent  // repaint when the theme changes
+                onTintChanged: requestPaint()
                 onPaint: {
                     const c = getContext("2d");
                     c.clearRect(0, 0, width, height); c.beginPath();
                     c.moveTo(1, 6); c.lineTo(13, 6);
                     c.moveTo(8, 1); c.lineTo(13, 6); c.lineTo(8, 11);
-                    c.lineWidth = 2; c.strokeStyle = "#25232f"; c.stroke();
+                    c.lineWidth = 2; c.strokeStyle = menu.onAccent; c.stroke();
                 }
             }
             MouseArea {

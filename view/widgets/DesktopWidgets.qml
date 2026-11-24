@@ -49,6 +49,10 @@ Scope {
         onLoadFailed: root.arrivalChecked = true  // no marker: no login to play
     }
 
+    function show(on) {
+        root.core?.request("widgets.show", { on: on },
+                           (ok, result) => { if (!ok) console.warn("widgets.show: " + (result?.message ?? "failed")); });
+    }
     function place(monitor, pose) {
         root.core?.request("widgets.place", { monitor: monitor, column: pose.column, span: pose.span, y: pose.y, angle: pose.angle },
                            (ok, result) => { if (!ok) console.warn("widgets.place: " + (result?.message ?? "failed")); });
@@ -82,6 +86,7 @@ Scope {
                 function onDismissed() { slot.sheetMode = ""; }
                 function onOpenSettings(section) { root.openSettings(section); }
                 function onPlaced(pose) { root.place(slot.monitor, pose); }
+                function onShowWidgets(on) { root.show(on); }
             }
             function dress(sheet) {
                 sheet.mode = slot.sheetMode;
@@ -100,7 +105,8 @@ Scope {
             function dressLogin(sequence) {
                 sequence.clockRect = Qt.binding(() => slot.stage?.clockRect ?? Qt.rect(0, 0, 0, 0));
                 sequence.angle = Qt.binding(() => slot.stage?.pose.angle ?? 0);
-                sequence.occupied = Qt.binding(() => !slot.empty);
+                // Widgets off: nothing to dock into, so the login lands as on a busy desktop.
+                sequence.occupied = Qt.binding(() => !slot.empty || root.core?.widgetsData?.shown === false);
                 sequence.face = root.core?.widgetsData?.face ?? ({});
                 sequence.finished.connect(() => root.arrival = null);
                 sequence.forceActiveFocus();

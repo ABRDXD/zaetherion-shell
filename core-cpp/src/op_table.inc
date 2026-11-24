@@ -33,6 +33,7 @@ R"optable({
   {"op":"widgets.place","peer":"peer","params":[{"name":"monitor"},{"name":"column"},{"name":"span"},{"name":"y"},{"name":"angle"},{"name":"widget","default":"clock"}],"varkw":null},
   {"op":"widgets.layout","peer":"peer","params":[{"name":"name"}],"varkw":null},
   {"op":"widgets.reset","peer":"peer","params":[],"varkw":null},
+  {"op":"widgets.show","peer":"peer","params":[{"name":"on"}],"varkw":null},
   {"op":"lock.engage","peer":"peer","params":[{"name":"reason","default":"command"}],"varkw":null},
   {"op":"lock.release","peer":"peer","params":[],"varkw":null},
   {"op":"exhibit.prepare","peer":"peer","params":[{"name":"reduced","default":true},{"name":"metadata","default":null}],"varkw":null},

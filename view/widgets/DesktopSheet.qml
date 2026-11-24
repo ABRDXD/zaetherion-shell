@@ -16,6 +16,9 @@ FocusScope {
     signal dismissed()
     signal openSettings(string section)
     signal placed(var pose)
+    signal showWidgets(bool on)
+    readonly property bool shown: widgets?.shown !== false
+    readonly property string toggleLabel: shown ? "Hide widgets" : "Show widgets"
     readonly property Item menu: menuLoader.item
     readonly property Item editor: editorLoader.item
     focus: true
@@ -24,6 +27,11 @@ FocusScope {
     function choose(label) {
         if (label === "Edit widgets") {
             mode = "edit";
+            return;
+        }
+        if (label === root.toggleLabel) {
+            root.showWidgets(!root.shown);
+            root.dismissed();
             return;
         }
         // Ask first: dismissing unloads this sheet, and with it the connection that carries the request.
@@ -48,6 +56,7 @@ FocusScope {
             objectName: "desktopMenu"
             fluid: root.fluid
             fontFamily: root.fluid ? "Noto Sans" : "Roboto Condensed"
+            labels: ["Edit widgets", "Wallpaper", "Theme", "Settings", root.toggleLabel]
             onDismissed: root.dismissed()
             onChosen: label => root.choose(label)
         }
@@ -65,6 +74,7 @@ FocusScope {
             widgets: root.widgets
             wallpaper: root.wallpaper
             onPlaced: pose => root.placed(pose)
+            onShowWidgets: on => root.showWidgets(on)
             onClosed: root.dismissed()
         }
     }
