@@ -21,14 +21,14 @@ Rectangle {
                 Rectangle { width: EclipseLook.pauseBarWidth; height: EclipseLook.pauseBarHeight; color: EclipseLook.lime }
             }
         }
-        Text { text: "Frozen screen"; color: EclipseLook.footerText; font.family: Design.mono; font.pixelSize: Design.control }
+        Text { text: "Frozen screen"; color: EclipseLook.footerText; font.family: Design.mono; font.pixelSize: 13 }
     }
     Text {
         anchors.centerIn: parent
         text: root.prompt
         color: EclipseLook.footerText
         font.family: Design.sans
-        font.pixelSize: Design.readout
+        font.pixelSize: 20
     }
     Text {
         anchors.right: parent.right
@@ -37,6 +37,6 @@ Rectangle {
         text: "Esc Cancel"
         color: EclipseLook.footerText
         font.family: Design.mono
-        font.pixelSize: Design.control
+        font.pixelSize: 13
     }
 }

@@ -84,14 +84,16 @@ FocusScope {
             text: root.crop ? Geometry.sizeText(root.crop, root.sourceScale) : ""
             color: ViewfinderLook.ink
             font.family: Design.mono
-            font.pixelSize: Design.control
+            font.pixelSize: 13
             font.bold: true
         }
     }
     Rectangle {
         id: hint
-        readonly property var atBottom: ({ x: (root.width - width) / 2, y: root.height - ViewfinderLook.hintMargin - height, width: width, height: height })
-        readonly property var atTop: ({ x: atBottom.x, y: ViewfinderLook.hintMargin, width: width, height: height })
+        readonly property bool compact: root.width <= 540
+        readonly property real margin: compact ? 6 : ViewfinderLook.hintMargin
+        readonly property var atBottom: ({ x: (root.width - width) / 2, y: root.height - margin - height, width: width, height: height })
+        readonly property var atTop: ({ x: atBottom.x, y: margin, width: width, height: height })
         function meets(r) {
             if (!root.crop)
                 return false;
@@ -102,27 +104,32 @@ FocusScope {
         visible: root.active && place !== "none"
         x: atBottom.x
         y: place === "top" ? atTop.y : atBottom.y
-        width: hintRow.implicitWidth + 2 * ViewfinderLook.hintPadX
-        height: hintRow.implicitHeight + 2 * ViewfinderLook.hintPadY
+        width: compact ? root.width - 2 * margin : hintRow.implicitWidth + 2 * ViewfinderLook.hintPadX
+        height: hintRow.implicitHeight + 2 * (compact ? 8 : ViewfinderLook.hintPadY)
         color: ViewfinderLook.hint
         Row {
             id: hintRow
             anchors.centerIn: parent
-            spacing: ViewfinderLook.hintGap
+            spacing: hint.compact ? 6 : ViewfinderLook.hintGap
             Text {
                 anchors.verticalCenter: parent.verticalCenter
+                id: tag
                 text: "RECORD AREA"; color: ViewfinderLook.coral; font.bold: true
-                font.family: Design.mono; font.pixelSize: Design.caption; font.letterSpacing: ViewfinderLook.tagSpacing
+                font.family: Design.mono; font.pixelSize: hint.compact ? 10 : 11; font.letterSpacing: ViewfinderLook.tagSpacing
             }
             Text {
                 anchors.verticalCenter: parent.verticalCenter
+                width: hint.compact ? Math.min(implicitWidth, Math.max(1, hint.width - 16 - tag.width - escapeLabel.width - 2 * hintRow.spacing)) : implicitWidth
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Text.AlignHCenter
                 text: root.prompt; color: ViewfinderLook.paper; font.weight: Font.Medium
-                font.family: Design.sans; font.pixelSize: Design.readout
+                font.family: Design.sans; font.pixelSize: hint.compact ? 15 : 20
             }
             Text {
                 anchors.verticalCenter: parent.verticalCenter
+                id: escapeLabel
                 text: "Esc · Cancel"; color: ViewfinderLook.hintSmall
-                font.family: Design.mono; font.pixelSize: Design.caption
+                font.family: Design.mono; font.pixelSize: hint.compact ? 10 : 11
             }
         }
     }
