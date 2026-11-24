@@ -69,8 +69,9 @@ out, state files written), run against **both** cores. A stage merges only when 
 ## Rules
 - Same socket protocol, same topic snapshots, same state and cache files. The view never knows which core runs.
 - No new runtime dependency beyond Qt 6 Core/Network/DBus (AGENTS.md: a dependency needs a concrete benefit).
-- Each stage: full suite, parity on both cores, RSS/PSS/private dirty measured, then merged by Claude A.
-- **Who:** Claude B leads the port (core, CLI and adapters are Claude B's); Claude A writes the parity harness,
-  measures, reviews and merges. Astra and the owner see no change.
-- **Starts** after the focus-tracker decision (OPEN 1 / Z225, run ends 24 November 18:59) and Astra's review of
-  the 22 November builds, so nothing in flight moves underneath them.
+- Each stage: full suite, parity on both cores, RSS/PSS/private dirty measured, a code review, then merged.
+- **Who:** Claude B leads the port (core, CLI and adapters are Claude B's); Claude A wrote the parity harness.
+  Since 24 November (owner: Claude A moves to another project) Claude B also measures and merges, so each stage
+  gets a separate code-review pass before it merges. Astra and the owner see no change.
+- **Started** 23 November (owner: "you carry on"); the focus-tracker decision (Z225) and Astra's review of the
+  22 November builds are both done (24 November).
