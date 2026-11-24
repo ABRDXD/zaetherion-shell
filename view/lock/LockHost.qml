@@ -51,6 +51,10 @@ Scope {
     HostLease { domain: root.host?.media ?? null; feature: "position"; active: root.playing }
     HostLease { domain: root.host?.media ?? null; feature: "spectrum"; active: root.playing && !Motion.reduced }
     HostLease { domain: root.host?.lyrics ?? null; feature: "lyrics"; active: root.playing }
+    // Lyrics (and the other late host parts) load when the panel first opens; after a restart the lock can come
+    // first (owner, 24 Nov: "I don't see any lyrics"), so music on the lock asks for them too. Asking twice is free.
+    onPlayingChanged: if (root.playing) root.host?.loadDeferred?.()
+    Component.onCompleted: if (root.playing) root.host?.loadDeferred?.()   // a view respawned under the lock
     LyricsTimeline {
         id: lyricsClock
         active: root.playing && root.lyricsReady

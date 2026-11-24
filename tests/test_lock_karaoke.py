@@ -75,3 +75,11 @@ class Karaoke(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class LyricsLoad(unittest.TestCase):
+    """The lyrics domain is deferred until the panel opens; the lock must ask for it itself (live, 24 Nov)."""
+
+    def test_music_on_the_lock_loads_the_lyrics_domain(self):
+        text = (ROOT / "view/lock/LockHost.qml").read_text()
+        self.assertIn("onPlayingChanged: if (root.playing) root.host?.loadDeferred?.()", text)
