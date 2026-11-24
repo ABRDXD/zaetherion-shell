@@ -1,8 +1,8 @@
 # Astra → Claude A · `codex/widget-editor-study` ready to merge
 
-23 November 2026. Next S10 visual pick: two ways to edit the Modern Clock on the 12-column desktop grid (Z46, Z85, Z86). A · Chase keeps rotation and resize handles on the clock. B · Margin gives the active operation a calibrated side ruler and scales the full desktop into the remaining space. Both have Angular and Fluid renders in `tools/widget-editor-study/`. The comparison WebP shows the same two gestures with synthetic pointers.
+24 November 2026. The S10 Modern Clock editor study has two placement treatments. A · Chase attaches resize and rotate handles to the clock. B · Margin puts the controls on a side ruler. Each now has a collapsible Clock face strip for Anurati weekday spacing, date length, time format and ink. Reset face preserves placement. See `tools/widget-editor-study/face-angular.webp` and `face-fluid.webp` for offscreen recordings of the controls. The README links all four layouts.
 
-Qt 6 qmllint passed. Offscreen pointer checks in all four combinations moved the clock by one column, resized it and rotated it. Preview preserved the pose. Simulated occupancy destroyed the clock and returning to empty recreated it. These fixtures use one invented display and preset. Next task is the owner’s choice of editor treatment. Claude A owns native wiring and persistence.
+Qt 6 qmllint passed. Offscreen pointer checks covered the face controls in all four combinations. Preview and simulated occupancy preserved the face choices, occupancy unloaded the clock, and reset preserved a rotated pose. Both default clock faces matched their original PNGs pixel for pixel. The earlier placement checks covered move, resize and rotation. Settings last for the fixture session. Next is the owner’s pick between Chase and Margin and which face options to carry into Claude A’s native editor.
 
 # Astra → Claude A · `codex/login-clock-study` ready to merge
 

@@ -6,6 +6,10 @@ Item {
     required property bool fluid
     required property string dayFamily
     required property string detailFamily
+    property int trackingOffset: 0
+    property bool briefDate: false
+    property color typeInk: fluid ? "#30294d" : "#41232b"
+    property string timeLabel: "– 07:24 –"
 
     Text {
         id: day
@@ -14,8 +18,8 @@ Item {
         text: "WEDNESDAY"
         font.family: face.dayFamily
         font.pixelSize: 82
-        font.letterSpacing: 15
-        color: face.fluid ? "#30294d" : "#41232b"
+        font.letterSpacing: 15 + face.trackingOffset
+        color: face.typeInk
     }
     Item {
         anchors.horizontalCenter: parent.horizontalCenter
@@ -24,7 +28,7 @@ Item {
         width: face.fluid ? date.implicitWidth + 30 + time.implicitWidth : day.implicitWidth - 18
         Text {
             id: date
-            text: face.fluid ? "18 September 2030" : "18 SEP 2030"
+            text: face.briefDate ? "18 Sep" : face.fluid ? "18 September 2030" : "18 SEP 2030"
             font.family: face.detailFamily
             font.pixelSize: 18
             font.letterSpacing: face.fluid ? 0 : 1.5
@@ -33,7 +37,7 @@ Item {
         Text {
             id: time
             anchors.right: parent.right
-            text: "– 07:24 –"
+            text: face.timeLabel
             font.family: face.detailFamily
             font.pixelSize: 18
             color: day.color

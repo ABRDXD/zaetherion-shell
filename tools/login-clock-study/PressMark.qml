@@ -15,9 +15,11 @@ Item {
         scale: mark.width / width
         Canvas {
             anchors.fill: parent
+            property color fill: mark.paper
+            onFillChanged: requestPaint()
             onPaint: {
                 const c = getContext("2d");
-                c.fillStyle = mark.paper;
+                c.fillStyle = fill;
                 c.beginPath();
                 c.moveTo(66, 0); c.lineTo(width, 0); c.lineTo(width, height);
                 c.lineTo(1, height); c.closePath(); c.fill();

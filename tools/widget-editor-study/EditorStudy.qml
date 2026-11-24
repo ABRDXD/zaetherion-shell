@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Window
+import QtQuick.Controls
 import QtCore
 import "../widget-study" as Widgets
 import "../login-clock-study" as Login
@@ -14,6 +15,8 @@ Window {
     readonly property bool fluid: args.includes("--fluid")
     readonly property bool margin: args.includes("--margin")
     property bool editing: true
+    property bool faceOpen: true
+    readonly property string timeLabel: faceStrip.twelveHour ? "– 7:24 AM –" : "– 07:24 –"
     property bool occupied: args.includes("--occupied")
     property string tool: "Move"
     readonly property string activeTool: pose.gesture || tool
@@ -82,7 +85,30 @@ Window {
                 x: 245; anchors.verticalCenter: parent.verticalCenter
                 text: "Display 1   /   Morning"
             }
+            AbstractButton {
+                id: appearance
+                objectName: "faceToggle"
+                visible: win.editing && !win.occupied
+                text: "Clock face"
+                anchors.right: previewAction.left; anchors.rightMargin: 18
+                anchors.verticalCenter: parent.verticalCenter
+                implicitWidth: 115; implicitHeight: 38
+                Accessible.checkable: true
+                Accessible.checked: win.faceOpen
+                onClicked: win.faceOpen = !win.faceOpen
+                contentItem: Words {
+                    horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
+                    text: appearance.text; color: win.faceOpen ? win.signal : win.paper
+                }
+                background: Rectangle {
+                    color: "transparent"
+                    radius: win.fluid ? 19 : 0
+                    border.width: appearance.visualFocus || win.faceOpen ? 1 : 0
+                    border.color: win.faceOpen ? win.signal : win.paper
+                }
+            }
             Rectangle {
+                id: previewAction
                 width: action.implicitWidth + 36; height: 38
                 radius: win.fluid ? 19 : 0
                 anchors.right: parent.right; anchors.rightMargin: 28; anchors.verticalCenter: parent.verticalCenter
@@ -98,7 +124,7 @@ Window {
 
         Item {
             id: viewport
-            y: header.height; height: sheet.height - y
+            y: header.height; height: sheet.height - y - (faceStrip.visible ? faceStrip.height : 0)
             width: sheet.width - (marginPanel.visible ? marginPanel.width : 0)
             clip: true
             Item {
@@ -156,16 +182,27 @@ Window {
                                 sourceComponent: win.fluid ? softDay : angularDay
                                 Component {
                                     id: angularDay
-                                    Widgets.DayIndex { dayFamily: win.dayFamily; detailFamily: win.smallFamily }
+                                    Widgets.DayIndex {
+                                        dayFamily: win.dayFamily; detailFamily: win.smallFamily
+                                        briefDate: faceStrip.briefDate
+                                        trackingOffset: faceStrip.trackingOffset
+                                        timeLabel: win.timeLabel; signal: faceStrip.chosenInk
+                                    }
                                 }
                                 Component {
                                     id: softDay
-                                    Widgets.OffcutClock { fluid: true; dayFamily: win.dayFamily; detailFamily: win.smallFamily }
+                                    Widgets.OffcutClock {
+                                        fluid: true; dayFamily: win.dayFamily; detailFamily: win.smallFamily
+                                        briefDate: faceStrip.briefDate
+                                        trackingOffset: faceStrip.trackingOffset
+                                        timeLabel: win.timeLabel; typeInk: faceStrip.chosenInk
+                                    }
                                 }
                             }
                             Login.PressMark {
                                 visible: !win.fluid
                                 x: 43; y: 10; width: 56; height: 40
+                                paper: faceStrip.inkChoice === 0 ? "#f2efdf" : faceStrip.chosenInk
                                 progress: 1; line: 3
                             }
                         }
@@ -217,6 +254,14 @@ Window {
             }
         }
 
+        FaceStrip {
+            id: faceStrip
+            objectName: "appearanceStrip"
+            fluid: win.fluid
+            visible: win.faceOpen && win.editing && !win.occupied
+            anchors.bottom: parent.bottom; width: parent.width
+            height: implicitHeight
+        }
         Rectangle {
             id: marginPanel
             anchors.right: parent.right; y: header.height; height: viewport.height; width: 286
