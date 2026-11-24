@@ -128,7 +128,7 @@ ZÆTHERION inherits FART-next's D-series decisions (D1–D23) except where [Inhe
 | Z83 | **Sky style:** a **star chart at night** (ink ground, stars sized by magnitude, faint constellation lines, alt-az grid, labelled planets) and a **gradient by sun altitude during the day**. |
 | Z84 | **Wallpaper folder:** `~/Pictures/Wallpapers`, changeable in settings. |
 | Z85 | **Widgets:** island-coloured **montage planes**. They are **unloaded** (Loader inactive, objects destroyed) whenever the active workspace has any window, to save RAM, and rebuilt when it's empty. |
-| Z86 | **Widget editor:** reached from the **desktop right-click menu**: Edit widgets, Wallpaper, Theme, Settings. |
+| Z86 | **Widget editor:** reached from the **desktop right-click menu**: Edit widgets, Wallpaper, Theme, Settings. Owner approved both menu designs on 24 November 2026. Angular uses a clipped index with an amber selection band. Fluid uses a curved rail with a lilac highlight. |
 | Z87 | **Lock layout:** a **centred title card**. The slanted clock and the date are centred over the sky, with the password plane under them. Media, battery and power sit on the bottom band. |
 | Z88 | **Wrong password:** the field shakes (no shake under reduced motion) and a line reads `> AUTH FAILED · n`. There is no attempt limit. |
 | Z89 | **Lock background:** the current **wallpaper with sky cuts**, never a screen capture. |

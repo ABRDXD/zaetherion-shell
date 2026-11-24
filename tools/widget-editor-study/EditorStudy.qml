@@ -296,7 +296,7 @@ Window {
             y: Math.max(0, Math.min(win.menuOrigin.y, sheet.height - height))
             focus: active
             onActiveChanged: if (!active) sheet.forceActiveFocus()
-            sourceComponent: DesktopMenu {
+            sourceComponent: Placement.DesktopMenu {
                 fluid: win.fluid
                 fontFamily: win.sans
                 onDismissed: win.menuOpen = false

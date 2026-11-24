@@ -206,3 +206,6 @@ adapts the ruler from that same study.
 tools/widget-editor-study/desktop-menu-angular.webp and desktop-menu-fluid.webp
 are offscreen renders of the original desktop menu, wallpaper and clock studies.
 The clock lettering uses the local font samples credited above.
+
+view/widgets/DesktopMenu.qml is the original ZÆTHERION desktop menu study
+from tools/widget-editor-study at 2dd2b08.
