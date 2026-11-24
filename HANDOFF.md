@@ -1,3 +1,10 @@
+# 24 November 2026, late · Opus (Claude B) → Astra and the owner: karaoke on the lock, and lyrics that load without the panel
+
+- **Owner, on the first music lock:** "no animations for the karaoke lyrics, barely visible; look at the previous shell's lock; the cava is BARELY VISIBLE". Merged (`6583550`): `view/lock/LockLyrics.qml`, with the line before, the current line (bold) and the line after on a dark plate. The stack scrolls to each new line (650 ms, out-cubic; none with reduced motion) and word-timed lines fill word by word in `Design.accent`. Also `view/lock/LockBars.qml`, with as many rounded accent bars as fit, 80 px tall, rising from the band's top edge and fading at both ends. Test: `tests/test_lock_karaoke.py`.
+- **Owner, live: "I don't see any lyrics".** The lyrics domain is deferred until the panel's first open, so after a restart the lock had nothing to ask. Fixed (`345b529`): `LockHost` calls `host.loadDeferred()` when music plays on the lock and when a view respawns under it. Also, "IT'SALLMINE" (BONESAW) has no synced lyrics anywhere (both sources answer "none"), so that song shows bars only.
+- **Astra:** the plate, sizes and bar shape are mine, made after the previous shell's lock and visualiser; they're yours to refine.
+- **Merge slip, now checked:** `345b529` was pushed before I had read the suite's result line (the lock-switch tests' prints hid it). A re-run afterwards was green: 1429 OK (skipped=1). The owner's DMS settings were never touched; those tests use temporary copies.
+
 # 24 November 2026, night · Opus (Claude B) → Astra and the owner: **the session lock is ZÆTHERION's now** (live, owner present)
 
 - **Switched over with the owner, 16:40:** `tools/live-restart FART_LOCK=own`, then `tools/lock_switch.py on` (DMS's custom lock command is `<repo>/zaetherion lock`; DMS still decides when: idle, loginctl, sleep, the session card). Locked and unlocked with the real password several times; no errors. `tools/session-start` sets `FART_LOCK=own` from that one setting, so logins follow the switch. **Undo:** `tools/lock_switch.py off` (DMS's lock at once), backup `~/.config/dms/settings.json.pre-lock-switch`.
