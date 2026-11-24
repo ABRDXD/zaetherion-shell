@@ -31,6 +31,8 @@ Scope {
     property real rejectionMs: -1
     property string notice: ""
     property real holdProgress: 0
+    // After the core says unlocked, the screen stays covered for the cut-away (owner, 24 Nov: arrival + living sky).
+    property bool leaving: false
     readonly property string wallpaper: root.core?.wallpaperData?.applied ?? ""
     readonly property var track: root.host?.media?.active ?? null
     readonly property real batteryFraction: root.host?.power?.battery?.available ? root.host.power.battery.level : -1
@@ -104,7 +106,12 @@ Scope {
     Activity { name: "lock.shake"; running: shake.running }
     Activity { name: "lock.hold"; running: hold.running }
 
+    Timer { id: leave; interval: 300; onTriggered: root.leaving = false }
     onLockedChanged: {
+        if (!locked && session.locked) {
+            leaving = true;
+            leave.restart();
+        }
         if (!locked) {
             powerChoice = false;
             attempts = 0;
@@ -116,7 +123,7 @@ Scope {
 
     WlSessionLock {
         id: session
-        locked: root.locked
+        locked: root.locked || root.leaving
         WlSessionLockSurface {
             color: "#06070a"
             LockScreen {

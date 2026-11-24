@@ -19,6 +19,12 @@ import qs.view.lock
 Scope {
     id: harness
     function say(name, value) { console.log("LOCKS " + JSON.stringify([name, value])); }
+    function deep(item, name) {
+        if (!item) return null;
+        if (item.objectName === name) return item;
+        for (const k of Array.from(item.children ?? [])) { const h = deep(k, name); if (h) return h; }
+        return null;
+    }
     function props(item) {
         const out = [];
         for (const k in item) { try { const v = item[k]; if (typeof v === "string") out.push(v); } catch (e) {} }
@@ -85,16 +91,16 @@ Scope {
                 screen.field.text = "hunter2-secret";
                 break;
             case 2: {
-                const face = screen.children.find(c => c.objectName === "lockFace").item;
+                const face = harness.deep(screen, "lockFace").item;
                 harness.say("maskLength", face.maskLength);
                 harness.say("secretInFace", harness.props(face).some(v => v.indexOf("hunter2") >= 0));
                 screen.field.accepted();
                 break;
             }
             case 3: {
-                const face = screen.children.find(c => c.objectName === "lockFace").item;
+                const face = harness.deep(screen, "lockFace").item;
                 harness.say("afterEnter", [screen.field.text, host.submitted, face.attempts, face.rejectionMs, face.maskLength]);
-                harness.say("plainCard", [plain.faceLoaded, plain.children.find(c => c.objectName === "plainCard").visible]);
+                harness.say("plainCard", [plain.faceLoaded, harness.deep(plain, "plainCard").visible]);
                 if (Quickshell.env("LOCK_SHOT")) screen.grabToImage(r => r.saveToFile(Quickshell.env("LOCK_SHOT")));
                 break;
             }
