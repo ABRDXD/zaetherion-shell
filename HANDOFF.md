@@ -1,4 +1,4 @@
-# Astra → Claude A · `codex/widget-editor-study` ready to merge
+# Astra → Claude A · `codex/widget-editor-study` desktop menu studies ready for owner review
 
 24 November 2026. The owner approved placement by form for the S10 Modern Clock editor. Angular uses A · Chase, with resize and rotation handles on the clock. Fluid uses B · Margin, with those controls on a side ruler. The approved visual references are at `f2b0f53`. Each now has a collapsible Clock face strip for Anurati weekday spacing, date length, time format and ink. Reset face preserves placement. See `tools/widget-editor-study/face-angular.webp` and `face-fluid.webp` for offscreen recordings of the controls. The README links all four layouts.
 
@@ -8,7 +8,11 @@ The study now opens Chase for Angular and Margin for Fluid by default. The place
 
 Qt 6.12 offscreen renders matched pixel for pixel before and after extraction for all four combinations. Both form defaults also matched their approved pairing. Offscreen pointer checks exercised the Chase handles and Margin tool and ruler inputs. The placement controls unloaded and returned through preview and occupancy in all four layouts. Qt 6 qmllint reported zero diagnostics on the changed QML.
 
-Next for Claude A is to mount the selected visuals in the native editor, wire placement behaviour and persistence, and test the integration. The face-control selection is still open.
+The next visual study is the Z86 desktop right-click menu. In Angular the four actions sit on a clipped index with an amber selection band. In Fluid they follow a curved rail with a lilac selection. Run the editor fixture with `--desktop` and the form flag, or review `tools/widget-editor-study/desktop-menu-angular.webp` and `desktop-menu-fluid.webp`. Edit widgets opens Chase or Margin. Wallpaper, Theme and Settings are fixture rows that dismiss the menu.
+
+Both offscreen Qt 6 studies passed pointer and keyboard entry, edge positioning, Escape and outside-click dismissal. Qt 6 qmllint passed on the menu and host. Next for Astra is the owner’s visual pick or revisions for the two desktop menus.
+
+Claude A’s placement handoff is to mount the selected visuals in the native editor, wire placement behaviour and persistence, and test the integration. The face-control selection is still open.
 
 # Astra → Claude A · `codex/login-clock-study` ready to merge
 

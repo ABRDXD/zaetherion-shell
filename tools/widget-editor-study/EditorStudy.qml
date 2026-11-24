@@ -15,7 +15,14 @@ Window {
     readonly property var args: Qt.application.arguments
     readonly property bool fluid: args.includes("--fluid")
     readonly property bool margin: args.includes("--margin") || (fluid && !args.includes("--chase"))
-    property bool editing: true
+    readonly property bool desktopStudy: args.includes("--desktop")
+    property bool editing: !desktopStudy
+    property bool menuOpen: false
+    property point menuOrigin
+    function openMenu(x, y) {
+        menuOrigin = Qt.point(x, y);
+        menuOpen = true;
+    }
     property bool faceOpen: true
     readonly property string timeLabel: faceStrip.twelveHour ? "– 7:24 AM –" : "– 07:24 –"
     property bool occupied: args.includes("--occupied")
@@ -73,10 +80,14 @@ Window {
         color: win.stock
         focus: true
         Keys.onSpacePressed: win.occupied = !win.occupied
-        Keys.onEscapePressed: win.editing = !win.editing
+        Keys.onEscapePressed: {
+            if (win.menuOpen) win.menuOpen = false;
+            else if (!win.desktopStudy || win.editing) win.editing = !win.editing;
+        }
         Item {
             id: header
-            width: parent.width; height: 74
+            visible: !win.desktopStudy || win.editing
+            width: parent.width; height: visible ? 74 : 0
             Words {
                 x: 32; anchors.verticalCenter: parent.verticalCenter
                 text: win.editing ? "Edit widgets" : "Layout preview"
@@ -130,7 +141,7 @@ Window {
             clip: true
             Item {
                 id: desk
-                width: 1160; height: 576
+                width: 1160; height: win.desktopStudy && !win.editing ? 650 : 576
                 anchors.centerIn: parent
                 scale: Math.min(viewport.width / width, viewport.height / height)
                 clip: true
@@ -266,6 +277,32 @@ Window {
                     if (tool === "Rotate") pose.angle = value;
                     else if (tool === "Move") pose.column = value - 1;
                     else pose.span = value;
+                }
+            }
+        }
+        MouseArea {
+            anchors.fill: parent
+            enabled: win.desktopStudy && !win.editing
+            acceptedButtons: win.menuOpen ? Qt.LeftButton | Qt.RightButton : Qt.RightButton
+            onPressed: event => {
+                if (event.button === Qt.RightButton) win.openMenu(event.x, event.y);
+                else win.menuOpen = false;
+            }
+        }
+        Loader {
+            id: menuLoader
+            active: win.menuOpen
+            x: Math.max(0, Math.min(win.menuOrigin.x, sheet.width - width))
+            y: Math.max(0, Math.min(win.menuOrigin.y, sheet.height - height))
+            focus: active
+            onActiveChanged: if (!active) sheet.forceActiveFocus()
+            sourceComponent: DesktopMenu {
+                fluid: win.fluid
+                fontFamily: win.sans
+                onDismissed: win.menuOpen = false
+                onChosen: label => {
+                    win.menuOpen = false;
+                    if (label === "Edit widgets") win.editing = true;
                 }
             }
         }

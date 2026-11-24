@@ -26,6 +26,12 @@ Both editors work in the same 12-column space. Margin scales the desktop preview
 
 The three-column lower limit is a fixture size for this clock sample. The monitor and preset names give the editing context. Preset management, the desktop menu and persistence belong to native integration after the visual pick.
 
+### Desktop menu study
+
+Run `qml6 EditorStudy.qml -- --desktop --angular` or replace `--angular` with `--fluid` in an offscreen or isolated display. Right-click the fixture desktop to open the four actions from Z86. **Edit widgets** enters the approved placement editor. The other three rows dismiss the study menu. Use the arrow keys and Enter to choose, or Escape to dismiss. Escape from the editor returns to the fixture desktop.
+
+The [Angular recording](desktop-menu-angular.webp) shows the cut index and Chase handles. The [Fluid recording](desktop-menu-fluid.webp) shows the curved rail and Margin ruler. Each has three offscreen frames captured through the fixture's pointer input.
+
 Reproduce the four PNGs with Qt 6 from this directory.
 
 ```sh

@@ -202,3 +202,7 @@ Offcut fixture artwork.
 view/widgets/ChaseHandles.qml and MarginPanel.qml derive from the original
 ZÆTHERION widget editor study at f2b0f53. view/widgets/SettingGauge.qml
 adapts the ruler from that same study.
+
+tools/widget-editor-study/desktop-menu-angular.webp and desktop-menu-fluid.webp
+are offscreen renders of the original desktop menu, wallpaper and clock studies.
+The clock lettering uses the local font samples credited above.
