@@ -66,8 +66,11 @@ Scope {
             case 2: {
                 const menu = harness.sheet?.menu;
                 harness.say("menuOpen", !!menu);
-                harness.say("menuInside", menu ? [menu.x + menu.width <= harness.sheet.width, menu.y + menu.height <= harness.sheet.height,
-                                                  menu.x >= 0, menu.y >= 0] : null);
+                const at = menu.mapToItem(harness.sheet, 0, 0);
+                // A right-click in the bottom-right corner: the menu sits flush against both edges, on screen.
+                harness.say("menuInside", menu ? [Math.round(at.x + menu.width) === Math.round(harness.sheet.width),
+                                                  Math.round(at.y + menu.height) === Math.round(harness.sheet.height),
+                                                  at.x > 0, at.y > 0] : null);
                 harness.say("menuFocus", menu?.activeFocus ?? false);
                 menu.step(1); menu.step(1); menu.step(-1);
                 harness.say("keyboardRow", menu.current);
