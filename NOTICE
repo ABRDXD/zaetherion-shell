@@ -209,3 +209,7 @@ The clock lettering uses the local font samples credited above.
 
 view/widgets/DesktopMenu.qml is the original ZÆTHERION desktop menu study
 from tools/widget-editor-study at 2dd2b08.
+
+Password-lock study (tools/password-lock-study): the fixture landscape, glyphs
+and both title-card compositions are original QML drawings. The renders use
+local Inter, DejaVu Serif and DejaVu Sans Mono. No font files are included.
