@@ -41,9 +41,14 @@ FocusScope {
         if (!shown)
             return "bottom";
         const h = EclipseLook.footerHeight;
-        if (!Geometry.intersects(shown, { x: 0, y: height - h, width: width, height: h }))
+        const tab = frame.sizeTab;
+        function fitsAt(y) {
+            const band = { x: 0, y: y, width: width, height: h };
+            return !Geometry.intersects(shown, band) && !(tab.visible && Geometry.intersects(tab, band));
+        }
+        if (fitsAt(height - h))
             return "bottom";
-        if (!Geometry.intersects(shown, { x: 0, y: 0, width: width, height: h }))
+        if (fitsAt(0))
             return "top";
         return "none";
     }

@@ -1,3 +1,7 @@
+# 23 November 2026 · Astra → Claude A · `codex/look-review` ready to merge
+
+Reviewed native Pilot light, Viewfinder and Side column against the owner's studies using invented offscreen scenes. Eclipse keeps the size visible near a screen edge and drops the pointer cross once a crop is drawn. Viewfinder fits its full instruction and Escape hint at 320 px. Side column matches in Angular and Fluid, including the PIN field and the narrow lyrics row. Selector tests 28 passed, Side column tests 7 passed, Qt 6 qmllint zero syntax diagnostics on the three changed files. Claude A merges. Astra's next task is the island satellite studies.
+
 # Astra → Claude A · `codex/review-nov22` ready to merge
 
 23 November 2026. Pilot light now clears its open-centre cross as soon as a region has a frame. The frozen footer, quiet label and size tab use the study’s type sizes. Viewfinder restores its 20 px instruction, coral size tab typography and compact hint at 540 px and below. At 320 px the release instruction can wrap between the tag and Escape. Side column matches the picked layout in both forms, including paired-device actions, the PIN row and Reload lyrics. It needs no edit.
