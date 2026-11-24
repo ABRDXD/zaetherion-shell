@@ -51,6 +51,24 @@ class LockSwitch(unittest.TestCase):
         self.assertNotIn(lock_switch.KEY, json.loads(self.path.read_text()))
 
 
+class AtLogin(unittest.TestCase):
+    def test_is_on_follows_the_dms_setting_and_session_start_reads_it(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "settings.json"
+            path.write_text(json.dumps({"a": 1}))
+            with patch.object(lock_switch, "settings_path", return_value=path):
+                self.assertEqual(lock_switch.main(["x", "is-on"]), 1)
+                lock_switch.write(path, lock_switch.COMMAND)
+                self.assertEqual(lock_switch.main(["x", "is-on"]), 0)
+                lock_switch.write(path, None)
+                self.assertEqual(lock_switch.main(["x", "is-on"]), 1)
+                path.write_text("{broken")
+                self.assertEqual(lock_switch.main(["x", "is-on"]), 1)
+        script = (ROOT / "tools/session-start").read_text()
+        self.assertLess(script.index("lock_switch.py\" is-on"), script.index('"$ROOT/zaetherion" start'))
+        self.assertIn("export FART_LOCK=own", script)
+
+
 class LiveRestartArguments(unittest.TestCase):
     def test_it_parses_and_refuses_before_stopping_anything(self):
         script = (ROOT / "tools/live-restart").read_text()

@@ -6,6 +6,7 @@
                                    running core has FART_LOCK=own: otherwise `zaetherion lock` would ask DMS, which
                                    would run `zaetherion lock` again)
     tools/lock_switch.py off       DMS's own lock again, at once (the command is removed)
+    tools/lock_switch.py is-on     exit 0 when DMS's command is ZÆTHERION's lock (tools/session-start reads it at login)
 
 Order on:  `tools/live-restart FART_LOCK=own`, then `tools/lock_switch.py on`.
 Order off: `tools/lock_switch.py off`, then `tools/live-restart FART_LOCK=`.
@@ -73,6 +74,12 @@ def main(argv: list[str]) -> int:
         print(f"DMS {KEY}: {current!r}")
         print(f"core FART_LOCK=own: {core_lock_own()}")
         return 0
+    if action == "is-on":
+        try:
+            current = json.loads(path.read_text()).get(KEY)
+        except (OSError, ValueError, AttributeError):
+            return 1
+        return 0 if isinstance(current, str) and current.endswith("/zaetherion lock") else 1
     if action == "on":
         if core_lock_own() is not True:
             print("refused: the running core does not have FART_LOCK=own (run `tools/live-restart FART_LOCK=own` first)")

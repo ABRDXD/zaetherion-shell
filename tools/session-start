@@ -33,6 +33,14 @@ fi
 
 # The launcher's keys (S6, Z196): Super tap and Super+Space reach the view through Hyprland's global shortcut.
 export FART_LAUNCHER_SHORTCUT=1
+
+# The session's locker (docs/LOCK.md §6): ZÆTHERION's when tools/lock_switch.py has pointed DMS's custom lock command
+# at it, DMS's otherwise. Read from that one setting so the two always agree: DMS running `zaetherion lock` while the
+# core used DMS's lock would ask DMS again, without end.
+if python3 "$ROOT/tools/lock_switch.py" is-on >/dev/null 2>&1; then
+    export FART_LOCK=own
+    say "lock: ZÆTHERION's (DMS's custom lock command points at it)"
+fi
 # The login sequence (Z55) plays once, for the first view after this login: it takes this marker.
 mkdir -p "$LOG_DIR" && echo login >"$LOG_DIR/arrival"
 "$ROOT/zaetherion" start >>"$LOG" 2>&1 || say "core did not start"
