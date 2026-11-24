@@ -1,6 +1,8 @@
 #!/bin/sh
 # Restart the live ZÆTHERION core (and with it DMS and the view) with exactly the settings it runs with now.
 # The settings are read from the running core's environment (every FART_* variable), so nothing is retyped.
+# Arguments FART_NAME=value add or change one setting; FART_NAME= (empty) removes it, e.g. `FART_LOCK=own` to switch
+# the session to ZÆTHERION's lock (docs/LOCK.md §6) and `FART_LOCK=` to switch back. Anything else is refused.
 # It waits on the old core's and DMS backend's own PIDs (never on `pgrep -f` text that is also in this command),
 # then starts the core. DRY=1 prints what it would do. Run it from the owner's session.
 set -u
@@ -16,6 +18,16 @@ if [ -z "$core" ]; then
 fi
 # Its settings, one per line: FART_NAME=value (values may not contain newlines; ours never do).
 settings=$(tr '\0' '\n' <"/proc/$core/environ" | grep '^FART_')
+for arg in "$@"; do
+    case "$arg" in
+        FART_*=*) ;;
+        *) echo "refused: $arg (only FART_NAME=value or FART_NAME=); nothing stopped"; exit 2 ;;
+    esac
+    name=${arg%%=*}
+    case "$name" in *[!A-Za-z0-9_]*) echo "refused: $arg; nothing stopped"; exit 2 ;; esac
+    settings=$(echo "$settings" | grep -v "^$name=")
+    [ -n "${arg#*=}" ] && settings=$(printf '%s\n%s' "$settings" "$arg")
+done
 echo "core $core, dms backend ${dms:-none}; settings:"
 echo "$settings" | sed 's/^/  /'
 
