@@ -59,19 +59,24 @@ Canvas {
             c.fillStyle = tones[j]
             c.fill()
         }
-        c.fillStyle = "rgba(12,18,28,0.18)"
+        // Z81/Z89: two 78-degree openings through the landscape to the fixture sky.
+        // Each continues across the ridge, so the lower segment reveals sky as well.
+        c.save()
         c.beginPath()
-        if (fluid) {
-            c.moveTo(0, 0)
-            c.lineTo(330, 0)
-            c.bezierCurveTo(15, 205, 105, 465, 0, 593)
-        } else {
-            c.moveTo(0, 0)
-            c.lineTo(322, 0)
-            c.lineTo(66, 720)
-            c.lineTo(0, 720)
+        for (const [top, span] of [[228, 40], [1170, 19]]) {
+            c.moveTo(top, 0); c.lineTo(top + span, 0)
+            c.lineTo(top + span - 153, 720); c.lineTo(top - 153, 720); c.closePath()
         }
-        c.closePath()
-        c.fill()
+        c.clip()
+        const aperture = c.createLinearGradient(0, 0, 0, 720)
+        aperture.addColorStop(0, fluid ? "#24263d" : "#263742")
+        aperture.addColorStop(0.55, fluid ? "#776c88" : "#78858d")
+        aperture.addColorStop(1, fluid ? "#b19aa4" : "#bc9f90")
+        c.fillStyle = aperture; c.fillRect(0, 0, 1280, 720)
+        for (let i = 0; i < 200; i++) {
+            c.fillStyle = "rgba(249,239,222,0.45)"
+            c.fillRect(random()*1280, random()*320, 1, 1)
+        }
+        c.restore()
     }
 }
