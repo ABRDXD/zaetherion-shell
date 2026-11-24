@@ -82,17 +82,31 @@ Scope {
         else if (action === "next") m.next();
         else m.togglePlaying();
     }
-    // Hold-to-confirm power (Z36): the gesture is shown; which action it runs is the owner's to pick (docs/LOCK.md).
+    // Hold-to-confirm power (Z36): a full 1 s hold opens a small choice, Suspend / Restart / Power off (owner,
+    // 24 Nov). Releasing early cancels. The lock stays up whatever is picked; suspend resumes to it.
+    property bool powerChoice: false
     function holdStart() { holdProgress = 0; hold.restart(); }
     function holdEnd() { hold.stop(); holdProgress = 0; }
+    function power(action) {
+        powerChoice = false;
+        const p = root.host?.power;
+        if (!p) return;
+        if (action === "suspend") p.suspend();
+        else if (action === "reboot") p.reboot();
+        else if (action === "poweroff") p.powerOff();
+    }
 
     NumberAnimation { id: shake; target: root; property: "rejectionMs"; from: 0; to: 320; duration: 320 }
-    NumberAnimation { id: hold; target: root; property: "holdProgress"; from: 0; to: 1; duration: 1000 }
+    NumberAnimation {
+        id: hold; target: root; property: "holdProgress"; from: 0; to: 1; duration: 1000
+        onFinished: if (root.holdProgress >= 1) { root.holdProgress = 0; root.powerChoice = true; }
+    }
     Activity { name: "lock.shake"; running: shake.running }
     Activity { name: "lock.hold"; running: hold.running }
 
     onLockedChanged: {
         if (!locked) {
+            powerChoice = false;
             attempts = 0;
             rejectionMs = -1;
             maskLength = 0;

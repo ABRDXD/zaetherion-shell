@@ -36,6 +36,9 @@ Scope {
         property var track: ({ title: "Low Moon", artist: "Vesper Field", playing: true })
         property real batteryFraction: 0.76
         property var submitted: []
+        property bool powerChoice: false
+        property var powered: []
+        function power(a) { powered = powered.concat([a]); powerChoice = false; }
         function typing(n) { maskLength = n; }
         function submit(s) { submitted = submitted.concat([s.length]); attempts += 1; rejectionMs = 320; }
         function media(a) {}
@@ -53,6 +56,8 @@ Scope {
         property string wallpaper: ""
         property var track: null
         property real batteryFraction: -1
+        property bool powerChoice: false
+        function power(a) {}
         function typing(n) {}
         function submit(s) {}
         function media(a) {}
@@ -93,7 +98,21 @@ Scope {
                 if (Quickshell.env("LOCK_SHOT")) screen.grabToImage(r => r.saveToFile(Quickshell.env("LOCK_SHOT")));
                 break;
             }
-            case 4:
+            case 4: {
+                host.powerChoice = true;
+                break;
+            }
+            case 5: {
+                const find = (item, name) => { if (!item) return null; if (item.objectName === name) return item;
+                    for (const k of Array.from(item.children ?? [])) { const h = find(k, name); if (h) return h; } return null; };
+                const plane = find(screen, "powerChoice");
+                const labels = ["power_suspend", "power_reboot", "power_poweroff"].map(n => find(plane, n)?.children.find(c => typeof c.text === "string")?.text);
+                harness.say("powerChoice", [plane.visible, labels]);
+                find(plane, "power_reboot").Accessible.pressAction();
+                harness.say("powered", [host.powered, plane.visible]);
+                break;
+            }
+            case 6:
                 harness.say("done", true);
                 Qt.quit();
             }
@@ -141,6 +160,10 @@ class LockScreenRun(unittest.TestCase):
 
     def test_a_face_that_cannot_load_leaves_a_plain_card(self):
         self.assertEqual(self.heard("plainCard"), [False, True])
+
+    def test_a_full_hold_offers_suspend_restart_power_off(self):
+        self.assertEqual(self.heard("powerChoice"), [True, ["Suspend", "Restart", "Power off"]])
+        self.assertEqual(self.heard("powered"), [["reboot"], False])
 
     def test_ran_clean(self):
         self.assertTrue(self.heard("done"))

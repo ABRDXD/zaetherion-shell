@@ -52,7 +52,11 @@ Scope {
         onTriggered: {
             console.log("STATE " + JSON.stringify({ pid: Quickshell.processId ?? 0, secure: lock.secure, locked: lock.locked,
                 attempts: lock.attempts, notice: lock.notice, connected: client.connected, screens: Quickshell.screens.length,
-                phase: h.phase, mode: h.mode, serviceFound: auth.serviceFound, config: auth.config }));
+                phase: h.phase, mode: h.mode, serviceFound: auth.serviceFound, config: auth.config, powerChoice: lock.powerChoice }));
+            if (h.mode === "hold") {
+                if (h.phase === 0 && lock.secure) { h.phase = 1; lock.holdStart(); }
+                return;
+            }
             // F5/F6: a service with no file falls back to `login`, which the fake folder lacks: PAM errors, and an
             // error is a refusal.
             if (h.mode === "missing") {
@@ -159,6 +163,19 @@ def main() -> int:
             check(ok, "F5/F6: then the right password still unlocks", s)
             control.write_text("watch\n")
             log.wait(lambda s: s["mode"] == "watch", 5)
+
+            # The power hold: a full second opens Suspend / Restart / Power off; the screen stays locked
+            cli.request("lock.engage", reason="command")
+            log.wait(lambda s: s["secure"], 10)
+            control.write_text("hold\n")
+            s, _, ok = log.wait(lambda s: s["mode"] == "hold" and s["powerChoice"], 5)
+            check(ok and s["secure"], "power: a full hold opens the choice, still locked", s)
+            control.write_text("watch\n")
+            log.wait(lambda s: s["mode"] == "watch" and s["phase"] == 0, 5)
+            control.write_text("unlock\n")
+            log.wait(lambda s: s["phase"] == 2 and not s["secure"], 20)
+            control.write_text("watch\n")
+            log.wait(lambda s: s["mode"] == "watch" and s["phase"] == 0, 5)
 
             # F10
             first = cli.request("lock.engage", reason="idle")

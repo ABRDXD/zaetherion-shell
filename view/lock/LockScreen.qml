@@ -75,6 +75,55 @@ FocusScope {
         font.family: Design.mono
         font.pixelSize: Design.body
     }
+    // After a full hold of the power button: Suspend / Restart / Power off. A click outside or Escape closes it.
+    MouseArea {
+        anchors.fill: parent
+        visible: root.lock.powerChoice === true
+        onClicked: root.lock.powerChoice = false
+    }
+    Rectangle {
+        id: powerPlane
+        objectName: "powerChoice"
+        visible: root.lock.powerChoice === true
+        anchors.right: parent.right
+        anchors.rightMargin: 40
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 96
+        width: 220
+        height: choices.implicitHeight + 16
+        color: "#11151a"
+        border.width: 1
+        border.color: Qt.alpha("#fff2dc", 0.25)
+        Column {
+            id: choices
+            x: 8; y: 8
+            width: parent.width - 16
+            Repeater {
+                model: [["suspend", "Suspend"], ["reboot", "Restart"], ["poweroff", "Power off"]]
+                Rectangle {
+                    id: choice
+                    required property var modelData
+                    objectName: "power_" + modelData[0]
+                    width: choices.width
+                    height: 40
+                    color: hover.hovered ? Qt.alpha("#ffbf6a", 0.9) : "transparent"
+                    Text {
+                        x: 12
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: choice.modelData[1]
+                        color: hover.hovered ? "#11151a" : "#fff2dc"
+                        font.family: Design.sans
+                        font.pixelSize: Design.control
+                    }
+                    HoverHandler { id: hover }
+                    TapHandler { onTapped: root.lock.power(choice.modelData[0]) }
+                    Accessible.role: Accessible.Button
+                    Accessible.name: choice.modelData[1]
+                    Accessible.onPressAction: root.lock.power(choice.modelData[0])
+                }
+            }
+        }
+    }
     TextInput {
         id: field
         objectName: "lockField"
@@ -88,6 +137,9 @@ FocusScope {
             root.lock.submit(text);
             text = "";
         }
-        Keys.onEscapePressed: text = ""
+        Keys.onEscapePressed: {
+            if (root.lock.powerChoice) root.lock.powerChoice = false;
+            else text = "";
+        }
     }
 }
