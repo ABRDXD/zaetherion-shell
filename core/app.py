@@ -276,10 +276,10 @@ class Core:
         op("eq.mono", lambda peer, on: e.set_mono(on))
         op("clips.set", lambda peer, key, value: self.clips.set(key, value))
         op("island.rest", lambda peer, item, mode: self.island.set_rest(**{item: mode}))
-        w = self.widgets
-        op("widgets.place", lambda peer, monitor, column, span, y, angle, widget="clock": w.place(monitor, widget, column, span, y, angle))
-        op("widgets.layout", lambda peer, name: w.use_layout(name))
-        op("widgets.reset", lambda peer: w.reset_face())
+        dw = self.widgets  # not `w`: that name is the wallpaper's further down
+        op("widgets.place", lambda peer, monitor, column, span, y, angle, widget="clock": dw.place(monitor, widget, column, span, y, angle))
+        op("widgets.layout", lambda peer, name: dw.use_layout(name))
+        op("widgets.reset", lambda peer: dw.reset_face())
         op("exhibit.prepare", lambda peer, reduced=True, metadata=None: self.exhibit.prepare(reduced, metadata))
         op("exhibit.start", lambda peer: self.exhibit.start())
         op("exhibit.stop", lambda peer: self.exhibit.stop())
