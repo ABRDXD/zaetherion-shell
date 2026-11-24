@@ -16,19 +16,21 @@ Item {
     signal powerHoldEnded
 
     Rectangle {
-        x: root.look.fluid ? 88 : 0
-        y: root.look.fluid ? 611 : 614
-        width: root.look.fluid ? 1104 : 1280
+        // Along the bottom of whatever width it is given (the face gives it the screen's): Angular edge to edge,
+        // Fluid's floating dock centred at its designed width with its designed gap below.
+        width: root.look.fluid ? Math.min(1104, root.width - 176) : root.width
         height: root.look.fluid ? 77 : 106
-        color: root.look.fluid ? "#282738" : "#1c2931"
+        x: (root.width - width) / 2
+        y: root.height - height - (root.look.fluid ? 32 : 0)
+        color: root.look.fluid ? root.look.plateDeep : root.look.plateDeep
         radius: root.look.fluid ? height / 2 : 0
         border.width: root.look.fluid ? 1 : 0
-        border.color: "#625b74"
+        border.color: root.look.line
         Rectangle {
             visible: !root.look.fluid
             width: parent.width
             height: 1
-            color: "#626b6d"
+            color: root.look.line
         }
         Row {
             visible: root.mediaAvailable
@@ -39,7 +41,7 @@ Item {
                 width: 48
                 height: 48
                 radius: root.look.fluid ? 24 : 0
-                color: root.look.fluid ? "#4d425d" : "#394b51"
+                color: root.look.fluid ? root.look.plateRaised : root.look.plateRaised
                 clip: true
                 Row {
                     anchors.centerIn: parent
@@ -75,7 +77,7 @@ Item {
                     elide: Text.ElideRight
                     text: root.artist
                     font.letterSpacing: 0.25
-                    color: "#c3c3cb"
+                    color: root.look.muted
                 }
             }
         }
@@ -103,7 +105,7 @@ Item {
                         width: 21
                         height: 21
                         mark: control.action
-                        ink: control.primary ? "#262a32" : root.look.ink
+                        ink: control.primary ? root.look.onAccent : root.look.ink
                     }
                 }
             }
@@ -136,8 +138,8 @@ Item {
                 width: 171
                 height: 41
                 radius: root.look.fluid ? 21 : 0
-                color: root.holdProgress > 0 ? "#45404a" : "transparent"
-                border.color: root.look.fluid ? "#7c738e" : "#627277"
+                color: root.holdProgress > 0 ? root.look.line : "transparent"
+                border.color: root.look.fluid ? root.look.muted : root.look.muted
                 Rectangle {
                     x: 15
                     y: parent.height - 5

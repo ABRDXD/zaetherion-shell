@@ -60,8 +60,8 @@ FocusScope {
         visible: face.status === Loader.Error
         anchors.centerIn: parent
         spacing: 16
-        Text { text: Qt.formatTime(Clock.date, "HH:mm"); color: "#f3efdc"; font.family: Design.sans; font.pixelSize: Design.display }
-        Text { text: "•".repeat(root.lock.maskLength) || "PASSWORD"; color: "#f3efdc"; font.family: Design.mono; font.pixelSize: Design.readout }
+        Text { text: Qt.formatTime(Clock.date, "HH:mm"); color: Design.ink; font.family: Design.sans; font.pixelSize: Design.display }
+        Text { text: "•".repeat(root.lock.maskLength) || "PASSWORD"; color: Design.ink; font.family: Design.mono; font.pixelSize: Design.readout }
         Text { visible: root.lock.attempts > 0; text: "> AUTH FAILED · " + root.lock.attempts; color: Design.danger; font.family: Design.mono; font.pixelSize: Design.body }
     }
     Text {
@@ -91,9 +91,9 @@ FocusScope {
         anchors.bottomMargin: 96
         width: 220
         height: choices.implicitHeight + 16
-        color: "#11151a"
+        color: Design.islandFill
         border.width: 1
-        border.color: Qt.alpha("#fff2dc", 0.25)
+        border.color: Qt.alpha(Design.ink, 0.25)
         Column {
             id: choices
             x: 8; y: 8
@@ -106,12 +106,12 @@ FocusScope {
                     objectName: "power_" + modelData[0]
                     width: choices.width
                     height: 40
-                    color: hover.hovered ? Qt.alpha("#ffbf6a", 0.9) : "transparent"
+                    color: hover.hovered ? Qt.alpha(Design.accent, 0.9) : "transparent"
                     Text {
                         x: 12
                         anchors.verticalCenter: parent.verticalCenter
                         text: choice.modelData[1]
-                        color: hover.hovered ? "#11151a" : "#fff2dc"
+                        color: hover.hovered ? Design.islandFill : Design.ink
                         font.family: Design.sans
                         font.pixelSize: Design.control
                     }

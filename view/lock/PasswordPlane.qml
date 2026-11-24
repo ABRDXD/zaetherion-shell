@@ -29,7 +29,7 @@ Item {
                 const c = getContext("2d");
                 c.reset();
                 c.lineWidth = 1.5;
-                c.fillStyle = root.look.fluid ? "#322c44" : "#1c292f";
+                c.fillStyle = root.look.fluid ? root.look.plate : root.look.plate;
                 c.strokeStyle = failed ? root.look.alert : root.look.accent;
                 c.beginPath();
                 if (root.look.fluid)
@@ -79,7 +79,7 @@ Item {
         width: Math.max(188, message.implicitWidth + 20)
         height: 26
         radius: root.look.fluid ? 13 : 0
-        color: "#382e34"
+        color: root.look.alertPlate
         LockText {
             id: message
             look: root.look

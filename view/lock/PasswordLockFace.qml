@@ -26,24 +26,20 @@ Item {
         id: style
         fluid: root.fluid
     }
+    // At its designed size, never enlarged (owner, 24 Nov: "too big"); smaller only on a smaller screen.
+    readonly property real unit: Math.min(1, root.width / 1280, root.height / 720)
+    // The screen in design units: the header across its top corners, the band along its bottom.
     Item {
-        width: 1280
-        height: 720
-        anchors.centerIn: parent
-        scale: Math.min(root.width / width, root.height / height)
+        width: root.width / root.unit
+        height: root.height / root.unit
+        transformOrigin: Item.TopLeft
+        scale: root.unit
         LockTitleCard {
             anchors.fill: parent
             look: style
+            card: false
             timeText: root.timeText
             dateText: root.dateText
-        }
-        PasswordPlane {
-            anchors.fill: parent
-            look: style
-            maskLength: root.maskLength
-            attempts: root.attempts
-            reducedMotion: root.reducedMotion
-            rejectionMs: root.rejectionMs
         }
         LockBand {
             anchors.fill: parent
@@ -57,6 +53,28 @@ Item {
             onMediaRequested: action => root.mediaRequested(action)
             onPowerHoldStarted: root.powerHoldStarted()
             onPowerHoldEnded: root.powerHoldEnded()
+        }
+    }
+    // The card and the password plane, centred at the designed size.
+    Item {
+        width: 1280
+        height: 720
+        anchors.centerIn: parent
+        scale: root.unit
+        LockTitleCard {
+            anchors.fill: parent
+            look: style
+            chrome: false
+            timeText: root.timeText
+            dateText: root.dateText
+        }
+        PasswordPlane {
+            anchors.fill: parent
+            look: style
+            maskLength: root.maskLength
+            attempts: root.attempts
+            reducedMotion: root.reducedMotion
+            rejectionMs: root.rejectionMs
         }
     }
 }
