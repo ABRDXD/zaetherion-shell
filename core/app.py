@@ -151,6 +151,7 @@ class Core:
         self.sfx = host.sfx = Sfx(host, clock, state_dir, sound_on=lambda: self.timers.state["config"]["sound"],
                                   session_active=self.sessions.active)
         self.sfx.on_change = partial(server.publish, "sfx")
+        self.lock.on_sound = lambda: self.sfx.emit("ui.switch")  # Z104
         self.sfx.on_cue = self.push_cue
         server.topic("sfx", self.sfx.snapshot)
         # Overdrive's own two sounds (docs/OVERDRIVE.md §2): the ignition when a lease starts, the spin-down when

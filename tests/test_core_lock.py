@@ -64,6 +64,14 @@ class LockState(unittest.TestCase):
                 self.lock.engage(bad)
         self.assertFalse(self.lock.locked)
 
+    def test_lock_and_unlock_play_the_switch_cue(self):
+        played = []
+        self.lock.on_sound = lambda: played.append(self.lock.locked)
+        self.lock.engage()
+        self.lock.engage()  # the same lock: no second sound
+        self.lock.release("view")
+        self.assertEqual(played, [True, False])
+
     def test_a_failing_logind_call_still_unlocks(self):
         lock = Lock(self.dir, unlocked=lambda: 1 / 0)
         lock.engage()

@@ -52,7 +52,14 @@ Scope {
         onTriggered: {
             console.log("STATE " + JSON.stringify({ pid: Quickshell.processId ?? 0, secure: lock.secure, locked: lock.locked,
                 attempts: lock.attempts, notice: lock.notice, connected: client.connected, screens: Quickshell.screens.length,
-                phase: h.phase, mode: h.mode }));
+                phase: h.phase, mode: h.mode, serviceFound: auth.serviceFound, config: auth.config }));
+            // F5/F6: a service with no file falls back to `login`, which the fake folder lacks: PAM errors, and an
+            // error is a refusal.
+            if (h.mode === "missing") {
+                if (h.phase === 0) { h.phase = 1; auth.service = "zt-missing"; }
+                else if (h.phase === 1 && !auth.serviceFound && lock.secure) { h.phase = 2; lock.submit("anything"); }
+                return;
+            }
             if (h.mode !== "unlock") { h.phase = 0; auth.service = "zt-deny"; return; }
             if (h.phase === 0 && lock.secure) { h.phase = 1; lock.submit("wrong"); }
             else if (h.phase === 1 && lock.attempts >= 1 && !auth.busy) { h.phase = 2; auth.service = "zt-permit"; lock.submit("right"); }
@@ -135,6 +142,21 @@ def main() -> int:
             check(ok, "F2: the right password unlocks", s)
             check(["loginctl", "unlock-session"] in core.host_calls(), "F2: logind is told", core.host_calls()[-3:])
             check(not (core.runtime / "locked").exists(), "F2: the marker is gone")
+            control.write_text("watch\n")
+            log.wait(lambda s: s["mode"] == "watch", 5)
+
+            # F5, F6: no service file -> `login`; PAM erroring -> refused, still locked
+            cli.request("lock.engage", reason="command")
+            log.wait(lambda s: s["secure"], 10)
+            control.write_text("missing\n")
+            s, _, ok = log.wait(lambda s: s["mode"] == "missing" and s["phase"] == 2 and s["attempts"] >= 1, 15)
+            check(ok and s["config"] == "login" and not s["serviceFound"], "F5: a missing service file falls back to login", s)
+            check(ok and s["secure"] and s["locked"], "F6: PAM erroring is a refusal: still locked", s)
+            control.write_text("watch\n")  # resets the harness's steps and the service
+            log.wait(lambda s: s["mode"] == "watch" and s["phase"] == 0 and s["serviceFound"], 5)
+            control.write_text("unlock\n")
+            s, _, ok = log.wait(lambda s: s["mode"] == "unlock" and s["phase"] == 2 and not s["secure"], 20)
+            check(ok, "F5/F6: then the right password still unlocks", s)
             control.write_text("watch\n")
             log.wait(lambda s: s["mode"] == "watch", 5)
 

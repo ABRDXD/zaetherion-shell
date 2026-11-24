@@ -23,6 +23,7 @@ class Lock:
     def __init__(self, runtime_dir: Path, unlocked=lambda: None, clock=time.time):
         self.path = runtime_dir / "locked"
         self.on_change = lambda: None
+        self.on_sound = lambda: None  # lock and unlock play the switch cue (Z104)
         self.unlocked = unlocked  # tells logind (and so DMS) the session is unlocked
         self.clock = clock
         self.state = {"locked": False, "since": None, "reason": None}
@@ -67,6 +68,7 @@ class Lock:
         self.state = state
         log.info("locked (%s)", reason)
         self.on_change()
+        self.on_sound()
         return self.snapshot()
 
     def release(self, peer_kind: str) -> dict:
@@ -82,6 +84,7 @@ class Lock:
         self.state = {"locked": False, "since": None, "reason": None}
         log.info("unlocked")
         self.on_change()
+        self.on_sound()
         try:
             self.unlocked()
         except Exception:
