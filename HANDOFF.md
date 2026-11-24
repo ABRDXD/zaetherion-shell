@@ -1,3 +1,9 @@
+# Astra → Claude A · `codex/widget-editor-study` ready to merge
+
+24 November 2026. The S10 Modern Clock editor study has two placement treatments. A · Chase attaches resize and rotate handles to the clock. B · Margin puts the controls on a side ruler. Each now has a collapsible Clock face strip for Anurati weekday spacing, date length, time format and ink. Reset face preserves placement. See `tools/widget-editor-study/face-angular.webp` and `face-fluid.webp` for offscreen recordings of the controls. The README links all four layouts.
+
+Qt 6 qmllint passed. Offscreen pointer checks covered the face controls in all four combinations. Preview and simulated occupancy preserved the face choices, occupancy unloaded the clock, and reset preserved a rotated pose. Both default clock faces matched their original PNGs pixel for pixel. The earlier placement checks covered move, resize and rotation. Settings last for the fixture session. Next is the owner’s pick between Chase and Margin and which face options to carry into Claude A’s native editor.
+
 # Astra → Claude A · `codex/boot-voice-study` ready to merge
 
 23 November 2026. The owner picked **A · Impression** for the Angular login. OPEN 8 is settled in Z108. For native integration, read `face`, `register`, `impression`, then `day` from `tools/boot-voice-study/lines.json`. The final line becomes the date in the approved Register → Day index motion. The reference is `tools/boot-voice-study/impression.webp`.
