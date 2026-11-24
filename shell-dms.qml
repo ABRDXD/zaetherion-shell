@@ -13,6 +13,7 @@ import qs.core.client
 import qs.view.overdrive
 import qs.view.shell
 import qs.view.ui
+import qs.view.widgets
 ShellRoot {
     id: root
     // The live view never reloads itself when files change (several agents edit and merge in this checkout; a reload
@@ -75,6 +76,14 @@ ShellRoot {
     }
 
     OverdriveLease { id: lease; core: client }
+
+    // The desktop clock on every screen whose workspace is empty (Z46, Z85).
+    DesktopWidgets {
+        id: desktop
+        wanted: root.islandWanted
+        workspaces: adapter.workspaces
+        core: client
+    }
 
     LazyLoader {
         id: islandLoader

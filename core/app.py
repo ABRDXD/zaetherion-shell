@@ -18,6 +18,7 @@ from core.genealogy import Genealogy
 from core.guards import BatteryGuard, FullscreenGuard, Guards, SessionGuard, focused_fullscreen
 from core.hostcalls import HostCalls
 from core.island import Island
+from core.widgets import Widgets
 from core.launcher import Launcher
 from core.palette import MADE as MADE_PALETTE, Palette
 from core.wallpaper import Wallpaper, kind_of
@@ -76,6 +77,7 @@ class Core:
         self.tasks = Tasks(clock, state_dir)
         self.sessions = Sessions(clock, scheduler, host, state_dir)
         self.island = Island(state_dir)
+        self.widgets = Widgets(state_dir)
         self.clips = Clips(state_dir)  # quick paste's settings; the history is DMS's (Z202)
         self.palette = Palette(state_dir)
         # The launcher's apps (S6): the old launcher's counts come from the host profile, once (Z136).
@@ -127,7 +129,7 @@ class Core:
             self.sessions.on_guard = session_guard.changed
 
         for name, owner in (("timers", self.timers), ("tasks", self.tasks), ("notifications", self.inbox),
-                            ("overdrive", self.overdrive), ("session", self.sessions), ("island", self.island), ("clips", self.clips), ("palette", self.palette),
+                            ("overdrive", self.overdrive), ("session", self.sessions), ("island", self.island), ("widgets", self.widgets), ("clips", self.clips), ("palette", self.palette),
                             ("wallpaper", self.wallpaper),
                             ("equalizer", self.equalizer), ("launcher", self.launcher), ("capture", self.capture), ("view", self.view)):
             server.topic(name, owner.snapshot)
@@ -274,6 +276,10 @@ class Core:
         op("eq.mono", lambda peer, on: e.set_mono(on))
         op("clips.set", lambda peer, key, value: self.clips.set(key, value))
         op("island.rest", lambda peer, item, mode: self.island.set_rest(**{item: mode}))
+        w = self.widgets
+        op("widgets.place", lambda peer, monitor, column, span, y, angle, widget="clock": w.place(monitor, widget, column, span, y, angle))
+        op("widgets.layout", lambda peer, name: w.use_layout(name))
+        op("widgets.reset", lambda peer: w.reset_face())
         op("exhibit.prepare", lambda peer, reduced=True, metadata=None: self.exhibit.prepare(reduced, metadata))
         op("exhibit.start", lambda peer: self.exhibit.start())
         op("exhibit.stop", lambda peer: self.exhibit.stop())

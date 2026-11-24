@@ -30,6 +30,9 @@ R"optable({
   {"op":"eq.mono","peer":"peer","params":[{"name":"on"}],"varkw":null},
   {"op":"clips.set","peer":"peer","params":[{"name":"key"},{"name":"value"}],"varkw":null},
   {"op":"island.rest","peer":"peer","params":[{"name":"item"},{"name":"mode"}],"varkw":null},
+  {"op":"widgets.place","peer":"peer","params":[{"name":"monitor"},{"name":"column"},{"name":"span"},{"name":"y"},{"name":"angle"},{"name":"widget","default":"clock"}],"varkw":null},
+  {"op":"widgets.layout","peer":"peer","params":[{"name":"name"}],"varkw":null},
+  {"op":"widgets.reset","peer":"peer","params":[],"varkw":null},
   {"op":"exhibit.prepare","peer":"peer","params":[{"name":"reduced","default":true},{"name":"metadata","default":null}],"varkw":null},
   {"op":"exhibit.start","peer":"peer","params":[],"varkw":null},
   {"op":"exhibit.stop","peer":"peer","params":[],"varkw":null},
@@ -98,5 +101,5 @@ R"optable({
   {"op":"key.down","peer":"peer","params":[{"name":"panel","default":false}],"varkw":null},
   {"op":"key.up","peer":"peer","params":[],"varkw":null}
  ],
- "topics": ["genealogy","timers","tasks","notifications","overdrive","session","island","clips","palette","wallpaper","equalizer","launcher","capture","view","presets","core","supervisor","sfx","journey","discovery","track","ignite"]
+ "topics": ["genealogy","timers","tasks","notifications","overdrive","session","island","widgets","clips","palette","wallpaper","equalizer","launcher","capture","view","presets","core","supervisor","sfx","journey","discovery","track","ignite"]
 })optable"

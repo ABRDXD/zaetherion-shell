@@ -30,6 +30,7 @@ out, state files written), run against **both** cores. A stage merges only when 
 |---|---|---|
 | 0 | `core-cpp/` skeleton, build, protocol server; **the JSON writer** (below); parity harness and socket-level checks for every topic; `session-start` and `live-restart` know both cores (they match `core/fartd.py` by path today) | both cores answer `hello`; harness green on Python; JSON writer equal to Python's on a corpus |
 | 1 | foundations and plain state: protocol, store, errors, command parsing and verbs (base, lines, modes, timers, tasks, clips, island), topics, clock, timers, tasks, sessions, clips, island | parity green; state files byte-compatible |
+| 1b | plain state added after stage 1 merged: widgets (desktop widget layout, 24 Nov) | parity green; widgets.json byte-compatible |
 | 2a | view supervision: view.py, guards (spawn, reap, restart, PSI), hostcalls, ignite | parity + nested restart checks (the restart race and host-call deadlock fixes keep their tests) |
 | 2b | DMS supervision: supervisor.py, dms_bar (writes the owner's DMS settings: byte-equal), the login `fits` check | parity + `supervisor_check.py`; bar off/on round-trip leaves DMS's file byte-equal |
 | 3a | sound: host profiles, sfx, equalizer, eq_chain | parity; no live actuation in tests |

@@ -26,6 +26,8 @@ Scope {
     property var islandData: null
     // Clips settings and the recorders' state (core/clips.py, Z184): quick paste reads enterPastes, rows, showImages.
     property var clipsData: null
+    // Desktop widgets' layout (core/widgets.py): the current layout's poses per monitor, defaults and the face.
+    property var widgetsData: null
     // Capture's state (core/capture.py, Z221): busy, the running recording {active, startedAt, file, mode, sound, mic}, tools.
     property var captureData: null
     property var paletteData: null
@@ -39,7 +41,7 @@ Scope {
     // The HostAdapter that core host calls act through (`vol` and friends). Null in harnesses without one.
     property var host: null
     readonly property CoreHostCalls hostCalls: CoreHostCalls { core: root; host: root.host }
-    readonly property var topics: ["timers", "tasks", "notifications", "overdrive", "session", "sfx", "ignite", "track", "journey", "discovery", "island", "clips", "capture", "palette", "wallpaper", "presets", "equalizer", "launcher", "supervisor"]
+    readonly property var topics: ["timers", "tasks", "notifications", "overdrive", "session", "sfx", "ignite", "track", "journey", "discovery", "island", "widgets", "clips", "capture", "palette", "wallpaper", "presets", "equalizer", "launcher", "supervisor"]
     property int nextId: 1
     property var pending: ({})
     property int backoff: 250

@@ -114,7 +114,7 @@ def ms(*parts) -> int:
     return round(epoch(*parts) * 1000)
 
 
-TOPICS = ("genealogy", "timers", "tasks", "notifications", "overdrive", "session", "island", "clips", "palette",
+TOPICS = ("genealogy", "timers", "tasks", "notifications", "overdrive", "session", "island", "widgets", "clips", "palette",
           "wallpaper", "equalizer", "launcher", "capture", "view", "presets", "core", "supervisor", "sfx", "journey",
           "discovery", "track", "ignite")
 
