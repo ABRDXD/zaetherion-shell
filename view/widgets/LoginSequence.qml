@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
+import qs.view.cues
 import qs.view.ui
 import "ClockWords.js" as Words
 import "LoginWords.js" as Voice
@@ -219,6 +220,7 @@ Item {
     // Poppins for the date, from the owner's Modern Clock plugin, as the clock takes it.
     FontLoader { id: poppins; source: "file://" + (Quickshell.env("HOME") ?? "") + "/.config/dms/plugins/modernClock/fonts/Poppins.ttf" }
 
+    Activity { name: "login.play"; running: play.running }
     NumberAnimation {
         id: play
         target: root; property: "elapsed"; from: 0; to: 1500; duration: 1500

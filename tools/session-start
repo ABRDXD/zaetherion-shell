@@ -34,7 +34,7 @@ fi
 # The launcher's keys (S6, Z196): Super tap and Super+Space reach the view through Hyprland's global shortcut.
 export FART_LAUNCHER_SHORTCUT=1
 # The login sequence (Z55) plays once, for the first view after this login: it takes this marker.
-mkdir -p "$LOG_DIR" && : >"$LOG_DIR/arrival"
+mkdir -p "$LOG_DIR" && echo login >"$LOG_DIR/arrival"
 "$ROOT/zaetherion" start >>"$LOG" 2>&1 || say "core did not start"
 
 # The core (fartd) supervises DMS itself (FART_SUPERVISE=dms, set by `zaetherion start`): it starts it,

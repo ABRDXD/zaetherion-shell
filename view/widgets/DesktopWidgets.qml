@@ -26,8 +26,8 @@ Scope {
     signal openSettings(string section)
 
     // The login (Z55, Angular only; Fluid has no approved login yet). tools/session-start leaves a one-time marker in
-    // the runtime folder; the first view after login takes it and plays on the focused screen. A view restart or a
-    // live restart finds none. Reduced motion lands at once (no sequence). Tests set `arrival` themselves.
+    // the runtime folder ("login"); the first view after login plays on the focused screen and marks it "played".
+    // Reduced motion lands at once (no sequence). Tests set `arrival` themselves.
     property var arrival: null         // the screen the login plays on, null when none
     property bool arrivalChecked: fixture
     readonly property string focusedScreen: root.workspaces?.focusedScreen ?? ""
@@ -36,17 +36,17 @@ Scope {
         if (!loggedIn || Design.fluid || Motion.reduced) return null;
         return Quickshell.screens.find(screen => screen.name === root.focusedScreen) ?? Quickshell.screens[0] ?? null;
     }
-    Process {
-        running: root.wanted && !root.fixture
-        command: ["sh", "-c", 'rm "$1" 2>/dev/null && echo login', "sh",
-                  (Quickshell.env("XDG_RUNTIME_DIR") ?? "") + "/zaetherion/arrival"]
-        onExited: root.arrivalChecked = true  // whatever happened, the clock is never held back for good
-        stdout: StdioCollector {
-            onStreamFinished: {
-                root.arrival = root.arrivalFor(text.trim() === "login");
-                root.arrivalChecked = true;
-            }
+    // Read, then marked "played", so a view restart or a live restart finds nothing to play (no process needed).
+    FileView {
+        path: root.wanted && !root.fixture ? (Quickshell.env("XDG_RUNTIME_DIR") ?? "") + "/zaetherion/arrival" : ""
+        printErrors: false
+        onLoaded: {
+            const login = text().trim() === "login";
+            if (login) setText("played\n");
+            root.arrival = root.arrivalFor(login);
+            root.arrivalChecked = true;
         }
+        onLoadFailed: root.arrivalChecked = true  // no marker: no login to play
     }
 
     function place(monitor, pose) {

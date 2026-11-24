@@ -189,3 +189,48 @@ class LoginRun(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+MARKER_HARNESS = '''import QtQuick
+import Quickshell
+import qs.view.widgets
+Scope {
+    QtObject { id: spaces; property string focusedScreen: ""; property var workspaces: [] }
+    DesktopWidgets { id: desktop; workspaces: spaces; wanted: true }
+    Timer { interval: 600; running: true; onTriggered: {
+        console.log("MARKER " + JSON.stringify([desktop.arrival !== null, desktop.arrivalChecked]));
+        Qt.quit();
+    } }
+}
+'''
+
+
+@unittest.skipUnless(shutil.which("qs"), "needs Quickshell")
+class Marker(unittest.TestCase):
+    def run_with(self, content):
+        from smoke import prepare
+        with tempfile.TemporaryDirectory() as tmp:
+            env, _, _ = prepare(Path(tmp), MARKER_HARNESS)
+            runtime = Path(tmp) / "runtime"
+            (runtime / "zaetherion").mkdir(parents=True)
+            marker = runtime / "zaetherion/arrival"
+            if content is not None:
+                marker.write_text(content)
+            env["XDG_RUNTIME_DIR"] = str(runtime)
+            run = subprocess.run(["qs", "-n", "--no-color", "-p", str(Path(tmp) / "bundle/Harness.qml")], env=env,
+                                 capture_output=True, text=True, timeout=60)
+            out = run.stdout + run.stderr
+            line = next((l for l in out.splitlines() if "MARKER [" in l), None)
+            self.assertIsNotNone(line, out[-2000:])
+            return json.loads(line.split("MARKER ", 1)[1]), (marker.read_text() if marker.exists() else None)
+
+    def test_the_first_view_after_login_plays_and_marks_it_played(self):
+        said, left = self.run_with("login\n")
+        self.assertEqual(said, [True, True])
+        self.assertEqual(left, "played\n")
+
+    def test_a_restarted_view_finds_it_played_and_does_not(self):
+        self.assertEqual(self.run_with("played\n"), ([False, True], "played\n"))
+
+    def test_no_marker_no_login_and_the_clock_is_not_held(self):
+        self.assertEqual(self.run_with(None), ([False, True], None))
