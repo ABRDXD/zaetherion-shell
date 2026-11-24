@@ -217,3 +217,7 @@ local Inter, DejaVu Serif and DejaVu Sans Mono. No font files are included.
 Desktop widget collection (tools/desktop-widget-collection): original fixture
 track, lyric, notes, sleeve drawing and architectural print, rendered in QML.
 It uses the original wallpaper from tools/password-lock-study/Sky.qml.
+
+Draw and edge study (tools/draw-edge-study): original tool glyphs and annotation,
+with the fixture print and sky from the desktop widget and password-lock studies.
+Island lyric study (tools/island-lyric-study): original fixture lyrics and QML.
