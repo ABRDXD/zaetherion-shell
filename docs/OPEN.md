@@ -18,7 +18,7 @@ Only these remain open. Each is settled by the named test, and the result goes b
 | 5 | Panel reap timer (Z142) | Measure cold-open cost against held memory, at 10 min and at 60 min | S2 | **Decided 19 November 2026: 60 min** (cold open about 1.07 s against about 190 MiB held, total still under budget; DECISIONS Z142). |
 | 6 | Installing the SDDM session file (root) | Owner's approval | S1 |
 | 7 | Exact binds for island focus, display reset, overview and draw | Check `hyprctl binds` for free keys and ask the owner | S3, S10 | **Island focus chosen: Super+Shift+I.** Other binds remain open. |
-| 8 | Boot flavour lines | About 6 original lines drafted in the system voice, with no quotes from any game; owner's approval | S10 |
+| 8 | Boot flavour lines | About 6 original lines drafted in the system voice, with no quotes from any game; owner's approval | S10 | **Decided 23 November 2026: A · Impression** (Z108). |
 | 9 | Fallback when DMS location is unavailable: cache the last good location? (proposed in RISKS.md) | Owner decides | S8 |
 | 10 | Pin video decoding to the iGPU through the environment? (proposed in RISKS.md) | Owner decides; then measure dGPU `runtime_status` | S8 |
 | 11 | Keyboard layout indicator and switching (Serpantinum's bar had one) | Owner decides | S3 | **Decided: omit the layout indicator.** Caps Lock and Num Lock remain in the wings (Z130). |

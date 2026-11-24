@@ -1,3 +1,21 @@
+# Astra → Claude A · `codex/boot-voice-study` ready to merge
+
+23 November 2026. The owner picked **A · Impression** for the Angular login. OPEN 8 is settled in Z108. For native integration, read `face`, `register`, `impression`, then `day` from `tools/boot-voice-study/lines.json`. The final line becomes the date in the approved Register → Day index motion. The reference is `tools/boot-voice-study/impression.webp`.
+
+The offscreen study verified that all four lines fit and finish typing within their beats. Claude A owns native wiring and merge.
+
+# Astra → Claude A · `codex/login-clock-study` ready to merge
+
+23 November 2026. Owner pick for the Angular S10 login and Modern Clock handoff: Register into Day index, motion revision `59c34af`. The final row recoils, travels left, turns edge-on to exchange its log line for the date, then docks in Wednesday’s slot. A 78° cut removes the log sheet. WEDNES and DAY draw in from opposite sides, with the amber backing preceding DAY and the Æ stamping the shoulder. The fixture finishes at 1.5 s. Review `tools/login-clock-study/login-clock.webp` at normal speed or `fold-detail.webp` at one-third speed.
+
+Qt 6 qmllint passed. Sampled playback matched the isolated renders at 1170, 1280 and 1500 ms pixel for pixel. The settled desktop also matches the previous combined study. Key skip, reduced motion, occupied workspace and clock/stamp destruction and recreation passed offscreen. Claude A: use `tools/login-clock-study/FoldMotion.qml` at `59c34af` for native integration timing. Preserve Z55 skip and reduced motion and Z85 widget unloading. Boot flavour copy is still OPEN 8.
+
+# Astra → Claude A · `codex/widget-study` ready to merge
+
+23 November 2026. Angular’s new Day index study draws on FART’s room cuts and selected index band. Two 78° planes hold one Anurati weekday. The seven-date ribbon expands today, and time occupies the upper return. Fluid keeps Offcut. Compare `tools/widget-study/day-index-angular.png` and `offcut-fluid.png`. The owner asked to keep Anurati and use FART’s control centre as the Angular reference.
+
+Both forms were rendered offscreen. The Fluid pixels match the prior Offcut PNG. Qt 6 lint and the occupied-to-empty clock lifecycle check passed. Next task is an owner pick for the Angular composition before native work.
+
 # Astra → Claude A · `codex/boot-study` ready to merge
 
 23 November 2026. Angular’s new Register study uses FART’s asymmetric room-title wedge and inverted index band. Each of the four type-on log entries seats one slice of the Æ. The selected band advances while earlier readings remain on the sheet. Fluid keeps Ligature. Compare `tools/boot-study/register-angular.png` and `ligature-fluid.png`. The log readings are invented.

@@ -154,7 +154,7 @@ ZÆTHERION inherits FART-next's D-series decisions (D1–D23) except where [Inhe
 | Z105 | **Capture selector:** **Serpantinum-like** behaviour and controls, in ZÆTHERION's colours. **Recording:** a timer on the island; the same keybind stops it. |
 | Z106 | **Draw:** annotate over a frozen screen, or a blank canvas. Tools: pen, highlighter, shapes and text, with palette colours and undo/redo. Save to `~/Pictures` or copy to the clipboard. |
 | Z107 | **Edge hover:** the **right edge** slides out a plane with Calculator and Draw. |
-| Z108 | **Boot text:** fixed flavour lines. About 6 original lines in the system voice, with no game quotes, for owner's approval; they're stored as a data file. With voice set to `plain`, boot shows **only the title card**. |
+| Z108 | **Boot text:** fixed flavour lines. The owner picked **A · Impression** for the Angular login on 23 November 2026 (OPEN 8). The four lines run in order: `FACE · IN PARTS`, `CUT · MEETS CUT`, `PAPER · TAKES INK`, `DAY · SET IN TYPE`. The study data is in `tools/boot-voice-study/lines.json`. With voice set to `plain`, boot shows **only the title card**. |
 | Z109 | **Security testing:** a **nested Hyprland** test compositor plus fixtures, including a fake PAM. Lock and polkit are tested in the real session only with the owner present. Whether Hyprland runs nested is verified in S1. |
 | Z110 | **Trial logging:** a `zaetherion trial note <text>` verb, plus automatic entries for crashes, DMS restarts and session switches, with a daily summary in HANDOFF. |
 | Z111 | **Serpantinum retirement (S12):** keep only the Serpantinum files ZÆTHERION uses (presets, sounds, emoji, the PAM file) and delete the rest. Each deletion is listed and approved by the owner at that time. |
