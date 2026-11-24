@@ -10,6 +10,7 @@ import qs.adapters.hyprland
 import qs.core.client
 import qs.view.overdrive
 import qs.view.shell
+import qs.view.lock
 import qs.view.ui
 import qs.view.widgets
 ShellRoot {
@@ -66,6 +67,13 @@ ShellRoot {
     }
 
     OverdriveLease { id: lease; core: client }
+
+    // ZÆTHERION's session lock (S7, docs/LOCK.md), only in a session switched to it (FART_LOCK=own); until then
+    // DMS's lock is the session's and none of this loads.
+    LazyLoader {
+        active: Quickshell.env("FART_LOCK") === "own"
+        LockHost { core: client; host: adapter }
+    }
 
     // The desktop clock on every screen whose workspace is empty (Z46, Z85).
     DesktopWidgets {
