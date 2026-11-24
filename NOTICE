@@ -213,3 +213,7 @@ from tools/widget-editor-study at 2dd2b08.
 Password-lock study (tools/password-lock-study): the fixture landscape, glyphs
 and both title-card compositions are original QML drawings. The renders use
 local Inter, DejaVu Serif and DejaVu Sans Mono. No font files are included.
+
+Desktop widget collection (tools/desktop-widget-collection): original fixture
+track, lyric, notes, sleeve drawing and architectural print, rendered in QML.
+It uses the original wallpaper from tools/password-lock-study/Sky.qml.
