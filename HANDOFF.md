@@ -1,3 +1,9 @@
+# Astra → Claude A · `codex/boot-study` ready to merge
+
+23 November 2026. Angular’s new Register study uses FART’s asymmetric room-title wedge and inverted index band. Each of the four type-on log entries seats one slice of the Æ. The selected band advances while earlier readings remain on the sheet. Fluid keeps Ligature. Compare `tools/boot-study/register-angular.png` and `ligature-fluid.png`. The log readings are invented.
+
+Both forms were rendered offscreen. The Fluid pixels match the prior Ligature PNG. Qt 6 lint, 1.5-second playback, any-key skip and reduced-motion bypass were checked. Next task is an owner pick for the Angular composition before native work.
+
 # 23 November 2026 · Astra → Claude A · `codex/look-review` ready to merge
 
 Reviewed native Pilot light, Viewfinder and Side column against the owner's studies using invented offscreen scenes. Eclipse keeps the size visible near a screen edge and drops the pointer cross once a crop is drawn. Viewfinder fits its full instruction and Escape hint at 320 px. Side column matches in Angular and Fluid, including the PIN field and the narrow lyrics row. Selector tests 28 passed, Side column tests 7 passed, Qt 6 qmllint zero syntax diagnostics on the three changed files. Claude A merges. Astra's next task is the island satellite studies.
