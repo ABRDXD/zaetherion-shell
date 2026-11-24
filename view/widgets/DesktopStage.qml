@@ -15,6 +15,14 @@ Item {
         return Qt.rect(r.x, r.y, r.width, r.height);
     }
     readonly property alias clock: clockItem
+    // A right-click on the bare desktop asks for the desktop menu there (Z86).
+    signal menuRequested(point at)
+
+    MouseArea {
+        anchors.fill: parent
+        acceptedButtons: Qt.RightButton
+        onPressed: event => root.menuRequested(Qt.point(event.x, event.y))
+    }
 
     DesktopClock {
         id: clockItem

@@ -26,7 +26,8 @@ Item {
     property string preferencesSection: "palette"
     function openSettings(section) {
         Host.pendingSettings = "";
-        preferencesSection = section;
+        if (section !== "current")  // "current": Settings on the tab last shown (the desktop menu's Settings)
+            preferencesSection = section;
         archiveOpen = false;
         preferencesOpen = true;
     }

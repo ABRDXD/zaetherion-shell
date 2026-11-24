@@ -73,6 +73,7 @@ ShellRoot {
         wanted: root.islandWanted
         workspaces: adapter.workspaces
         core: client
+        onOpenSettings: section => { root.showPanel("devices"); Host.openSettings(section); }
     }
 
     LazyLoader {
