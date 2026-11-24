@@ -119,6 +119,14 @@ class Helpers(unittest.TestCase):
                                 "18 SEP 2030", "18 SEP", "18 September 2030", "18 Sep",
                                 "– 07:24 –", "– 7:24 AM –", "– 11:05 PM –", "– 12:00 AM –", -8, "#174652"])
 
+    def test_the_accent_follows_the_theme_and_its_ink_stays_readable(self):
+        said = node(library("ClockWords.js") + '''
+            console.log(JSON.stringify([ink("original", false, "#3fd6c0"), ink(undefined, false, "#ff5c8a"), ink("tide", false, "#3fd6c0"),
+                ink("original", true, "#3fd6c0"), inkOn(1, 0.82, 0.39), inkOn(0.1, 0.1, 0.3), inkOn(1, 1, 1), inkOn(0, 0, 0)]));''')
+        self.assertEqual(said, ["#3fd6c0", "#ff5c8a", "#81dece", "#30294d", "#25232f", "#f3efdc", "#25232f", "#f3efdc"])
+        for name in ("DesktopMenu.qml", "DesktopEditor.qml", "LoginSequence.qml"):
+            self.assertNotIn("#ffd064", (ROOT / "view/widgets" / name).read_text(), name)
+
     def test_week_across_a_month_and_a_dst_change(self):
         said = node("process.env.TZ='Europe/London';" + library("ClockWords.js") + '''
             console.log(JSON.stringify([week(new Date(2026, 9, 25, 12)).days, week(new Date(2026, 2, 1, 12)).days]));''')

@@ -1,5 +1,7 @@
 pragma ComponentBehavior: Bound
 import QtQuick
+import qs.view.ui
+import "ClockWords.js" as Words
 import "DesktopGrid.js" as Grid
 
 // Edit widgets (Z46, Z86; Astra's tools/widget-editor-study, owner's picks 24 Nov: A · Chase in Angular,
@@ -35,8 +37,9 @@ FocusScope {
     // The study's palette and type (EditorStudy.qml), named for the type-scale rule.
     readonly property color stock: fluid ? "#242334" : "#1d2027"
     readonly property color paper: fluid ? "#efedf8" : "#f3efdc"
-    readonly property color signal: fluid ? "#d9cdff" : "#ffd064"
-    readonly property color signalInk: "#23232c"
+    // The study's amber (Angular) and lilac (Fluid) follow the theme's accent; text on it stays readable.
+    readonly property color signal: Design.accent
+    readonly property color signalInk: Words.inkOn(signal.r, signal.g, signal.b)
     readonly property color quiet: fluid ? "#c4c0d4" : "#bcc1c0"
     readonly property string sans: fluid ? "Noto Sans" : "Roboto Condensed"
     readonly property string mono: "DejaVu Sans Mono"

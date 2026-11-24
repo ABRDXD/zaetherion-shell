@@ -1,5 +1,6 @@
 pragma ComponentBehavior: Bound
 import QtQuick
+import qs.view.ui
 import "ClockWords.js" as Words
 
 // The Angular desktop clock: Astra's Day index (tools/widget-study/DayIndex.qml, owner's pick 23 Nov), drawn on a
@@ -18,7 +19,7 @@ Item {
     property bool stamp: true
     readonly property int trackingOffset: Words.tracking(face.spacing)
     readonly property bool briefDate: face.date === "short"
-    readonly property color signal: Words.ink(face.ink, false)
+    readonly property color signal: Words.ink(face.ink, false, Design.accent)
     readonly property color paper: "#20232a"
     readonly property color ink: "#f2efdf"
     readonly property var week: Words.week(now)

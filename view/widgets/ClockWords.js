@@ -45,8 +45,16 @@ function timeLabel(date, hours) {
 // The face choices, at the study's values (codex/widget-editor-study FaceStrip.qml): day spacing Close / Original /
 // Wide as a letter-spacing offset, and the ink (Angular: the backing and Æ stamp; Fluid: the lettering).
 function tracking(spacing) { return spacing === "close" ? -8 : spacing === "wide" ? 3 : 0; }
-function ink(choice, fluid) {
+// Angular's "original" ink is the palette's accent (owner, 24 Nov: the amber must follow the theme), passed in.
+function ink(choice, fluid, accent) {
     var inks = fluid ? { original: "#30294d", copper: "#603329", tide: "#174652" }
-                     : { original: "#ffd064", copper: "#ff9d78", tide: "#81dece" };
+                     : { original: accent || "#ffd064", copper: "#ff9d78", tide: "#81dece" };
     return inks[choice] || inks.original;
+}
+
+// Dark or light ink for text drawn on a colour (r, g, b in 0-1), by its relative luminance.
+function inkOn(r, g, b) {
+    function lin(c) { return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
+    var l = 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+    return l > 0.22 ? "#25232f" : "#f3efdc";
 }
