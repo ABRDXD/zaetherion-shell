@@ -131,6 +131,10 @@ class HostProfile:
         props = json.dumps({"application.id": "fart-sfx", "application.name": "FART", "media.role": "event"})
         return ["pw-play", "-P", props, f"--volume={max(0.0, min(2.0, gain)):.3f}", str(path)]
 
+    def unlock_session_command(self):
+        """After ZÆTHERION's lock lets go: logind (and through it DMS) learns the session is unlocked (docs/LOCK.md)."""
+        return ["loginctl", "unlock-session"]
+
     def notify_command(self, summary: str, body: str, image: str | None = None):
         """A notice through our notification server; `image` (a file) shows as its picture (capture, Z221)."""
         picture = ["-i", image, "-h", f"string:image-path:{image}"] if image else []

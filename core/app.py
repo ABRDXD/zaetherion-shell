@@ -18,6 +18,7 @@ from core.genealogy import Genealogy
 from core.guards import BatteryGuard, FullscreenGuard, Guards, SessionGuard, focused_fullscreen
 from core.hostcalls import HostCalls
 from core.island import Island
+from core.lock import Lock
 from core.widgets import Widgets
 from core.launcher import Launcher
 from core.palette import MADE as MADE_PALETTE, Palette
@@ -97,6 +98,11 @@ class Core:
         self.capture = Capture(Path(os.environ.get("XDG_RUNTIME_DIR") or state_dir) / "zaetherion",
                                alert=lambda summary, body, image=None: host.alert(summary, body, image=image),
                                selector=Path(__file__).resolve().parents[1] / "shell-selector.qml")
+        # The session lock (S7, docs/LOCK.md): its state outlives a core or view restart in the core's runtime folder.
+        # The `lock` verb uses it only with FART_LOCK=own (the switch-over); until then the host's lock stays.
+        self.lock_own = os.environ.get("FART_LOCK") == "own"
+        self.lock = Lock(Path(os.environ.get("FART_RUNTIME_DIR") or Path(os.environ.get("XDG_RUNTIME_DIR") or state_dir) / "zaetherion"),
+                         unlocked=lambda: host.run(getattr(host.profile, "unlock_session_command", lambda: None)()))
         self.sessions.tasks_done = self.tasks.done_between
         self.sessions.music = self._session_music
         self.discovery = Discovery(state_dir, clock)
@@ -129,7 +135,7 @@ class Core:
             self.sessions.on_guard = session_guard.changed
 
         for name, owner in (("timers", self.timers), ("tasks", self.tasks), ("notifications", self.inbox),
-                            ("overdrive", self.overdrive), ("session", self.sessions), ("island", self.island), ("widgets", self.widgets), ("clips", self.clips), ("palette", self.palette),
+                            ("overdrive", self.overdrive), ("session", self.sessions), ("island", self.island), ("widgets", self.widgets), ("lock", self.lock), ("clips", self.clips), ("palette", self.palette),
                             ("wallpaper", self.wallpaper),
                             ("equalizer", self.equalizer), ("launcher", self.launcher), ("capture", self.capture), ("view", self.view)):
             server.topic(name, owner.snapshot)
@@ -280,6 +286,8 @@ class Core:
         op("widgets.place", lambda peer, monitor, column, span, y, angle, widget="clock": dw.place(monitor, widget, column, span, y, angle))
         op("widgets.layout", lambda peer, name: dw.use_layout(name))
         op("widgets.reset", lambda peer: dw.reset_face())
+        op("lock.engage", lambda peer, reason="command": self.lock.engage(reason))
+        op("lock.release", lambda peer: self.lock.release(peer.kind))
         op("exhibit.prepare", lambda peer, reduced=True, metadata=None: self.exhibit.prepare(reduced, metadata))
         op("exhibit.start", lambda peer: self.exhibit.start())
         op("exhibit.stop", lambda peer: self.exhibit.stop())

@@ -38,6 +38,9 @@ class HostProfile:
     def play_file_command(self, path, gain):
         return None  # generated exhibition audio is inert in fixtures
 
+    def unlock_session_command(self):
+        return ["loginctl", "unlock-session"]
+
     def notify_command(self, summary, body, image=None):
         return ["notify", summary, body] + ([image] if image else [])
 

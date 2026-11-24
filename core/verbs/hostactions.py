@@ -40,8 +40,13 @@ async def settings(ctx, words):
 
 
 async def lock(ctx, words):
+    """The host's lock (DMS's), until the session runs ZÆTHERION's own (FART_LOCK=own, docs/LOCK.md §6). Then DMS's
+    custom lock command is `zaetherion lock`, so asking the host here would only come back to this verb."""
     if words:
         raise Usage("lock takes no arguments")
+    if ctx.core.lock_own:
+        ctx.core.lock.engage("command")
+        return Result("> LOCKED", "info")
     await ctx.fold()
     await ctx.host("power", "lock", hold=0)
     return Result("locked", "info")

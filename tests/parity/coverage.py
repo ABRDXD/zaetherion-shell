@@ -13,7 +13,8 @@ ROOT = Path(__file__).resolve().parents[2]
 
 PENDING_OPS = {
     "1b": ("widgets.place", "widgets.layout", "widgets.reset"),
-    "2a": ("view.open", "view.close", "view.toggle", "view.state", "host.done", "key.down", "key.up"),
+    "2a": ("view.open", "view.close", "view.toggle", "view.state", "host.done", "key.down", "key.up", "lock.engage",
+           "lock.release"),
     "3a": ("sfx.play", "sfx.stop", "sfx.configure", "eq.enable", "eq.band", "eq.preset", "eq.mono"),
     "3b": ("notif.dismiss", "notif.clear", "notif.dnd", "notif.serve", "notif.ingest", "notif.image", "notif.closed",
            "apps.index", "launcher.query", "launcher.launch", "launcher.act", "launcher.configure", "launcher.forget",
@@ -30,7 +31,7 @@ PENDING_OPS = {
 # A topic counts as covered when a scenario other than protocol_subscribe (which only snapshots them all) checks it.
 PENDING_TOPICS = {
     "1b": ("widgets",),
-    "2a": ("view", "ignite"),
+    "2a": ("view", "ignite", "lock"),
     "2b": ("supervisor",),
     "3a": ("sfx", "equalizer"),
     "3b": ("notifications", "launcher", "track"),
