@@ -35,3 +35,28 @@ class PageTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CoreChoiceTests(unittest.TestCase):
+    """Z226: FART_CORE picks the core `zaetherion start` runs; Python unless asked."""
+
+    def test_python_unless_asked(self):
+        for env in ({}, {"FART_CORE": ""}, {"FART_CORE": "python"}):
+            self.assertEqual(zaetherion.core_command(env)[-1], str(zaetherion.ROOT / "core/fartd.py"), env)
+
+    def test_cpp_when_asked_and_built(self):
+        binary = zaetherion.ROOT / "core-cpp/build/fartd-cpp"
+        with patch.object(zaetherion.os, "access", return_value=True):
+            self.assertEqual(zaetherion.core_command({"FART_CORE": "cpp"}), [str(binary)])
+        with patch.object(zaetherion.os, "access", return_value=False):
+            with self.assertRaisesRegex(zaetherion.Unreachable, "not built"):
+                zaetherion.core_command({"FART_CORE": "cpp"})
+
+    def test_anything_else_is_refused(self):
+        for value in ("CPP", "rust", "c++"):
+            with self.assertRaises(zaetherion.Unreachable, msg=value):
+                zaetherion.core_command({"FART_CORE": value})
+
+    def test_live_restart_finds_either_core(self):
+        text = (zaetherion.ROOT / "tools/live-restart").read_text()
+        self.assertIn("core/fartd.py|$ROOT/core-cpp/build/fartd-cpp", text)

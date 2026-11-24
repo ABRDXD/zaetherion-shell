@@ -165,6 +165,20 @@ def try_connect(path: Path, timeout: float = 20) -> Connection | None:
     return connection
 
 
+def core_command(env=os.environ) -> list[str]:
+    """The core to start: Python by default; FART_CORE=cpp picks fartd-cpp (Z226, opt-in until stage 6).
+    `tools/live-restart` keeps FART_CORE with the other FART_* settings, so a restart keeps the choice."""
+    which = env.get("FART_CORE") or "python"
+    if which == "python":
+        return [sys.executable, "-I", str(ROOT / "core/fartd.py")]
+    if which == "cpp":
+        binary = ROOT / "core-cpp/build/fartd-cpp"
+        if not os.access(binary, os.X_OK):
+            raise Unreachable(f"FART_CORE=cpp, but {binary} is not built (core-cpp/README.md)")
+        return [str(binary)]
+    raise Unreachable(f"FART_CORE={which!r}: use python or cpp")
+
+
 def start_core(path: Path) -> Connection:
     """Start the core detached (until the systemd socket unit is approved) and wait for its socket."""
     with (path.parent / "launch.lock").open("a") as lock:
@@ -179,7 +193,7 @@ def start_core(path: Path) -> Connection:
                    FART_HOST=os.environ.get("FART_HOST") or "serpantinum",
                    FART_SUPERVISE=os.environ.get("FART_SUPERVISE") or "dms")
         log = (path.parent / "core.log").open("ab")
-        subprocess.Popen([sys.executable, "-I", str(ROOT / "core/fartd.py")], env=env, cwd="/", start_new_session=True,
+        subprocess.Popen(core_command(env), env=env, cwd="/", start_new_session=True,
                          stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=log)
         log.close()
         for _ in range(80):

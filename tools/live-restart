@@ -8,7 +8,8 @@ ROOT=$(dirname "$(dirname "$(readlink -f "$0")")")
 run() { if [ "${DRY:-0}" = 1 ]; then echo "would run: $*"; else "$@"; fi; }
 alive() { [ -n "$1" ] && [ -e "/proc/$1" ]; }
 
-core=$(pgrep -u "$(id -u)" -f "^/usr/bin/python3 -I $ROOT/core/fartd.py\$" | head -n 1)
+# Either core (Z226): the Python one, or fartd-cpp when the session runs with FART_CORE=cpp.
+core=$(pgrep -u "$(id -u)" -f "^(/usr/bin/python3 -I $ROOT/core/fartd.py|$ROOT/core-cpp/build/fartd-cpp)\$" | head -n 1)
 dms=$(pgrep -u "$(id -u)" -f '^dms run$' | head -n 1)
 if [ -z "$core" ]; then
     echo "no core is running from $ROOT; start it with the session (tools/session-start) instead"; exit 1
