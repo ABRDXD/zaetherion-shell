@@ -78,7 +78,7 @@ bool Island::valid(const std::string& key, const json::Value& value) {
 
 Island::Island(const std::filesystem::path& state_dir) : path_(state_dir / "island.json") {
     json::Value saved = saved_or_empty(path_);
-    if (!saved.is_object()) throw std::runtime_error("island.json: not an object");  // saved.items()'s AttributeError
+    if (!saved.is_object()) saved = json::Object{};  // a list or a number: defaults, as clips.json
     state_ = json::Object{{"form", "angular"}, {"edge", "top"}, {"placement", "notch"}, {"screen", ""},
                           {"rest", rest_presets()[2].second}, {"noticeMs", 1000}};
     for (const auto& [key, value] : saved.as_object()) {

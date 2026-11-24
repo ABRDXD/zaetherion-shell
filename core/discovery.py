@@ -41,7 +41,7 @@ def load(directory: Path = FRAGMENTS) -> dict:
         try:
             data = json.loads(path.read_text())
             when = data["when"]
-            if not NAME.match(fid) or not isinstance(when, dict) or not when or set(when) - KEYS:
+            if not NAME.fullmatch(fid) or not isinstance(when, dict) or not when or set(when) - KEYS:
                 raise ValueError("unknown condition")
             if not isinstance(data.get("whisper"), str) or not isinstance(data.get("text"), str):
                 raise ValueError("a whisper and a text are needed")
@@ -88,7 +88,7 @@ class Discovery:
         except ValueError:
             saved = {}
         counters = saved.get("counters") if isinstance(saved.get("counters"), dict) else {}
-        self.counters = {k: v for k, v in counters.items() if isinstance(v, int) and NAME.match(k)}
+        self.counters = {k: v for k, v in counters.items() if isinstance(v, int) and NAME.fullmatch(k)}
         found = saved.get("found") if isinstance(saved.get("found"), dict) else {}
         self.found = {k: v for k, v in found.items() if k in self.registry and isinstance(v, int)}
         # Found but not yet whispered: the view says when it has shown one (discovery.seen).
@@ -97,7 +97,7 @@ class Discovery:
         self.pending = None
 
     def bump(self, counter, by=1):
-        if not isinstance(counter, str) or not NAME.match(counter):
+        if not isinstance(counter, str) or not NAME.fullmatch(counter):
             raise bad_args("counter must be a short lowercase name")
         if isinstance(by, bool) or not isinstance(by, int) or not 1 <= by <= 1000:
             raise bad_args("by must be an integer from 1 to 1000")

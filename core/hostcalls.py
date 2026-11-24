@@ -55,10 +55,10 @@ class HostCalls:
         if lease is not None and lease not in LEASES.get(domain, ()):
             raise OpError("bad-args", f"{domain} has no lease {lease!r}")
         for path in (ready, read):
-            if path is not None and not PATH.match(path):
+            if path is not None and not PATH.fullmatch(path):
                 raise OpError("bad-args", f"bad property path {path!r}")
         for arg in args:
-            if isinstance(arg, dict) and not (set(arg) == {"$"} and PATH.match(str(arg["$"]))):
+            if isinstance(arg, dict) and not (set(arg) == {"$"} and PATH.fullmatch(str(arg["$"]))):
                 raise OpError("bad-args", "a reference argument is {\"$\": path}")
 
     async def call(self, domain: str, method: str | None = None, args=(), lease: str | None = None,

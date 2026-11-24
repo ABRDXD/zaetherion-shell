@@ -280,14 +280,14 @@ class SettingsEdges(unittest.TestCase):
                 got[which] = (json.dumps(snaps), files)
             self.assertEqual(got["python"], got[str(FARTD_CPP)], seed)
 
-    def test_island_file_not_an_object_stops_both(self):
-        for which in ("python", str(FARTD_CPP)):
-            core = Core(which, seed={"island.json": "[1]"})
-            try:
-                with self.assertRaises(CoreGone, msg=which):
-                    core.start()
-            finally:
-                core.close()
+    def test_island_file_not_an_object_gives_defaults(self):
+        """Both cores start on defaults (Python stopped on saved.items() until 24 Nov)."""
+        for text in ("[1]", "5"):
+            seed = {"island.json": text}
+            answers = [start_or_gone(which, seed, lambda core, peer: core.state_bytes("island.json"))
+                       for which in ("python", str(FARTD_CPP))]
+            self.assertNotIn("gone", answers, text)
+            self.assertEqual(answers[0], answers[1], text)
 
 
 def timers_edges(which: str, seed: dict | None = None, steps=True) -> list:
@@ -320,7 +320,8 @@ def timers_edges(which: str, seed: dict | None = None, steps=True) -> list:
             call("timer.add", kind="countdown", seconds=0)
             for config in ({"pomodoro": {"focus": 59.9}}, {"pomodoro": {"focus": 3600.7, "cycles": 12}}, {"pomodoro": {"cycles": True}},
                            {"pomodoro": {"cycles": 10 ** 20}}, {"pomodoro": {"Focus": 60}}, {"pomodoro": {"focus": 600}, "sound": "yes"},
-                           {"pomodoro": {}}, {}, {"pomodoro": None, "sound": None}, {"pomodoro": [1]}, {"sound": True}, {"sound": 0}):
+                           {"pomodoro": {}}, {}, {"pomodoro": None, "sound": None}, {"pomodoro": [1]}, {"sound": True}, {"sound": 0},
+                           {"pomodoro": {"focus": 1200}, "sound": "no"}):  # refused whole: the focus change stays out
                 call("timer.configure", **config)
             call("timer.reset", kind="pomodoro")
             for kind in (None, "countdown", "pomodoro", "stopwatch", "x"):

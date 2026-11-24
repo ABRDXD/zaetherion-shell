@@ -458,9 +458,9 @@ void Timers::ack(const json::Value& kind_value) {
 
 void Timers::configure(const json::Value& pomodoro, const json::Value& sound) {
     json::Value& config = state_.config;
+    json::Value update = json::Object{};
     if (!pomodoro.is_null()) {
         if (!pomodoro.is_object()) throw bad_args("pomodoro must be an object");
-        json::Value update = json::Object{};
         for (const auto& [key, value] : pomodoro.as_object()) {
             if (!config["pomodoro"].find(key)) throw bad_args("unknown pomodoro setting " + py::repr(key));
             if (key == "cycles") {
@@ -471,6 +471,9 @@ void Timers::configure(const json::Value& pomodoro, const json::Value& sound) {
                 update.set(key, static_cast<int64_t>(seconds_arg(value, key, 60)));  // int(seconds_arg(...))
             }
         }
+    }
+    if (!sound.is_null() && !sound.is_bool()) throw bad_args("sound must be true or false");  // before anything changes
+    if (!pomodoro.is_null()) {
         for (const auto& [key, value] : update.as_object()) config["pomodoro"].set(key, value);
         Kind& state = kind(kPomodoro);
         state.fields.set("lengths", *config.find("pomodoro"));
@@ -478,10 +481,7 @@ void Timers::configure(const json::Value& pomodoro, const json::Value& sound) {
         if (!state.run.running && py::number(state.run.elapsed) == 0)
             state.fields.set("duration", *state.fields["lengths"].find(state.fields["phase"].as_string()));
     }
-    if (!sound.is_null()) {  // the pomodoro change above already applied, as in Python, if this one fails
-        if (!sound.is_bool()) throw bad_args("sound must be true or false");
-        config.set("sound", sound);
-    }
+    if (!sound.is_null()) config.set("sound", sound);
     commit();
 }
 

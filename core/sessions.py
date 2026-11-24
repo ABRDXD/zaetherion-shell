@@ -125,7 +125,7 @@ class Sessions:
     def start(self, preset, seconds=None):
         if self.current:
             raise OpError("conflict", "a session is already running; end it first")
-        if not isinstance(preset, str) or not PRESET.match(preset):
+        if not isinstance(preset, str) or not PRESET.fullmatch(preset):
             raise bad_args("preset must be a short lowercase name")
         if seconds is None:
             if preset not in PRESETS:

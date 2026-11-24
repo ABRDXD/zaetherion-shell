@@ -34,7 +34,7 @@ def clean_text(text, limit=MAX_TEXT, name="text") -> str:
 def clean_due(due):
     if due is None:
         return None
-    if not isinstance(due, str) or not DUE.match(due):
+    if not isinstance(due, str) or not DUE.fullmatch(due):
         raise bad_args("due must be YYYY-MM-DD or YYYY-MM-DDTHH:MM")
     try:
         datetime.fromisoformat(due)

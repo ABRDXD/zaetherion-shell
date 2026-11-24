@@ -40,7 +40,7 @@ class Island:
             saved = {}
         self.state = dict(DEFAULTS)
         self.state["rest"] = dict(DEFAULTS["rest"])
-        for key, value in saved.items():
+        for key, value in (saved.items() if isinstance(saved, dict) else ()):  # a list or a number: defaults
             if key == "rest" and isinstance(value, dict):
                 for item, mode in value.items():
                     if mode in REST_MODES.get(item, ()):

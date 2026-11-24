@@ -32,10 +32,9 @@ const json::Value& get(const json::Value& object, std::string_view key) {
     return v ? *v : null;
 }
 
-// PRESET = re.compile(r"^[a-z0-9][a-z0-9_-]{0,31}$") with match(): ASCII only, `$` also before a final "\n".
+// PRESET = re.compile(r"^[a-z0-9][a-z0-9_-]{0,31}$") with fullmatch(): ASCII only, nothing after the name.
 bool preset_name(const std::string& s) {
     std::string_view body = s;
-    if (!body.empty() && body.back() == '\n') body.remove_suffix(1);
     auto ok = [](char c, bool first) {
         return (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || (!first && (c == '_' || c == '-'));
     };

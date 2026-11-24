@@ -279,6 +279,9 @@ class Timers:
                     update[key] = value
                 else:
                     update[key] = int(seconds_arg(value, key, minimum=60))
+        if sound is not None and not isinstance(sound, bool):  # checked before anything changes
+            raise bad_args("sound must be true or false")
+        if pomodoro is not None:
             config["pomodoro"].update(update)
             state = self.state["pomodoro"]
             state["lengths"] = dict(config["pomodoro"])
@@ -286,8 +289,6 @@ class Timers:
             if not state["run"].running and state["run"].elapsed == 0:
                 state["duration"] = state["lengths"][state["phase"]]
         if sound is not None:
-            if not isinstance(sound, bool):
-                raise bad_args("sound must be true or false")
             config["sound"] = sound
         self._commit()
 

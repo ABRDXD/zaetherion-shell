@@ -22,8 +22,8 @@ json::Value empty_state() {
                         {"tasks", json::Array{}}};
 }
 
-// DUE = re.compile(r"^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$") with re.match: \d is any Unicode decimal digit and
-// `$` also matches before a final "\n".
+// DUE = re.compile(r"^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$") with fullmatch: \d is any Unicode decimal digit;
+// nothing may follow (not even the final "\n" that `$` alone would let through).
 bool due_shape(const std::string& text) {
     std::vector<uint32_t> cps;
     for (size_t i = 0; i < text.size();) cps.push_back(py::next_code_point(text, i));
@@ -35,8 +35,7 @@ bool due_shape(const std::string& text) {
             if (want[k] == 'd' ? py::decimal(cps[k]) < 0 : cps[k] != static_cast<uint32_t>(want[k])) return false;
         return true;
     };
-    if (shape(cps.size())) return true;
-    return !cps.empty() && cps.back() == '\n' && shape(cps.size() - 1);
+    return shape(cps.size());
 }
 
 bool leap(int y) { return (y % 4 == 0 && y % 100 != 0) || y % 400 == 0; }
