@@ -2,6 +2,8 @@
 
 The two studies open inside *Edit widgets*, the editor reached from the desktop context menu (Z46, Z86). They show one invented monitor and its Morning preset. Changes last for this fixture session.
 
+The form selects the approved placement by default. Angular opens Chase and Fluid opens Margin. Use an explicit placement flag to inspect either study in either form.
+
 | Choice | Angular | Fluid | How to use it |
 | --- | --- | --- | --- |
 | A · Chase | [Open](chase-angular.png) | [Open](chase-fluid.png) | Drag the clock to move it. Drag the upper handle to rotate, or the lower-right tab to change its span. The handles follow the clock. |

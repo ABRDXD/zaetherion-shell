@@ -3,15 +3,15 @@ import QtQuick
 
 Item {
     id: gauge
-    required property EditPose placement
     required property string tool
     required property bool fluid
     readonly property string family: fluid ? "Noto Sans" : "DejaVu Sans Mono"
     readonly property bool rotationMode: tool === "Rotate"
-    readonly property int minimum: rotationMode ? -180 : tool === "Move" ? 1 : 3
-    readonly property int maximum: rotationMode ? 180 : tool === "Move" ? 13 - placement.span : 12 - placement.column
+    required property int minimum
+    required property int maximum
+    required property int reading
+    signal valueRequested(int value)
     readonly property int divisions: rotationMode ? 12 : maximum - minimum
-    readonly property int reading: rotationMode ? placement.angle : tool === "Move" ? placement.column + 1 : placement.span
     readonly property real value: (reading - minimum) / Math.max(1, maximum - minimum)
     readonly property int inset: 7
     readonly property real run: width - 2 * inset
@@ -19,9 +19,7 @@ Item {
     function setAt(x) {
         const ratio = Math.max(0, Math.min(1, (x - inset) / run));
         const target = minimum + Math.round(ratio * (maximum - minimum));
-        if (rotationMode) placement.angle = target;
-        else if (tool === "Move") placement.column = target - 1;
-        else placement.span = target;
+        valueRequested(target);
     }
     Rectangle { x: gauge.inset; y: 25; width: gauge.run; height: 1; color: "#777479" }
     Repeater {
