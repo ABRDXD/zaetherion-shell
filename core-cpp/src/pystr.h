@@ -40,6 +40,9 @@ bool truthy(const json::Value& v);       // bool(v)
 // 64 bits to int here: the core never meets one). int() of a string allows whitespace, a sign, Unicode digits and
 // single underscores between digits; float() of a string allows what float() does.
 int64_t int_of(const json::Value& v);
+// int(v) of any size, as Python gives it: an Int, or a BigInt past 64 bits (a file may hold one).
+json::Value int_value(const json::Value& v);
+json::Value int_plus_one(const json::Value& v);  // v + 1 for an int of any size (Bool, Int or BigInt)
 double float_of(const json::Value& v);
 double number(const json::Value& v);  // an int, float or bool as a double, for arithmetic (Python's promotion)
 

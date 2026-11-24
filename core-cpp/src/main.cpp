@@ -137,6 +137,7 @@ int main(int argc, char** argv) {
     std::setlocale(LC_NUMERIC, "C");  // Qt set the user's locale; numbers are always written the C way
     tzset();                          // local days (sessions, due words) follow TZ, as Python's time module reads it
 
+    try {  // fartd.py: "core failed" and the traceback go to core.log, not only to a lost stderr
     fart::Clock clock(fart::fixture_epoch(env));
     make_dir(state);
 
@@ -171,4 +172,8 @@ int main(int argc, char** argv) {
     fart::log::info("fart.core", std::string("core ") + fart::VERSION + " up (C++, pid " + std::to_string(::getpid()) +
                                      ", host " + host + ", state " + state + ")");
     return app.exec();
+    } catch (const std::exception& error) {
+        fart::log::error("fart.core", std::string("core failed: ") + error.what());
+        return 1;
+    }
 }

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cctype>
 #include <cmath>
 #include <cstdio>
 #include <optional>
@@ -301,6 +302,67 @@ int64_t int_of(const json::Value& v) {
     }
 }
 
+json::Value int_value(const json::Value& v) {
+    using T = json::Value::Type;
+    switch (v.type()) {
+    case T::BigInt: return v;
+    case T::Float: {
+        double d = v.as_float();
+        if (!std::isfinite(d)) throw std::runtime_error("cannot convert float to integer");
+        return json::py_round_int(std::trunc(d));  // already integral, so this only picks Int or BigInt
+    }
+    case T::String: {
+        auto text = ascii_int_text(v.as_string());
+        if (!text) throw std::runtime_error("invalid literal for int(): " + repr(v.as_string()));
+        try {
+            return json::Value(static_cast<int64_t>(std::stoll(*text)));
+        } catch (const std::out_of_range&) {
+        }
+        std::string sign, digits = *text;
+        if (!digits.empty() && (digits[0] == '-' || digits[0] == '+')) {
+            if (digits[0] == '-') sign = "-";
+            digits.erase(0, 1);
+        }
+        digits.erase(0, std::min(digits.find_first_not_of('0'), digits.size() - 1));
+        if (digits.size() > 4300)  // sys.get_int_max_str_digits()
+            throw std::runtime_error("Exceeds the limit (4300 digits) for integer string conversion");
+        return json::Value(json::BigInt{sign + digits});
+    }
+    default: return json::Value(int_of(v));
+    }
+}
+
+namespace {
+std::string add_one_magnitude(std::string m) {  // |x| + 1
+    for (size_t i = m.size(); i-- > 0;) {
+        if (m[i] != '9') { ++m[i]; return m; }
+        m[i] = '0';
+    }
+    return "1" + m;
+}
+std::string sub_one_magnitude(std::string m) {  // |x| - 1 for |x| >= 2**63
+    for (size_t i = m.size(); i-- > 0;) {
+        if (m[i] != '0') { --m[i]; break; }
+        m[i] = '9';
+    }
+    m.erase(0, std::min(m.find_first_not_of('0'), m.size() - 1));
+    return m;
+}
+}  // namespace
+
+json::Value int_plus_one(const json::Value& v) {
+    if (v.type() == json::Value::Type::BigInt) {
+        const std::string& d = v.as_bigint().digits;
+        if (d[0] != '-') return json::Value(json::BigInt{add_one_magnitude(d)});
+        std::string m = sub_one_magnitude(d.substr(1));
+        if (m == "9223372036854775808") return json::Value(INT64_MIN);
+        return json::Value(json::BigInt{"-" + m});
+    }
+    int64_t x = int_of(v);
+    if (x == INT64_MAX) return json::Value(json::BigInt{"9223372036854775808"});
+    return json::Value(x + 1);
+}
+
 double float_of(const json::Value& v) {
     using T = json::Value::Type;
     switch (v.type()) {
@@ -313,11 +375,21 @@ double float_of(const json::Value& v) {
         return *d;
     }
     case T::String: {
-        std::string text;
-        for (char c : strip(v.as_string()))
-            if (c != '_') text += c;  // float("1_000"); a misplaced underscore is refused below only roughly
-        auto d = json::parse_double(text);
-        if (!d || text.empty() || text.find_first_of("xXpP") != std::string::npos)
+        // float()'s grammar: an underscore only between two digits ("1_000"), no hex, no strtod "nan(...)".
+        std::string stripped = strip(v.as_string()), text;
+        bool misplaced = false;
+        for (size_t i = 0; i < stripped.size(); ++i) {
+            char c = stripped[i];
+            if (c != '_') {
+                text += c;
+                continue;
+            }
+            bool digit_before = i > 0 && std::isdigit(static_cast<unsigned char>(stripped[i - 1]));
+            bool digit_after = i + 1 < stripped.size() && std::isdigit(static_cast<unsigned char>(stripped[i + 1]));
+            if (!digit_before || !digit_after) misplaced = true;
+        }
+        auto d = misplaced ? std::nullopt : json::parse_double(text);
+        if (!d || text.empty() || text.find_first_of("xXpP()") != std::string::npos)
             throw std::runtime_error("could not convert string to float: " + repr(v.as_string()));
         return *d;
     }

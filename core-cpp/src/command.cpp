@@ -250,7 +250,7 @@ std::string timers_line(const json::Value& snap) {
     }
     if (running(p) || num(p, "elapsed") > 0) {
         const json::Value& cycle = *p.find("cycle");
-        json::Value next = cycle.is_float() ? json::Value(cycle.as_float() + 1) : json::Value(py::int_of(cycle) + 1);
+        json::Value next = cycle.is_float() ? json::Value(cycle.as_float() + 1) : py::int_plus_one(cycle);
         parts.push_back("pomodoro " + p.find("phase")->as_string() + " " + clock_text(num(p, "duration") - num(p, "elapsed")) +
                         " left, cycle " + number_text(next) + (running(p) ? "" : " (paused)"));
     }

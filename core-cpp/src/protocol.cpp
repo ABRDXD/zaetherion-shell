@@ -190,7 +190,10 @@ void Client::flush() {
     out_.clear();
     out_pos_ = 0;
     if (write_) write_->setEnabled(false);
-    if (closing_) release_fd();
+    if (closing_) {
+        release_fd();
+        server_.forget_closing(this);
+    }
 }
 
 void Client::on_writable() { flush(); }
@@ -330,6 +333,18 @@ void Server::on_accept() {
         int fd = ::accept4(listen_fd_, nullptr, nullptr, SOCK_NONBLOCK | SOCK_CLOEXEC);
         if (fd < 0) {
             if (errno == EINTR) continue;
+            if (errno == EMFILE || errno == ENFILE || errno == ENOBUFS || errno == ENOMEM) {
+                // asyncio: log, stop accepting, try again in a second (ACCEPT_RETRY_DELAY). The listening socket
+                // stays readable, so retrying at once would spin the loop and starve every timer and client.
+                log::error("fart.protocol", std::string("socket.accept() out of system resource: ") + std::strerror(errno));
+                if (accept_) accept_->setEnabled(false);
+                QTimer::singleShot(1000, accept_.get(), [this] {  // gone with the notifier at a stop
+                    if (accept_ && listen_fd_ >= 0) {
+                        accept_->setEnabled(true);
+                        on_accept();
+                    }
+                });
+            }
             return;  // EAGAIN, or a peer that left before we got to it
         }
         auto client = std::make_shared<Client>(*this, fd);
@@ -351,7 +366,20 @@ void Server::stop_listening() {
     }
 }
 
+void Server::forget_closing(const Client* client) {
+    // Called from inside the client's own flush: drop the last reference only after it has returned.
+    later([this, client] {
+        auto it = std::find_if(closing_.begin(), closing_.end(), [client](const auto& c) { return c.get() == client; });
+        if (it != closing_.end()) closing_.erase(it);
+    });
+}
+
 void Server::close_all() {
+    for (const auto& c : closing_) {
+        c->flush();
+        c->release_fd();
+    }
+    closing_.clear();
     for (const auto& c : std::vector<std::shared_ptr<Client>>(clients_)) {
         c->flush();  // non-blocking: what fits goes out (the shutdown reply among it)
         c->closed = true;
@@ -365,6 +393,7 @@ void Server::finish(const std::shared_ptr<Client>& client) {
     if (it == clients_.end()) return;
     clients_.erase(it);
     client->close();
+    if (client->fd_ >= 0) closing_.push_back(client);  // the rest of its output is still going out
     for (const auto& callback : on_disconnect) callback(*client);
 }
 

@@ -172,7 +172,7 @@ Sessions::Sessions(const Clock& clock, Scheduler& scheduler, Host& host, const s
     current_ = get(saved, "active").is_object() ? get(saved, "active") : json::Value();
     last_ = get(saved, "last").is_object() ? get(saved, "last") : json::Value();
     entries_ = read_log();
-    if (active()) schedule();
+    if (py::truthy(current_)) schedule();  // `if self.current:`; an empty {} is no session
 }
 
 std::vector<json::Value> Sessions::read_log() const {

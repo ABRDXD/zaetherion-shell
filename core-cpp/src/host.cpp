@@ -86,12 +86,11 @@ json::Value Sfx::emit(const std::string& name, std::optional<bool> sound) {
     json::Value reason;
     double gain = 0.0;
     bool on = sound ? *sound : sound_on_();
-    auto [muted, volume] = host_.profile.sfx();
     if (!on) {
         audible = false, reason = "off";
     } else if (session_active_() && !cue->session) {
         audible = false, reason = "session";
-    } else if (muted || volume <= 0) {
+    } else if (auto [muted, volume] = host_.profile.sfx(); muted || volume <= 0) {  // asked only now, as decide()
         audible = false, reason = "muted";
     } else if (host_.profile.dnd()) {
         audible = false, reason = "dnd";

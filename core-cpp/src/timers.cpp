@@ -70,12 +70,26 @@ bool positive(const json::Value& v) {
     return py::number(v) > 0;
 }
 
-// a % b and a + 1 on Python numbers (int stays int, a float on either side makes a float).
+// a % b, a + 1 and a >= b on Python numbers (int stays int, a float on either side makes a float). An int of
+// any size works, as in Python: a file can hold a cycle past 64 bits; a divisor is a validated small length.
+
 json::Value py_mod(const json::Value& a, const json::Value& b) {
-    if ((a.is_int() || a.is_bool()) && (b.is_int() || b.is_bool())) {
-        int64_t x = py::int_of(a), y = py::int_of(b);
+    if (is_int(a) && is_int(b)) {
+        int64_t y = py::int_of(b);  // the cycles length: 1 to 12
         if (y == 0) throw std::runtime_error("integer modulo by zero");
-        int64_t r = x % y;
+        int64_t r;
+        if (a.type() == json::Value::Type::BigInt) {
+            // |a| mod |y| digit by digit; acc * 10 + 9 stays inside 64 bits while |y| is below 10**17.
+            uint64_t m = y < 0 ? 0 - static_cast<uint64_t>(y) : static_cast<uint64_t>(y), acc = 0;
+            if (m >= 100000000000000000ULL) throw std::runtime_error("modulo of a huge int by a huge int");
+            const std::string& digits = a.as_bigint().digits;
+            bool negative = digits[0] == '-';
+            for (char c : std::string_view(digits).substr(negative ? 1 : 0)) acc = (acc * 10 + static_cast<uint64_t>(c - '0')) % m;
+            r = static_cast<int64_t>(acc);
+            if (negative) r = -r;
+        } else {
+            r = py::int_of(a) % y;
+        }
         return (r != 0 && ((r < 0) != (y < 0))) ? r + y : r;
     }
     double x = py::number(a), y = py::number(b);
@@ -85,8 +99,12 @@ json::Value py_mod(const json::Value& a, const json::Value& b) {
     return r;
 }
 json::Value plus_one(const json::Value& a) {
-    if (a.is_int() || a.is_bool()) return py::int_of(a) + 1;
+    if (is_int(a)) return py::int_plus_one(a);
     return py::number(a) + 1;
+}
+bool at_least(const json::Value& a, const json::Value& b) {  // a >= b, b a small length
+    if (a.type() == json::Value::Type::BigInt) return a.as_bigint().digits[0] != '-';  // |a| >= 2**63
+    return py::number(a) >= py::number(b);
 }
 
 double seconds_arg(const json::Value& value, const std::string& name = "seconds", int64_t minimum = 1) {
@@ -176,9 +194,9 @@ Timers::State Timers::migrate_v1(const json::Value& old, json::Value config, con
     json::Value& p = s.kinds[kPomodoro].fields;
     const json::Value lengths = p["lengths"];
     json::Value cycle_raw = get(pomodoro, "cycle");
-    json::Value cycle = py_mod(json::Value(py::int_of(py::truthy(cycle_raw) ? cycle_raw : json::Value(0))), *lengths.find("cycles"));
+    json::Value cycle = py_mod(py::int_value(py::truthy(cycle_raw) ? cycle_raw : json::Value(0)), *lengths.find("cycles"));
     bool broke = py::truthy(get(pomodoro, "isBreak"));
-    std::string phase = !broke ? "focus" : py::number(plus_one(cycle)) >= py::number(*lengths.find("cycles")) ? "longBreak" : "break";
+    std::string phase = !broke ? "focus" : at_least(plus_one(cycle), *lengths.find("cycles")) ? "longBreak" : "break";
     p.set("phase", phase);
     p.set("cycle", cycle);
     p.set("duration", *lengths.find(phase));
@@ -226,7 +244,7 @@ Timers::State Timers::parse(const json::Value& raw) const {
     const json::Value& done = get(pomodoro, "done");
     json::Value& p = s.kinds[kPomodoro].fields;
     p.set("phase", phase);
-    p.set("cycle", py::int_of(py::truthy(cycle) ? cycle : json::Value(0)));
+    p.set("cycle", py::int_value(py::truthy(cycle) ? cycle : json::Value(0)));
     p.set("lengths", lengths);
     p.set("duration", py::float_of(py::truthy(duration) ? duration : *lengths.find(phase)));
     s.kinds[kPomodoro].run = Run::from_json(get(pomodoro, "run"));
@@ -492,7 +510,7 @@ void Timers::pomodoro_due(const Now& now) {
     const json::Value lengths = *state.fields.find("lengths");
     const json::Value& cycles = *lengths.find("cycles");
     if (ended == "focus") {
-        state.fields.set("phase", py::number(plus_one(*state.fields.find("cycle"))) >= py::number(cycles) ? "longBreak" : "break");
+        state.fields.set("phase", at_least(plus_one(*state.fields.find("cycle")), cycles) ? "longBreak" : "break");
     } else {
         state.fields.set("phase", "focus");
         state.fields.set("cycle", py_mod(plus_one(*state.fields.find("cycle")), cycles));

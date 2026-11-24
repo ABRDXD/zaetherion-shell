@@ -129,10 +129,14 @@ private:
     std::map<std::string, std::function<json::Value()>, std::less<>> snapshots_;
     std::map<std::string, int64_t, std::less<>> revs_;
     std::vector<std::shared_ptr<Client>> clients_;
+    // Let go of but still writing (asyncio's writer.close() flushes first): held until their fd is released,
+    // so a peer that half-closed after its requests still gets every reply.
+    std::vector<std::shared_ptr<Client>> closing_;
     int listen_fd_ = -1;
     std::unique_ptr<QSocketNotifier> accept_;
 
     void on_accept();
+    void forget_closing(const Client* client);
     void finish(const std::shared_ptr<Client>& client);
     static bool is_answer(std::string_view line);
     void dispatch(const std::shared_ptr<Client>& client, const std::string& line, std::function<void()> done);

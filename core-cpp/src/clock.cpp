@@ -132,6 +132,19 @@ Run Run::from_json(const json::Value& value) {
 // --- Scheduler -------------------------------------------------------------------------------------------------
 
 namespace {
+// asyncio logs a callback that raises and keeps serving; so does this (a full disk at a countdown's end, a
+// state file holding the wrong type). One failing callback never stops the others or the core.
+template <typename F>
+void guarded(const std::string& what, F&& callback) {
+    try {
+        callback();
+    } catch (const std::exception& error) {
+        log::error("fart.core", "Exception in callback " + what + ": " + error.what());
+    } catch (...) {
+        log::error("fart.core", "Exception in callback " + what);
+    }
+}
+
 itimerspec absolute(double seconds) {
     itimerspec spec{};
     double whole = std::floor(seconds);
@@ -157,7 +170,7 @@ Scheduler::Scheduler(const Clock& clock) : clock_(clock) {
         uint64_t count;
         if (::read(realtime_, &count, sizeof count) < 0 && errno != ECANCELED) return;  // EAGAIN: spurious
         watch_realtime();
-        for (const auto& callback : std::vector<std::function<void()>>(clock_set)) callback();
+        for (const auto& callback : std::vector<std::function<void()>>(clock_set)) guarded("clock_set", callback);
         fire_due();
     });
     watch_realtime();
@@ -202,7 +215,7 @@ void Scheduler::fire_due() {
         if (it == pending_.end()) continue;  // an earlier callback cancelled it
         auto callback = std::move(it->second.second);
         pending_.erase(it);
-        callback(now);
+        guarded(key, [&] { callback(now); });
     }
     arm();
 }

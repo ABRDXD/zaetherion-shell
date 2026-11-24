@@ -17,6 +17,7 @@ from pathlib import Path
 import signal
 import subprocess
 import sys
+import socket
 import time
 import unittest
 
@@ -375,7 +376,13 @@ class TimersEdges(unittest.TestCase):
                                   "stopwatch": {"laps": "12"}, "countdown": {"duration": 30, "done": {"at": 1}}}},
                  {"timers.json": "{broken"}, {"timers.json": [1, 2]}, {"settings.json": "{broken"},
                  timers_seed(countdown=(300, 3600)), timers_seed(pomodoro=(1500, 7200)), timers_seed(pomodoro=(1500, 1510)),
-                 timers_seed(countdown=(60, 30), stopwatch=(0, 5))]
+                 timers_seed(countdown=(60, 30), stopwatch=(0, 5)),
+                 # int() takes any size: a cycle past 64 bits loads (v2 keeps it, v1 reduces it)
+                 {"timers.json": {"version": 2, "pomodoro": {"phase": "break", "cycle": 10 ** 20}}},
+                 {"timers.json": {"version": 2, "pomodoro": {"cycle": "-" + "9" * 30}}},
+                 {"timers.json": {"version": 2, "pomodoro": {"cycle": 9223372036854775807}}},
+                 {"timers.json": {"timer": {"pomodoro": {"cycle": 10 ** 20 + 3, "isBreak": True}}}},
+                 {"timers.json": {"timer": {"pomodoro": {"cycle": "-100000000000000000001", "isBreak": True}}}}]
         for seed in seeds:
             python, cpp = timers_edges("python", seed, steps=False), timers_edges(str(FARTD_CPP), seed, steps=False)
             self.assertEqual(python, cpp, seed)
@@ -439,6 +446,7 @@ class SessionsEdges(unittest.TestCase):
             {"preset": "b", "start": _ms(1), "seconds": 601}, {"preset": "c", "start": _ms(3), "seconds": 1e3},
             {"preset": "d", "start": _ms(2), "seconds": -1}, {"preset": 4, "start": 0, "seconds": 9}, {"start": True, "seconds": 900}))
         seeds = [ended, running, {"session.json": "{bad"}, {"session.json": {"active": [1], "last": 5}},
+                 {"session.json": {"active": {}, "last": None}},  # `if self.current:`: no session, not a crash
                  {"sessions.jsonl": log.replace("\n", "\u2028", 1).replace("\n", "\x85", 1) + "\r\nnot json\n"},
                  {"sessions.jsonl": log}]
         for seed in seeds:
@@ -517,6 +525,61 @@ class CommandsEdges(unittest.TestCase):
                 self.assertEqual((result["ok"], result["code"]), (False, "unported"), line)
             result = peer.request("cmd.run", line="zzz", fallthrough=True)
             self.assertEqual((result["ok"], result["code"]), (False, "unported"))
+
+
+def start_or_gone(which: str, seed: dict, probe) -> object:
+    """probe(core, peer)'s answer, or "gone" when the core refuses to start on these files."""
+    core = Core(which, seed=seed)
+    try:
+        try:
+            core.start()
+        except CoreGone:
+            return "gone"
+        with core.client() as peer:
+            return probe(core, peer)
+    finally:
+        core.close()
+
+
+@built
+class ReviewFixes(unittest.TestCase):
+    """The code review of stages 0 and 1 (24 Nov): each case where the C++ core stopped and Python carried on."""
+    maxDiff = None
+
+    def test_float_text_as_python_reads_it(self):
+        from parity.normalise import Normaliser
+        for text in ("_5", "5_", "1__0", "1_0", "nan(123)", "1e1_0", "inf", "-Infinity", " 2.5 ", "0x10", "1_000.5"):
+            seed = {"timers.json": {"version": 2, "countdown": {"duration": text}}}
+            probe = lambda core, peer: Normaliser()(peer.request("status")["timers"])
+            self.assertEqual(start_or_gone("python", seed, probe), start_or_gone(str(FARTD_CPP), seed, probe), text)
+
+    def test_a_failing_deadline_leaves_the_core_serving(self):
+        """A countdown ends while the state dir can't be written: logged, and the core keeps answering."""
+        for which in ("python", str(FARTD_CPP)):
+            with Core(which) as core, core.client() as peer:
+                peer.call("timer.start", kind="countdown", seconds=1)
+                core.state_dir.chmod(0o500)
+                try:
+                    time.sleep(1.6)
+                    self.assertIsNone(core.process.poll(), which)
+                    self.assertIn("timers", peer.request("status"), which)
+                finally:
+                    core.state_dir.chmod(0o700)
+                self.assertIn("Exception in callback", (core.runtime / "core.log").read_text(), which)
+
+    def test_half_closed_client_gets_every_reply(self):
+        """A peer that sends its requests, then shuts its write side, still reads every reply (more than the
+        socket buffer holds), then the close."""
+        count = 20000
+        for which in ("python", str(FARTD_CPP)):
+            with Core(which) as core, core.client() as peer:
+                peer.send_raw(b"".join(b'{"id":%d,"op":"egg"}\n' % i for i in range(count)))
+                peer.sock.shutdown(socket.SHUT_WR)
+                time.sleep(0.5)  # the core's output piles up past the kernel buffer meanwhile
+                got, closed = peer.until_closed(timeout=20)
+                self.assertEqual(len(got), count, which)
+                self.assertEqual(got[-1]["id"], count - 1, which)
+                self.assertTrue(closed, which)
 
 
 @built
