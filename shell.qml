@@ -5,6 +5,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
+import qs.adapters.common
 import qs.adapters.serpantinum
 import qs.adapters.hyprland
 import qs.core.client
@@ -72,7 +73,7 @@ ShellRoot {
     // DMS's lock is the session's and none of this loads.
     LazyLoader {
         active: Quickshell.env("FART_LOCK") === "own"
-        LockHost { core: client; host: adapter }
+        LockHost { core: client; host: adapter; auth: PamLockAuth {} }
     }
 
     // The desktop clock on every screen whose workspace is empty (Z46, Z85).

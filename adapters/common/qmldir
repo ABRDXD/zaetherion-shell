@@ -5,4 +5,5 @@ CommandQueue 1.0 CommandQueue.qml
 CoreEqualizer 1.0 CoreEqualizer.qml
 LinuxSystem 1.0 LinuxSystem.qml
 LyricsSource 1.0 LyricsSource.qml
+PamLockAuth 1.0 PamLockAuth.qml
 WatchedFile 1.0 WatchedFile.qml

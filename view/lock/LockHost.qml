@@ -13,6 +13,9 @@ Scope {
     id: root
     property var core: null   // CoreClient
     property var host: null   // HostAdapter: media and battery for the band
+    // The password check, handed in by the shell (adapters/common/PamLockAuth.qml): submit(secret), busy, and the
+    // accepted / rejected signals. Without one nothing can unlock.
+    property var auth: null
     readonly property url faceSource: Qt.resolvedUrl("PasswordLockFace.qml")
     readonly property string markerPath: (Quickshell.env("FART_RUNTIME_DIR")
         || (Quickshell.env("XDG_RUNTIME_DIR") ?? "") + "/zaetherion") + "/locked"
@@ -39,10 +42,10 @@ Scope {
         onFileChanged: reload()
     }
 
-    LockAuth {
-        id: auth
-        onAccepted: root.release()
-        onRejected: why => root.reject()
+    Connections {
+        target: root.auth
+        function onAccepted() { root.release(); }
+        function onRejected(why) { root.reject(); }
     }
 
     function typing(length) {
@@ -50,10 +53,10 @@ Scope {
         if (length > 0 && rejectionMs >= 320) rejectionMs = -1;  // typing again clears the error
     }
     function submit(secret) {
-        if (!locked || auth.busy || secret === "")
+        if (!locked || !root.auth || root.auth.busy || secret === "")
             return;
         maskLength = 0;
-        auth.submit(secret);
+        root.auth.submit(secret);
     }
     function reject() {
         attempts += 1;

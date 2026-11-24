@@ -4,7 +4,8 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Pam
 
-// The lock's password check (S7, docs/LOCK.md §3.2). PAM service `serpantinum` (Z37), `login` when that file is
+// The lock's password check (S7, docs/LOCK.md §3.2), on the adapter side: the view never imports PAM or names a
+// host's service; the shell hands this to the view's LockHost (submit, busy, accepted, rejected). PAM service `serpantinum` (Z37), `login` when that file is
 // missing (Z125). Nested tests point FART_LOCK_PAM_DIR at tests/fixtures/nested/pam (zt-permit / zt-deny), so no
 // system PAM file and no real password is involved. The secret is held only until PAM asks for it, then dropped;
 // it is never logged. Anything but PamResult.Success is a refusal: an error never unlocks.
