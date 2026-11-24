@@ -1,0 +1,21 @@
+fartd-cpp stage 0 (Z226) vs the Python core: memory. Claude B, 23 Nov 2026, branch b-cpp-core.
+
+How: each core started by tests/parity/harness.py (fixture host, private directories, no view, no bus), one
+client subscribed to core + tasks; /proc/<pid>/smaps_rollup read after 1 s idle, then again after 10,000
+pipelined requests (unknown op) and 200 task.add (Python: the real tasks; C++: the stage-0 placeholder).
+Three runs each, KiB, values per run separated by /. Build: RelWithDebInfo (-O2 -g), g++ 16.2, Qt 6.12.0.
+
+python core/fartd.py   idle                                   RSS 25448/25460/25464  PSS 16245/16243/16247  private dirty 15044/15044/15048  shared clean 10404/10416/10416
+python core/fartd.py   after 10,000 requests + 200 task.add   RSS 26308/26320/26324  PSS 17105/17103/17107  private dirty 15904/15904/15908  shared clean 10404/10416/10416
+fartd-cpp              idle                                   RSS 20140/20132/20164  PSS  2383/ 2387/ 2391  private dirty  1340/ 1344/ 1340  shared clean 18496/18484/18520
+fartd-cpp              after 10,000 requests + 200 task.add   RSS 21188/21196/21224  PSS  3328/ 3339/ 3342  private dirty  2264/ 2268/ 2264  shared clean 18620/18624/18656
+
+Reading it:
+- fartd-cpp's RSS is mostly shared clean mappings (18.5 MiB): libQt6Core, ICU (libicudata alone is large),
+  glib, libstdc++. Quickshell maps the same libQt6Core and ICU, so on the desktop those pages are shared with
+  the view; PSS above already divides them among every process mapping them on this machine.
+- What the C++ core owns (private dirty) is 1.3 MiB idle vs 14.7 MiB for Python. The +0.9 MiB after the burst
+  is malloc keeping the arena the 10,000 queued lines and replies used.
+- Stage 0 holds almost no state; later stages add theirs. Re-measure at each stage.
+- Side finding: the Python core idles at ~24.9 MiB RSS here, 150 KiB under the lifecycle scenario's 25 MiB
+  (25,600 KiB) RSS check, so that check is close to failing on the Python core.
